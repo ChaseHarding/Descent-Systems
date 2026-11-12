@@ -357,14 +357,14 @@ kbd {
 .card h2.sect { margin: 6px 0 0; font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); }
 /* Tutorial coach */
 .coach {
-  position: absolute; z-index: 5; left: 50%; bottom: 52px; transform: translateX(-50%);
-  width: min(30rem, calc(100% - 32px)); box-sizing: border-box;
-  display: flex; flex-direction: column; gap: 3px; padding: 12px 16px;
-  background: var(--space); border: 1px solid var(--flame); border-radius: 8px;
-  text-align: center; pointer-events: none;
+  flex: none;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 14px;
+  background: var(--space); border: 1px solid var(--flame); border-radius: 6px;
+  text-align: center;
 }
 .coach span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
-.coach b { font-family: var(--f-display); font-size: 18px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
+.coach b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
 .coach small { font-size: 12px; line-height: 1.5; color: var(--regolith); }
 .hud .hl { background: rgba(255, 181, 71, 0.22); color: var(--flame); }
 /* menus hide the flight instruments */
@@ -411,7 +411,6 @@ kbd {
       <span id="meta">MOON · SITE 1 · LANDERS 3</span>
     </div>
     <div class="objective" id="objective" hidden></div>
-    <div class="coach" id="coach" hidden><span id="coachStep"></span><b id="coachTitle"></b><small id="coachText"></small></div>
     <div class="toast" id="toast" role="status" hidden></div>
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
@@ -422,6 +421,7 @@ kbd {
     </div>
     <div class="achv" id="achv" role="status" hidden><span>Badge earned</span><b id="achvName"></b><small id="achvSub"></small></div>
   </div>
+  <div class="coach" id="coach" role="status" hidden><span id="coachStep" hidden></span><b id="coachTitle"></b><small id="coachText"></small></div>
   <div class="pad" id="pad">
     <button id="bl" aria-label="Rotate left">◀ ROT</button>
     <button id="bt" class="thrust" aria-label="Thrust">THRUST</button>
@@ -899,7 +899,10 @@ kbd {
 
   // ---- Install as an app ----
   // Only the published site ships a manifest and service worker, so this stays inactive elsewhere.
-  const PWA = !!document.querySelector('link[rel="manifest"]');
+  // Embedded in another page (itch.io runs games in a frame): installing isn't possible there, so stay out of the way.
+  let embedded = true;
+  try { embedded = window.self !== window.top; } catch (e) {}
+  const PWA = !embedded && !!document.querySelector('link[rel="manifest"]');
   const standalone = () => matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone === true;
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   let installPrompt = null;
@@ -1231,7 +1234,9 @@ kbd {
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
       if (rot && L.fuel > 0 && !L.grounded) {
-        L.a = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, L.a + rot * ROT_RATE * rotMul() * dt));
+        const na = L.a + rot * ROT_RATE * rotMul() * dt;
+        L.a = fullSpin ? Math.atan2(Math.sin(na), Math.cos(na))          // wrap to ±180°
+                       : Math.max(-Math.PI / 2, Math.min(Math.PI / 2, na));
         L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
       L.firing = keys.thrust && L.fuel > 0;
@@ -1418,7 +1423,7 @@ kbd {
     mode = m;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
     $('pad').classList.toggle('off', MENU_MODES.includes(m));
-    $('coach').hidden = !(tut && m === 'flying');
+    $('coach').hidden = !(tut && (m === 'flying' || m === 'paused'));
     if (!(tut && (m === 'flying' || m === 'paused'))) document.querySelectorAll('.hud .hl').forEach(el => el.classList.remove('hl'));
     $('pauseBtn').hidden = m !== 'flying';
     keys.left = keys.right = keys.thrust = false;
@@ -1713,6 +1718,7 @@ kbd {
     card.innerHTML = `<h1 class="good">Settings</h1>
       <div class="settings">
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
+        ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
         ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
         ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
       </div>
@@ -1726,6 +1732,7 @@ kbd {
         <button class="btn ghost" id="back">Main menu</button>
       </div>`;
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
+    $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
     $('setGhost').addEventListener('click', () => { showGhost = !showGhost; store.set('ds-ghost', showGhost ? '1' : '0'); renderSettings('setGhost'); });
     $('setSound').addEventListener('click', () => { toggleMute(); });
     $('tutBtn2').addEventListener('click', startTutorial);
@@ -1974,6 +1981,7 @@ kbd {
   const ZOOM_MAX = 2.6, ZOOM_START = 45, ZOOM_FULL = 12; // metres above ground
   const cam = { x: W / 2, y: H / 2, z: 1 };
   let autoZoom = store.get('ds-zoom', '1') === '1';
+  let fullSpin = store.get('ds-spin', '1') === '1';   // full 360° rotation (off = classic ±90° limit)
   function resetCamera() { cam.x = W / 2; cam.y = H / 2; cam.z = 1; }
   function updateCamera(dt) {
     let tz = 1, tx = W / 2, ty = H / 2;
