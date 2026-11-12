@@ -1,5 +1,7 @@
 # Descent Systems
 
+![Descent Systems: a lander firing its engine above a landing pad](og-image.png)
+
 A Lunar Lander–style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
 
 **▶ Play it here: [chaseharding.github.io/Descent-Systems](https://chaseharding.github.io/Descent-Systems/)**
@@ -189,6 +191,8 @@ localStorage.setItem('ds-credits', 5000)
 ```
 
 ## Notes
+
+`og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
 Progress is saved in your browser's local storage, so it stays on that device and browser. Clearing site data resets it, and players sharing one browser share one wallet.
 
