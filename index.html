@@ -115,9 +115,9 @@ kbd {
 .btn:focus-visible, .pad button:focus-visible, .world:focus-visible { outline: 2px solid var(--regolith); outline-offset: 3px; }
 
 /* World picker */
-.worlds { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.worlds { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 96px)); justify-content: center; gap: 8px; }
 .world {
-  width: 96px; padding: 10px 6px 8px;
+  width: 100%; box-sizing: border-box; min-width: 0; padding: 10px 6px 8px;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   background: var(--panel); color: var(--regolith);
   border: 1px solid var(--space-2); border-radius: 6px; cursor: pointer;
@@ -280,6 +280,70 @@ kbd {
   padding: 6px 10px; background: var(--panel); border: 1px solid var(--flame); border-radius: 4px;
   font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; pointer-events: none;
 }
+/* Main menu */
+.card h1.title { font-size: clamp(34px, 8vw, 64px); }
+.card .tagline { color: var(--regolith-dim); margin-top: -4px; }
+.menu { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 480px) { .menu { grid-template-columns: minmax(0, 1fr); } }
+.mode {
+  min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  padding: 14px 16px; text-align: left; cursor: pointer;
+  background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 8px; font-family: var(--f-mono);
+}
+.mode b { font-family: var(--f-display); font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase; }
+.mode span { font-size: 12px; color: var(--regolith-dim); }
+.mode:hover { border-color: var(--flame); }
+.mode:hover b { color: var(--flame); }
+.newbie {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 12px; cursor: pointer; border: 0; border-radius: 8px;
+  background: var(--flame); color: var(--space); font-family: var(--f-mono);
+}
+.newbie b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+.newbie span { font-size: 12px; }
+.subnav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 20px; }
+.link {
+  background: none; border: 0; padding: 6px 2px; cursor: pointer;
+  color: var(--regolith); font-family: var(--f-display); font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.link span { margin-left: 4px; color: var(--regolith-dim); font-family: var(--f-mono); font-weight: 400; letter-spacing: 0; text-transform: none; }
+.link:hover { color: var(--flame); }
+.mode:focus-visible, .link:focus-visible, .newbie:focus-visible, .toggle:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+/* Settings */
+.settings { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px 14px; cursor: pointer; text-align: left;
+  background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 6px; font-family: var(--f-mono);
+}
+.toggle span { display: flex; flex-direction: column; gap: 2px; }
+.toggle b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; }
+.toggle small { font-size: 12px; color: var(--regolith-dim); }
+.toggle i { flex: none; position: relative; width: 38px; height: 22px; border-radius: 11px; background: var(--space-2); transition: background 0.15s; }
+.toggle i::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--regolith-dim); transition: transform 0.15s, background 0.15s;
+}
+.toggle[aria-pressed="true"] i { background: var(--flame); }
+.toggle[aria-pressed="true"] i::after { transform: translateX(16px); background: var(--space); }
+@media (prefers-reduced-motion: reduce) { .toggle i, .toggle i::after { transition: none; } }
+.card h2.sect { margin: 6px 0 0; font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); }
+/* Tutorial coach */
+.coach {
+  position: absolute; z-index: 5; left: 50%; bottom: 52px; transform: translateX(-50%);
+  width: min(30rem, calc(100% - 32px)); box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 3px; padding: 12px 16px;
+  background: var(--space); border: 1px solid var(--flame); border-radius: 8px;
+  text-align: center; pointer-events: none;
+}
+.coach span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
+.coach b { font-family: var(--f-display); font-size: 18px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
+.coach small { font-size: 12px; line-height: 1.5; color: var(--regolith); }
+.hud .hl { background: rgba(255, 181, 71, 0.22); color: var(--flame); }
+/* menus hide the flight instruments */
+.stage.in-menu .hud, .stage.in-menu .score, .stage.in-menu .objective { display: none; }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -299,7 +363,6 @@ kbd {
 @media (max-width: 520px) {
   .hud { font-size: 11px; padding: 8px 10px; }
   .score b { font-size: 18px; }
-  .world { width: 84px; }
 }
 </style>
 </head>
@@ -322,6 +385,7 @@ kbd {
       <span id="meta">MOON · SITE 1 · LANDERS 3</span>
     </div>
     <div class="objective" id="objective" hidden></div>
+    <div class="coach" id="coach" hidden><span id="coachStep"></span><b id="coachTitle"></b><small id="coachText"></small></div>
     <div class="toast" id="toast" role="status" hidden></div>
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
@@ -358,10 +422,22 @@ kbd {
       ground: '#161e38', rim: '#7d88a6', orb: '#c9cfdc'
     },
     {
+      id: 'europa', name: 'Europa', g: 1.31, thrust: 3.4, drag: 0, wind: 0, bonus: 1.25, rough: 1.3, hazard: 'geyser',
+      note: 'Cracked ice over a hidden ocean. Vapor geysers burst from the cracks and shove you upward.',
+      sky: ['#03060f', '#0b1730'], stars: 1,
+      ground: '#1c3550', rim: '#bfe3ff', orb: '#c9dbe8'
+    },
+    {
       id: 'titan', name: 'Titan', g: 1.35, thrust: 3.6, drag: 0.35, wind: 0.35, bonus: 1, rough: 0.9,
       note: 'Air thicker than Earth’s. Drag bleeds off speed, so you drift down gently.',
       sky: ['#2b1a0b', '#6e4518'], stars: 0,
       ground: '#3d2812', rim: '#e0a85c', orb: '#d99a45'
+    },
+    {
+      id: 'io', name: 'Io', g: 1.80, thrust: 4.6, drag: 0, wind: 0, bonus: 1.75, rough: 1.1, hazard: 'volcano',
+      note: 'The most volcanic place in the solar system. Vents glow before they erupt. Don’t be over one when it does.',
+      sky: ['#0a0604', '#1f1408'], stars: 0.8,
+      ground: '#4a3d10', rim: '#f2d14a', orb: '#e8c547'
     },
     {
       id: 'mars', name: 'Mars', g: 3.71, thrust: 9.4, drag: 0.04, wind: 1.3, bonus: 1.5, rough: 1.25,
@@ -374,6 +450,12 @@ kbd {
       note: 'Hard mode. You fall fast and the engine is twitchy. Short, early burns.',
       sky: ['#0e2448', '#3d79b0'], stars: 0,
       ground: '#1d3a22', rim: '#8fcf7e', orb: '#3f86c9'
+    },
+    {
+      id: 'venus', name: 'Venus', g: 8.87, thrust: 20, drag: 0.55, wind: 3.0, bonus: 3, rough: 1.2, fog: '58, 42, 16',
+      note: 'Extreme mode. Crushing air, hurricane winds, and clouds so thick you only see what’s right around you. Pad beacons shine through.',
+      sky: ['#3a2a10', '#7a5a22'], stars: 0,
+      ground: '#4a3418', rim: '#f0c070', orb: '#e8c27a'
     }
   ];
 
@@ -504,7 +586,7 @@ kbd {
     .filter(k => owned.has(k) && findItem(k.split(':')[0], k.split(':')[1]).price > 0).length;
   const ACH = [
     { id: 'first', name: 'First contact', desc: 'Land on any pad.' },
-    { id: 'tour', name: 'Grand Tour', desc: 'Land on all five worlds.', reward: 'hull:grand', prog: () => [stats.worlds.length, 5] },
+    { id: 'tour', name: 'Grand Tour', desc: 'Land on all eight worlds.', reward: 'hull:grand', prog: () => [Math.min(stats.worlds.length, WORLDS.length), WORLDS.length] },
     { id: 'earthling', name: 'Earthling', desc: 'Land on Earth.' },
     { id: 'feather', name: 'Feather', desc: 'Touch down slower than 0.3 m/s.', reward: 'flame:feather' },
     { id: 'plumb', name: 'Plumb line', desc: 'Land within 1° of level, drifting under 0.2 m/s.' },
@@ -654,8 +736,64 @@ kbd {
     terrain = pts.sort((a, b) => a[0] - b[0]);
     pads = d.pads.map(p => ({ ...p, label: p.id, mult: 1 }));
     ceilings = (d.ceilings || []).map(c => c.slice().sort((a, b) => a[0] - b[0]));
+    vents = [];
     missionTerrain = true;
   }
+  // ---- Tutorial ----
+  const TUT_TERRAIN = {
+    ground: [[0, 40], [20, 44], [45, 36], [70, 34], [95, 30], [160, 30], [185, 38], [210, 46], [240, 42]],
+    pads: [{ id: 'LZ', x1: 110, x2: 145, y: 28 }]
+  };
+  const coachSteps = () => {
+    const touch = matchMedia('(pointer: coarse)').matches;
+    return [
+      { t: 'Fire the main engine', hl: ['fuelTxt'],
+        d: `${touch ? 'Hold THRUST' : 'Hold ↑ or W'}. Each burn pushes you up against gravity and uses fuel. Watch the gauge drop.` },
+      { t: 'Tilt the lander', hl: ['ang'],
+        d: `${touch ? 'Tap ◀ ROT or ROT ▶' : 'Tap ← and → (or A and D)'}. Tilting points the engine sideways, which is how you move left and right.` },
+      { t: 'Gravity on. Watch your speed', hl: ['vy', 'vx'],
+        d: 'Touch down slower than 2 m/s, drifting under 1 m/s, within 10° of level. These gauges turn amber, then red, when you’re too fast.' },
+      { t: 'Land on the pad', hl: [],
+        d: 'Get above the orange pad, level out, then come down gently. Short taps of thrust beat long burns.' }
+    ];
+  };
+  function renderCoach() {
+    document.querySelectorAll('.hud .hl').forEach(el => el.classList.remove('hl'));
+    if (!tut) return;
+    const steps = coachSteps(), c = steps[tut.step];
+    $('coachStep').textContent = `Tutorial · step ${tut.step + 1} of ${steps.length}`;
+    $('coachTitle').textContent = c.t;
+    $('coachText').textContent = c.d;
+    for (const id of c.hl) { const dd = $(id); dd.classList.add('hl'); dd.previousElementSibling.classList.add('hl'); }
+  }
+  function nextTut() {
+    tut.step++; tut.t = 0;
+    sfx.click();
+    renderCoach();
+  }
+  function startTutorial() {
+    world = WORLDS.find(w => w.id === 'moon');
+    match = null; daily = null; mission = null; ghost = null; rng = Math.random;
+    buildMissionTerrain(TUT_TERRAIN);
+    windDir = 1; windSeed = 0;
+    makeBackdrop();
+    level = 1; lives = 3; score = 0; levelFuel = 200;
+    spawn({ x: 70, y: 110, vx: 0 });
+    tut = { step: 0, burn: 0, t: 0 };
+    fly(null);
+  }
+  function tutorialLanded(pad, vy, vx, ang) {
+    const L = lander, feet = FEET.map(([x, y]) => toWorld(x, y));
+    L.y += pad.y - Math.min(...feet.map(f => f[1]));
+    L.vx = L.vy = 0; L.firing = false; L.grounded = true;
+    sfx.thud(); sfx.landed(vy < 0.8);
+    plantFlag(pad);
+    onLanded(pad, vy, vx, ang, L.fuel);
+    lastResult = { pad, pts: 0, reasons: [] };
+    store.set('ds-tut', '1');
+    setMode('tutDone');
+  }
+
   function startMission(ghostRun) {
     const d = MISSIONS[missionSel];
     world = WORLDS.find(w => w.id === d.world);
@@ -742,6 +880,7 @@ kbd {
   let match = null;          // hot-seat match in progress
   let daily = null;          // daily challenge run in progress
   let mission = null;        // mission in progress
+  let tut = null;            // tutorial in progress
   let missionSel = 0;        // which mission the briefing shows
   let missionTerrain = false;
   let flagPlant = null;      // where the flag went in after the last landing
@@ -866,6 +1005,7 @@ kbd {
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
+      erupt(lava) { burst(0, 1.4, lava ? 0.45 : 0.25, lava ? 1400 : 4000, lava ? 120 : 900); if (lava) tone(55, 'sawtooth', 0, 0.8, 0.25, 30); },
       badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); }
     };
   })();
@@ -885,7 +1025,7 @@ kbd {
 
   // ---- State ----
   const keys = { left: false, right: false, thrust: false };
-  let terrain = [], pads = [], stars = [], dust = [], ceilings = [];
+  let terrain = [], pads = [], stars = [], dust = [], ceilings = [], vents = [];
   let lander, particles = [];
   let mode = 'title';
   let level = 1, lives = 3, score = 0, levelFuel = 100;
@@ -939,6 +1079,27 @@ kbd {
     terrain = h.map((y, i) => [i * step, y]);
     windDir = rng() < 0.5 ? -1 : 1;
     windSeed = rrand(0, 100);
+    // geysers / volcanic vents, kept clear of the pads
+    vents = [];
+    if (world.hazard) {
+      for (let tries = 0; vents.length < 3 && tries < 80; tries++) {
+        const x = rrand(12, W - 12);
+        if (pads.some(p => x > p.x1 - 9 && x < p.x2 + 9) || vents.some(v => Math.abs(v.x - x) < 25)) continue;
+        const period = rrand(5, 8);
+        vents.push({ x, period, phase: rrand(0, period), was: false });
+      }
+    }
+  }
+  const ERUPT = 2.2, WARN = 1.6, PLUME_H = 42;
+  function ventState(v) {
+    const t = (simT + v.phase) % v.period;
+    if (t < ERUPT) return { on: true, k: t / ERUPT };
+    if (t > v.period - WARN) return { warn: true };
+    return {};
+  }
+  function plumeTop(v, st) {
+    const k = st.k, f = k < 0.15 ? k / 0.15 : k > 0.8 ? (1 - k) / 0.2 : 1;
+    return groundAt(v.x) + PLUME_H * f;
   }
   function groundAt(x) {
     const T = terrain;
@@ -1011,6 +1172,22 @@ kbd {
         L.fuel = Math.max(0, L.fuel - BURN * dt);
         if (Math.random() < 0.9) emitExhaust();
       }
+      if (world.hazard === 'geyser') {
+        for (const v of vents) {
+          const st = ventState(v);
+          if (st.on && Math.abs(L.x - v.x) < 4.5 && L.y < plumeTop(v, st) + 4) {
+            ay += 9 * (1 - Math.max(0, L.y - groundAt(v.x)) / (PLUME_H + 4));
+          }
+        }
+      }
+      if (tut) {
+        if (L.firing) tut.burn += dt;
+        tut.t += dt;
+        if (tut.step === 0 && tut.burn > 0.8) nextTut();
+        else if (tut.step === 1 && Math.abs(L.a) > 0.3) nextTut();
+        else if (tut.step === 2 && tut.t > 5) nextTut();
+        if (tut.step < 2) { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }   // training hold: gravity switches on at step 3
+      }
       if (L.grounded) {
         // resting on a pad: stay put until the engine can lift you
         if (L.firing && ay > 0) { L.grounded = false; L.y += 0.05; if (mission) mission.loading = false; }
@@ -1039,6 +1216,11 @@ kbd {
       p.life -= dt;
     }
     particles = particles.filter(p => p.life > 0);
+    for (const v of vents) {
+      const on = !!ventState(v).on;
+      if (on && !v.was && mode === 'flying') sfx.erupt(world.hazard === 'volcano');
+      v.was = on;
+    }
     for (const d of dust) {
       d.x += (windNow * 9 + d.v) * dt;
       d.y += Math.sin(simT * 2 + d.ph) * 0.6 * dt;
@@ -1077,14 +1259,21 @@ kbd {
     const hullHit = hull.some(([x, y]) => y <= groundAt(x));
     const footHit = feet.some(([x, y]) => y <= groundAt(x));
     const roofHit = ceilings.length > 0 && [...hull, ...feet].some(([x, y]) => y >= ceilingAt(x));
-    if (!hullHit && !footHit && !roofHit) return;
+    const lavaHit = world.hazard === 'volcano' && vents.some(v => {
+      const st = ventState(v);
+      if (!st.on) return false;
+      const top = plumeTop(v, st);
+      return [...hull, ...feet].some(([x, y]) => Math.abs(x - v.x) < 3.5 && y < top);
+    });
+    if (!hullHit && !footHit && !roofHit && !lavaHit) return;
 
     const pad = pads.find(p => feet.every(([x]) => x >= p.x1 && x <= p.x2));
     const angDeg = Math.abs(L.a * 180 / Math.PI);
     const vy = -L.vy, vx = Math.abs(L.vx);
     const stats = { vy, vx, ang: angDeg };
 
-    if (!hullHit && !roofHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+    if (!hullHit && !roofHit && !lavaHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+      if (tut) { tutorialLanded(pad, vy, vx, angDeg); return; }
       if (mission) { missionTouchdown(pad, vy, vx, angDeg); return; }
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.firing = false;
@@ -1113,6 +1302,7 @@ kbd {
     } else {
       const reasons = [];
       if (hullHit && !footHit) reasons.push('hull struck terrain');
+      if (lavaHit) reasons.push('caught in a volcanic eruption');
       if (roofHit) reasons.push('scraped the rock overhead');
       if (footHit && !pad) reasons.push('touched down off a pad');
       if ((footHit || hullHit) && vy > SAFE_VY) reasons.push(`descending at ${vy.toFixed(1)} m/s (limit ${SAFE_VY})`);
@@ -1123,6 +1313,7 @@ kbd {
       lastResult = { reasons, pts: 0, ...stats };
       lastRun = { frames: recording, result: 'crashed' };
       sfx.boom();
+      if (tut) { setMode('tutFail'); return; }
       if (mission) { mission.result = { ok: false }; setMode('missionEnd'); return; }
       if (match) { endTurn(); return; }
       if (daily) { daily.results.push(lastResult); setMode('dailyEnd'); return; }
@@ -1138,7 +1329,7 @@ kbd {
     level = 1;
     genTerrain();
     makeBackdrop();
-    if (mode === 'title') setMode('title');
+    if (mode === 'setup') setMode('setup');
   }
   const effectText = w => {
     const bits = [];
@@ -1150,14 +1341,19 @@ kbd {
   };
 
   // ---- Screens ----
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief'];
   function setMode(m) {
     mode = m;
+    stage.classList.toggle('in-menu', MENU_MODES.includes(m));
+    $('coach').hidden = !(tut && m === 'flying');
+    if (!(tut && (m === 'flying' || m === 'paused'))) document.querySelectorAll('.hud .hl').forEach(el => el.classList.remove('hl'));
     $('pauseBtn').hidden = m !== 'flying';
     keys.left = keys.right = keys.thrust = false;
     document.querySelectorAll('.pad button').forEach(b => b.classList.remove('held'));
     if (m === 'flying') { overlay.hidden = true; return; }
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
+    if (m === 'settings') { renderSettings(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
@@ -1168,15 +1364,35 @@ kbd {
     const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
     if (m === 'title') {
-      match = null; ghost = null; daily = null; mission = null; rng = Math.random;
-      const w = playMode === 'daily' ? dailyWorld() : storedWorld();
+      match = null; ghost = null; daily = null; mission = null; tut = null; rng = Math.random;
+      const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
     }
     if (m === 'title') {
+      const isNew = !store.get('ds-tut', '');
+      html = `<h1 class="good title">Descent Systems</h1>
+        <p class="tagline">Land anywhere in the solar system.</p>
+        ${isNew ? `<button class="newbie" id="tutBtn"><b>New here? Start with the tutorial</b><span>A guided first landing, about a minute</span></button>` : ''}
+        <nav class="menu" aria-label="Game modes">
+          <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
+          <button class="mode" data-go="missions"><b>Missions</b><span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
+          <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
+          <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
+        </nav>
+        <div class="subnav">
+          <button class="link" id="hangarBtn">Hangar<span>${fmt(credits)} cr</span></button>
+          <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
+          <button class="link" id="settingsBtn">Settings</button>
+          <button class="link" id="howBtn">How to play</button>
+        </div>`;
+    } else if (m === 'setup') {
       const best = bestFor(world);
-      html = `<h1 class="good">Descent Systems</h1>
-        <p>Pick a world, then set the lander down on a flat pad before the tank runs dry. Narrow pads pay more: <b>×5</b>, <b>×3</b>, <b>×2</b>.</p>
-        ${playMode === 'daily' ? dailyBox() : `<div class="worlds" role="group" aria-label="Choose a world">
+      const head = playMode === 'hotseat' ? 'Hot-seat' : playMode === 'daily' ? 'Daily challenge' : 'Free flight';
+      const eyebrow = playMode === 'hotseat' ? `Two pilots · ${ROUNDS} rounds` : playMode === 'daily' ? 'Same terrain for every pilot' : 'Endless sites · 3 landers';
+      html = `<span class="eyebrow">${eyebrow}</span>
+        <h1 class="good">${head}</h1>
+        ${playMode === 'daily' ? dailyBox() : `<p>Set down on a flat pad before the tank runs dry. Narrow pads pay more: <b>×5</b>, <b>×3</b>, <b>×2</b>.</p>
+        <div class="worlds" role="group" aria-label="Choose a world">
           ${WORLDS.map(w => `<button class="world" data-id="${w.id}" aria-pressed="${w === world}">
             <i class="orb" style="background:${w.orb}"></i><b>${w.name}</b><span>${w.g.toFixed(2)} m/s²</span>
           </button>`).join('')}
@@ -1188,26 +1404,17 @@ kbd {
           <span>Air <b>${effectText(world)}</b></span>
           <span>Score <b>×${world.bonus}</b></span>
         </div>
-        <div class="seg" role="group" aria-label="Game mode">
-          <button data-mode="solo" aria-pressed="${playMode === 'solo'}">Solo</button>
-          <button data-mode="hotseat" aria-pressed="${playMode === 'hotseat'}">Hot-seat · 2P</button>
-          <button data-mode="daily" aria-pressed="${playMode === 'daily'}">Daily</button>
-        </div>
         ${playMode === 'hotseat' ? `<div class="names">
           ${[0, 1].map(i => `<label for="p${i + 1}"><i class="dot" style="background:${PLAYER_TINT[i]}"></i>P${i + 1}
             <input id="p${i + 1}" maxlength="12" autocomplete="off" spellcheck="false" value="${esc(names[i])}"></label>`).join('')}
         </div>
-        <p class="limits">${ROUNDS} rounds. Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
+        <p class="limits">Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : playMode === 'daily' ? 'Start today’s challenge' : `Descend to ${world.name}`}</button>
-          <button class="btn ghost" id="missionsBtn">Missions ${totalStars()}★</button>
-          <button class="btn ghost" id="hangarBtn">Hangar</button>
-          <button class="btn ghost" id="badgesBtn">Badges ${earned()}/${ACH.length}</button>
+          <button class="btn ghost" id="menuBtn">Main menu</button>
         </div>
-        <p class="balance">${fmt(credits)} credits</p>
-        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>M</kbd> sound · <kbd>B</kbd> badges · <kbd>P</kbd> pause · <kbd>Space</kbd> start</p>
-        ${limits}
-        ${best && playMode !== 'daily' ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
+        <p class="keys-hint limits"><kbd>↑</kbd> thrust · <kbd>←</kbd><kbd>→</kbd> rotate${playMode !== 'daily' ? ' (on this screen: switch world)' : ''} · <kbd>P</kbd> pause · <kbd>Space</kbd> start</p>
+        ${best && playMode === 'solo' ? `<p class="limits">Best on ${world.name}: ${fmt(best)}</p>` : ''}`;
     } else if (m === 'landed') {
       const r = lastResult;
       html = `<h1 class="good">Contact on ${world.name}</h1>
@@ -1229,8 +1436,8 @@ kbd {
         <p>Final score <b>${score}</b> on ${world.name}, reaching site ${level}.${isBest ? ' New best for this world.' : ` Best: ${prev}.`}</p>
         <div class="btns">
           <button class="btn" id="go">Fly ${world.name} again</button>
-          <button class="btn ghost" id="pick">Choose another world</button>
-          <button class="btn ghost" id="hangarBtn">Hangar</button>
+          <button class="btn ghost" id="changeWorld">Change world</button>
+          <button class="btn ghost" id="pick">Main menu</button>
         </div>`;
     } else if (m === 'turn') {
       const pl = cur(), nx = 1 - pl, r = lastResult;
@@ -1259,7 +1466,7 @@ kbd {
           ${tally}
           <div class="btns">
             <button class="btn" id="go">Rematch</button>
-            <button class="btn ghost" id="pick">Back to launch</button>
+            <button class="btn ghost" id="pick">Main menu</button>
           </div>`;
       }
     } else if (m === 'brief') {
@@ -1316,15 +1523,34 @@ kbd {
           <p class="limits">${showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
       }
     } else if (m === 'paused') {
-      const where = mission ? `Mission ${missionSel + 1} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
+      const where = tut ? 'Tutorial' : mission ? `Mission ${missionSel + 1} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
         : daily ? `Daily · site ${daily.site} of ${DAILY_SITES}` : `${world.name} · site ${level}`;
       html = `<h1>Paused</h1>
         <p class="limits">${where}</p>
         <div class="btns">
           <button class="btn" id="go">Resume</button>
-          <button class="btn ghost" id="pick">Quit to launch</button>
+          <button class="btn ghost" id="pick">Quit to menu</button>
         </div>
         <p class="keys-hint limits"><kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>`;
+    } else if (m === 'tutDone') {
+      html = `<span class="eyebrow">Tutorial complete</span>
+        <h1 class="good">You’re a pilot</h1>
+        <p>That’s the whole toolkit: thrust, tilt, and a gentle touchdown. Every world and mode uses the same controls.</p>
+        <p class="limits">Try Free flight on Pluto or the Moon next, or start the Missions campaign.</p>
+        <div class="btns">
+          <button class="btn" id="go">Free flight</button>
+          <button class="btn ghost" id="missionsBtn">Missions</button>
+          <button class="btn ghost" id="pick">Main menu</button>
+        </div>`;
+    } else if (m === 'tutFail') {
+      html = `<span class="eyebrow">Tutorial</span>
+        <h1 class="bad">Not quite</h1>
+        <p>${cap(lastResult.reasons.join(', '))}.</p>
+        <p class="limits">Under 2 m/s down, under 1 m/s sideways, nearly level. Near the ground, use short taps of thrust.</p>
+        <div class="btns">
+          <button class="btn" id="go">Try again</button>
+          <button class="btn ghost" id="pick">Main menu</button>
+        </div>`;
     } else if (m === 'dailyEnd') {
       const done = daily.results.length === DAILY_SITES && daily.results.every(r => r.pad);
       const key = 'ds-daily-best-' + daily.date, prev = +store.get(key, 0) || 0, isBest = score > prev;
@@ -1336,7 +1562,7 @@ kbd {
         <div class="btns">
           <button class="btn" id="go">Try again</button>
           <button class="btn ghost" id="share">Copy result</button>
-          <button class="btn ghost" id="pick">Back to launch</button>
+          <button class="btn ghost" id="pick">Main menu</button>
         </div>
         <textarea class="share-text" id="shareText" rows="3" readonly hidden>${esc(shareText())}</textarea>
         <p class="limits">Every pilot gets the same terrain today. Next challenge in ${untilReset()}.</p>`;
@@ -1345,7 +1571,7 @@ kbd {
     const sh = $('share');
     if (sh) sh.addEventListener('click', copyShare);
     const go = $('go');
-    go.addEventListener('click', advance);
+    if (go) go.addEventListener('click', advance);
     const pick = $('pick');
     if (pick) pick.addEventListener('click', () => { genTerrain(); spawn(); setMode('title'); });
     card.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
@@ -1371,6 +1597,15 @@ kbd {
     if (bb) bb.addEventListener('click', () => setMode('badges'));
     const mb = $('missionsBtn');
     if (mb) mb.addEventListener('click', () => setMode('missions'));
+    card.querySelectorAll('[data-setup]').forEach(b => b.addEventListener('click', () => openSetup(b.dataset.setup)));
+    card.querySelectorAll('[data-go="missions"]').forEach(b => b.addEventListener('click', () => setMode('missions')));
+    for (const id of ['tutBtn', 'howBtn']) { const b = $(id); if (b) b.addEventListener('click', startTutorial); }
+    const sb = $('settingsBtn');
+    if (sb) sb.addEventListener('click', () => setMode('settings'));
+    const menuB = $('menuBtn');
+    if (menuB) menuB.addEventListener('click', () => setMode('title'));
+    const cw2 = $('changeWorld');
+    if (cw2) cw2.addEventListener('click', () => openSetup('solo'));
     const tm = $('toMissions');
     if (tm) tm.addEventListener('click', () => setMode('missions'));
     const nx = $('next');
@@ -1380,9 +1615,47 @@ kbd {
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
       if (again) again.focus({ preventScroll: true });
     }));
-    if (m !== 'title') setTimeout(() => go.focus({ preventScroll: true }), 0);
+    const firstFocus = m === 'title' ? card.querySelector('.newbie, .mode') : go;
+    if (firstFocus) setTimeout(() => firstFocus.focus({ preventScroll: true }), 0);
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function openSetup(v) {
+    playMode = v;
+    store.set('ds-mode', v);
+    match = null; daily = null; mission = null; tut = null; ghost = null; rng = Math.random;
+    const w = v === 'daily' ? dailyWorld() : storedWorld();
+    if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
+    setMode('setup');
+  }
+  function renderSettings(focusId) {
+    const row = (id, label, sub, on) => `<button class="toggle" id="${id}" aria-pressed="${on}">
+      <span><b>${label}</b><small>${sub}</small></span><i aria-hidden="true"></i></button>`;
+    const keyRows = [['Main engine', '↑ or W'], ['Rotate', '← → or A D'], ['Pause', 'P or Esc'], ['Sound', 'M'],
+      ['Ghosts', 'G'], ['Auto-zoom', 'Z'], ['Hangar', 'H'], ['Badges', 'B']];
+    card.innerHTML = `<h1 class="good">Settings</h1>
+      <div class="settings">
+        ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
+        ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
+        ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns', !sfx.muted)}
+      </div>
+      <h2 class="sect">Controls</h2>
+      <div class="tally-wrap"><table class="tally">
+        <tbody>${keyRows.map(([a, k]) => `<tr><td>${a}</td><td>${k}</td></tr>`).join('')}</tbody>
+      </table></div>
+      <p class="limits">On touch screens, use the buttons below the game.</p>
+      <div class="btns">
+        <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>`;
+    $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
+    $('setGhost').addEventListener('click', () => { showGhost = !showGhost; store.set('ds-ghost', showGhost ? '1' : '0'); renderSettings('setGhost'); });
+    $('setSound').addEventListener('click', () => { toggleMute(); });
+    $('tutBtn2').addEventListener('click', startTutorial);
+    $('back').addEventListener('click', () => setMode('title'));
+    const f = $(focusId || 'setZoom');
+    if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+  }
 
   function renderMissions() {
     card.innerHTML = `<h1 class="good">Missions</h1>
@@ -1398,7 +1671,7 @@ kbd {
         </button>`;
       }).join('')}</div>
       <p class="limits">Finish a mission to unlock the next. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
-      <button class="btn ghost" id="back">Back to launch</button>`;
+      <button class="btn ghost" id="back">Main menu</button>`;
     card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => { missionSel = +b.dataset.i; setMode('brief'); }));
     $('back').addEventListener('click', () => setMode('title'));
     const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].pop();
@@ -1416,7 +1689,7 @@ kbd {
           ${a.reward ? `<span class="reward">${has ? 'Unlocked' : 'Reward'}: ${rewardName(a.reward)}</span>` : ''}
         </div></div>`;
       }).join('')}</div>
-      <button class="btn ghost" id="back">Back to launch</button>`;
+      <button class="btn ghost" id="back">Main menu</button>`;
     $('back').addEventListener('click', () => setMode('title'));
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
@@ -1446,7 +1719,7 @@ kbd {
       ${shelf('flame', 'Engine flame')}
       ${shelf('flag', 'Landing flag')}
       <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
-      <button class="btn ghost" id="back">Back to launch</button>`;
+      <button class="btn ghost" id="back">Main menu</button>`;
 
     card.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
       const { kind, id } = b.dataset;
@@ -1556,12 +1829,15 @@ kbd {
     if (match) { showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`); sfx.turn(); }
     if (daily) showToast(`Daily · site ${daily.site} of ${DAILY_SITES}`);
     if (mission) showToast(goalText());
+    if (tut) renderCoach();
   }
   function advance() {
     if (mode === 'paused') { setMode('flying'); return; }
     if (mode === 'brief') { startMission(null); return; }
+    if (mode === 'tutFail') { startTutorial(); return; }
+    if (mode === 'tutDone') { openSetup('solo'); return; }
     if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
-    if (mode === 'title' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
+    if (mode === 'setup' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
       rng = Math.random;
       level = 1; lives = 3; score = 0; levelFuel = 100;
@@ -1722,6 +1998,7 @@ kbd {
         ctx.globalAlpha = 1;
       }
       if (mission) drawMissionProps(time);
+      if (vents.length) drawVents(time);
     }
 
     const sk = skin();
@@ -1740,10 +2017,11 @@ kbd {
     ctx.globalAlpha = 1;
 
     if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
-    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd');
+    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd' || mode === 'tutDone');
     if (sitting && flagPlant) drawFlag(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
-    if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
+    if (mode === 'title' || mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
+    if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog();
   }
 
   // Draws the lander in its own coordinates (metres, y pointing down), using the given skin.
@@ -1882,6 +2160,43 @@ kbd {
       }
     }
   }
+  function drawVents(time) {
+    const lava = world.hazard === 'volcano';
+    for (const v of vents) {
+      const st = ventState(v), gy = groundAt(v.x);
+      ctx.fillStyle = lava ? '#ff6a2a' : '#bfe3ff';
+      ctx.globalAlpha = st.warn ? 0.35 + 0.65 * Math.abs(Math.sin(time / 90)) : st.on ? 1 : 0.3;
+      ctx.beginPath(); ctx.ellipse(sx(v.x), sy(gy), 2.2 * scale, 0.7 * scale, 0, 0, Math.PI * 2); ctx.fill();
+      if (st.on) {
+        const hgt = plumeTop(v, st) - gy, r = (lava ? 0.7 : 1.1) * scale;
+        for (let i = 0; i < 46; i++) {
+          const f = Math.random(), spread = 1.2 + f * 2.4;
+          ctx.globalAlpha = (lava ? 0.9 : 0.5) * (1 - f * 0.6);
+          ctx.fillStyle = lava ? (Math.random() < 0.5 ? '#ffd23f' : '#ff5a1f') : '#e8f6ff';
+          ctx.fillRect(sx(v.x + (Math.random() * 2 - 1) * spread) - r / 2, sy(gy + f * hgt) - r / 2, r, r);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  // Venus: clouds hide everything beyond a short radius around the lander; pad beacons show through.
+  function drawFog() {
+    const cx = sx(lander.x), cy = sy(lander.y), r = 24 * scale;
+    const g = ctx.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 2.3);
+    g.addColorStop(0, `rgba(${world.fog}, 0)`);
+    g.addColorStop(1, `rgba(${world.fog}, 0.97)`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+    ctx.font = `600 ${Math.min(16, Math.max(10, base * 3.2 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
+    ctx.textAlign = 'center';
+    for (const p of pads) {
+      const X = sx((p.x1 + p.x2) / 2), Y = sy(p.y);
+      ctx.strokeStyle = col.flame; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(sx(p.x1), Y); ctx.lineTo(sx(p.x2), Y); ctx.stroke();
+      ctx.fillStyle = col.flame;
+      ctx.fillText(p.label || `×${p.mult}`, X, Y + Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z))));
+    }
+  }
+
   function drawCrate(x, y) {
     ctx.save();
     ctx.translate(sx(x), sy(y)); ctx.scale(scale, scale);
@@ -1979,7 +2294,11 @@ kbd {
     hud.fuelTxt.textContent = `${Math.ceil(L.fuel)} kg`;
     hud.fuelTxt.className = L.fuel > 25 ? '' : L.fuel > 0 ? 'warn' : 'bad';
     hud.fuelBar.style.width = `${L.fuel / (L.fuelMax || 100) * 100}%`;
-    if (mission) {
+    if (tut) {
+      hud.score.textContent = '—';
+      hud.meta.textContent = `TUTORIAL · STEP ${tut.step + 1} OF 4`;
+      hud.meta.style.color = 'var(--flame)';
+    } else if (mission) {
       hud.score.textContent = `${flightT.toFixed(1)} s`;
       hud.meta.textContent = `MISSION ${missionSel + 1} · ${mission.def.name.toUpperCase()}`;
       hud.meta.style.color = 'var(--flame)';
@@ -2028,6 +2347,8 @@ kbd {
     ArrowRight: 'right', KeyD: 'right',
     ArrowUp: 'thrust', KeyW: 'thrust'
   };
+  // screens where Space/Enter means "continue"; elsewhere they press the focused button as usual
+  const ADVANCES = ['setup', 'brief', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'paused', 'tutDone', 'tutFail'];
   addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       if (e.code === 'Enter') e.target.blur();
@@ -2035,7 +2356,7 @@ kbd {
     }
     const k = keyMap[e.code];
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
-    if (mode === 'hangar' || mode === 'badges' || mode === 'missions') {
+    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
@@ -2045,7 +2366,7 @@ kbd {
     }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyB' && !e.repeat) { setMode('badges'); return; }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
-    if (mode === 'title' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
+    if (mode === 'setup' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
       e.preventDefault();
       if (e.repeat) return;
       const i = WORLDS.indexOf(world) + (k === 'left' ? -1 : 1);
@@ -2057,19 +2378,19 @@ kbd {
       showGhost = !showGhost;
       store.set('ds-ghost', showGhost ? '1' : '0');
       showToast(`Ghost ${showGhost ? 'on' : 'off'}`);
-      if (mode === 'title') setMode('title');
+      if (mode === 'settings') renderSettings();
       return;
     }
     if (e.code === 'KeyZ' && !e.repeat) {
       autoZoom = !autoZoom;
       store.set('ds-zoom', autoZoom ? '1' : '0');
       showToast(`Auto-zoom ${autoZoom ? 'on' : 'off'}`);
-      if (mode === 'title') setMode('title');
+      if (mode === 'settings') renderSettings();
       return;
     }
     if (k) { keys[k] = mode === 'flying'; e.preventDefault(); }
-    else if (e.code === 'Space' && mode !== 'flying') { e.preventDefault(); advance(); }
-    else if (e.code === 'Enter' && mode !== 'flying' && !document.activeElement.classList.contains('world')) { e.preventDefault(); advance(); }
+    else if (e.code === 'Space' && ADVANCES.includes(mode)) { e.preventDefault(); advance(); }
+    else if (e.code === 'Enter' && ADVANCES.includes(mode) && !document.activeElement.classList.contains('world')) { e.preventDefault(); advance(); }
     else if (e.code === 'Space') e.preventDefault();
   });
   addEventListener('keyup', e => { const k = keyMap[e.code]; if (k) keys[k] = false; });
@@ -2104,6 +2425,7 @@ kbd {
     sfx.setMuted(!sfx.muted);
     syncMute();
     showToast(sfx.muted ? 'Sound off' : 'Sound on');
+    if (mode === 'settings') renderSettings('setSound');
   }
   muteBtn.addEventListener('click', toggleMute);
   syncMute();
