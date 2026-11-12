@@ -375,7 +375,9 @@ kbd {
 .chapter span { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--regolith-dim); }
 .chapter b { font-family: var(--f-display); font-size: clamp(26px, 6vw, 40px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--flame); text-wrap: balance; }
 .log { display: flex; flex-direction: column; gap: 10px; }
-.radio { padding: 10px 14px; background: var(--space); border: 1px solid var(--space-2); border-radius: 6px; text-align: left; }
+.radio { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; background: var(--space); border: 1px solid var(--space-2); border-radius: 6px; text-align: left; }
+.radio .face { flex: none; width: 64px; height: 64px; image-rendering: pixelated; border-radius: 4px; }
+.radio .said { min-width: 0; flex: 1; }
 .radio .who { display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
 .card .radio p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--regolith); text-align: left; min-height: 1.55em; }
 .radio.old { opacity: 0.55; }
@@ -744,6 +746,93 @@ kbd {
       ground: [[0, 50], [25, 56], [45, 48], [65, 40], [85, 34], [112, 38], [130, 52], [150, 64], [170, 58], [190, 70], [210, 62], [240, 66]],
       pads: [{ id: 'CREW', x1: 90, x2: 106, y: 32 }] }
   ];
+  // ---- Character portraits: 32×32 pixel art drawn in code ----
+  const px = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+  const outline = (c, x, y, w, h, col) => { px(c, x, y, w, 1, col); px(c, x, y + h - 1, w, 1, col); px(c, x, y, 1, h, col); px(c, x + w - 1, y, 1, h, col); };
+  const FACES = {
+    // Dottie Reyes, flight director: curly hair with a grey streak, headset, reading glasses
+    F: { bg: '#5a4520', skin: '#9a5f43', shade: '#7a4732', mouth: '#4a2420', brow: '#2b1d16',
+      back(c) { const h = '#2b1d16'; px(c, 7, 4, 18, 14, h); px(c, 8, 3, 16, 1, h); px(c, 10, 2, 12, 1, h); px(c, 5, 8, 1, 7, h); px(c, 26, 8, 1, 7, h); px(c, 6, 7, 1, 9, h); px(c, 25, 7, 1, 9, h); px(c, 7, 18, 3, 3, h); px(c, 22, 18, 3, 3, h); px(c, 17, 4, 2, 5, '#8a8f9c'); },
+      body(c) { px(c, 4, 26, 24, 6, '#26355e'); px(c, 6, 25, 20, 1, '#26355e'); px(c, 13, 25, 6, 2, '#3a4c80'); px(c, 15, 26, 2, 2, '#1a2442'); px(c, 21, 28, 2, 2, '#ffb547'); },
+      front(c) { const h = '#2b1d16'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 2, 2, h); px(c, 20, 10, 2, 2, h); px(c, 17, 8, 2, 1, '#8a8f9c'); },
+      extra(c) {
+        const hs = '#5a6684';
+        px(c, 9, 2, 14, 1, hs); px(c, 8, 3, 1, 2, hs); px(c, 23, 3, 1, 2, hs);
+        px(c, 7, 13, 3, 6, hs); px(c, 22, 13, 3, 6, hs);
+        px(c, 9, 19, 1, 1, hs); px(c, 10, 20, 1, 1, hs); px(c, 11, 21, 2, 1, hs); px(c, 13, 21, 1, 1, '#ffb547');
+        const g = '#e0a040';
+        outline(c, 11, 14, 4, 4, g); outline(c, 17, 14, 4, 4, g); px(c, 15, 15, 2, 1, g);
+      } },
+    // Gus Tran, engineer: messy ginger hair, goggles on his forehead, freckles, a grease smudge, pens in his pocket
+    G: { bg: '#12261f', skin: '#f2c9a2', shade: '#d8a57c', mouth: '#8a3a30', brow: '#8a4519',
+      back(c) { const h = '#c46a2c'; px(c, 9, 5, 14, 5, h); px(c, 8, 7, 1, 5, h); px(c, 23, 7, 1, 5, h); px(c, 10, 4, 2, 1, h); px(c, 14, 3, 2, 2, h); px(c, 18, 4, 2, 1, h); px(c, 22, 5, 1, 2, h); px(c, 7, 9, 1, 2, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#3d6b63'); px(c, 6, 25, 20, 1, '#3d6b63'); px(c, 12, 25, 8, 1, '#2c524b'); px(c, 15, 26, 2, 6, '#2c524b'); px(c, 20, 27, 1, 3, '#ff6b5e'); px(c, 21, 27, 1, 3, '#7fd6ff'); px(c, 9, 28, 4, 2, '#e8f0ea'); },
+      front(c) { const h = '#c46a2c', d = '#8a4519'; px(c, 10, 9, 4, 2, h); px(c, 14, 9, 3, 1, h); px(c, 18, 9, 4, 2, h); px(c, 11, 10, 1, 1, d); px(c, 19, 10, 1, 1, d); },
+      extra(c) {
+        px(c, 9, 7, 14, 1, '#5d4a3a');
+        px(c, 11, 5, 4, 3, '#3d4a5c'); px(c, 17, 5, 4, 3, '#3d4a5c');
+        px(c, 12, 6, 2, 1, '#7fd6ff'); px(c, 18, 6, 2, 1, '#7fd6ff'); px(c, 12, 6, 1, 1, '#e8f8ff'); px(c, 18, 6, 1, 1, '#e8f8ff');
+        px(c, 12, 18, 1, 1, '#d08a60'); px(c, 11, 17, 1, 1, '#d08a60'); px(c, 19, 18, 1, 1, '#d08a60'); px(c, 20, 17, 1, 1, '#d08a60');
+        px(c, 19, 20, 2, 1, '#5a4636');
+      } },
+    // Wren Aldana, founder: silver hair in a braid, weathered flight jacket with a fur collar, pink scarf
+    W: { bg: '#2a1424', skin: '#c99470', shade: '#a8744f', mouth: '#6e3a2e', brow: '#a9afbd',
+      back(c) { const h = '#d7dbe3'; px(c, 8, 6, 16, 14, h); px(c, 9, 5, 14, 1, h); px(c, 7, 9, 1, 12, h); px(c, 8, 20, 3, 5, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#6b4226'); px(c, 6, 25, 20, 1, '#6b4226'); px(c, 9, 25, 5, 3, '#e6d3b0'); px(c, 18, 25, 5, 3, '#e6d3b0'); px(c, 13, 25, 6, 2, '#ff9ad5'); px(c, 14, 27, 2, 3, '#ff9ad5'); px(c, 8, 29, 3, 2, '#4f2f1a'); px(c, 24, 28, 2, 2, '#ffb547'); },
+      front(c) { const h = '#d7dbe3', s = '#a9afbd'; px(c, 10, 8, 8, 2, h); px(c, 10, 10, 2, 3, h); px(c, 18, 8, 4, 1, h); px(c, 20, 9, 2, 4, h); px(c, 13, 9, 4, 1, s); },
+      extra(c) {
+        const h = '#d7dbe3', s = '#a9afbd';
+        for (let y = 19; y < 31; y += 2) { px(c, 22, y, 3, 1, s); px(c, 23, y + 1, 2, 1, h); }
+        px(c, 22, 30, 3, 1, '#ff9ad5');
+        px(c, 10, 16, 1, 1, '#a8744f'); px(c, 21, 16, 1, 1, '#a8744f');
+      } }
+  };
+  function drawFace(cv, who, mood, open, blink) {
+    const c = cv.getContext('2d'), f = FACES[who];
+    c.clearRect(0, 0, 32, 32);
+    px(c, 0, 0, 32, 32, f.bg);
+    f.back(c);
+    f.body(c);
+    px(c, 14, 23, 4, 3, f.shade);
+    px(c, 10, 9, 12, 14, f.skin);
+    px(c, 9, 11, 1, 9, f.skin); px(c, 22, 11, 1, 9, f.skin);
+    px(c, 11, 23, 10, 1, f.skin);
+    px(c, 8, 14, 1, 4, f.shade); px(c, 23, 14, 1, 4, f.shade);
+    f.front(c);
+    const eye = '#15151f';
+    if (blink) { px(c, 12, 16, 2, 1, eye); px(c, 18, 16, 2, 1, eye); }
+    else { px(c, 12, 15, 2, 2, eye); px(c, 18, 15, 2, 2, eye); px(c, 12, 15, 1, 1, '#f4f4f4'); px(c, 18, 15, 1, 1, '#f4f4f4'); }
+    const b = f.brow;
+    if (mood === 'worried') { px(c, 11, 13, 1, 1, b); px(c, 12, 12, 2, 1, b); px(c, 18, 12, 2, 1, b); px(c, 20, 13, 1, 1, b); }
+    else if (mood === 'happy') { px(c, 11, 13, 1, 1, b); px(c, 12, 12, 2, 1, b); px(c, 14, 13, 1, 1, b); px(c, 17, 13, 1, 1, b); px(c, 18, 12, 2, 1, b); px(c, 20, 13, 1, 1, b); }
+    else if (mood === 'deadpan') { px(c, 11, 13, 4, 1, b); px(c, 17, 12, 4, 1, b); }
+    else { px(c, 11, 13, 4, 1, b); px(c, 17, 13, 4, 1, b); }
+    px(c, 15, 18, 2, 1, f.shade);
+    const m = f.mouth;
+    if (open) { px(c, 14, 20, 4, 2, m); px(c, 15, 21, 2, 1, '#c45a5a'); }
+    else if (mood === 'happy') { px(c, 13, 19, 1, 1, m); px(c, 14, 20, 4, 1, m); px(c, 18, 19, 1, 1, m); }
+    else if (mood === 'worried') { px(c, 13, 21, 1, 1, m); px(c, 14, 20, 4, 1, m); px(c, 18, 21, 1, 1, m); }
+    else if (mood === 'deadpan') { px(c, 14, 20, 4, 1, m); px(c, 18, 19, 1, 1, m); }
+    else px(c, 14, 20, 4, 1, m);
+    f.extra(c);
+    c.fillStyle = 'rgba(0, 0, 0, 0.16)';
+    for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
+  }
+  // which face each line gets; anything not listed uses the speaker's usual look
+  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral' };
+  const MOODS = [
+    ['Morning, pilot', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
+    ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
+    ['Then one day Wren', 'worried'], ['Bad news, good news', 'worried'], ['Earth. Six times', 'neutral'],
+    ['…hello?', 'neutral'], ['You made it through the Needle', 'happy'], ['Who taught you', 'happy'],
+    ['Storm’s rolling in', 'worried'], ['Aboard and buckled', 'happy'], ['Wren’s safe.', 'happy'],
+    ['Not a wasted drop', 'happy'], ['Wren is home', 'happy'], ['Keep her flying', 'happy'], ['Thanks for flying', 'happy'],
+    ['Biscuit is fine', 'worried'], ['I’ll get the tape', 'worried'], ['Let’s call that', 'worried'], ['Note to self', 'worried']
+  ];
+  const moodOf = (who, text) => { const o = MOODS.find(([pre]) => text.startsWith(pre)); return o ? o[1] : DEFAULT_MOOD[who]; };
+  const faceTag = (who, text) => `<canvas class="face" width="32" height="32" data-who="${who}" data-mood="${moodOf(who, text)}" aria-hidden="true"></canvas>`;
+  const paintFaces = root => root.querySelectorAll('canvas.face').forEach(cv => drawFace(cv, cv.dataset.who, cv.dataset.mood, false, false));
+
   // ---- Story: the Descent Systems campaign, told over the radio ----
   const SPEAKERS = {
     F: { name: 'Flight · Dottie', color: 'var(--flame)' },
@@ -870,7 +959,7 @@ kbd {
   let storySeen;
   try { storySeen = JSON.parse(store.get('ds-story', '[]')) || []; } catch (e) { storySeen = []; }
   let story = null;
-  const radioQuote = ([who, text]) => `<div class="radio quote"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span><p>${esc(text)}</p></div>`;
+  const radioQuote = ([who, text]) => `<div class="radio quote">${faceTag(who, text)}<div class="said"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span><p>${esc(text)}</p></div></div>`;
 
   const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue' };
   const LOAD_TIME = 1.5;
@@ -1843,6 +1932,7 @@ kbd {
         <p class="limits">Every pilot gets the same terrain today. Next challenge in ${untilReset()}.</p>`;
     }
     card.innerHTML = html;
+    paintFaces(card);
     const rpb = $('replayBtn');
     if (rpb) rpb.addEventListener('click', startReplay);
     const sh = $('share');
@@ -1971,15 +2061,25 @@ kbd {
     card.innerHTML = `<div class="story">
       ${s.chapter ? `<div class="chapter"><span>${s.chapter.label}</span><b>${s.chapter.title}</b></div>` : ''}
       <div class="log" aria-live="polite">${s.lines.slice(0, s.i + 1).map(([who, text], k) => `<div class="radio${k < s.i ? ' old' : ''}">
-        <span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span>
-        <p${k === s.i ? ' id="typing"' : ''}>${k < s.i ? esc(text) : ''}</p></div>`).join('')}</div>
+        ${faceTag(who, text)}
+        <div class="said"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span>
+        <p${k === s.i ? ' id="typing"' : ''}>${k < s.i ? esc(text) : ''}</p></div></div>`).join('')}</div>
       <div class="btns">
         <button class="btn" id="storyNext">${s.i === s.lines.length - 1 ? 'Continue' : 'Next'}</button>
         <button class="btn ghost" id="storySkip">Skip</button>
       </div>
     </div>`;
+    paintFaces(card);
     $('storyNext').addEventListener('click', storyNext);
     $('storySkip').addEventListener('click', storyEnd);
+    // the speaker blinks now and then
+    clearInterval(s.blinker);
+    if (!reduceMotion) s.blinker = setInterval(() => {
+      const cv = card.querySelector('.radio:last-child canvas.face');
+      if (!cv || (story && story.typing)) return;
+      drawFace(cv, cv.dataset.who, cv.dataset.mood, false, true);
+      setTimeout(() => drawFace(cv, cv.dataset.who, cv.dataset.mood, false, false), 140);
+    }, 2900);
     setTimeout(() => { const b = $('storyNext'); if (b) { b.focus({ preventScroll: true }); b.scrollIntoView({ block: 'nearest' }); } }, 0);
     typeLine();
   }
@@ -1989,11 +2089,17 @@ kbd {
     sfx.radio();
     if (reduceMotion) { el.textContent = text; story.typing = false; return; }
     story.typing = true;
-    let n = 0;
+    const face = el.closest('.radio').querySelector('canvas.face');
+    let n = 0, tick = 0;
     story.timer = setInterval(() => {
-      n += 2;
+      n += 2; tick++;
       el.textContent = text.slice(0, n);
-      if (n >= text.length) { clearInterval(story.timer); if (story) story.typing = false; }
+      if (face && tick % 3 === 0) drawFace(face, face.dataset.who, face.dataset.mood, (tick / 3) % 2 === 1, false);
+      if (n >= text.length) {
+        clearInterval(story.timer);
+        if (face) drawFace(face, face.dataset.who, face.dataset.mood, false, false);
+        if (story) story.typing = false;
+      }
     }, 24);
   }
   function storyNext() {
@@ -2001,6 +2107,7 @@ kbd {
     if (story.typing) {
       clearInterval(story.timer); story.typing = false;
       $('typing').textContent = story.lines[story.i][1];
+      paintFaces(card);
       return;
     }
     if (story.i < story.lines.length - 1) { story.i++; renderStory(); }
@@ -2009,7 +2116,7 @@ kbd {
   function storyEnd() {
     if (!story) return;
     const s = story;
-    clearInterval(s.timer);
+    clearInterval(s.timer); clearInterval(s.blinker);
     story = null;
     s.after();
   }
