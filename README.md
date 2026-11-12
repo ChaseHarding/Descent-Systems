@@ -17,11 +17,12 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
+- **Side missions**: four optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger and a survey route through the clouds of Venus
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **18 badges** to earn, nine of which unlock exclusive cosmetics
+- **23 badges** to earn, 14 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -90,6 +91,8 @@ Every point you score is banked as credits the moment you touch down. Spend them
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
 - **Landing flags:** Pennant (free), Tricolor, Lone Star, Checkered, Jolly Roger, Waving Banner. Your flag plants itself beside the lander after every touchdown.
 
+Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and more) appear in the hangar once you earn them.
+
 ## Missions
 
 Open **Missions** from the start screen. The campaign has 12 hand-built missions across all five worlds, and finishing one unlocks the next.
@@ -120,11 +123,24 @@ The campaign tells a story over the radio. You fly for Descent Systems, the smal
 
 ![A radio scene before The Needle mission, with Wren's first transmission and the crew's pixel portraits](media/story.png)
 
+### Side missions
+
+Below the campaign is a row of optional side missions. Each one is a favor for someone on the crew, unlocks partway through the campaign, and has its own rule on top of the usual landing limits.
+
+| Side mission | From | World | Unlocks after | The twist |
+|---|---|---|---|---|
+| Biscuit's Spa Day | Gus | Moon | Tranquility | Fragile cargo: with the crate aboard, touch down slower than 1.2 m/s or it cracks |
+| The Coffee Crisis | Dottie | Mars | Dust Ledge | Timed delivery: get a fresh pot to DROP within 70 seconds, while Dottie counts down on the radio |
+| Stowaway | Gus | Titan | Haze Delivery | Passenger: Apogee the cat rides along. Turning, tilting past 20° or flying faster than 6 m/s makes her queasy, and her comfort shows in the goal box |
+| The Long Way Round | Wren | Venus | Last Light | Survey route: fly through Wren's three numbered markers in order, then land |
+
+Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
+
 You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Nine badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Fourteen badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -146,6 +162,11 @@ Open **Badges** from the start screen to see your progress. Nine badges unlock e
 | Campaign hero | Complete all 12 missions | Pathfinder hull |
 | Star collector | Earn 24 mission stars | Comet Tail flame |
 | Flawless | Earn all 36 mission stars | Mission Patch flag |
+| Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
+| Barista | Finish The Coffee Crisis with 15 seconds to spare | Espresso flame |
+| Cat whisperer | Land Stowaway with Apogee at 75% comfort or better | Paw Print flag |
+| Surveyor | Fly Wren's whole survey route on Venus | Wren's Original hull |
+| Crew favorite | Earn all 12 side-mission stars | The Crew flag |
 
 ## Hot-seat mode
 
@@ -199,6 +220,7 @@ Most of the tuning lives near the top of the `<script>` block in `index.html`:
 - **`HULLS`, `FLAMES`**: hangar items and their prices.
 - **`ZOOM_MAX`, `ZOOM_START`, `ZOOM_FULL`**: how the auto-zoom camera behaves.
 - **`ROUNDS`**: the number of rounds in a hot-seat match.
+- **`MISSIONS`, `SIDES`**: the campaign and the side missions. Each entry has its terrain, pads, fuel, star goals and any special rule (`fragile`, `timeLimit`, `comfort`, `rings`).
 
 To give yourself credits while testing, open the browser console on the game page, run the following, and reload:
 
