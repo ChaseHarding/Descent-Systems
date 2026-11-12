@@ -14,6 +14,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
+- **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
 
@@ -48,6 +49,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | H | Open the hangar |
 | Z | Toggle auto-zoom |
 | G | Toggle ghosts |
+| M | Toggle sound |
 | Esc | Leave the hangar |
 
 On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game.
