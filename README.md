@@ -1,6 +1,6 @@
 # Descent Systems
 
-A Lunar Lander style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
+A Lunar Lander–style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
 
 **▶ Play it here: [chaseharding.github.io/Descent-Systems](https://chaseharding.github.io/Descent-Systems/)**
 
@@ -16,6 +16,8 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
+- **14 badges** to earn, six of which unlock exclusive cosmetics
+- **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
 
@@ -51,9 +53,11 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | Z | Toggle auto-zoom |
 | G | Toggle ghosts |
 | M | Toggle sound |
-| Esc | Leave the hangar |
+| P / Esc | Pause and resume |
+| B | Open badges |
+| Esc | Leave the hangar or badges screen |
 
-On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game.
+On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game, and a **Pause** button sits in the corner while you fly.
 
 ### Scoring
 
@@ -69,6 +73,27 @@ Every point you score is banked as credits the moment you touch down. Spend them
 - **Hull finishes:** Mission White, Gold Foil, Mars Rust, Titan Amber, Chrome
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
 - **Landing flags:** Pennant (free), Tricolor, Lone Star, Checkered, Jolly Roger, Waving Banner. Your flag plants itself beside the lander after every touchdown.
+
+## Badges
+
+Open **Badges** from the start screen to see your progress. Six badges unlock exclusive cosmetics that can't be bought:
+
+| Badge | How to earn it | Reward |
+|---|---|---|
+| First contact | Land on any pad | |
+| Grand Tour | Land on all five worlds | Grand Tour hull |
+| Earthling | Land on Earth | |
+| Feather | Touch down slower than 0.3 m/s | Feather Light flame |
+| Plumb line | Land within 1° of level, drifting under 0.2 m/s | |
+| Bullseye | Land on a ×5 pad on Mars or Earth | Bullseye flame |
+| Running on fumes | Land with less than 5 kg of fuel left | |
+| Clean sweep | Land at 5 sites in one solo mission | |
+| Veteran | Land 25 times | Veteran flag |
+| Perfect day | Finish a daily challenge without crashing | Laurel flag |
+| Rival | Win a hot-seat match | Champion hull |
+| Ghostbuster | In hot-seat, outscore the ghost you're racing | |
+| Collector | Buy 10 items in the hangar | |
+| Saver | Hold 5,000 credits at once | |
 
 ## Hot-seat mode
 

@@ -142,8 +142,8 @@ kbd {
 .deal b { color: var(--regolith); font-weight: 500; }
 .shelf { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 .shelf h2 { margin: 0; font-family: var(--f-display); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); text-align: left; }
-.items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-@media (max-width: 420px) { .items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.items { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 560px) { .items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .item {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;
   padding: 8px; background: var(--panel); color: var(--regolith);
@@ -184,9 +184,12 @@ kbd {
 .tally th:first-child, .tally td:first-child { text-align: left; color: var(--regolith-dim); }
 .tally tfoot td { font-weight: 500; color: var(--regolith); border-bottom: 0; }
 .tally .crash { color: var(--bad); }
-.mute {
+.corner {
   position: absolute; z-index: 6;
   right: 10px; bottom: 10px;
+  display: flex; gap: 6px;
+}
+.mute {
   font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
   padding: 6px 10px; cursor: pointer;
   background: var(--panel); color: var(--regolith);
@@ -210,6 +213,44 @@ kbd {
   font-family: var(--f-mono); font-size: 12px; padding: 8px;
   background: var(--panel); color: var(--regolith); border: 1px solid var(--space-2); border-radius: 4px;
   -webkit-user-select: text; user-select: text;
+}
+/* Badges */
+.badges { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .badges { grid-template-columns: minmax(0, 1fr); } }
+.badge {
+  display: flex; gap: 12px; align-items: flex-start; min-width: 0;
+  padding: 10px 12px; text-align: left;
+  background: var(--panel); border: 1px solid var(--space-2); border-radius: 6px;
+}
+.badge > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.badge b { font-family: var(--f-display); font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--regolith-dim); }
+.badge span { font-size: 11px; color: var(--regolith-dim); line-height: 1.45; }
+.badge .reward { color: var(--regolith); }
+.badge.got { border-color: var(--flame); }
+.badge.got b { color: var(--flame); }
+.badge.got span { color: var(--regolith); }
+.badge.got .reward { color: var(--ok); }
+.medal {
+  flex: none; width: 26px; height: 26px; margin-top: 2px; border-radius: 50%;
+  border: 2px solid var(--regolith-dim); box-sizing: border-box;
+}
+.badge.got .medal { border-color: var(--flame); background: radial-gradient(circle, var(--flame) 45%, transparent 50%); }
+.bar { display: block; height: 4px; margin-top: 3px; background: var(--space-2); border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--flame); }
+.card .sub { color: var(--regolith-dim); }
+.achv {
+  position: absolute; z-index: 7; left: 50%; top: 12px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 16px; min-width: 14rem; max-width: calc(100% - 32px); box-sizing: border-box;
+  background: var(--space); border: 1px solid var(--flame); border-radius: 6px;
+  text-align: center; pointer-events: none;
+}
+.achv span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
+.achv b { font-family: var(--f-display); font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--flame); }
+.achv small { font-size: 11px; color: var(--regolith); }
+@media (prefers-reduced-motion: no-preference) {
+  .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
+  @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
@@ -256,7 +297,11 @@ kbd {
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
     </div>
-    <button class="mute" id="mute" aria-pressed="false">Sound on</button>
+    <div class="corner">
+      <button class="mute" id="pauseBtn" hidden>Pause</button>
+      <button class="mute" id="mute" aria-pressed="false">Sound on</button>
+    </div>
+    <div class="achv" id="achv" role="status" hidden><span>Badge earned</span><b id="achvName"></b><small id="achvSub"></small></div>
   </div>
   <div class="pad" id="pad">
     <button id="bl" aria-label="Rotate left">◀ ROT</button>
@@ -337,7 +382,11 @@ kbd {
     { id: 'amber', name: 'Titan Amber', price: 1000, blurb: 'Stained by an orange methane sky.',
       fill: '#4a2e0c', stroke: '#ffc56b', legs: '#ffc56b', detail: '#ffe7b8', swatch: 'linear-gradient(90deg, #4a2e0c, #ffc56b)' },
     { id: 'chrome', name: 'Chrome', price: 3000, blurb: 'Mirror finish with a moving shine.', chrome: true,
-      fill: '#8a97ad', stroke: '#ffffff', legs: '#dfe6f2', detail: '#2b3550', swatch: 'linear-gradient(90deg, #4a5568, #ffffff, #8a97ad)' }
+      fill: '#8a97ad', stroke: '#ffffff', legs: '#dfe6f2', detail: '#2b3550', swatch: 'linear-gradient(90deg, #4a5568, #ffffff, #8a97ad)' },
+    { id: 'grand', name: 'Grand Tour', price: 0, unlock: 'tour', blurb: 'Navy and gold, for pilots who have landed everywhere.',
+      fill: '#1b2a52', stroke: '#ffd27a', legs: '#ffd27a', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #1b2a52, #ffd27a)' },
+    { id: 'champion', name: 'Champion', price: 0, unlock: 'rival', blurb: 'Crimson paint for the hot-seat winner.',
+      fill: '#6b0f1a', stroke: '#ffcf5c', legs: '#ffcf5c', detail: '#ffffff', swatch: 'linear-gradient(90deg, #6b0f1a, #ffcf5c)' }
   ];
   const FLAMES = [
     { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
@@ -351,7 +400,11 @@ kbd {
     { id: 'rainbow', name: 'Rainbow', price: 3000, blurb: 'Cycles through the whole spectrum.', rainbow: true,
       core: '#fff', tail: '#fff', swatch: 'linear-gradient(90deg, #ff5f5f, #ffb547, #f5ff6b, #6bff9a, #6bb8ff, #b86bff)' },
     { id: 'plasma', name: 'Pulsing Plasma', price: 3500, blurb: 'Throbs like an ion drive.', pulse: true,
-      core: '#ffc2f6', tail: '#8a5cff', swatch: 'linear-gradient(90deg, #ffc2f6, #8a5cff)' }
+      core: '#ffc2f6', tail: '#8a5cff', swatch: 'linear-gradient(90deg, #ffc2f6, #8a5cff)' },
+    { id: 'feather', name: 'Feather Light', price: 0, unlock: 'feather', blurb: 'A soft mint glow for gentle pilots.',
+      core: '#ffffff', tail: '#7ff0c4', swatch: 'linear-gradient(90deg, #ffffff, #7ff0c4)' },
+    { id: 'bullseye', name: 'Bullseye', price: 0, unlock: 'bullseye', blurb: 'Red-hot and dead centre.',
+      core: '#fff6a8', tail: '#ff3d3d', swatch: 'linear-gradient(90deg, #fff6a8, #ff3d3d)' }
   ];
   const FLAGS = [
     { id: 'pennant', name: 'Pennant', price: 0, blurb: 'A simple orange pennant.', style: 'pennant',
@@ -365,7 +418,11 @@ kbd {
     { id: 'jolly', name: 'Jolly Roger', price: 1500, blurb: 'Claim the pad for the pirates.', style: 'skull',
       colors: ['#141414', '#f2f4f8'], swatch: 'radial-gradient(circle, #f2f4f8 25%, #141414 30%)' },
     { id: 'banner', name: 'Waving Banner', price: 3000, blurb: 'Ripples in the breeze, even in a vacuum.', style: 'wave',
-      colors: ['#ff9ad5', '#8a5cff'], swatch: 'linear-gradient(90deg, #ff9ad5, #8a5cff)' }
+      colors: ['#ff9ad5', '#8a5cff'], swatch: 'linear-gradient(90deg, #ff9ad5, #8a5cff)' },
+    { id: 'laurel', name: 'Laurel', price: 0, unlock: 'perfect', blurb: 'Green and gold for a perfect day.', style: 'star',
+      colors: ['#0f5132', '#ffd27a'], swatch: 'linear-gradient(90deg, #0f5132, #ffd27a)' },
+    { id: 'veteran', name: 'Veteran', price: 0, unlock: 'veteran', blurb: 'Service stripes for 25 landings.', style: 'stripes',
+      colors: ['#1b2a52', '#ffd27a', '#1b2a52'], swatch: 'linear-gradient(180deg, #1b2a52 33%, #ffd27a 33% 66%, #1b2a52 66%)' }
   ];
   const itemsOf = kind => kind === 'hull' ? HULLS : kind === 'flame' ? FLAMES : FLAGS;
   const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
@@ -399,6 +456,81 @@ kbd {
     return [f.core, f.tail];
   }
   const fmt = n => n.toLocaleString('en-US');
+
+  // ---- Badges (achievements) ----
+  let stats;
+  try { stats = JSON.parse(store.get('ds-stats', '{}')) || {}; } catch (e) { stats = {}; }
+  stats = { landings: +stats.landings || 0, worlds: Array.isArray(stats.worlds) ? stats.worlds : [], bestSite: +stats.bestSite || 0 };
+  let got;
+  try { got = JSON.parse(store.get('ds-ach', '{}')) || {}; } catch (e) { got = {}; }
+  const saveStats = () => store.set('ds-stats', JSON.stringify(stats));
+  const boughtCount = () => [...HULLS.map(i => 'hull:' + i.id), ...FLAMES.map(i => 'flame:' + i.id)]
+    .concat(typeof FLAGS !== 'undefined' ? FLAGS.map(i => 'flag:' + i.id) : [])
+    .filter(k => owned.has(k) && findItem(k.split(':')[0], k.split(':')[1]).price > 0).length;
+  const ACH = [
+    { id: 'first', name: 'First contact', desc: 'Land on any pad.' },
+    { id: 'tour', name: 'Grand Tour', desc: 'Land on all five worlds.', reward: 'hull:grand', prog: () => [stats.worlds.length, 5] },
+    { id: 'earthling', name: 'Earthling', desc: 'Land on Earth.' },
+    { id: 'feather', name: 'Feather', desc: 'Touch down slower than 0.3 m/s.', reward: 'flame:feather' },
+    { id: 'plumb', name: 'Plumb line', desc: 'Land within 1° of level, drifting under 0.2 m/s.' },
+    { id: 'bullseye', name: 'Bullseye', desc: 'Land on a ×5 pad on Mars or Earth.', reward: 'flame:bullseye' },
+    { id: 'fumes', name: 'Running on fumes', desc: 'Land with less than 5 kg of fuel left.' },
+    { id: 'sweep', name: 'Clean sweep', desc: 'Land at 5 sites in one solo mission.', prog: () => [Math.min(stats.bestSite, 5), 5] },
+    { id: 'veteran', name: 'Veteran', desc: 'Land 25 times.', reward: 'flag:veteran', prog: () => [Math.min(stats.landings, 25), 25] },
+    { id: 'perfect', name: 'Perfect day', desc: 'Finish a daily challenge without crashing.', reward: 'flag:laurel' },
+    { id: 'rival', name: 'Rival', desc: 'Win a hot-seat match.', reward: 'hull:champion' },
+    { id: 'ghostbuster', name: 'Ghostbuster', desc: 'In hot-seat, outscore the ghost you’re racing.' },
+    { id: 'collector', name: 'Collector', desc: 'Buy 10 items in the hangar.', prog: () => [Math.min(boughtCount(), 10), 10] },
+    { id: 'saver', name: 'Saver', desc: 'Hold 5,000 credits at once.', prog: () => [Math.min(credits, 5000), 5000] }
+  ];
+  const earned = () => ACH.filter(a => got[a.id]).length;
+  const kindName = k => k === 'hull' ? 'hull' : k === 'flame' ? 'flame' : 'flag';
+  const rewardName = key => { const [k, id] = key.split(':'); return `${findItem(k, id).name} ${kindName(k)}`; };
+
+  // Badge announcements queue up so several at once don't overwrite each other.
+  const achvQueue = [];
+  let achvBusy = false;
+  function announce(name, sub) {
+    achvQueue.push([name, sub]);
+    if (!achvBusy) nextAnnounce();
+  }
+  function nextAnnounce() {
+    const el = $('achv'), item = achvQueue.shift();
+    if (!item) { el.hidden = true; achvBusy = false; return; }
+    achvBusy = true;
+    $('achvName').textContent = item[0];
+    $('achvSub').textContent = item[1];
+    el.hidden = true; void el.offsetWidth; el.hidden = false;
+    sfx.badge();
+    setTimeout(nextAnnounce, 2800);
+  }
+  function award(id) {
+    if (got[id]) return;
+    const a = ACH.find(x => x.id === id);
+    if (!a) return;
+    got[id] = Date.now();
+    store.set('ds-ach', JSON.stringify(got));
+    if (a.reward) { owned.add(a.reward); saveCosmetics(); }
+    announce(a.name, a.reward ? `Unlocked: ${rewardName(a.reward)}` : a.desc);
+  }
+  function checkProgress() {
+    for (const a of ACH) {
+      if (a.prog && !got[a.id]) { const [c, m] = a.prog(); if (c >= m) award(a.id); }
+    }
+  }
+  function onLanded(pad, vy, vx, ang, fuel) {
+    stats.landings++;
+    if (!stats.worlds.includes(world.id)) stats.worlds.push(world.id);
+    if (!match && !daily) stats.bestSite = Math.max(stats.bestSite, level);
+    saveStats();
+    award('first');
+    if (world.id === 'earth') award('earthling');
+    if (vy < 0.3) award('feather');
+    if (ang < 1 && vx < 0.2) award('plumb');
+    if (pad.mult === 5 && (world.id === 'mars' || world.id === 'earth')) award('bullseye');
+    if (fuel < 5) award('fumes');
+    checkProgress();
+  }
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   // ---- Play modes and ghosts ----
@@ -530,7 +662,8 @@ kbd {
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
-      turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); }
+      turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
+      badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); }
     };
   })();
 
@@ -733,9 +866,15 @@ kbd {
       lastResult = { pad, pts, base, fuelBonus, soft, ...stats };
       lastRun = { frames: recording, result: 'landed' };
       sfx.thud(); sfx.landed(soft > 0);
+      onLanded(pad, vy, vx, angDeg, L.fuel);
       if (match) { endTurn(); return; }
       score += pts;
-      if (daily) { daily.results.push(lastResult); setMode(daily.site >= DAILY_SITES ? 'dailyEnd' : 'landed'); return; }
+      if (daily) {
+        daily.results.push(lastResult);
+        if (daily.site >= DAILY_SITES) award('perfect');
+        setMode(daily.site >= DAILY_SITES ? 'dailyEnd' : 'landed');
+        return;
+      }
       setMode('landed');
     } else {
       const reasons = [];
@@ -776,10 +915,12 @@ kbd {
   // ---- Screens ----
   function setMode(m) {
     mode = m;
+    $('pauseBtn').hidden = m !== 'flying';
     keys.left = keys.right = keys.thrust = false;
     document.querySelectorAll('.pad button').forEach(b => b.classList.remove('held'));
     if (m === 'flying') { overlay.hidden = true; return; }
     overlay.hidden = false;
+    if (m === 'badges') { renderBadges(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       hangarSel = { kind: 'hull', id: equip.hull };
@@ -818,9 +959,10 @@ kbd {
         <div class="btns">
           <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : playMode === 'daily' ? 'Start today’s challenge' : `Descend to ${world.name}`}</button>
           <button class="btn ghost" id="hangarBtn">Hangar</button>
+          <button class="btn ghost" id="badgesBtn">Badges ${earned()}/${ACH.length}</button>
         </div>
         <p class="balance">${fmt(credits)} credits</p>
-        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>M</kbd> sound · <kbd>Space</kbd> start</p>
+        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>M</kbd> sound · <kbd>B</kbd> badges · <kbd>P</kbd> pause · <kbd>Space</kbd> start</p>
         ${limits}
         ${best && playMode !== 'daily' ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
     } else if (m === 'landed') {
@@ -877,6 +1019,16 @@ kbd {
             <button class="btn ghost" id="pick">Back to launch</button>
           </div>`;
       }
+    } else if (m === 'paused') {
+      const where = match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
+        : daily ? `Daily · site ${daily.site} of ${DAILY_SITES}` : `${world.name} · site ${level}`;
+      html = `<h1>Paused</h1>
+        <p class="limits">${where}</p>
+        <div class="btns">
+          <button class="btn" id="go">Resume</button>
+          <button class="btn ghost" id="pick">Quit to launch</button>
+        </div>
+        <p class="keys-hint limits"><kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>`;
     } else if (m === 'dailyEnd') {
       const done = daily.results.length === DAILY_SITES && daily.results.every(r => r.pad);
       const key = 'ds-daily-best-' + daily.date, prev = +store.get(key, 0) || 0, isBest = score > prev;
@@ -919,6 +1071,8 @@ kbd {
     });
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('hangar'));
+    const bb = $('badgesBtn');
+    if (bb) bb.addEventListener('click', () => setMode('badges'));
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
       selectWorld(WORLDS.find(w => w.id === b.dataset.id));
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
@@ -928,11 +1082,27 @@ kbd {
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
+  function renderBadges() {
+    card.innerHTML = `<h1 class="good">Badges</h1>
+      <p class="sub">${earned()} of ${ACH.length} earned. Some unlock cosmetics you can’t buy.</p>
+      <div class="badges">${ACH.map(a => {
+        const has = !!got[a.id], pr = a.prog && !has ? a.prog() : null;
+        return `<div class="badge${has ? ' got' : ''}"><i class="medal" aria-hidden="true"></i><div>
+          <b>${a.name}</b><span>${a.desc}</span>
+          ${pr ? `<span class="bar"><i style="width:${Math.round(pr[0] / pr[1] * 100)}%"></i></span><span>${fmt(pr[0])} / ${fmt(pr[1])}</span>` : ''}
+          ${a.reward ? `<span class="reward">${has ? 'Unlocked' : 'Reward'}: ${rewardName(a.reward)}</span>` : ''}
+        </div></div>`;
+      }).join('')}</div>
+      <button class="btn ghost" id="back">Back to launch</button>`;
+    $('back').addEventListener('click', () => setMode('title'));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+
   function renderHangar(focus) {
     const shelf = (kind, label) => `<section class="shelf"><h2>${label}</h2><div class="items">${
       itemsOf(kind).map(it => {
         const own = owned.has(kind + ':' + it.id), eq = equip[kind] === it.id;
-        const status = eq ? 'Equipped' : own ? 'Owned' : `${fmt(it.price)} cr`;
+        const status = eq ? 'Equipped' : own ? 'Owned' : it.unlock ? 'Badge reward' : `${fmt(it.price)} cr`;
         return `<button class="item${eq ? ' equipped' : own ? ' owned' : ''}" data-kind="${kind}" data-id="${it.id}" aria-pressed="${trying[kind] === it.id}">
           <i class="sw" style="background:${it.swatch}"></i><b>${it.name}</b><span>${status}</span></button>`;
       }).join('')}</div></section>`;
@@ -941,6 +1111,7 @@ kbd {
     let action;
     if (eq) action = `<button class="btn" disabled>Equipped</button>`;
     else if (own) action = `<button class="btn" id="act">Equip</button>`;
+    else if (it.unlock) action = `<button class="btn" disabled>Earn the ${ACH.find(a => a.id === it.unlock).name} badge</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more</button>`;
 
@@ -964,7 +1135,7 @@ kbd {
     if (act) act.addEventListener('click', () => {
       const { kind } = hangarSel, key = kind + ':' + it.id;
       if (!owned.has(key)) {
-        if (credits < it.price) return;
+        if (it.unlock || credits < it.price) return;
         credits -= it.price;
         owned.add(key);
         showToast(`Bought ${it.name}`);
@@ -975,6 +1146,7 @@ kbd {
       }
       equip[kind] = it.id;
       saveCosmetics();
+      checkProgress();
       renderHangar(`.item[data-kind="${kind}"][data-id="${it.id}"]`);
     });
     $('back').addEventListener('click', () => { trying = null; setMode('title'); });
@@ -1062,6 +1234,7 @@ kbd {
     if (daily) showToast(`Daily · site ${daily.site} of ${DAILY_SITES}`);
   }
   function advance() {
+    if (mode === 'paused') { setMode('flying'); return; }
     if (mode === 'title' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
       rng = Math.random;
@@ -1098,6 +1271,11 @@ kbd {
     if (!match.log[match.round - 1]) match.log[match.round - 1] = [null, null];
     match.log[match.round - 1][pl] = lastResult;
     match.runs[pl] = { ...lastRun, label: names[pl], tint: PLAYER_TINT[pl] };
+    if (match.step === 1) {
+      const first = match.log[match.round - 1][match.first];
+      if (lastResult.pts > (first ? first.pts : 0)) award('ghostbuster');
+      if (match.round >= ROUNDS && match.scores[0] !== match.scores[1]) award('rival');
+    }
     setMode(match.step === 0 ? 'turn' : match.round >= ROUNDS ? 'matchEnd' : 'roundEnd');
   }
 
@@ -1121,7 +1299,7 @@ kbd {
   function updateCamera(dt) {
     let tz = 1, tx = W / 2, ty = H / 2;
     const L = lander;
-    const active = L && (mode === 'flying' || mode === 'landed' || mode === 'crashed' || mode === 'over');
+    const active = L && (mode === 'flying' || mode === 'paused' || mode === 'landed' || mode === 'crashed' || mode === 'over');
     if (active && autoZoom) {
       const g = groundAt(L.x);
       const alt = Math.max(0, L.y - 3 - g);
@@ -1220,10 +1398,10 @@ kbd {
     }
     ctx.globalAlpha = 1;
 
-    if (ghost && showGhost && mode === 'flying') drawGhost(time);
+    if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
     const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd');
     if (sitting && flagPlant) drawFlag(time);
-    if (mode === 'flying' || sitting) drawLander(lander, time);
+    if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
     if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
   }
 
@@ -1425,7 +1603,8 @@ kbd {
     const frameDt = Math.min(0.1, (now - last) / 1000);
     acc += frameDt;
     last = now;
-    while (acc >= DT) { step(DT); acc -= DT; }
+    if (mode === 'paused') acc = 0;   // freeze the simulation, wind clock included
+    else while (acc >= DT) { step(DT); acc -= DT; }
     sfx.update({
       engine: mode === 'flying' && lander.firing,
       rcs: mode === 'flying' && (keys.left || keys.right) && lander.fuel > 0,
@@ -1452,10 +1631,15 @@ kbd {
       return;
     }
     const k = keyMap[e.code];
-    if (mode === 'hangar') {
+    if (mode === 'hangar' || mode === 'badges') {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
+    if ((e.code === 'KeyP' || e.code === 'Escape') && !e.repeat) {
+      if (mode === 'flying') { setMode('paused'); e.preventDefault(); return; }
+      if (mode === 'paused') { setMode('flying'); e.preventDefault(); return; }
+    }
+    if ((mode === 'title' || mode === 'over') && e.code === 'KeyB' && !e.repeat) { setMode('badges'); return; }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
     if (mode === 'title' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
       e.preventDefault();
@@ -1485,7 +1669,8 @@ kbd {
     else if (e.code === 'Space') e.preventDefault();
   });
   addEventListener('keyup', e => { const k = keyMap[e.code]; if (k) keys[k] = false; });
-  addEventListener('blur', () => { keys.left = keys.right = keys.thrust = false; });
+  // auto-pause when the player looks away
+  addEventListener('blur', () => { keys.left = keys.right = keys.thrust = false; if (mode === 'flying') setMode('paused'); });
 
   [['bl', 'left'], ['bt', 'thrust'], ['br', 'right']].forEach(([id, k]) => {
     const b = $(id);
@@ -1501,7 +1686,11 @@ kbd {
   // Browsers only allow audio after the player interacts, so start it on the first key or tap.
   addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
   addEventListener('keydown', () => sfx.unlock(), { capture: true });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) sfx.suspend(); else sfx.unlock(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { sfx.suspend(); if (mode === 'flying') setMode('paused'); }
+    else sfx.unlock();
+  });
+  $('pauseBtn').addEventListener('click', () => { if (mode === 'flying') setMode('paused'); });
   const muteBtn = $('mute');
   function syncMute() {
     muteBtn.textContent = sfx.muted ? 'Sound off' : 'Sound on';
