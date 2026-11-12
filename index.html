@@ -974,6 +974,7 @@ kbd {
     let ac = null, master = null, noiseBuf = null;
     let engG, engF, rcsG, windG, windF;
     let muted = store.get('ds-mute', '0') === '1';
+    let warmed = false;
     const VOL = 0.7;
     const noise = (loop = true) => { const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = loop; return n; };
     function init() {
@@ -1033,7 +1034,18 @@ kbd {
     return {
       unlock() {
         if (!ac && !init()) return;
-        if (ac.state === 'suspended') ac.resume().catch(() => {});
+        // iOS also uses an 'interrupted' state after calls or app switches, so resume from anything but running
+        if (ac.state !== 'running') ac.resume().catch(() => {});
+        // iOS only fully opens the audio output once something actually plays inside a tap: play one silent sample
+        if (!warmed) {
+          warmed = true;
+          try {
+            const src = ac.createBufferSource();
+            src.buffer = ac.createBuffer(1, 1, ac.sampleRate);
+            src.connect(ac.destination);
+            src.start(0);
+          } catch (e) {}
+        }
       },
       suspend() { if (ac && ac.state === 'running') ac.suspend().catch(() => {}); },
       get muted() { return muted; },
@@ -1702,7 +1714,7 @@ kbd {
       <div class="settings">
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
         ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
-        ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns', !sfx.muted)}
+        ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
       </div>
       <h2 class="sect">Controls</h2>
       <div class="tally-wrap"><table class="tally">
@@ -2474,8 +2486,8 @@ kbd {
   });
 
   // Browsers only allow audio after the player interacts, so start it on the first key or tap.
-  addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
-  addEventListener('keydown', () => sfx.unlock(), { capture: true });
+  // iPhones only allow it when a tap ends (touchend/click), not when it starts, so listen for all of them.
+  for (const type of ['pointerdown', 'touchend', 'click', 'keydown']) addEventListener(type, () => sfx.unlock(), { capture: true });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { sfx.suspend(); if (mode === 'flying') setMode('paused'); }
     else sfx.unlock();
