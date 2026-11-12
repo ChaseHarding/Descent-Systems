@@ -12,11 +12,12 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
+- **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **14 badges** to earn, six of which unlock exclusive cosmetics
+- **18 badges** to earn, nine of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -53,7 +54,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | Z | Toggle auto-zoom |
 | G | Toggle ghosts |
 | M | Toggle sound |
-| P / Esc | Pause and resume |
+| P / Esc | Pause and resume (Esc also backs out of menus) |
 | B | Open badges |
 | Esc | Leave the hangar or badges screen |
 
@@ -74,9 +75,35 @@ Every point you score is banked as credits the moment you touch down. Spend them
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
 - **Landing flags:** Pennant (free), Tricolor, Lone Star, Checkered, Jolly Roger, Waving Banner. Your flag plants itself beside the lander after every touchdown.
 
+## Missions
+
+Open **Missions** from the start screen. The campaign has 12 hand-built missions across all five worlds, and finishing one unlocks the next.
+
+| # | Mission | World | Type |
+|---|---|---|---|
+| 1 | First Steps | Pluto | Precision |
+| 2 | Tranquility | Moon | Precision |
+| 3 | Supply Run | Moon | Cargo |
+| 4 | Lifeline | Moon | Rescue |
+| 5 | Haze Delivery | Titan | Cargo |
+| 6 | Methane Canyon | Titan | Canyon |
+| 7 | Dust Ledge | Mars | Precision |
+| 8 | Valles Run | Mars | Canyon |
+| 9 | Storm Rescue | Mars | Rescue |
+| 10 | Heavy Lift | Earth | Cargo |
+| 11 | The Needle | Earth | Canyon |
+| 12 | Last Light | Earth | Rescue |
+
+- **Precision:** land on the marked pad, LZ.
+- **Cargo:** land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes the lander heavier and slower to turn.
+- **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
+- **Rescue:** land on CREW and hold still while they board, then climb out of the top of the screen to reach orbit.
+
+You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
+
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Six badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Nine badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -94,6 +121,10 @@ Open **Badges** from the start screen to see your progress. Six badges unlock ex
 | Ghostbuster | In hot-seat, outscore the ghost you're racing | |
 | Collector | Buy 10 items in the hangar | |
 | Saver | Hold 5,000 credits at once | |
+| Mission ready | Complete your first mission | |
+| Campaign hero | Complete all 12 missions | Pathfinder hull |
+| Star collector | Earn 24 mission stars | Comet Tail flame |
+| Flawless | Earn all 36 mission stars | Mission Patch flag |
 
 ## Hot-seat mode
 

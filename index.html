@@ -142,8 +142,7 @@ kbd {
 .deal b { color: var(--regolith); font-weight: 500; }
 .shelf { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 .shelf h2 { margin: 0; font-family: var(--f-display); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); text-align: left; }
-.items { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-@media (max-width: 560px) { .items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .item {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;
   padding: 8px; background: var(--panel); color: var(--regolith);
@@ -207,7 +206,7 @@ kbd {
 .daily .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
 .daily > b { font-family: var(--f-display); font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--flame); }
 .daily span b { color: var(--regolith); font-weight: 500; }
-.card .squares { font-size: 26px; letter-spacing: 0.15em; line-height: 1.2; }
+.card .squares { font-size: 26px; letter-spacing: 0.15em; line-height: 1.2; color: var(--flame); }
 .share-text {
   width: min(24rem, 100%); box-sizing: border-box; resize: none;
   font-family: var(--f-mono); font-size: 12px; padding: 8px;
@@ -252,6 +251,35 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* Missions */
+.mlist { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .mlist { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.mtile {
+  position: relative; min-width: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  padding: 10px; text-align: left; cursor: pointer;
+  background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 6px;
+  font-family: var(--f-mono);
+}
+.mtile:hover:not(:disabled) { border-color: var(--regolith-dim); }
+.mtile:disabled { cursor: not-allowed; opacity: 0.45; }
+.mtile:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
+.mtile .orb { position: absolute; top: 10px; right: 10px; width: 14px; height: 14px; border-radius: 50%; }
+.mnum { font-size: 11px; letter-spacing: 0.1em; color: var(--regolith-dim); font-variant-numeric: tabular-nums; }
+.mtile b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
+.mtype { font-size: 11px; color: var(--regolith-dim); }
+.mstars { font-size: 15px; letter-spacing: 0.12em; color: var(--flame); }
+.mstars .off, .card .squares .off { color: var(--regolith-dim); opacity: 0.5; }
+.card .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
+.goals { margin: 0; padding-left: 1.4em; text-align: left; font-size: 13px; line-height: 1.7; }
+.starlist { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--regolith-dim); text-align: left; }
+.starlist .met { color: var(--flame); }
+.objective {
+  position: absolute; top: 74px; right: 10px; max-width: min(46%, 22rem);
+  padding: 6px 10px; background: var(--panel); border: 1px solid var(--flame); border-radius: 4px;
+  font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; pointer-events: none;
+}
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -293,6 +321,7 @@ kbd {
       <b id="score">0</b>
       <span id="meta">MOON · SITE 1 · LANDERS 3</span>
     </div>
+    <div class="objective" id="objective" hidden></div>
     <div class="toast" id="toast" role="status" hidden></div>
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
@@ -386,7 +415,9 @@ kbd {
     { id: 'grand', name: 'Grand Tour', price: 0, unlock: 'tour', blurb: 'Navy and gold, for pilots who have landed everywhere.',
       fill: '#1b2a52', stroke: '#ffd27a', legs: '#ffd27a', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #1b2a52, #ffd27a)' },
     { id: 'champion', name: 'Champion', price: 0, unlock: 'rival', blurb: 'Crimson paint for the hot-seat winner.',
-      fill: '#6b0f1a', stroke: '#ffcf5c', legs: '#ffcf5c', detail: '#ffffff', swatch: 'linear-gradient(90deg, #6b0f1a, #ffcf5c)' }
+      fill: '#6b0f1a', stroke: '#ffcf5c', legs: '#ffcf5c', detail: '#ffffff', swatch: 'linear-gradient(90deg, #6b0f1a, #ffcf5c)' },
+    { id: 'pathfinder', name: 'Pathfinder', price: 0, unlock: 'campaign', blurb: 'Mission white with campaign orange trim.',
+      fill: '#f2f4f8', stroke: '#ff8a3d', legs: '#ff8a3d', detail: '#ff8a3d', swatch: 'linear-gradient(90deg, #f2f4f8, #ff8a3d)' }
   ];
   const FLAMES = [
     { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
@@ -404,7 +435,9 @@ kbd {
     { id: 'feather', name: 'Feather Light', price: 0, unlock: 'feather', blurb: 'A soft mint glow for gentle pilots.',
       core: '#ffffff', tail: '#7ff0c4', swatch: 'linear-gradient(90deg, #ffffff, #7ff0c4)' },
     { id: 'bullseye', name: 'Bullseye', price: 0, unlock: 'bullseye', blurb: 'Red-hot and dead centre.',
-      core: '#fff6a8', tail: '#ff3d3d', swatch: 'linear-gradient(90deg, #fff6a8, #ff3d3d)' }
+      core: '#fff6a8', tail: '#ff3d3d', swatch: 'linear-gradient(90deg, #fff6a8, #ff3d3d)' },
+    { id: 'comet', name: 'Comet Tail', price: 0, unlock: 'stars24', blurb: 'An icy core trailing violet.',
+      core: '#e0f7ff', tail: '#a66bff', swatch: 'linear-gradient(90deg, #e0f7ff, #a66bff)' }
   ];
   const FLAGS = [
     { id: 'pennant', name: 'Pennant', price: 0, blurb: 'A simple orange pennant.', style: 'pennant',
@@ -422,7 +455,9 @@ kbd {
     { id: 'laurel', name: 'Laurel', price: 0, unlock: 'perfect', blurb: 'Green and gold for a perfect day.', style: 'star',
       colors: ['#0f5132', '#ffd27a'], swatch: 'linear-gradient(90deg, #0f5132, #ffd27a)' },
     { id: 'veteran', name: 'Veteran', price: 0, unlock: 'veteran', blurb: 'Service stripes for 25 landings.', style: 'stripes',
-      colors: ['#1b2a52', '#ffd27a', '#1b2a52'], swatch: 'linear-gradient(180deg, #1b2a52 33%, #ffd27a 33% 66%, #1b2a52 66%)' }
+      colors: ['#1b2a52', '#ffd27a', '#1b2a52'], swatch: 'linear-gradient(180deg, #1b2a52 33%, #ffd27a 33% 66%, #1b2a52 66%)' },
+    { id: 'patch', name: 'Mission Patch', price: 0, unlock: 'flawless', blurb: 'A gold star on black for a flawless campaign.', style: 'star',
+      colors: ['#141414', '#ffd27a'], swatch: 'linear-gradient(90deg, #141414, #ffd27a)' }
   ];
   const itemsOf = kind => kind === 'hull' ? HULLS : kind === 'flame' ? FLAMES : FLAGS;
   const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
@@ -481,7 +516,11 @@ kbd {
     { id: 'rival', name: 'Rival', desc: 'Win a hot-seat match.', reward: 'hull:champion' },
     { id: 'ghostbuster', name: 'Ghostbuster', desc: 'In hot-seat, outscore the ghost you’re racing.' },
     { id: 'collector', name: 'Collector', desc: 'Buy 10 items in the hangar.', prog: () => [Math.min(boughtCount(), 10), 10] },
-    { id: 'saver', name: 'Saver', desc: 'Hold 5,000 credits at once.', prog: () => [Math.min(credits, 5000), 5000] }
+    { id: 'saver', name: 'Saver', desc: 'Hold 5,000 credits at once.', prog: () => [Math.min(credits, 5000), 5000] },
+    { id: 'mission1', name: 'Mission ready', desc: 'Complete your first mission.' },
+    { id: 'campaign', name: 'Campaign hero', desc: 'Complete all 12 missions.', reward: 'hull:pathfinder', prog: () => [completedCount(), MISSIONS.length] },
+    { id: 'stars24', name: 'Star collector', desc: 'Earn 24 mission stars.', reward: 'flame:comet', prog: () => [Math.min(totalStars(), 24), 24] },
+    { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 mission stars.', reward: 'flag:patch', prog: () => [totalStars(), MISSIONS.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
   const kindName = k => k === 'hull' ? 'hull' : k === 'flame' ? 'flame' : 'flag';
@@ -518,10 +557,171 @@ kbd {
       if (a.prog && !got[a.id]) { const [c, m] = a.prog(); if (c >= m) award(a.id); }
     }
   }
+  // ---- Missions ----
+  // ground: [x, y] keypoints (metres). pads: flat landing pads. ceilings: rock hanging from above.
+  // stars: one for finishing, one for fuel left, one for time.
+  const MISSIONS = [
+    { id: 'first-steps', name: 'First Steps', world: 'pluto', kind: 'land', fuel: 180, credits: 100,
+      brief: 'Your first descent. Pluto pulls gently, so you have time to think. Set down on the marked pad.',
+      spawn: { x: 60, vx: 0 }, stars: { fuel: 80, time: 41 },
+      ground: [[0, 35], [20, 40], [45, 32], [70, 38], [95, 30], [120, 26], [180, 30], [200, 42], [220, 38], [240, 45]],
+      pads: [{ id: 'LZ', x1: 135, x2: 165, y: 24 }] },
+    { id: 'tranquility', name: 'Tranquility', world: 'moon', kind: 'land', fuel: 90, credits: 120,
+      brief: 'A classic Moon landing. Kill your sideways drift early, then come straight down onto the pad.',
+      spawn: { x: 30, vx: 2.5 }, stars: { fuel: 45, time: 18 },
+      ground: [[0, 50], [15, 45], [30, 52], [45, 40], [60, 30], [75, 34], [90, 20], [130, 22], [145, 40], [160, 55], [175, 48], [195, 60], [215, 50], [240, 58]],
+      pads: [{ id: 'LZ', x1: 100, x2: 118, y: 18 }] },
+    { id: 'supply-run', name: 'Supply Run', world: 'moon', kind: 'cargo', fuel: 290, credits: 150, mass: 0.8,
+      brief: 'The base over the ridge needs supplies. Land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes you heavier.',
+      spawn: { x: 26, y: 100, vx: 0 }, stars: { fuel: 135, time: 50 },
+      ground: [[0, 48], [12, 44], [44, 46], [60, 55], [80, 64], [100, 72], [115, 75], [130, 68], [150, 55], [170, 42], [185, 34], [218, 36], [232, 44], [240, 48]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 40 }, { id: 'DROP', x1: 192, x2: 210, y: 30 }] },
+    { id: 'lifeline', name: 'Lifeline', world: 'moon', kind: 'rescue', fuel: 175, credits: 150, mass: 0.85,
+      brief: 'Three surveyors are stranded at CREW. Land beside them and hold still while they board, then burn up and out of the top of the screen.',
+      spawn: { x: 50, vx: 1.5 }, stars: { fuel: 80, time: 26 },
+      ground: [[0, 60], [20, 55], [40, 62], [60, 50], [80, 40], [95, 34], [125, 40], [145, 55], [165, 66], [185, 60], [205, 70], [225, 64], [240, 68]],
+      pads: [{ id: 'CREW', x1: 100, x2: 118, y: 34 }] },
+    { id: 'haze-delivery', name: 'Haze Delivery', world: 'titan', kind: 'cargo', fuel: 220, credits: 170, mass: 0.85,
+      brief: 'Titan’s thick air slows everything down. Let the haze hold you up while you carry a crate from PICKUP to DROP.',
+      spawn: { x: 30, y: 90, vx: 0 }, stars: { fuel: 90, time: 53 },
+      ground: [[0, 40], [15, 36], [48, 40], [60, 46], [72, 50], [84, 46], [96, 40], [126, 46], [140, 60], [160, 70], [180, 64], [200, 74], [220, 68], [240, 72]],
+      pads: [{ id: 'PICKUP', x1: 20, x2: 40, y: 34 }, { id: 'DROP', x1: 100, x2: 118, y: 38 }] },
+    { id: 'methane-canyon', name: 'Methane Canyon', world: 'titan', kind: 'canyon', fuel: 210, credits: 180,
+      brief: 'The landing zone sits under a rock overhang. Drop into the canyon on the left, then creep sideways beneath the roof. Touch the rock and it’s over.',
+      spawn: { x: 40, vx: 0 }, stars: { fuel: 85, time: 67 },
+      ground: [[0, 70], [20, 72], [40, 68], [55, 66], [62, 40], [70, 20], [90, 16], [110, 14], [130, 16], [175, 18], [190, 30], [200, 60], [215, 80], [240, 85]],
+      ceilings: [[[100, 60], [120, 45], [140, 40], [170, 38], [200, 60]]],
+      pads: [{ id: 'LZ', x1: 150, x2: 168, y: 14 }] },
+    { id: 'dust-ledge', name: 'Dust Ledge', world: 'mars', kind: 'land', fuel: 210, credits: 200,
+      brief: 'The survey team wants a beacon on top of the spire. The pad is tiny and gusts keep shoving you sideways. Watch the wind gauge.',
+      spawn: { x: 60, vx: 0 }, stars: { fuel: 85, time: 46 },
+      ground: [[0, 20], [20, 24], [40, 18], [60, 22], [80, 30], [100, 45], [115, 70], [125, 88], [146, 70], [160, 40], [180, 25], [200, 18], [220, 22], [240, 16]],
+      pads: [{ id: 'LZ', x1: 128, x2: 140, y: 92 }] },
+    { id: 'valles-run', name: 'Valles Run', world: 'mars', kind: 'canyon', fuel: 155, credits: 220,
+      brief: 'Fly the length of the valley. Two rock overhangs hang over the route, and the landing zone sits beneath the second.',
+      spawn: { x: 20, vx: 0 }, stars: { fuel: 65, time: 35 },
+      ground: [[0, 90], [25, 92], [35, 88], [40, 60], [50, 30], [70, 25], [90, 28], [110, 22], [130, 26], [150, 20], [170, 24], [204, 28], [215, 50], [225, 80], [240, 95]],
+      ceilings: [[[70, 95], [85, 62], [100, 55], [115, 60], [125, 95]], [[140, 100], [155, 58], [170, 52], [185, 50], [205, 58], [215, 100]]],
+      pads: [{ id: 'LZ', x1: 180, x2: 196, y: 22 }] },
+    { id: 'storm-rescue', name: 'Storm Rescue', world: 'mars', kind: 'rescue', fuel: 150, credits: 230, mass: 0.85,
+      brief: 'A dust storm is closing in on a stranded crew. Get down to CREW, take them aboard, and climb out before the wind gets you.',
+      spawn: { x: 30, vx: 3 }, stars: { fuel: 60, time: 29 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }] },
+    { id: 'heavy-lift', name: 'Heavy Lift', world: 'earth', kind: 'cargo', fuel: 225, credits: 260, mass: 0.8,
+      brief: 'Earth gravity is unforgiving. Lift a crate from PICKUP to DROP using short bursts, and never let your speed build up.',
+      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 85, time: 41 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 170, x2: 188, y: 28 }] },
+    { id: 'the-needle', name: 'The Needle', world: 'earth', kind: 'canyon', fuel: 140, credits: 280,
+      brief: 'Thread the gap beneath the rock shelf and land on the pad at the far end. There’s just enough room to fly level.',
+      spawn: { x: 30, vx: 0 }, stars: { fuel: 55, time: 31 },
+      ground: [[0, 60], [20, 62], [35, 58], [45, 40], [55, 22], [75, 20], [95, 22], [115, 20], [135, 24], [150, 22], [178, 24], [190, 40], [205, 70], [220, 80], [240, 82]],
+      ceilings: [[[95, 100], [105, 50], [125, 44], [145, 46], [180, 46], [195, 100]]],
+      pads: [{ id: 'LZ', x1: 158, x2: 172, y: 20 }] },
+    { id: 'last-light', name: 'Last Light', world: 'earth', kind: 'rescue', fuel: 135, credits: 300, mass: 0.85,
+      brief: 'The final mission. A crew is stranded on Earth at sunset and only you can reach them. Land at CREW, take them aboard, and fly them home to orbit.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 55, time: 25 },
+      ground: [[0, 50], [25, 56], [45, 48], [65, 40], [85, 34], [112, 38], [130, 52], [150, 64], [170, 58], [190, 70], [210, 62], [240, 66]],
+      pads: [{ id: 'CREW', x1: 90, x2: 106, y: 32 }] }
+  ];
+  const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue' };
+  const LOAD_TIME = 1.5;
+  let missionStars;
+  try { missionStars = JSON.parse(store.get('ds-missions', '{}')) || {}; } catch (e) { missionStars = {}; }
+  const totalStars = () => MISSIONS.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
+  const completedCount = () => MISSIONS.filter(d => missionStars[d.id] > 0).length;
+  const missionOpen = i => i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
+  const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
+  const goalsOf = d => d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
+    : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
+    : [{ type: 'land', pad: 'LZ' }];
+  const currentGoal = () => mission ? goalsOf(mission.def)[mission.stage] : null;
+  const isGoalPad = p => { const g = currentGoal(); return !!g && g.pad === p.id; };
+  const thrustMul = () => mission && mission.carrying ? (mission.def.mass || 0.8) : 1;
+  const rotMul = () => mission && mission.carrying ? 0.8 : 1;
+  function goalText() {
+    const g = currentGoal();
+    if (!g) return '';
+    if (mission.loading) return `${g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
+    if (g.type === 'pickup') return g.what === 'cargo' ? 'Land on PICKUP' : 'Land on CREW';
+    if (g.type === 'land') return mission.carrying === 'cargo' ? 'Deliver the crate to DROP' : 'Land on LZ';
+    return 'Climb to orbit ↑';
+  }
+  function buildMissionTerrain(d) {
+    const pts = d.ground.filter(([x]) => !d.pads.some(p => x >= p.x1 && x <= p.x2));
+    for (const p of d.pads) pts.push([p.x1, p.y], [p.x2, p.y]);
+    terrain = pts.sort((a, b) => a[0] - b[0]);
+    pads = d.pads.map(p => ({ ...p, label: p.id, mult: 1 }));
+    ceilings = (d.ceilings || []).map(c => c.slice().sort((a, b) => a[0] - b[0]));
+    missionTerrain = true;
+  }
+  function startMission(ghostRun) {
+    const d = MISSIONS[missionSel];
+    world = WORLDS.find(w => w.id === d.world);
+    match = null; daily = null;
+    mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null };
+    rng = mulberry32(hashStr('mission:' + d.id));
+    buildMissionTerrain(d);
+    windDir = rng() < 0.5 ? -1 : 1; windSeed = rrand(0, 100);
+    makeBackdrop();
+    levelFuel = d.fuel;
+    spawn(d.spawn);
+    rng = Math.random;
+    fly(ghostRun || null);
+  }
+  function plantFlag(pad) {
+    const L = lander;
+    const side = L.x + 5 <= pad.x2 - 0.5 ? 5 : L.x - 5 >= pad.x1 + 0.5 ? -5 : 5;
+    flagPlant = { x: L.x + side, y: groundAt(L.x + side), t: performance.now() };
+  }
+  function missionTouchdown(pad, vy, vx, ang) {
+    const L = lander, feet = FEET.map(([x, y]) => toWorld(x, y));
+    L.y += pad.y - Math.min(...feet.map(f => f[1]));
+    L.vx = L.vy = 0; L.firing = false; L.grounded = true;
+    sfx.thud();
+    onLanded(pad, vy, vx, ang, L.fuel);
+    const g = currentGoal();
+    if (g.type === 'land' && pad.id === g.pad) { completeMission(pad); return; }
+    if (g.type === 'pickup' && pad.id === g.pad) { mission.loading = true; mission.loadT = 0; }
+    else showToast('Safe on the pad. Lift off when ready.');
+  }
+  function finishPickup() {
+    const g = currentGoal();
+    mission.loading = false;
+    mission.carrying = g.what;
+    mission.stage++;
+    lander.cargo = g.what === 'cargo';
+    lander.crew = g.what === 'crew';
+    showToast(g.what === 'cargo' ? 'Cargo secured. Lift off!' : 'Crew aboard. Climb to orbit!');
+    sfx.coin();
+  }
+  function completeMission(pad) {
+    const d = mission.def, t = flightT, fuel = lander.fuel;
+    const met = [true, fuel >= d.stars.fuel, t <= d.stars.time];
+    const starsWon = met.filter(Boolean).length;
+    const prev = missionStars[d.id] || 0;
+    const pay = Math.max(0, starsWon - prev) * d.credits;
+    if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
+    credits += pay;
+    saveCosmetics();
+    lastRun = { frames: recording, result: 'landed' };
+    lastResult = { pad, pts: 0, reasons: [] };
+    if (pad) {
+      if (mission.carrying === 'cargo') { lander.cargo = false; mission.dropped = pad; }
+      plantFlag(pad);
+    }
+    mission.result = { ok: true, stars: starsWon, prev, pay, t, fuel, met };
+    sfx.landed(starsWon === 3);
+    award('mission1');
+    checkProgress();
+    setMode('missionEnd');
+  }
+
   function onLanded(pad, vy, vx, ang, fuel) {
     stats.landings++;
     if (!stats.worlds.includes(world.id)) stats.worlds.push(world.id);
-    if (!match && !daily) stats.bestSite = Math.max(stats.bestSite, level);
+    if (!match && !daily && !mission) stats.bestSite = Math.max(stats.bestSite, level);
     saveStats();
     award('first');
     if (world.id === 'earth') award('earthling');
@@ -541,6 +741,9 @@ kbd {
   const names = [store.get('ds-p1', 'Player 1'), store.get('ds-p2', 'Player 2')];
   let match = null;          // hot-seat match in progress
   let daily = null;          // daily challenge run in progress
+  let mission = null;        // mission in progress
+  let missionSel = 0;        // which mission the briefing shows
+  let missionTerrain = false;
   let flagPlant = null;      // where the flag went in after the last landing
   const DAILY_SITES = 3;
   const GAME_URL = 'https://chaseharding.github.io/Descent-Systems/';
@@ -682,7 +885,7 @@ kbd {
 
   // ---- State ----
   const keys = { left: false, right: false, thrust: false };
-  let terrain = [], pads = [], stars = [], dust = [];
+  let terrain = [], pads = [], stars = [], dust = [], ceilings = [];
   let lander, particles = [];
   let mode = 'title';
   let level = 1, lives = 3, score = 0, levelFuel = 100;
@@ -709,6 +912,7 @@ kbd {
 
   // ---- Terrain ----
   function genTerrain() {
+    ceilings = []; missionTerrain = false;
     const step = 6, n = Math.round(W / step);
     const rough = (4 + level * 1.2) * world.rough;
     const h = [];
@@ -737,11 +941,25 @@ kbd {
     windSeed = rrand(0, 100);
   }
   function groundAt(x) {
-    const step = terrain[1][0];
-    const i = Math.max(0, Math.min(terrain.length - 2, Math.floor(x / step)));
-    const [x0, y0] = terrain[i], [x1, y1] = terrain[i + 1];
-    const t = Math.max(0, Math.min(1, (x - x0) / (x1 - x0)));
-    return y0 + (y1 - y0) * t;
+    const T = terrain;
+    if (x <= T[0][0]) return T[0][1];
+    for (let i = 0; i < T.length - 1; i++) {
+      const [x0, y0] = T[i], [x1, y1] = T[i + 1];
+      if (x <= x1) return x1 > x0 ? y0 + (y1 - y0) * (x - x0) / (x1 - x0) : y1;
+    }
+    return T[T.length - 1][1];
+  }
+  // Rock hanging from above (canyon roofs). Infinity where the sky is open.
+  function ceilingAt(x) {
+    let best = Infinity;
+    for (const c of ceilings) {
+      if (x < c[0][0] || x > c[c.length - 1][0]) continue;
+      for (let i = 0; i < c.length - 1; i++) {
+        const [x0, y0] = c[i], [x1, y1] = c[i + 1];
+        if (x <= x1) { const y = x1 > x0 ? y0 + (y1 - y0) * (x - x0) / (x1 - x0) : y1; if (y < best) best = y; break; }
+      }
+    }
+    return best;
   }
   // Gusting wind: a steady breeze plus two slow waves, occasionally reversing on stormy worlds.
   function windAt(t) {
@@ -757,9 +975,10 @@ kbd {
     flagPlant = null;
     flightT = 0; simT = 0; recording = [];
     lander = {
-      x: spawnPlan.x, y: H - 12,
-      vx: spawnPlan.vx, vy: 0, a: 0,
-      fuel: levelFuel, firing: false
+      x: spawnPlan.x, y: spawnPlan.y ?? H - 12,
+      vx: spawnPlan.vx, vy: spawnPlan.vy ?? 0, a: 0,
+      fuel: levelFuel, fuelMax: levelFuel, firing: false,
+      grounded: false, cargo: false, crew: false
     };
     particles = [];
     resetCamera();
@@ -778,18 +997,24 @@ kbd {
       let rot = 0;
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
-      if (rot && L.fuel > 0) {
-        L.a = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, L.a + rot * ROT_RATE * dt));
+      if (rot && L.fuel > 0 && !L.grounded) {
+        L.a = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, L.a + rot * ROT_RATE * rotMul() * dt));
         L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
       L.firing = keys.thrust && L.fuel > 0;
       let ax = windNow - world.drag * L.vx;
       let ay = -world.g - world.drag * L.vy;
       if (L.firing) {
-        ax += Math.sin(L.a) * world.thrust;
-        ay += Math.cos(L.a) * world.thrust;
+        const T = world.thrust * thrustMul();
+        ax += Math.sin(L.a) * T;
+        ay += Math.cos(L.a) * T;
         L.fuel = Math.max(0, L.fuel - BURN * dt);
         if (Math.random() < 0.9) emitExhaust();
+      }
+      if (L.grounded) {
+        // resting on a pad: stay put until the engine can lift you
+        if (L.firing && ay > 0) { L.grounded = false; L.y += 0.05; if (mission) mission.loading = false; }
+        else { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }
       }
       L.vx += ax * dt; L.vy += ay * dt;
       L.x += L.vx * dt; L.y += L.vy * dt;
@@ -798,7 +1023,13 @@ kbd {
       flightT += dt;
       const fi = Math.floor(flightT * 60);
       while (recording.length <= fi) recording.push([L.x, L.y, L.a, L.firing ? 1 : 0]);
-      checkContact();
+      if (L.grounded && mission && mission.loading) {
+        mission.loadT += dt;
+        if (mission.loadT >= LOAD_TIME) finishPickup();
+      }
+      const goal = mission && currentGoal();
+      if (goal && goal.type === 'exit' && L.y > H + 4) completeMission(null);
+      else checkContact();
     }
     for (const p of particles) {
       p.vy -= (p.g ?? 0) * dt;
@@ -840,18 +1071,21 @@ kbd {
 
   function checkContact() {
     const L = lander;
+    if (L.grounded) return;
     const feet = FEET.map(([x, y]) => toWorld(x, y));
     const hull = HULL.map(([x, y]) => toWorld(x, y));
     const hullHit = hull.some(([x, y]) => y <= groundAt(x));
     const footHit = feet.some(([x, y]) => y <= groundAt(x));
-    if (!hullHit && !footHit) return;
+    const roofHit = ceilings.length > 0 && [...hull, ...feet].some(([x, y]) => y >= ceilingAt(x));
+    if (!hullHit && !footHit && !roofHit) return;
 
     const pad = pads.find(p => feet.every(([x]) => x >= p.x1 && x <= p.x2));
     const angDeg = Math.abs(L.a * 180 / Math.PI);
     const vy = -L.vy, vx = Math.abs(L.vx);
     const stats = { vy, vx, ang: angDeg };
 
-    if (!hullHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+    if (!hullHit && !roofHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+      if (mission) { missionTouchdown(pad, vy, vx, angDeg); return; }
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.firing = false;
       // plant the flag beside the lander, on the pad when there's room
@@ -879,14 +1113,17 @@ kbd {
     } else {
       const reasons = [];
       if (hullHit && !footHit) reasons.push('hull struck terrain');
-      if (!pad) reasons.push('touched down off a pad');
-      if (vy > SAFE_VY) reasons.push(`descending at ${vy.toFixed(1)} m/s (limit ${SAFE_VY})`);
-      if (vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s (limit ${SAFE_VX})`);
-      if (angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
+      if (roofHit) reasons.push('scraped the rock overhead');
+      if (footHit && !pad) reasons.push('touched down off a pad');
+      if ((footHit || hullHit) && vy > SAFE_VY) reasons.push(`descending at ${vy.toFixed(1)} m/s (limit ${SAFE_VY})`);
+      if ((footHit || hullHit) && vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s (limit ${SAFE_VX})`);
+      if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
+      if (!reasons.length) reasons.push('hit the ground at a bad angle');
       explode();
       lastResult = { reasons, pts: 0, ...stats };
       lastRun = { frames: recording, result: 'crashed' };
       sfx.boom();
+      if (mission) { mission.result = { ok: false }; setMode('missionEnd'); return; }
       if (match) { endTurn(); return; }
       if (daily) { daily.results.push(lastResult); setMode('dailyEnd'); return; }
       lives--;
@@ -921,6 +1158,7 @@ kbd {
     if (m === 'flying') { overlay.hidden = true; return; }
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
+    if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       hangarSel = { kind: 'hull', id: equip.hull };
@@ -929,7 +1167,11 @@ kbd {
     }
     const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
-    if (m === 'title') { match = null; ghost = null; daily = null; rng = Math.random; }
+    if (m === 'title') {
+      match = null; ghost = null; daily = null; mission = null; rng = Math.random;
+      const w = playMode === 'daily' ? dailyWorld() : storedWorld();
+      if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
+    }
     if (m === 'title') {
       const best = bestFor(world);
       html = `<h1 class="good">Descent Systems</h1>
@@ -958,6 +1200,7 @@ kbd {
         <p class="limits">${ROUNDS} rounds. Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : playMode === 'daily' ? 'Start today’s challenge' : `Descend to ${world.name}`}</button>
+          <button class="btn ghost" id="missionsBtn">Missions ${totalStars()}★</button>
           <button class="btn ghost" id="hangarBtn">Hangar</button>
           <button class="btn ghost" id="badgesBtn">Badges ${earned()}/${ACH.length}</button>
         </div>
@@ -1019,8 +1262,61 @@ kbd {
             <button class="btn ghost" id="pick">Back to launch</button>
           </div>`;
       }
+    } else if (m === 'brief') {
+      const d = MISSIONS[missionSel];
+      world = WORLDS.find(w => w.id === d.world);
+      buildMissionTerrain(d); makeBackdrop();
+      const best = missionStars[d.id] || 0;
+      const steps = d.kind === 'cargo' ? ['Land on PICKUP and hold still while the crate loads', 'Fly the crate to DROP and land']
+        : d.kind === 'rescue' ? ['Land on CREW and hold still while they board', 'Climb out of the top of the screen to reach orbit']
+        : d.kind === 'canyon' ? ['Land on LZ', 'Don’t touch the rock overhead'] : ['Land on LZ'];
+      html = `<span class="eyebrow">Mission ${missionSel + 1} of ${MISSIONS.length} · ${world.name} · ${KIND_LABEL[d.kind]}</span>
+        <h1 class="good">${d.name}</h1>
+        <p>${d.brief}</p>
+        <ol class="goals">${steps.map(t => `<li>${t}</li>`).join('')}</ol>
+        <div class="starlist">
+          <span class="${best >= 1 ? 'met' : ''}">★ Complete the mission</span>
+          <span>★ Finish with ${d.stars.fuel} kg of fuel or more</span>
+          <span>★ Finish within ${d.stars.time} seconds</span>
+        </div>
+        <p class="limits">Fuel ${d.fuel} kg · Gravity ${world.g.toFixed(2)} m/s² · ${effectText(world)} · ${fmt(d.credits)} credits per new star</p>
+        ${best ? `<p class="mstars">${starHtml(best)}</p>` : ''}
+        <div class="btns">
+          <button class="btn" id="go">Launch</button>
+          <button class="btn ghost" id="toMissions">All missions</button>
+        </div>`;
+    } else if (m === 'missionEnd') {
+      const r = mission.result, d = mission.def;
+      const hasNext = r.ok && missionSel + 1 < MISSIONS.length;
+      if (r.ok) {
+        const fresh = r.stars - r.prev;
+        html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
+          <h1 class="good">Mission complete</h1>
+          <p class="squares">${starHtml(r.stars)}</p>
+          <div class="starlist">
+            <span class="met">★ Mission complete</span>
+            <span class="${r.met[1] ? 'met' : ''}">★ ${Math.floor(r.fuel)} kg fuel left (goal ${d.stars.fuel} kg)</span>
+            <span class="${r.met[2] ? 'met' : ''}">★ ${r.t.toFixed(1)} s (goal ${d.stars.time} s)</span>
+          </div>
+          ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
+                  : `<p class="limits">No new stars this time. Your best is ${r.prev} of 3.</p>`}
+          <div class="btns">
+            ${hasNext ? '<button class="btn" id="next">Next mission</button>' : ''}
+            <button class="btn${hasNext ? ' ghost' : ''}" id="go">Fly again</button>
+            <button class="btn ghost" id="toMissions">All missions</button>
+          </div>`;
+      } else {
+        html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
+          <h1 class="bad">Mission failed</h1>
+          <p>${cap(lastResult.reasons.join(', '))}.</p>
+          <div class="btns">
+            <button class="btn" id="go">Retry</button>
+            <button class="btn ghost" id="toMissions">All missions</button>
+          </div>
+          <p class="limits">${showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
+      }
     } else if (m === 'paused') {
-      const where = match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
+      const where = mission ? `Mission ${missionSel + 1} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
         : daily ? `Daily · site ${daily.site} of ${DAILY_SITES}` : `${world.name} · site ${level}`;
       html = `<h1>Paused</h1>
         <p class="limits">${where}</p>
@@ -1073,6 +1369,12 @@ kbd {
     if (hb) hb.addEventListener('click', () => setMode('hangar'));
     const bb = $('badgesBtn');
     if (bb) bb.addEventListener('click', () => setMode('badges'));
+    const mb = $('missionsBtn');
+    if (mb) mb.addEventListener('click', () => setMode('missions'));
+    const tm = $('toMissions');
+    if (tm) tm.addEventListener('click', () => setMode('missions'));
+    const nx = $('next');
+    if (nx) nx.addEventListener('click', () => { missionSel++; setMode('brief'); });
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
       selectWorld(WORLDS.find(w => w.id === b.dataset.id));
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
@@ -1081,6 +1383,27 @@ kbd {
     if (m !== 'title') setTimeout(() => go.focus({ preventScroll: true }), 0);
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function renderMissions() {
+    card.innerHTML = `<h1 class="good">Missions</h1>
+      <p class="sub">${totalStars()} of ${MISSIONS.length * 3} stars · ${completedCount()} of ${MISSIONS.length} complete</p>
+      <div class="mlist">${MISSIONS.map((d, i) => {
+        const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
+        return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
+          <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
+          <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
+          <b>${d.name}</b>
+          <span class="mtype">${w.name} · ${KIND_LABEL[d.kind]}</span>
+          <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
+        </button>`;
+      }).join('')}</div>
+      <p class="limits">Finish a mission to unlock the next. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
+      <button class="btn ghost" id="back">Back to launch</button>`;
+    card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => { missionSel = +b.dataset.i; setMode('brief'); }));
+    $('back').addEventListener('click', () => setMode('title'));
+    const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].pop();
+    setTimeout(() => (firstOpen || $('back')).focus({ preventScroll: true }), 0);
+  }
 
   function renderBadges() {
     card.innerHTML = `<h1 class="good">Badges</h1>
@@ -1232,9 +1555,12 @@ kbd {
     setMode('flying');
     if (match) { showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`); sfx.turn(); }
     if (daily) showToast(`Daily · site ${daily.site} of ${DAILY_SITES}`);
+    if (mission) showToast(goalText());
   }
   function advance() {
     if (mode === 'paused') { setMode('flying'); return; }
+    if (mode === 'brief') { startMission(null); return; }
+    if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
     if (mode === 'title' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
       rng = Math.random;
@@ -1373,14 +1699,29 @@ kbd {
       terrain.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y)));
       ctx.strokeStyle = world.rim; ctx.lineWidth = 1.5; ctx.stroke();
 
+      // rock overhangs, filled up past the top of the screen
+      for (const c of ceilings) {
+        ctx.beginPath();
+        ctx.moveTo(sx(c[0][0]), -5);
+        for (const [x, y] of c) ctx.lineTo(sx(x), sy(y));
+        ctx.lineTo(sx(c[c.length - 1][0]), -5);
+        ctx.closePath();
+        ctx.fillStyle = world.ground; ctx.fill();
+        ctx.strokeStyle = world.rim; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+
       ctx.font = `600 ${Math.min(16, Math.max(10, base * 3.2 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
       ctx.textAlign = 'center';
       for (const p of pads) {
+        const lit = !mission || isGoalPad(p);
+        ctx.globalAlpha = !lit ? 0.4 : mission ? 0.75 + 0.25 * Math.sin(time / 200) : 1;
         ctx.strokeStyle = col.flame; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(sx(p.x1), sy(p.y)); ctx.lineTo(sx(p.x2), sy(p.y)); ctx.stroke();
         ctx.fillStyle = col.flame;
-        ctx.fillText(`×${p.mult}`, sx((p.x1 + p.x2) / 2), sy(p.y) + Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z))));
+        ctx.fillText(p.label || `×${p.mult}`, sx((p.x1 + p.x2) / 2), sy(p.y) + Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z))));
+        ctx.globalAlpha = 1;
       }
+      if (mission) drawMissionProps(time);
     }
 
     const sk = skin();
@@ -1399,7 +1740,7 @@ kbd {
     ctx.globalAlpha = 1;
 
     if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
-    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd');
+    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd');
     if (sitting && flagPlant) drawFlag(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
     if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
@@ -1452,6 +1793,15 @@ kbd {
       c.moveTo(s * 1.4, 1); c.lineTo(s * 3.4, 3);
       c.moveTo(s * 2.8, 3); c.lineTo(s * 4, 3);
       c.stroke();
+    }
+    if (L.cargo) {
+      c.fillStyle = '#b07a35'; c.strokeStyle = '#ffd9a0';
+      c.fillRect(-1.3, -5.6, 2.6, 1.7); c.strokeRect(-1.3, -5.6, 2.6, 1.7);
+      c.beginPath(); c.moveTo(-1.3, -5.6); c.lineTo(1.3, -3.9); c.moveTo(1.3, -5.6); c.lineTo(-1.3, -3.9); c.stroke();
+    }
+    if (L.crew) {
+      c.fillStyle = Math.floor(time / 300) % 2 ? '#9fe0b8' : '#2f7a55';
+      c.beginPath(); c.arc(0, -4.4, 0.5, 0, Math.PI * 2); c.fill();
     }
   }
 
@@ -1532,6 +1882,52 @@ kbd {
       }
     }
   }
+  function drawCrate(x, y) {
+    ctx.save();
+    ctx.translate(sx(x), sy(y)); ctx.scale(scale, scale);
+    ctx.lineWidth = 1.4 / scale;
+    ctx.fillStyle = '#b07a35'; ctx.strokeStyle = '#ffd9a0';
+    ctx.fillRect(-1.3, -1.7, 2.6, 1.7); ctx.strokeRect(-1.3, -1.7, 2.6, 1.7);
+    ctx.beginPath(); ctx.moveTo(-1.3, -1.7); ctx.lineTo(1.3, 0); ctx.moveTo(1.3, -1.7); ctx.lineTo(-1.3, 0); ctx.stroke();
+    ctx.restore();
+  }
+  function drawCrew(x, y, time, i) {
+    ctx.save();
+    ctx.translate(sx(x), sy(y)); ctx.scale(scale, scale);
+    ctx.lineWidth = 1.4 / scale; ctx.lineCap = 'round';
+    ctx.strokeStyle = '#9fe0b8';
+    const wave = Math.sin(time / 180 + i * 1.7) * 0.35;
+    ctx.beginPath(); ctx.arc(0, -1.9, 0.3, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -1.6); ctx.lineTo(0, -0.7);
+    ctx.moveTo(0, -0.7); ctx.lineTo(-0.35, 0); ctx.moveTo(0, -0.7); ctx.lineTo(0.35, 0);
+    ctx.moveTo(0, -1.35); ctx.lineTo(-0.45, -0.95);
+    ctx.moveTo(0, -1.35); ctx.lineTo(0.5, -2.05 + wave);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawMissionProps(time) {
+    const g = currentGoal();
+    for (const p of pads) {
+      if (g && g.type === 'pickup' && g.pad === p.id && !mission.carrying) {
+        if (g.what === 'cargo') drawCrate(p.x2 - 1.8, p.y);
+        else for (let i = 0; i < 3; i++) drawCrew(p.x2 - 1 - i * 1.4, p.y, time, i);
+      }
+      if (mission.dropped === p) drawCrate(p.x2 - 1.8, p.y);
+    }
+    if (g && g.type === 'exit') {
+      const y = Math.max(2, sy(H - 0.5));
+      ctx.save();
+      ctx.globalAlpha = 0.5 + 0.3 * Math.sin(time / 300);
+      ctx.strokeStyle = col.flame; ctx.lineWidth = 1.5; ctx.setLineDash([8, 8]);
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = col.flame; ctx.font = `600 12px ${C('--f-mono')}`; ctx.textAlign = 'center';
+      ctx.fillText('ORBIT ↑', cw / 2, y + 16);
+      ctx.restore();
+    }
+  }
+
   function drawFlag(time) {
     const prog = (time - flagPlant.t - 350) / 700;
     ctx.save();
@@ -1582,8 +1978,12 @@ kbd {
     }
     hud.fuelTxt.textContent = `${Math.ceil(L.fuel)} kg`;
     hud.fuelTxt.className = L.fuel > 25 ? '' : L.fuel > 0 ? 'warn' : 'bad';
-    hud.fuelBar.style.width = `${L.fuel}%`;
-    if (match) {
+    hud.fuelBar.style.width = `${L.fuel / (L.fuelMax || 100) * 100}%`;
+    if (mission) {
+      hud.score.textContent = `${flightT.toFixed(1)} s`;
+      hud.meta.textContent = `MISSION ${missionSel + 1} · ${mission.def.name.toUpperCase()}`;
+      hud.meta.style.color = 'var(--flame)';
+    } else if (match) {
       hud.score.textContent = fmt(match.scores[cur()]);
       hud.meta.textContent = `${names[cur()].toUpperCase()} · ROUND ${match.round}/${ROUNDS} · ${world.name.toUpperCase()}`;
       hud.meta.style.color = PLAYER_TINT[cur()];
@@ -1594,6 +1994,9 @@ kbd {
         : `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
       hud.meta.style.color = daily ? 'var(--flame)' : '';
     }
+    const obj = $('objective');
+    if (mission && (mode === 'flying' || mode === 'paused')) { obj.hidden = false; obj.textContent = goalText(); }
+    else obj.hidden = true;
   }
 
   // ---- Loop ----
@@ -1631,7 +2034,8 @@ kbd {
       return;
     }
     const k = keyMap[e.code];
-    if (mode === 'hangar' || mode === 'badges') {
+    if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
+    if (mode === 'hangar' || mode === 'badges' || mode === 'missions') {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
