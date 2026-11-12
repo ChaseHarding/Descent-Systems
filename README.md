@@ -1,6 +1,6 @@
 # Descent Systems
 
-![Descent Systems: a lander firing its engine above a landing pad](og-image.png)
+![A soft landing on the Moon: the lander touches down on a ×5 pad, slows to slow motion, and plants a flag](media/landing.gif)
 
 A Lunar Lander–style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
 
@@ -16,7 +16,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Auto-zoom** that eases the camera in for the final approach
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
-- **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars
+- **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
@@ -116,6 +116,10 @@ Open **Missions** from the start screen. The campaign has 12 hand-built missions
 
 The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. A mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing the last mission unlocks an epilogue. Story scenes can be turned off in Settings.
 
+![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
+
+![A radio scene before The Needle mission, with Wren's first transmission and the crew's pixel portraits](media/story.png)
+
 You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
 
 ## Badges
@@ -205,6 +209,8 @@ localStorage.setItem('ds-credits', 5000)
 ## Notes
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
+
+The `media/` folder holds the images used in this README: `landing.gif`, `crew.png`, `story.png`, and `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
