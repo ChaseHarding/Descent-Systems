@@ -369,6 +369,17 @@ kbd {
 .hud .hl { background: rgba(255, 181, 71, 0.22); color: var(--flame); }
 /* menus hide the flight instruments */
 .stage.in-menu .hud, .stage.in-menu .score, .stage.in-menu .objective { display: none; }
+/* Story interludes */
+.story { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; }
+.chapter { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 4px; }
+.chapter span { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--regolith-dim); }
+.chapter b { font-family: var(--f-display); font-size: clamp(26px, 6vw, 40px); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--flame); text-wrap: balance; }
+.log { display: flex; flex-direction: column; gap: 10px; }
+.radio { padding: 10px 14px; background: var(--space); border: 1px solid var(--space-2); border-radius: 6px; text-align: left; }
+.radio .who { display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.card .radio p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--regolith); text-align: left; min-height: 1.55em; }
+.radio.old { opacity: 0.55; }
+.radio.quote { width: 100%; max-width: 30rem; box-sizing: border-box; }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -733,6 +744,134 @@ kbd {
       ground: [[0, 50], [25, 56], [45, 48], [65, 40], [85, 34], [112, 38], [130, 52], [150, 64], [170, 58], [190, 70], [210, 62], [240, 66]],
       pads: [{ id: 'CREW', x1: 90, x2: 106, y: 32 }] }
   ];
+  // ---- Story: the Descent Systems campaign, told over the radio ----
+  const SPEAKERS = {
+    F: { name: 'Flight · Dottie', color: 'var(--flame)' },
+    G: { name: 'Engineering · Gus', color: 'var(--ok)' },
+    W: { name: 'Wren Aldana', color: '#ff9ad5' }
+  };
+  // intro: lines before the mission. react: one line each for 1, 2 and 3 stars.
+  const STORY = {
+    'first-steps': { chapter: [1, 'Training Wheels'],
+      intro: [
+        ['F', 'Morning, pilot. Welcome to Descent Systems: the smallest landing agency in the solar system, and the only one funded by a bake sale.'],
+        ['G', 'Hi! I’m Gus, engineering. This is Biscuit. Biscuit is the lander. Please don’t scratch Biscuit.'],
+        ['F', 'We start everyone on Pluto. Gravity’s so weak it’s genuinely hard to land hard. Genuinely. Please don’t prove me wrong.'],
+        ['G', 'Biscuit says good luck. Biscuit doesn’t talk. But if she did.']],
+      react: [['F', 'You’re down, and Biscuit’s in one piece. That’s the whole job description, honestly.'],
+        ['G', 'Barely used any fuel! I’m putting this one on the fridge.'],
+        ['F', 'Three stars on day one. Gus is crying. It’s fine, he does that.']] },
+    'tranquility': { chapter: [2, 'The Commute'],
+      intro: [
+        ['F', 'Graduation day. Our first paying contract: land at Tranquility so a client can take photos for their brochure.'],
+        ['G', 'They want Biscuit in the photos! I polished her. Twice.'],
+        ['F', 'Our investors are watching this one. Both of them. Kill your drift early and come straight down.']],
+      react: [['F', 'Landed, photographed, invoiced. That’s a business, pilot.'],
+        ['G', 'The brochure people said “wow.” Lowercase, but still.'],
+        ['F', 'Perfect. The client wants to frame the touchdown. I want to frame the invoice.']] },
+    'supply-run': {
+      intro: [
+        ['F', 'Moonbase Pim is out of coffee. I repeat: an entire base is out of coffee.'],
+        ['G', 'The crate’s heavier than it looks. Biscuit will feel sluggish, so give her a little extra time to turn.'],
+        ['F', 'Grab it at PICKUP, get it over the ridge to DROP. Lives may not depend on this. Moods definitely do.']],
+      react: [['G', 'Coffee delivered. Somebody over there just yelled “praise the pilot.”'],
+        ['F', 'Pim’s quartermaster sent a thank-you note. It’s mostly exclamation marks.'],
+        ['F', 'Flawless. They’re naming a mug after you. It’s a small mug. It’s a small base.']] },
+    'lifeline': {
+      intro: [
+        ['F', 'Change of plans. Three surveyors are stuck at CREW after their hopper broke down. They’ve been living on emergency crackers for two days.'],
+        ['G', 'Biscuit’s never carried people before. She’s honored. I’m terrified. Same energy.'],
+        ['F', 'Land, let them board, then burn up and out. And pilot? Thank you. This is why we exist.']],
+      react: [['F', 'All three aboard and accounted for. One of them hugged the airlock.'],
+        ['G', 'They’re safe, and one of them gave Biscuit a sticker. She’s never had a sticker.'],
+        ['F', 'Textbook. The surveyors want your autograph. I told them you charge in coffee.']] },
+    'haze-delivery': { chapter: [3, 'Soup Weather'],
+      intro: [
+        ['F', 'Odd thing. Those surveyors heard a faint signal on an old emergency channel, using Biscuit’s original call sign.'],
+        ['G', 'Which is impossible, because that call sign was retired before I was even hired. So naturally I built an antenna.'],
+        ['F', 'The antenna’s in the crate. Titan’s air is thick as soup, so let it hold you up. PICKUP to DROP, nice and slow.']],
+      react: [['G', 'Antenna’s down safe. I can hear static! Beautiful, mysterious static.'],
+        ['F', 'Nicely done. Gus is already arguing with the antenna. That’s how you know it works.'],
+        ['G', 'Not a single dent. Biscuit and the antenna are best friends now.']] },
+    'methane-canyon': {
+      intro: [
+        ['G', 'The antenna caught something! It’s faint, but it repeats. It sounds like… “Biscuit, come home.”'],
+        ['F', 'Probably a prank. Probably. The old listening post is under that overhang, so we need a closer look.'],
+        ['F', 'Drop into the canyon, then creep under the roof. Rock does not move out of the way. I’ve checked.']],
+      react: [['F', 'You’re in. Gus is playing the recording on loop. I’m making him tea.'],
+        ['G', 'Clean approach! And the signal’s clearer down here. It’s coming from Earth.'],
+        ['F', 'Not a scratch on the rock or on Biscuit. I’m hard to impress, pilot. Ask my cat.']] },
+    'dust-ledge': { chapter: [4, 'Rust and Wind'],
+      intro: [
+        ['F', 'To boost that signal we need a relay beacon up high. So naturally we picked the tiniest pad on the windiest spire on Mars.'],
+        ['G', 'The wind gauge is your friend. Your loud, unpredictable friend.'],
+        ['F', 'Small pad, big gusts. Watch the gauge and land between breaths.']],
+      react: [['G', 'Beacon’s up! It’s crooked, but it’s up. Like me most mornings.'],
+        ['F', 'Relay online. The signal just got a lot louder, and it’s definitely a voice.'],
+        ['F', 'Pinpoint. If they gave medals for parking, you’d need a bigger shelf.']] },
+    'valles-run': {
+      intro: [
+        ['F', 'I owe you the truth, pilot. That voice belongs to Wren Aldana. She founded Descent Systems, built Biscuit by hand, and flew her first.'],
+        ['G', 'Then one day Wren left on a solo survey of Earth and never came back. We thought we’d lost her.'],
+        ['F', 'Mars Survey kept old records of her route, at the bottom of Valles. Fly the valley and mind the overhangs.']],
+      react: [['F', 'Records retrieved. Mostly coffee rings, but there’s a map in there somewhere.'],
+        ['G', 'The map! Wren’s old weather station is marked on it. She could be out there, pilot.'],
+        ['F', 'Beautiful flying. Wren would’ve loved that line. Actually, I think she drew it.']] },
+    'storm-rescue': {
+      intro: [
+        ['G', 'Bad news, good news. A survey crew is pinned down by a dust storm. And they’ve seen lights at Wren’s station.'],
+        ['F', 'Rescue first, gossip second. Land at CREW, get them aboard, and climb out before the storm closes in.'],
+        ['G', 'Biscuit’s got this. She’s been waiting her whole life for a dramatic storm rescue.']],
+      react: [['F', 'Everyone’s out. And they confirm it: lights on at Wren’s station, every single night.'],
+        ['G', 'Crew’s safe! They think Wren’s radio is busted. She can send, but she can’t hear us.'],
+        ['F', 'Through a dust storm, on schedule. I’m putting you in for a raise. Of nothing. But warmly.']] },
+    'heavy-lift': { chapter: [5, 'Gravity, Mostly'],
+      intro: [
+        ['F', 'Earth. Six times the Moon’s pull, wind like a bad mood, and somewhere down there, our founder.'],
+        ['G', 'We’re sending Wren new radio parts. Also cookies. The cookies were my idea, and I stand by them.'],
+        ['F', 'Short bursts, pilot. Never let your speed get away from you. PICKUP to DROP.']],
+      react: [['G', 'Parts delivered! The cookies are… mostly intact. Structural crumbs only.'],
+        ['F', 'Lovely. If Wren fixes that radio tonight, we might finally hear her answer.'],
+        ['F', 'Earth gravity, heavy crate, three stars. Somebody frame this pilot.']] },
+    'the-needle': {
+      intro: [
+        ['W', '…hello? Is this thing on? This is Wren Aldana. Who’s flying my Biscuit?'],
+        ['G', 'She fixed the radio! Hi! Hello! I’m Gus! Biscuit is great! I polish her!'],
+        ['W', 'My station’s past the Needle: a rock shelf with barely room to fly level. Come see me, pilot. Fly gentle.']],
+      react: [['W', 'You made it through the Needle. Took me three tries the first time. Don’t tell Dottie.'],
+        ['F', 'Wren says your approach looked “tidy.” Coming from her, that’s a parade.'],
+        ['W', 'Who taught you to fly like that? …Oh. Biscuit’s autopilot code. So, me. I’m taking partial credit.']] },
+    'last-light': {
+      intro: [
+        ['W', 'Storm’s rolling in at sunset and this station won’t last the night. I’ll be waiting at CREW. Bring the old girl home, pilot.'],
+        ['F', 'The whole team is listening right now. Even the cat.'],
+        ['G', 'Land, pick her up, climb to orbit. You’ve done every piece of this already. Let’s bring Wren home.']],
+      react: [['W', 'Aboard and buckled. Biscuit still smells like burnt toast. I missed that.'],
+        ['F', 'Wren’s safe. I’m not crying, the console is leaking. Bring them both in.'],
+        ['W', 'Not a wasted drop of fuel. Biscuit’s in good hands. Better than mine, maybe.']] }
+  };
+  const EPILOGUE = [
+    ['F', 'Wren is home. The investors called back: both of them. Descent Systems is officially funded.'],
+    ['G', 'And Biscuit gets a fresh coat of paint! She picked the color herself. I asked, and she didn’t object.'],
+    ['W', 'Keep her flying, pilot. There’s a whole solar system out there that needs a soft landing.'],
+    ['F', 'Thanks for flying with us. Free flight, the daily challenge and the hangar are all still open. Go have fun.']
+  ];
+  const FAIL_QUIPS = [
+    ['F', 'That’s going in the report. In crayon, so it’s gentle.'],
+    ['G', 'Biscuit is fine. Biscuit is in several places, but fine.'],
+    ['F', 'Deep breath. The ground isn’t going anywhere. That was the problem.'],
+    ['G', 'I’ll get the tape.'],
+    ['F', 'Good news: we have spares. Bad news: I’m the spares budget.'],
+    ['G', 'Let’s call that a very fast landing.'],
+    ['F', 'Apogee the cat watched that live. She’s not angry, just disappointed.'],
+    ['G', 'Note to self: the ground is harder than it looks.']
+  ];
+  let storyOn = store.get('ds-storyOn', '1') === '1';
+  let storySeen;
+  try { storySeen = JSON.parse(store.get('ds-story', '[]')) || []; } catch (e) { storySeen = []; }
+  let story = null;
+  const radioQuote = ([who, text]) => `<div class="radio quote"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span><p>${esc(text)}</p></div>`;
+
   const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue' };
   const LOAD_TIME = 1.5;
   let missionStars;
@@ -1089,6 +1228,7 @@ kbd {
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
+      radio() { tone(2525, 'sine', 0, 0.12, 0.05); },   // the Quindar tone from Apollo-era radio
       erupt(lava) { burst(0, 1.4, lava ? 0.45 : 0.25, lava ? 1400 : 4000, lava ? 120 : 900); if (lava) tone(55, 'sawtooth', 0, 0.8, 0.25, 30); },
       badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); }
     };
@@ -1447,7 +1587,7 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story'];
   const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     // let the landing (or the explosion) play out for a moment before the result card covers it
@@ -1479,6 +1619,7 @@ kbd {
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
     if (m === 'settings') { renderSettings(); return; }
+    if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
@@ -1618,6 +1759,7 @@ kbd {
         ${best ? `<p class="mstars">${starHtml(best)}</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">Launch</button>
+          ${STORY[d.id] ? '<button class="btn ghost" id="logBtn">Radio log</button>' : ''}
           <button class="btn ghost" id="toMissions">All missions</button>
         </div>`;
     } else if (m === 'missionEnd') {
@@ -1628,6 +1770,7 @@ kbd {
         html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
           <h1 class="good">Mission complete</h1>
           <p class="squares">${starHtml(r.stars)}</p>
+          ${STORY[d.id] ? radioQuote(STORY[d.id].react[r.stars - 1]) : ''}
           <div class="starlist">
             <span class="met">★ Mission complete</span>
             <span class="${r.met[1] ? 'met' : ''}">★ ${Math.floor(r.fuel)} kg fuel left (goal ${d.stars.fuel} kg)</span>
@@ -1636,8 +1779,8 @@ kbd {
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
                   : `<p class="limits">No new stars this time. Your best is ${r.prev} of 3.</p>`}
           <div class="btns">
-            ${hasNext ? '<button class="btn" id="next">Next mission</button>' : ''}
-            <button class="btn${hasNext ? ' ghost' : ''}" id="go">Fly again</button>
+            ${hasNext ? '<button class="btn" id="next">Next mission</button>' : d.id === 'last-light' ? '<button class="btn" id="epilogue">Epilogue</button>' : ''}
+            <button class="btn${hasNext || d.id === 'last-light' ? ' ghost' : ''}" id="go">Fly again</button>
             ${replayBtn()}
             <button class="btn ghost" id="toMissions">All missions</button>
           </div>`;
@@ -1645,6 +1788,7 @@ kbd {
         html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
           <h1 class="bad">Mission failed</h1>
           <p>${cap(lastResult.reasons.join(', '))}.</p>
+          ${radioQuote(FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)])}
           <div class="btns">
             <button class="btn" id="go">Retry</button>
             ${replayBtn()}
@@ -1744,7 +1888,12 @@ kbd {
     const tm = $('toMissions');
     if (tm) tm.addEventListener('click', () => setMode('missions'));
     const nx = $('next');
-    if (nx) nx.addEventListener('click', () => { missionSel++; setMode('brief'); });
+    if (nx) nx.addEventListener('click', () => openMission(missionSel + 1));
+    const ep = $('epilogue');
+    if (ep) ep.addEventListener('click', () => playStory(EPILOGUE, { label: 'Epilogue', title: 'Home' }, () => setMode('missions')));
+    const lb = $('logBtn');
+    if (lb) lb.addEventListener('click', () => { const st = STORY[MISSIONS[missionSel].id]; playStory(st.intro, chapterFor(missionSel), () => setMode('brief')); });
+
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
       selectWorld(WORLDS.find(w => w.id === b.dataset.id));
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
@@ -1772,6 +1921,7 @@ kbd {
       <div class="settings">
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
         ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
+        ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
         ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
         ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
       </div>
@@ -1786,12 +1936,82 @@ kbd {
       </div>`;
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
+    $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
     $('setGhost').addEventListener('click', () => { showGhost = !showGhost; store.set('ds-ghost', showGhost ? '1' : '0'); renderSettings('setGhost'); });
     $('setSound').addEventListener('click', () => { toggleMute(); });
     $('tutBtn2').addEventListener('click', startTutorial);
     $('back').addEventListener('click', () => setMode('title'));
     const f = $(focusId || 'setZoom');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+  }
+
+  function chapterFor(i) {
+    const d = MISSIONS[i], st = STORY[d.id];
+    if (!st || !st.chapter) return null;
+    return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
+  }
+  function openMission(i) {
+    missionSel = i;
+    const d = MISSIONS[i], st = STORY[d.id];
+    if (storyOn && st && !storySeen.includes(d.id)) {
+      world = WORLDS.find(w => w.id === d.world);
+      buildMissionTerrain(d); makeBackdrop();
+      playStory(st.intro, chapterFor(i), () => {
+        if (!storySeen.includes(d.id)) { storySeen.push(d.id); store.set('ds-story', JSON.stringify(storySeen)); }
+        setMode('brief');
+      });
+    } else setMode('brief');
+  }
+  function playStory(lines, chapter, after) {
+    story = { lines, chapter, after, i: 0, typing: false, timer: 0 };
+    setMode('story');
+  }
+  function renderStory() {
+    const s = story;
+    card.innerHTML = `<div class="story">
+      ${s.chapter ? `<div class="chapter"><span>${s.chapter.label}</span><b>${s.chapter.title}</b></div>` : ''}
+      <div class="log" aria-live="polite">${s.lines.slice(0, s.i + 1).map(([who, text], k) => `<div class="radio${k < s.i ? ' old' : ''}">
+        <span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span>
+        <p${k === s.i ? ' id="typing"' : ''}>${k < s.i ? esc(text) : ''}</p></div>`).join('')}</div>
+      <div class="btns">
+        <button class="btn" id="storyNext">${s.i === s.lines.length - 1 ? 'Continue' : 'Next'}</button>
+        <button class="btn ghost" id="storySkip">Skip</button>
+      </div>
+    </div>`;
+    $('storyNext').addEventListener('click', storyNext);
+    $('storySkip').addEventListener('click', storyEnd);
+    setTimeout(() => { const b = $('storyNext'); if (b) { b.focus({ preventScroll: true }); b.scrollIntoView({ block: 'nearest' }); } }, 0);
+    typeLine();
+  }
+  function typeLine() {
+    const el = $('typing'), text = story.lines[story.i][1];
+    clearInterval(story.timer);
+    sfx.radio();
+    if (reduceMotion) { el.textContent = text; story.typing = false; return; }
+    story.typing = true;
+    let n = 0;
+    story.timer = setInterval(() => {
+      n += 2;
+      el.textContent = text.slice(0, n);
+      if (n >= text.length) { clearInterval(story.timer); if (story) story.typing = false; }
+    }, 24);
+  }
+  function storyNext() {
+    if (!story) return;
+    if (story.typing) {
+      clearInterval(story.timer); story.typing = false;
+      $('typing').textContent = story.lines[story.i][1];
+      return;
+    }
+    if (story.i < story.lines.length - 1) { story.i++; renderStory(); }
+    else storyEnd();
+  }
+  function storyEnd() {
+    if (!story) return;
+    const s = story;
+    clearInterval(s.timer);
+    story = null;
+    s.after();
   }
 
   function renderMissions() {
@@ -1809,7 +2029,7 @@ kbd {
       }).join('')}</div>
       <p class="limits">Finish a mission to unlock the next. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">Main menu</button>`;
-    card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => { missionSel = +b.dataset.i; setMode('brief'); }));
+    card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
     $('back').addEventListener('click', () => setMode('title'));
     const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].pop();
     setTimeout(() => (firstOpen || $('back')).focus({ preventScroll: true }), 0);
@@ -2564,6 +2784,11 @@ kbd {
     }
     const k = keyMap[e.code];
     if (mode === 'replay') { e.preventDefault(); endReplay(); return; }
+    if (mode === 'story') {
+      if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); if (!e.repeat) storyNext(); }
+      else if (e.code === 'Escape') storyEnd();
+      return;
+    }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }

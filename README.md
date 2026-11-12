@@ -14,6 +14,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Guided tutorial** that teaches a first landing step by step
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
+- **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars
 - **Hot-seat mode** for two players taking turns on the same descents
