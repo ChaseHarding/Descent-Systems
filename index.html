@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -27,6 +26,7 @@
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
+  margin: 0;
   background: var(--space);
   color: var(--regolith);
   font-family: var(--f-mono);
@@ -83,13 +83,13 @@ canvas { display: block; width: 100%; height: 100%; }
 
 .overlay {
   position: absolute; inset: 0;
-  display: grid; place-items: center;
+  display: flex;
   background: rgba(10, 14, 28, 0.6);
   padding: 16px;
   overflow-y: auto;
 }
 .card {
-  max-width: 40rem; text-align: center;
+  max-width: 40rem; width: 100%; margin: auto; text-align: center;
   display: flex; flex-direction: column; gap: 12px; align-items: center;
 }
 .card h1 {
@@ -134,6 +134,35 @@ kbd {
 }
 .brief b { color: var(--regolith); font-weight: 500; }
 
+/* Hangar */
+.card .balance { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; color: var(--flame); font-variant-numeric: tabular-nums; }
+.preview { display: block; width: 100%; max-width: 320px; aspect-ratio: 3 / 2; border: 1px solid var(--space-2); border-radius: 6px; }
+.deal { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: center; font-size: 13px; }
+.deal span { color: var(--regolith-dim); }
+.deal b { color: var(--regolith); font-weight: 500; }
+.shelf { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.shelf h2 { margin: 0; font-family: var(--f-display); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); text-align: left; }
+.items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 420px) { .items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;
+  padding: 8px; background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 6px; cursor: pointer;
+  font-family: var(--f-mono); font-size: 11px; text-align: left;
+}
+.item .sw { display: block; width: 100%; height: 12px; border-radius: 3px; }
+.item b { font-weight: 500; font-size: 12px; }
+.item span { color: var(--regolith-dim); font-variant-numeric: tabular-nums; }
+.item.owned span { color: var(--regolith); }
+.item.equipped span { color: var(--ok); }
+.item[aria-pressed="true"] { border-color: var(--flame); }
+.item:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.toast {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
+  padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
+  font-size: 12px; letter-spacing: 0.06em; pointer-events: none;
+}
 .pad { display: none; gap: 10px; }
 .pad button {
   flex: 1; height: 64px;
@@ -170,6 +199,7 @@ kbd {
       <b id="score">0</b>
       <span id="meta">MOON · SITE 1 · LANDERS 3</span>
     </div>
+    <div class="toast" id="toast" role="status" hidden></div>
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
     </div>
@@ -238,6 +268,69 @@ kbd {
   let world = WORLDS.find(w => w.id === store.get('ds-world', 'moon')) || WORLDS[1];
   const bestFor = w => +store.get('ds-best-' + w.id, 0) || 0;
 
+  // ---- Hangar: credits and cosmetics ----
+  // Purely cosmetic: nothing here changes how the lander flies.
+  // fill: hull body · stroke: outline · legs: landing gear · detail: window
+  const HULLS = [
+    { id: 'standard', name: 'Standard', price: 0, blurb: 'Flight-ready grey.',
+      fill: '#0a0e1c', stroke: '#c9cfdc', legs: '#c9cfdc', detail: '#c9cfdc', swatch: 'linear-gradient(90deg, #0a0e1c, #c9cfdc)' },
+    { id: 'white', name: 'Mission White', price: 300, blurb: 'Fresh paint, blue window trim.',
+      fill: '#e8ebf2', stroke: '#9aa3b8', legs: '#e8ebf2', detail: '#2a6fd6', swatch: 'linear-gradient(90deg, #e8ebf2, #2a6fd6)' },
+    { id: 'gold', name: 'Gold Foil', price: 300, blurb: 'Crinkly thermal blanket, Apollo style.',
+      fill: '#8a5d12', stroke: '#ffd27a', legs: '#ffd27a', detail: '#fff1c7', swatch: 'linear-gradient(90deg, #8a5d12, #ffd27a)' },
+    { id: 'rust', name: 'Mars Rust', price: 1000, blurb: 'Weathered by a hundred dust storms.',
+      fill: '#5a2214', stroke: '#ff9a6b', legs: '#e0b49c', detail: '#ffd2b8', swatch: 'linear-gradient(90deg, #5a2214, #ff9a6b)' },
+    { id: 'amber', name: 'Titan Amber', price: 1000, blurb: 'Stained by an orange methane sky.',
+      fill: '#4a2e0c', stroke: '#ffc56b', legs: '#ffc56b', detail: '#ffe7b8', swatch: 'linear-gradient(90deg, #4a2e0c, #ffc56b)' },
+    { id: 'chrome', name: 'Chrome', price: 3000, blurb: 'Mirror finish with a moving shine.', chrome: true,
+      fill: '#8a97ad', stroke: '#ffffff', legs: '#dfe6f2', detail: '#2b3550', swatch: 'linear-gradient(90deg, #4a5568, #ffffff, #8a97ad)' }
+  ];
+  const FLAMES = [
+    { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
+      core: '#ffb547', tail: '#ff6b5e', swatch: 'linear-gradient(90deg, #ffb547, #ff6b5e)' },
+    { id: 'blue', name: 'Methane Blue', price: 300, blurb: 'Clean-burning methalox.',
+      core: '#bfe6ff', tail: '#3b7bff', swatch: 'linear-gradient(90deg, #bfe6ff, #3b7bff)' },
+    { id: 'green', name: 'Boron Green', price: 1000, blurb: 'The green flash of a TEA-TEB ignition.',
+      core: '#d8ffb0', tail: '#2fbf5a', swatch: 'linear-gradient(90deg, #d8ffb0, #2fbf5a)' },
+    { id: 'white', name: 'White-Hot', price: 1000, blurb: 'Runs hot enough to glow white.',
+      core: '#ffffff', tail: '#ffc98a', swatch: 'linear-gradient(90deg, #ffffff, #ffc98a)' },
+    { id: 'rainbow', name: 'Rainbow', price: 3000, blurb: 'Cycles through the whole spectrum.', rainbow: true,
+      core: '#fff', tail: '#fff', swatch: 'linear-gradient(90deg, #ff5f5f, #ffb547, #f5ff6b, #6bff9a, #6bb8ff, #b86bff)' },
+    { id: 'plasma', name: 'Pulsing Plasma', price: 3500, blurb: 'Throbs like an ion drive.', pulse: true,
+      core: '#ffc2f6', tail: '#8a5cff', swatch: 'linear-gradient(90deg, #ffc2f6, #8a5cff)' }
+  ];
+  const itemsOf = kind => kind === 'hull' ? HULLS : FLAMES;
+  const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
+
+  let credits = Math.max(0, +store.get('ds-credits', 0) || 0);
+  let owned;
+  try { owned = new Set(JSON.parse(store.get('ds-owned', '[]'))); } catch (e) { owned = new Set(); }
+  owned.add('hull:standard'); owned.add('flame:standard');
+  const equip = { hull: store.get('ds-hull', 'standard'), flame: store.get('ds-flame', 'standard') };
+  for (const kind of ['hull', 'flame']) {
+    if (!owned.has(kind + ':' + equip[kind]) || !itemsOf(kind).some(i => i.id === equip[kind])) equip[kind] = 'standard';
+  }
+  let trying = null;                              // items being tried on in the hangar
+  let hangarSel = { kind: 'hull', id: 'standard' };
+  function saveCosmetics() {
+    store.set('ds-credits', credits);
+    store.set('ds-owned', JSON.stringify([...owned]));
+    store.set('ds-hull', equip.hull);
+    store.set('ds-flame', equip.flame);
+  }
+  const skin = () => {
+    const src = trying || equip;
+    return { hull: findItem('hull', src.hull), flame: findItem('flame', src.flame) };
+  };
+  function flameColors(f, t, hue = 0) {
+    if (f.rainbow) {
+      const h = Math.round((t * 140 + hue) % 360);
+      return [`hsl(${h}, 100%, 72%)`, `hsl(${(h + 50) % 360}, 100%, 58%)`];
+    }
+    return [f.core, f.tail];
+  }
+  const fmt = n => n.toLocaleString('en-US');
+
   // ---- State ----
   const keys = { left: false, right: false, thrust: false };
   let terrain = [], pads = [], stars = [], dust = [];
@@ -298,6 +391,7 @@ kbd {
       fuel: levelFuel, firing: false
     };
     particles = [];
+    resetCamera();
   }
   function toWorld(lx, ly, L = lander) {
     const c = Math.cos(L.a), s = Math.sin(L.a);
@@ -356,7 +450,7 @@ kbd {
     particles.push({
       x: ex, y: ey,
       vx: Math.sin(dir) * spd + L.vx, vy: Math.cos(dir) * spd + L.vy,
-      life: rand(0.25, 0.6), max: 0.6, kind: 'fire'
+      life: rand(0.25, 0.6), max: 0.6, kind: 'fire', hue: rand(0, 120)
     });
   }
   function explode() {
@@ -365,7 +459,7 @@ kbd {
       const a = rand(0, Math.PI * 2), s = rand(3, 22);
       particles.push({
         x: L.x, y: L.y + 1, vx: Math.cos(a) * s + L.vx * 0.3, vy: Math.abs(Math.sin(a)) * s,
-        g: Math.max(3, world.g * 2), life: rand(0.8, 2.4), max: 2.4, kind: i % 3 ? 'fire' : 'debris'
+        g: Math.max(3, world.g * 2), life: rand(0.8, 2.4), max: 2.4, kind: i % 3 ? 'blast' : 'debris'
       });
     }
   }
@@ -391,6 +485,8 @@ kbd {
       const soft = vy < 0.8 ? 50 : 0;
       const pts = Math.round((base + fuelBonus + soft) * world.bonus);
       score += pts;
+      credits += pts;
+      saveCosmetics();
       lastResult = { pad, pts, base, fuelBonus, soft, ...stats };
       setMode('landed');
     } else {
@@ -432,6 +528,12 @@ kbd {
     document.querySelectorAll('.pad button').forEach(b => b.classList.remove('held'));
     if (m === 'flying') { overlay.hidden = true; return; }
     overlay.hidden = false;
+    if (m === 'hangar') {
+      trying = { ...equip };
+      hangarSel = { kind: 'hull', id: equip.hull };
+      renderHangar();
+      return;
+    }
     const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
     if (m === 'title') {
@@ -450,8 +552,12 @@ kbd {
           <span>Air <b>${effectText(world)}</b></span>
           <span>Score <b>×${world.bonus}</b></span>
         </div>
-        <button class="btn" id="go">Descend to ${world.name}</button>
-        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>Space</kbd> start</p>
+        <div class="btns">
+          <button class="btn" id="go">Descend to ${world.name}</button>
+          <button class="btn ghost" id="hangarBtn">Hangar</button>
+        </div>
+        <p class="balance">${fmt(credits)} credits</p>
+        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>Space</kbd> start</p>
         ${limits}
         ${best ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
     } else if (m === 'landed') {
@@ -459,6 +565,7 @@ kbd {
       html = `<h1 class="good">Contact on ${world.name}</h1>
         <p>×${r.pad.mult} pad · ${r.base} pts + fuel bonus ${r.fuelBonus}${r.soft ? ' + soft landing 50' : ''}${world.bonus !== 1 ? ` × ${world.bonus} world bonus` : ''} = <b>${r.pts}</b></p>
         <p class="limits">Touchdown at ${r.vy.toFixed(2)} m/s vertical, ${r.vx.toFixed(2)} m/s horizontal, ${r.ang.toFixed(1)}° tilt</p>
+        <p class="balance">+${fmt(r.pts)} credits banked · ${fmt(credits)} total</p>
         <button class="btn" id="go">Next site</button>`;
     } else if (m === 'crashed') {
       html = `<h1 class="bad">Lander lost</h1>
@@ -475,6 +582,7 @@ kbd {
         <div class="btns">
           <button class="btn" id="go">Fly ${world.name} again</button>
           <button class="btn ghost" id="pick">Choose another world</button>
+          <button class="btn ghost" id="hangarBtn">Hangar</button>
         </div>`;
     }
     card.innerHTML = html;
@@ -482,6 +590,8 @@ kbd {
     go.addEventListener('click', advance);
     const pick = $('pick');
     if (pick) pick.addEventListener('click', () => { genTerrain(); spawn(); setMode('title'); });
+    const hb = $('hangarBtn');
+    if (hb) hb.addEventListener('click', () => setMode('hangar'));
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
       selectWorld(WORLDS.find(w => w.id === b.dataset.id));
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
@@ -490,6 +600,91 @@ kbd {
     if (m !== 'title') setTimeout(() => go.focus({ preventScroll: true }), 0);
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function renderHangar(focus) {
+    const shelf = (kind, label) => `<section class="shelf"><h2>${label}</h2><div class="items">${
+      itemsOf(kind).map(it => {
+        const own = owned.has(kind + ':' + it.id), eq = equip[kind] === it.id;
+        const status = eq ? 'Equipped' : own ? 'Owned' : `${fmt(it.price)} cr`;
+        return `<button class="item${eq ? ' equipped' : own ? ' owned' : ''}" data-kind="${kind}" data-id="${it.id}" aria-pressed="${trying[kind] === it.id}">
+          <i class="sw" style="background:${it.swatch}"></i><b>${it.name}</b><span>${status}</span></button>`;
+      }).join('')}</div></section>`;
+    const it = findItem(hangarSel.kind, hangarSel.id);
+    const own = owned.has(hangarSel.kind + ':' + it.id), eq = equip[hangarSel.kind] === it.id;
+    let action;
+    if (eq) action = `<button class="btn" disabled>Equipped</button>`;
+    else if (own) action = `<button class="btn" id="act">Equip</button>`;
+    else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
+    else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more</button>`;
+
+    card.innerHTML = `<h1 class="good">Hangar</h1>
+      <p class="balance">${fmt(credits)} credits</p>
+      <canvas class="preview" id="preview" aria-label="Lander preview"></canvas>
+      <div class="deal"><span><b>${it.name}</b> · ${it.blurb}</span>${action}</div>
+      ${shelf('hull', 'Hull finish')}
+      ${shelf('flame', 'Engine flame')}
+      <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
+      <button class="btn ghost" id="back">Back to launch</button>`;
+
+    card.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
+      const { kind, id } = b.dataset;
+      trying[kind] = id;
+      hangarSel = { kind, id };
+      renderHangar(`.item[data-kind="${kind}"][data-id="${id}"]`);
+    }));
+    const act = $('act');
+    if (act) act.addEventListener('click', () => {
+      const { kind } = hangarSel, key = kind + ':' + it.id;
+      if (!owned.has(key)) {
+        if (credits < it.price) return;
+        credits -= it.price;
+        owned.add(key);
+        showToast(`Bought ${it.name}`);
+      } else {
+        showToast(`${it.name} equipped`);
+      }
+      equip[kind] = it.id;
+      saveCosmetics();
+      renderHangar(`.item[data-kind="${kind}"][data-id="${it.id}"]`);
+    });
+    $('back').addEventListener('click', () => { trying = null; setMode('title'); });
+    const f = focus && card.querySelector(focus);
+    if (f) f.focus({ preventScroll: true });
+  }
+
+  function drawPreview(time) {
+    const pv = $('preview');
+    if (!pv) return;
+    const w = pv.clientWidth, h = pv.clientHeight;
+    if (!w || !h) return;
+    const pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+    if (pv.width !== pw || pv.height !== ph) { pv.width = pw; pv.height = ph; }
+    const c = pv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const g = c.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, world.sky[0]); g.addColorStop(1, world.sky[1]);
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    const gy = h * 0.82;
+    c.fillStyle = world.ground; c.fillRect(0, gy, w, h - gy);
+    c.strokeStyle = world.rim; c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(0, gy); c.lineTo(w, gy); c.stroke();
+    c.strokeStyle = col.flame; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(w * 0.36, gy); c.lineTo(w * 0.64, gy); c.stroke();
+    const s = h / 20;
+    c.save();
+    c.translate(w / 2, h * 0.36 + Math.sin(time / 700) * s * 0.4);
+    c.rotate(Math.sin(time / 1300) * 0.08);
+    c.scale(s, s);
+    paintLander(c, { firing: true }, skin(), time, 1.6 / s);
+    c.restore();
+  }
+  let toastTimer = 0;
+  function showToast(text) {
+    const t = $('toast');
+    t.textContent = text; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
+  }
 
   function advance() {
     if (mode === 'title' || mode === 'over') {
@@ -505,15 +700,45 @@ kbd {
   }
 
   // ---- Rendering ----
-  let scale = 1, offX = 0, offY = 0, cw = 0, ch = 0, dpr = 1;
+  let scale = 1, base = 1, cw = 0, ch = 0, dpr = 1;
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     cw = stage.clientWidth; ch = stage.clientHeight;
     canvas.width = cw * dpr; canvas.height = ch * dpr;
-    scale = Math.min(cw / W, ch / H);
-    offX = (cw - W * scale) / 2;
-    offY = (ch - H * scale) / 2;
+    base = Math.min(cw / W, ch / H);
+    scale = base * cam.z;
     makeBackdrop();
+  }
+
+  // ---- Camera ----
+  // Full view at altitude; eases in as the lander nears the ground so the final metres are readable.
+  const ZOOM_MAX = 2.6, ZOOM_START = 45, ZOOM_FULL = 12; // metres above ground
+  const cam = { x: W / 2, y: H / 2, z: 1 };
+  let autoZoom = store.get('ds-zoom', '1') === '1';
+  function resetCamera() { cam.x = W / 2; cam.y = H / 2; cam.z = 1; }
+  function updateCamera(dt) {
+    let tz = 1, tx = W / 2, ty = H / 2;
+    const L = lander;
+    const active = L && (mode === 'flying' || mode === 'landed' || mode === 'crashed' || mode === 'over');
+    if (active && autoZoom) {
+      const g = groundAt(L.x);
+      const alt = Math.max(0, L.y - 3 - g);
+      const t = Math.max(0, Math.min(1, (ZOOM_START - alt) / (ZOOM_START - ZOOM_FULL)));
+      const ease = t * t * (3 - 2 * t);
+      tz = 1 + (ZOOM_MAX - 1) * ease;
+      // keep the lander and the ground beneath it in frame
+      tx = W / 2 + (L.x - W / 2) * ease;
+      ty = H / 2 + ((L.y + g) / 2 - H / 2) * ease;
+    }
+    const k = 1 - Math.exp(-dt * 3.5);
+    cam.z += (tz - cam.z) * k;
+    cam.x += (tx - cam.x) * k;
+    cam.y += (ty - cam.y) * k;
+    scale = base * cam.z;
+    // never show past the edges of the world once zoomed in
+    const hw = cw / (2 * scale), hh = ch / (2 * scale);
+    cam.x = hw * 2 >= W ? W / 2 : Math.max(hw, Math.min(W - hw, cam.x));
+    cam.y = hh * 2 >= H ? H / 2 : Math.max(hh, Math.min(H - hh, cam.y));
   }
   function makeBackdrop() {
     stars = Array.from({ length: Math.round(cw * ch / 2500) }, () => ({
@@ -523,8 +748,8 @@ kbd {
       x: rand(0, W), y: rand(5, H * 0.7), v: rand(-1, 1), ph: rand(0, 6), r: rand(0.25, 0.6)
     })) : [];
   }
-  const sx = x => offX + x * scale;
-  const sy = y => offY + (H - y) * scale;
+  const sx = x => cw / 2 + (x - cam.x) * scale;
+  const sy = y => ch / 2 - (y - cam.y) * scale;
 
   const css = getComputedStyle(document.documentElement);
   const C = n => css.getPropertyValue(n).trim();
@@ -568,64 +793,97 @@ kbd {
       terrain.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y)));
       ctx.strokeStyle = world.rim; ctx.lineWidth = 1.5; ctx.stroke();
 
-      ctx.font = `600 ${Math.max(10, scale * 3.2)}px ${C('--f-mono')}`;
+      ctx.font = `600 ${Math.min(16, Math.max(10, base * 3.2 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
       ctx.textAlign = 'center';
       for (const p of pads) {
         ctx.strokeStyle = col.flame; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(sx(p.x1), sy(p.y)); ctx.lineTo(sx(p.x2), sy(p.y)); ctx.stroke();
         ctx.fillStyle = col.flame;
-        ctx.fillText(`×${p.mult}`, sx((p.x1 + p.x2) / 2), sy(p.y) + Math.max(14, scale * 4.5));
+        ctx.fillText(`×${p.mult}`, sx((p.x1 + p.x2) / 2), sy(p.y) + Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z))));
       }
     }
 
+    const sk = skin();
     for (const p of particles) {
       const k = Math.max(0, p.life / p.max);
       ctx.globalAlpha = Math.min(1, k * 1.6);
-      ctx.fillStyle = p.kind === 'fire' ? (k > 0.5 ? col.flame : col.bad) : col.reg;
-      const r = (p.kind === 'fire' ? 0.5 + k * 0.6 : 0.6) * scale;
+      if (p.kind === 'fire') {
+        const [core, tail] = flameColors(sk.flame, time / 1000, p.hue);
+        ctx.fillStyle = k > 0.5 ? core : tail;
+      } else {
+        ctx.fillStyle = p.kind === 'blast' ? (k > 0.5 ? col.flame : col.bad) : col.reg;
+      }
+      const r = (p.kind !== 'debris' ? 0.5 + k * 0.6 : 0.6) * scale;
       ctx.fillRect(sx(p.x) - r / 2, sy(p.y) - r / 2, r, r);
     }
     ctx.globalAlpha = 1;
 
-    if (mode === 'flying' || mode === 'landed') drawLander(lander);
-    if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true });
+    if (mode === 'flying' || mode === 'landed') drawLander(lander, time);
+    if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
   }
 
-  function drawLander(L) {
+  // Draws the lander in its own coordinates (metres, y pointing down), using the given skin.
+  function paintLander(c, L, sk, time, lw) {
+    const hull = sk.hull;
+    c.lineWidth = lw;
+    c.lineJoin = 'round';
+    if (L.firing) {
+      let len = 3 + Math.random() * 2.5;
+      if (sk.flame.pulse) len *= 0.65 + 0.55 * Math.abs(Math.sin(time / 110));
+      const [core, tail] = flameColors(sk.flame, time / 1000);
+      c.beginPath(); c.moveTo(-1, 1.3); c.lineTo(0, 1.3 + len); c.lineTo(1, 1.3); c.closePath();
+      c.fillStyle = tail; c.fill();
+      c.beginPath(); c.moveTo(-0.55, 1.3); c.lineTo(0, 1.3 + len * 0.6); c.lineTo(0.55, 1.3); c.closePath();
+      c.fillStyle = core; c.fill();
+    }
+    let fill = hull.fill;
+    if (hull.chrome) {
+      const o = (time / 2600) % 1;
+      const g = c.createLinearGradient(-3, -4, 3, 1);
+      g.addColorStop(0, '#4a5568');
+      g.addColorStop(Math.max(0, o - 0.18), '#8a97ad');
+      g.addColorStop(o, '#ffffff');
+      g.addColorStop(Math.min(1, o + 0.18), '#8a97ad');
+      g.addColorStop(1, '#4a5568');
+      fill = g;
+    }
+    c.fillStyle = fill;
+    c.strokeStyle = hull.stroke;
+    // ascent stage
+    c.beginPath();
+    c.moveTo(-1.8, -0.5); c.lineTo(-2.2, -2.6); c.lineTo(-1, -3.8); c.lineTo(1, -3.8);
+    c.lineTo(2.2, -2.6); c.lineTo(1.8, -0.5); c.closePath();
+    c.fill(); c.stroke();
+    // window
+    c.strokeStyle = hull.detail;
+    c.beginPath(); c.moveTo(-0.9, -2.9); c.lineTo(0, -3.3); c.lineTo(0.9, -2.9); c.stroke();
+    // descent stage
+    c.strokeStyle = hull.stroke;
+    c.fillRect(-2.6, -0.5, 5.2, 1.5); c.strokeRect(-2.6, -0.5, 5.2, 1.5);
+    // nozzle + legs
+    c.strokeStyle = hull.legs;
+    c.beginPath(); c.moveTo(-0.6, 1); c.lineTo(-0.9, 1.4); c.lineTo(0.9, 1.4); c.lineTo(0.6, 1); c.stroke();
+    for (const s of [-1, 1]) {
+      c.beginPath();
+      c.moveTo(s * 2.2, 0.8); c.lineTo(s * 3.4, 3);
+      c.moveTo(s * 1.4, 1); c.lineTo(s * 3.4, 3);
+      c.moveTo(s * 2.8, 3); c.lineTo(s * 4, 3);
+      c.stroke();
+    }
+  }
+
+  function drawLander(L, time) {
     ctx.save();
     ctx.translate(sx(L.x), sy(L.y));
     ctx.rotate(L.a);
     ctx.scale(scale, scale);
-    ctx.lineWidth = 1.9 / scale;
-    ctx.lineJoin = 'round';
-    if (L.firing) {
-      const len = 3 + Math.random() * 2.5;
-      ctx.beginPath();
-      ctx.moveTo(-0.9, 1.3); ctx.lineTo(0, 1.3 + len); ctx.lineTo(0.9, 1.3); ctx.closePath();
-      ctx.fillStyle = col.flame; ctx.fill();
-    }
-    ctx.strokeStyle = col.reg;
-    ctx.fillStyle = col.space;
-    ctx.beginPath();
-    ctx.moveTo(-1.8, -0.5); ctx.lineTo(-2.2, -2.6); ctx.lineTo(-1, -3.8); ctx.lineTo(1, -3.8);
-    ctx.lineTo(2.2, -2.6); ctx.lineTo(1.8, -0.5); ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-0.9, -2.9); ctx.lineTo(0, -3.3); ctx.lineTo(0.9, -2.9); ctx.stroke();
-    ctx.fillRect(-2.6, -0.5, 5.2, 1.5); ctx.strokeRect(-2.6, -0.5, 5.2, 1.5);
-    ctx.beginPath(); ctx.moveTo(-0.6, 1); ctx.lineTo(-0.9, 1.4); ctx.lineTo(0.9, 1.4); ctx.lineTo(0.6, 1); ctx.stroke();
-    for (const s of [-1, 1]) {
-      ctx.beginPath();
-      ctx.moveTo(s * 2.2, 0.8); ctx.lineTo(s * 3.4, 3);
-      ctx.moveTo(s * 1.4, 1); ctx.lineTo(s * 3.4, 3);
-      ctx.moveTo(s * 2.8, 3); ctx.lineTo(s * 4, 3);
-      ctx.stroke();
-    }
+    paintLander(ctx, L, skin(), time, 1.9 / scale);
     ctx.restore();
 
-    if (L === lander && L.y > H + 2) {
+    if (L === lander && sy(L.y + 4) < 0) {
       ctx.fillStyle = col.flame;
       ctx.beginPath();
-      const x = sx(L.x), y = Math.max(8, offY + 6);
+      const x = sx(L.x), y = 10;
       ctx.moveTo(x, y - 6); ctx.lineTo(x - 6, y + 4); ctx.lineTo(x + 6, y + 4); ctx.fill();
     }
   }
@@ -664,10 +922,13 @@ kbd {
   let last = performance.now(), acc = 0;
   const DT = 1 / 120;
   function frame(now) {
-    acc += Math.min(0.1, (now - last) / 1000);
+    const frameDt = Math.min(0.1, (now - last) / 1000);
+    acc += frameDt;
     last = now;
     while (acc >= DT) { step(DT); acc -= DT; }
+    updateCamera(frameDt);
     draw(now);
+    if (mode === 'hangar') drawPreview(now);
     updateHud();
     requestAnimationFrame(frame);
   }
@@ -680,11 +941,23 @@ kbd {
   };
   addEventListener('keydown', e => {
     const k = keyMap[e.code];
+    if (mode === 'hangar') {
+      if (e.code === 'Escape') { trying = null; setMode('title'); }
+      return;
+    }
+    if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
     if (mode === 'title' && (k === 'left' || k === 'right')) {
       e.preventDefault();
       if (e.repeat) return;
       const i = WORLDS.indexOf(world) + (k === 'left' ? -1 : 1);
       selectWorld(WORLDS[(i + WORLDS.length) % WORLDS.length]);
+      return;
+    }
+    if (e.code === 'KeyZ' && !e.repeat) {
+      autoZoom = !autoZoom;
+      store.set('ds-zoom', autoZoom ? '1' : '0');
+      showToast(`Auto-zoom ${autoZoom ? 'on' : 'off'}`);
+      if (mode === 'title') setMode('title');
       return;
     }
     if (k) { keys[k] = mode === 'flying'; e.preventDefault(); }
