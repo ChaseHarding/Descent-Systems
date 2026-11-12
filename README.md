@@ -163,6 +163,15 @@ Choose **Daily** on the start screen. Everyone who plays on the same day gets th
   ```
 - The world rotates daily through all eight. The challenge changes at midnight UTC, so friends in different time zones always get the same one.
 
+## Install it on your phone
+
+Descent Systems is an installable web app, so it can live on your home screen and play offline.
+
+- **Android (Chrome):** tap **Install app** on the main menu, or use the browser menu's **Install app** / **Add to Home screen**.
+- **iPhone/iPad (Safari):** tap **Install app** on the main menu for a reminder, then tap the **Share** button and choose **Add to Home Screen**.
+
+Once installed, it opens full-screen and works without a connection. When you're online, it picks up new versions automatically. On iPhone, the home-screen app keeps its own save data, separate from Safari.
+
 ## Running locally
 
 1. Clone the repo:
@@ -191,6 +200,8 @@ localStorage.setItem('ds-credits', 5000)
 ```
 
 ## Notes
+
+`manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
