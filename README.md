@@ -45,7 +45,7 @@ The main menu has four modes: **Free flight**, **Missions**, **Daily challenge**
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
-**Settings** has switches for full 360° rotation, auto-zoom, ghosts and sound, plus a list of the controls.
+**Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts and sound, plus a list of the controls.
 
 ## How to play
 
@@ -113,6 +113,8 @@ Open **Missions** from the start screen. The campaign has 12 hand-built missions
 - **Cargo:** land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes the lander heavier and slower to turn.
 - **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
 - **Rescue:** land on CREW and hold still while they board, then climb out of the top of the screen to reach orbit.
+
+The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. A mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing the last mission unlocks an epilogue. Story scenes can be turned off in Settings.
 
 You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
 
