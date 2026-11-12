@@ -1,0 +1,19 @@
+{
+  "name": "Descent Systems",
+  "short_name": "Descent",
+  "description": "Land anywhere in the solar system. 8 worlds, 12 missions, a daily challenge and hot-seat duels.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#0a0e1c",
+  "theme_color": "#0a0e1c",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

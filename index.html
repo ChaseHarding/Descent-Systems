@@ -21,6 +21,13 @@
 <meta name="twitter:title" content="Descent Systems">
 <meta name="twitter:description" content="Land anywhere in the solar system. 8 worlds, 12 missions, a daily challenge and hot-seat duels.">
 <meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png">
+<!-- Installable app (PWA) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Descent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -56,7 +63,8 @@ body {
   display: flex; flex-direction: column;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 12px;
+  padding-top: max(12px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   gap: 10px;
   box-sizing: border-box;
 }
@@ -377,6 +385,7 @@ kbd {
 .pad button.thrust { flex: 1.6; color: var(--flame); border-color: var(--flame); }
 .pad button.held { background: var(--regolith-dim); color: var(--space); }
 @media (pointer: coarse) { .pad { display: flex; } .keys-hint { display: none; } }
+.pad.off { display: none !important; }
 @media (max-width: 520px) {
   .hud { font-size: 11px; padding: 8px 10px; }
   .score b { font-size: 18px; }
@@ -888,6 +897,40 @@ kbd {
   }
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+  // ---- Install as an app ----
+  // Only the published site ships a manifest and service worker, so this stays inactive elsewhere.
+  const PWA = !!document.querySelector('link[rel="manifest"]');
+  const standalone = () => matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let installPrompt = null;
+  if (PWA && 'serviceWorker' in navigator) {
+    addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
+  }
+  addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installPrompt = e;
+    if (mode === 'title') setMode('title');
+  });
+  addEventListener('appinstalled', () => {
+    installPrompt = null;
+    showToast('Installed. Descent Systems is on your home screen.');
+    if (mode === 'title') setMode('title');
+  });
+  function installLink() {
+    if (!PWA || standalone()) return '';
+    if (installPrompt || isIOS) return '<button class="link" id="installBtn">Install app</button>';
+    return '';
+  }
+  function installApp() {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.finally(() => { installPrompt = null; if (mode === 'title') setMode('title'); });
+    } else if (isIOS) {
+      const tip = $('iosTip');
+      if (tip) tip.hidden = false;
+    }
+  }
+
   // ---- Play modes and ghosts ----
   const ROUNDS = 3;
   const PLAYER_TINT = ['#7fd6ff', '#ff9ad5'];
@@ -1362,6 +1405,7 @@ kbd {
   function setMode(m) {
     mode = m;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
+    $('pad').classList.toggle('off', MENU_MODES.includes(m));
     $('coach').hidden = !(tut && m === 'flying');
     if (!(tut && (m === 'flying' || m === 'paused'))) document.querySelectorAll('.hud .hl').forEach(el => el.classList.remove('hl'));
     $('pauseBtn').hidden = m !== 'flying';
@@ -1401,7 +1445,9 @@ kbd {
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
           <button class="link" id="settingsBtn">Settings</button>
           <button class="link" id="howBtn">How to play</button>
-        </div>`;
+          ${installLink()}
+        </div>
+        ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'setup') {
       const best = bestFor(world);
       const head = playMode === 'hotseat' ? 'Hot-seat' : playMode === 'daily' ? 'Daily challenge' : 'Free flight';
@@ -1617,6 +1663,8 @@ kbd {
     card.querySelectorAll('[data-setup]').forEach(b => b.addEventListener('click', () => openSetup(b.dataset.setup)));
     card.querySelectorAll('[data-go="missions"]').forEach(b => b.addEventListener('click', () => setMode('missions')));
     for (const id of ['tutBtn', 'howBtn']) { const b = $(id); if (b) b.addEventListener('click', startTutorial); }
+    const ib = $('installBtn');
+    if (ib) ib.addEventListener('click', installApp);
     const sb = $('settingsBtn');
     if (sb) sb.addEventListener('click', () => setMode('settings'));
     const menuB = $('menuBtn');
