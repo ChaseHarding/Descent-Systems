@@ -382,6 +382,9 @@ kbd {
 .card .radio p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--regolith); text-align: left; min-height: 1.55em; }
 .radio.old { opacity: 0.55; }
 .radio.quote { width: 100%; max-width: 30rem; box-sizing: border-box; }
+.mtile.side { padding-right: 46px; }
+.mtile .face { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; image-rendering: pixelated; border-radius: 4px; }
+.objective.warn { border-color: var(--bad); color: var(--bad); }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -538,7 +541,11 @@ kbd {
     { id: 'champion', name: 'Champion', price: 0, unlock: 'rival', blurb: 'Crimson paint for the hot-seat winner.',
       fill: '#6b0f1a', stroke: '#ffcf5c', legs: '#ffcf5c', detail: '#ffffff', swatch: 'linear-gradient(90deg, #6b0f1a, #ffcf5c)' },
     { id: 'pathfinder', name: 'Pathfinder', price: 0, unlock: 'campaign', blurb: 'Mission white with campaign orange trim.',
-      fill: '#f2f4f8', stroke: '#ff8a3d', legs: '#ff8a3d', detail: '#ff8a3d', swatch: 'linear-gradient(90deg, #f2f4f8, #ff8a3d)' }
+      fill: '#f2f4f8', stroke: '#ff8a3d', legs: '#ff8a3d', detail: '#ff8a3d', swatch: 'linear-gradient(90deg, #f2f4f8, #ff8a3d)' },
+    { id: 'spa', name: 'Spa Day', price: 0, unlock: 'gentle', blurb: 'Freshly buffed and cucumber-cool. Gus approves.',
+      fill: '#bff0dc', stroke: '#e0609f', legs: '#f2f4f8', detail: '#e0609f', swatch: 'linear-gradient(90deg, #bff0dc, #ff9ad5)' },
+    { id: 'original', name: 'Wren’s Original', price: 0, unlock: 'surveyor', blurb: 'Biscuit’s very first paint job: leather brown and brass.',
+      fill: '#5a3a22', stroke: '#e0b060', legs: '#e0b060', detail: '#ff9ad5', swatch: 'linear-gradient(90deg, #5a3a22, #e0b060)' }
   ];
   const FLAMES = [
     { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
@@ -558,7 +565,9 @@ kbd {
     { id: 'bullseye', name: 'Bullseye', price: 0, unlock: 'bullseye', blurb: 'Red-hot and dead centre.',
       core: '#fff6a8', tail: '#ff3d3d', swatch: 'linear-gradient(90deg, #fff6a8, #ff3d3d)' },
     { id: 'comet', name: 'Comet Tail', price: 0, unlock: 'stars24', blurb: 'An icy core trailing violet.',
-      core: '#e0f7ff', tail: '#a66bff', swatch: 'linear-gradient(90deg, #e0f7ff, #a66bff)' }
+      core: '#e0f7ff', tail: '#a66bff', swatch: 'linear-gradient(90deg, #e0f7ff, #a66bff)' },
+    { id: 'espresso', name: 'Espresso', price: 0, unlock: 'barista', blurb: 'Dark roast with a crema tail. Dottie’s favorite.',
+      core: '#f3d9a4', tail: '#7a4524', swatch: 'linear-gradient(90deg, #f3d9a4, #7a4524)' }
   ];
   const FLAGS = [
     { id: 'pennant', name: 'Pennant', price: 0, blurb: 'A simple orange pennant.', style: 'pennant',
@@ -578,7 +587,11 @@ kbd {
     { id: 'veteran', name: 'Veteran', price: 0, unlock: 'veteran', blurb: 'Service stripes for 25 landings.', style: 'stripes',
       colors: ['#1b2a52', '#ffd27a', '#1b2a52'], swatch: 'linear-gradient(180deg, #1b2a52 33%, #ffd27a 33% 66%, #1b2a52 66%)' },
     { id: 'patch', name: 'Mission Patch', price: 0, unlock: 'flawless', blurb: 'A gold star on black for a flawless campaign.', style: 'star',
-      colors: ['#141414', '#ffd27a'], swatch: 'linear-gradient(90deg, #141414, #ffd27a)' }
+      colors: ['#141414', '#ffd27a'], swatch: 'linear-gradient(90deg, #141414, #ffd27a)' },
+    { id: 'paw', name: 'Paw Print', price: 0, unlock: 'whisperer', blurb: 'Apogee’s official seal of approval.', style: 'paw',
+      colors: ['#ff9a3d', '#fff4e0'], swatch: 'radial-gradient(circle, #fff4e0 25%, #ff9a3d 30%)' },
+    { id: 'crew', name: 'The Crew', price: 0, unlock: 'crewfav', blurb: 'Dottie amber, Gus green, Wren pink.', style: 'stripes',
+      colors: ['#ffb547', '#9fe0b8', '#ff9ad5'], swatch: 'linear-gradient(180deg, #ffb547 33%, #9fe0b8 33% 66%, #ff9ad5 66%)' }
   ];
   const itemsOf = kind => kind === 'hull' ? HULLS : kind === 'flame' ? FLAMES : FLAGS;
   const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
@@ -641,7 +654,12 @@ kbd {
     { id: 'mission1', name: 'Mission ready', desc: 'Complete your first mission.' },
     { id: 'campaign', name: 'Campaign hero', desc: 'Complete all 12 missions.', reward: 'hull:pathfinder', prog: () => [completedCount(), MISSIONS.length] },
     { id: 'stars24', name: 'Star collector', desc: 'Earn 24 mission stars.', reward: 'flame:comet', prog: () => [Math.min(totalStars(), 24), 24] },
-    { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 mission stars.', reward: 'flag:patch', prog: () => [totalStars(), MISSIONS.length * 3] }
+    { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 mission stars.', reward: 'flag:patch', prog: () => [totalStars(), MISSIONS.length * 3] },
+    { id: 'gentle', name: 'Spa treatment', desc: 'Deliver Biscuit’s spa crate without a crack.', reward: 'hull:spa' },
+    { id: 'barista', name: 'Barista', desc: 'Finish The Coffee Crisis with 15 seconds to spare.', reward: 'flame:espresso' },
+    { id: 'whisperer', name: 'Cat whisperer', desc: 'Land Stowaway with Apogee at 75% comfort or better.', reward: 'flag:paw' },
+    { id: 'surveyor', name: 'Surveyor', desc: 'Fly Wren’s whole survey route on Venus.', reward: 'hull:original' },
+    { id: 'crewfav', name: 'Crew favorite', desc: 'Earn all 12 side-mission stars.', reward: 'flag:crew', prog: () => [sideStars(), SIDES.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
   const kindName = k => k === 'hull' ? 'hull' : k === 'flame' ? 'flame' : 'flag';
@@ -821,7 +839,7 @@ kbd {
   // which face each line gets; anything not listed uses the speaker's usual look
   const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral' };
   const MOODS = [
-    ['Morning, pilot', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
+    ['Morning, pilot', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
     ['Then one day Wren', 'worried'], ['Bad news, good news', 'worried'], ['Earth. Six times', 'neutral'],
     ['…hello?', 'neutral'], ['You made it through the Needle', 'happy'], ['Who taught you', 'happy'],
@@ -939,10 +957,46 @@ kbd {
         ['F', 'Wren’s safe. I’m not crying, the console is leaking. Bring them both in.'],
         ['W', 'Not a wasted drop of fuel. Biscuit’s in good hands. Better than mine, maybe.']] }
   };
+  Object.assign(STORY, {
+    'spa-day': {
+      intro: [
+        ['G', 'Pilot! Biscuit has been working so hard, so I booked her a spa day. Well. I booked her a spa crate.'],
+        ['F', 'It’s a box of polishing cloths and cucumber water, and Gus packed it like a wedding cake.'],
+        ['G', 'It’s fragile! With it aboard, touch down slower than 1.2 m/s. Please. For Biscuit.']],
+      react: [['G', 'The crate survived! Biscuit is getting the full treatment tonight.'],
+        ['F', 'Delivered without a crack. Gus is drawing Biscuit a bubble bath. I didn’t ask.'],
+        ['G', 'Three stars! Biscuit wants you to know she feels very pampered.']] },
+    'coffee-crisis': {
+      intro: [
+        ['F', 'Pilot, this is a Category One emergency. The coffee machine at the Mars office has died.'],
+        ['G', 'She’s fine. She’s totally fine. She’s been staring at the empty pot for six minutes.'],
+        ['F', 'There’s a fresh pot at PICKUP. Get it to DROP while it’s hot. The clock is running, and so is my patience.']],
+      react: [['F', 'It’s lukewarm, but it’s coffee. You may live.'],
+        ['F', 'Hot coffee, on Mars, in a dust storm. I take back the things I said on the radio.'],
+        ['F', 'Piping hot. I’m naming my next cat after you. Apogee is furious.']] },
+    'stowaway': {
+      intro: [
+        ['G', 'So, uh, small problem. Apogee snuck aboard Biscuit during refueling.'],
+        ['F', 'My cat is on a lander. On Titan. This is fine.'],
+        ['G', 'Fly gently! She gets queasy when you turn, tilt past 20°, or go faster than 6 m/s. Watch her comfort on the goal box.'],
+        ['F', 'Land on LZ and I will retrieve her myself. Gently. Like a hostage negotiation.']],
+      react: [['F', 'Apogee is safe and deeply offended. That’s her normal.'],
+        ['G', 'She’s purring! She’s actually purring! Biscuit has a new co-pilot.'],
+        ['F', 'Not one complaint from Apogee. That’s never happened. Not even with me.']] },
+    'long-way-round': {
+      intro: [
+        ['W', 'Pilot. Before I ended up on Earth, I flew a survey route through Venus. Nobody’s flown it since.'],
+        ['F', 'Venus. Crushing air, hurricane winds, and clouds so thick you can’t see your own feet.'],
+        ['W', 'My three old markers still glow down there. Fly through them in order, then land at LZ. Biscuit remembers the way. I hope.']],
+      react: [['W', 'You made it. The route’s still there, after all these years.'],
+        ['W', 'That’s how I used to fly it. Well. That’s how I told people I used to fly it.'],
+        ['W', 'Three stars on Venus. Biscuit, I think we’ve been replaced. Happily.']] }
+  });
   const EPILOGUE = [
     ['F', 'Wren is home. The investors called back: both of them. Descent Systems is officially funded.'],
     ['G', 'And Biscuit gets a fresh coat of paint! She picked the color herself. I asked, and she didn’t object.'],
     ['W', 'Keep her flying, pilot. There’s a whole solar system out there that needs a soft landing.'],
+    ['W', 'Oh, and I left something for you on Venus: my old survey route. It’s waiting in your side missions.'],
     ['F', 'Thanks for flying with us. Free flight, the daily challenge and the hangar are all still open. Go have fun.']
   ];
   const FAIL_QUIPS = [
@@ -961,16 +1015,51 @@ kbd {
   let story = null;
   const radioQuote = ([who, text]) => `<div class="radio quote">${faceTag(who, text)}<div class="said"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span><p>${esc(text)}</p></div></div>`;
 
-  const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue' };
+  // ---- Side missions: optional jobs from the crew, each with its own twist ----
+  const SIDES = [
+    { id: 'spa-day', name: 'Biscuit’s Spa Day', side: true, giver: 'G', after: 'tranquility', world: 'moon', kind: 'cargo',
+      label: 'Fragile cargo', cargoName: 'spa crate', fragile: 1.2, mass: 0.85, fuel: 260, credits: 150,
+      brief: 'Gus booked Biscuit a spa day, which turns out to be a crate of polishing cloths and cucumber water. It’s fragile, and Gus will cry.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 50, time: 55 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }] },
+    { id: 'coffee-crisis', name: 'The Coffee Crisis', side: true, giver: 'F', after: 'dust-ledge', world: 'mars', kind: 'cargo',
+      label: 'Timed delivery', cargoName: 'coffee', timeLimit: 70, windMul: 0.6, mass: 0.85, fuel: 240, credits: 220,
+      brief: 'The coffee machine at the Mars office has died, and Dottie is staring at the empty pot. Get a fresh one across the dunes before it goes cold.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 60, time: 45 },
+      nags: [[40, 'FLIGHT: Pilot. I can feel the coffee getting colder.'], [20, 'FLIGHT: Twenty seconds. I am holding a mug. An empty mug.'], [8, 'FLIGHT: Faster. Please. Dottie Reyes does not beg.']],
+      ground: [[0, 30], [12, 28], [40, 30], [55, 36], [70, 44], [90, 48], [110, 44], [130, 50], [150, 54], [165, 50], [180, 44], [195, 40], [226, 42], [240, 48]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 200, x2: 216, y: 38 }] },
+    { id: 'stowaway', name: 'Stowaway', side: true, giver: 'G', after: 'haze-delivery', world: 'titan', kind: 'land',
+      label: 'Passenger', comfort: true, fuel: 200, credits: 180,
+      brief: 'Apogee, Dottie’s cat, snuck aboard during refueling. Bring her down gently: she gets queasy when you turn, tilt past 20°, or fly faster than 6 m/s.',
+      spawn: { x: 120, y: 100, vx: 0 }, stars: { fuel: 50, time: 65 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      pads: [{ id: 'LZ', x1: 182, x2: 200, y: 32 }] },
+    { id: 'long-way-round', name: 'The Long Way Round', side: true, giver: 'W', after: 'last-light', world: 'venus', kind: 'route',
+      label: 'Survey route', fuel: 220, credits: 350,
+      brief: 'Before Earth, Wren flew a survey route through the clouds of Venus. Her three old markers still glow down there. Fly through them in order, then land.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[60, 70], [120, 48], [172, 80]], stars: { fuel: 80, time: 42 },
+      ground: [[0, 40], [20, 36], [40, 42], [60, 30], [80, 24], [100, 30], [120, 20], [140, 26], [160, 40], [180, 50], [196, 36], [226, 36], [240, 40]],
+      pads: [{ id: 'LZ', x1: 205, x2: 222, y: 34 }] }
+  ];
+  const ALL = MISSIONS.concat(SIDES);
+  const RING_R = 7;
+  const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
+  const missionLabel = i => i < MISSIONS.length ? `Mission ${i + 1}` : 'Side mission';
+  const afterName = d => (MISSIONS.find(m => m.id === d.after) || {}).name;
+
+  const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route' };
   const LOAD_TIME = 1.5;
   let missionStars;
   try { missionStars = JSON.parse(store.get('ds-missions', '{}')) || {}; } catch (e) { missionStars = {}; }
   const totalStars = () => MISSIONS.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
   const completedCount = () => MISSIONS.filter(d => missionStars[d.id] > 0).length;
-  const missionOpen = i => i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
+  const missionOpen = i => i >= MISSIONS.length ? missionStars[ALL[i].after] > 0 : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
   const goalsOf = d => d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
+    : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
     : [{ type: 'land', pad: 'LZ' }];
   const currentGoal = () => mission ? goalsOf(mission.def)[mission.stage] : null;
   const isGoalPad = p => { const g = currentGoal(); return !!g && g.pad === p.id; };
@@ -981,8 +1070,74 @@ kbd {
     if (!g) return '';
     if (mission.loading) return `${g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
     if (g.type === 'pickup') return g.what === 'cargo' ? 'Land on PICKUP' : 'Land on CREW';
-    if (g.type === 'land') return mission.carrying === 'cargo' ? 'Deliver the crate to DROP' : 'Land on LZ';
+    if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
+    if (g.type === 'land') return mission.carrying === 'cargo' ? `Deliver the ${mission.def.cargoName || 'crate'} to DROP` : 'Land on LZ';
     return 'Climb to orbit ↑';
+  }
+  function objectiveText() {
+    const d = mission.def;
+    let t = goalText();
+    if (d.timeLimit) {
+      const left = Math.max(0, d.timeLimit - flightT);
+      t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
+    }
+    if (d.comfort) t += ` · Apogee ${Math.round(mission.comfort)}%`;
+    return t;
+  }
+  const objectiveWarn = () => {
+    const d = mission.def;
+    return (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40);
+  };
+  // Per-tick rules for side missions. Returns true if the mission just ended.
+  function missionTick(dt) {
+    const d = mission.def, L = lander;
+    if (d.timeLimit) {
+      const left = d.timeLimit - flightT;
+      for (const [at, line] of d.nags || []) {
+        if (left <= at && !mission.nagged.includes(at)) { mission.nagged.push(at); showToast(line, 3200); sfx.radio(); }
+      }
+      if (left <= 0) {
+        failMission('the coffee went cold', ['F', 'Cold. It’s cold, pilot. I’m going to lie down on the floor now.']);
+        return true;
+      }
+    }
+    if (d.comfort && !L.grounded) {
+      let drain = 0;
+      if ((keys.left || keys.right) && L.fuel > 0) drain += 6;
+      if (Math.abs(L.a) > 20 * Math.PI / 180) drain += 12;
+      if (Math.hypot(L.vx, L.vy) > 6) drain += 10;
+      mission.comfort = Math.max(0, mission.comfort - drain * dt);
+      if (comfortCheck()) return true;
+    }
+    const g = currentGoal();
+    if (g && g.type === 'ring') {
+      const [rx, ry] = d.rings[g.i];
+      if (Math.hypot(L.x - rx, L.y - ry) < RING_R) {
+        mission.stage++;
+        sfx.coin();
+        showToast(g.i + 1 < d.rings.length ? `Marker ${g.i + 1} of ${d.rings.length}` : 'All markers passed. Land on LZ.');
+      }
+    }
+    return false;
+  }
+  // Apogee's mood: a couple of warnings, then the inevitable.
+  function comfortCheck() {
+    const c = mission.comfort;
+    if (c <= 50 && !mission.nagged.includes('c50')) { mission.nagged.push('c50'); showToast('Apogee: mrrp?', 1800); }
+    if (c <= 25 && !mission.nagged.includes('c25')) { mission.nagged.push('c25'); showToast('Apogee: MRAOWWW.', 1800); }
+    if (c <= 0) {
+      failMission('Apogee got space-sick all over the console', ['G', 'I’ll get the paper towels. All the paper towels.']);
+      return true;
+    }
+    return false;
+  }
+  function failMission(reason, quip) {
+    lander.firing = false;
+    lastResult = { reasons: [reason], pts: 0 };
+    lastRun = { frames: recording, result: 'failed' };
+    mission.result = { ok: false, quip };
+    sfx.empty();
+    setMode('missionEnd');
   }
   function buildMissionTerrain(d) {
     const pts = d.ground.filter(([x]) => !d.pads.some(p => x >= p.x1 && x <= p.x2));
@@ -1050,16 +1205,17 @@ kbd {
   }
 
   function startMission(ghostRun) {
-    const d = MISSIONS[missionSel];
+    const d = ALL[missionSel];
     world = WORLDS.find(w => w.id === d.world);
     match = null; daily = null;
-    mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null };
+    mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null, comfort: 100, nagged: [] };
     rng = mulberry32(hashStr('mission:' + d.id));
     buildMissionTerrain(d);
     windDir = rng() < 0.5 ? -1 : 1; windSeed = rrand(0, 100);
     makeBackdrop();
     levelFuel = d.fuel;
     spawn(d.spawn);
+    lander.cat = !!d.comfort;
     rng = Math.random;
     fly(ghostRun || null);
   }
@@ -1080,6 +1236,16 @@ kbd {
     L.y += pad.y - Math.min(...feet.map(f => f[1]));
     L.vx = L.vy = 0; L.firing = false; L.grounded = true;
     sfx.thud();
+    const d = mission.def;
+    if (mission.carrying === 'cargo' && d.fragile && vy > d.fragile) {
+      spawnDust(L.x, groundAt(L.x), 24, 1.4); addShake(5);
+      failMission(`the crate cracked: touched down at ${vy.toFixed(1)} m/s (fragile limit ${d.fragile.toFixed(1)})`, ['G', 'My spa crate! The cucumber water! The ambience!']);
+      return;
+    }
+    if (d.comfort && vy > 1) {
+      mission.comfort = Math.max(0, mission.comfort - 15);
+      if (comfortCheck()) return;
+    }
     onLanded(pad, vy, vx, ang, L.fuel);
     const g = currentGoal();
     touchdownFx(vy, g.type === 'land' && pad.id === g.pad);
@@ -1112,9 +1278,14 @@ kbd {
       if (mission.carrying === 'cargo') { lander.cargo = false; mission.dropped = pad; }
       plantFlag(pad);
     }
-    mission.result = { ok: true, stars: starsWon, prev, pay, t, fuel, met };
+    const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
+    mission.result = { ok: true, stars: starsWon, prev, pay, t, fuel, met, comfort: mission.comfort, unlocked };
     sfx.landed(starsWon === 3);
     award('mission1');
+    if (d.id === 'spa-day') award('gentle');
+    if (d.id === 'coffee-crisis' && d.timeLimit - t >= 15) award('barista');
+    if (d.id === 'stowaway' && mission.comfort >= 75) award('whisperer');
+    if (d.id === 'long-way-round') award('surveyor');
     checkProgress();
     setMode('missionEnd');
   }
@@ -1444,7 +1615,7 @@ kbd {
     if (!world.wind) return 0;
     const s = t + windSeed;
     const gust = 0.55 + 0.35 * Math.sin(s * 0.45) + 0.25 * Math.sin(s * 1.6 + 1.3);
-    return world.wind * windDir * gust;
+    return world.wind * windDir * gust * (mission && mission.def.windMul || 1);
   }
 
   // ---- Lander ----
@@ -1521,6 +1692,7 @@ kbd {
       flightT += dt;
       const fi = Math.floor(flightT * 60);
       while (recording.length <= fi) recording.push([L.x, L.y, L.a, L.firing ? 1 : 0]);
+      if (mission && missionTick(dt)) return;
       if (L.grounded && mission && mission.loading) {
         mission.loadT += dt;
         if (mission.loadT >= LOAD_TIME) finishPickup();
@@ -1828,14 +2000,19 @@ kbd {
           </div>`;
       }
     } else if (m === 'brief') {
-      const d = MISSIONS[missionSel];
+      const d = ALL[missionSel];
       world = WORLDS.find(w => w.id === d.world);
       buildMissionTerrain(d); makeBackdrop();
       const best = missionStars[d.id] || 0;
-      const steps = d.kind === 'cargo' ? ['Land on PICKUP and hold still while the crate loads', 'Fly the crate to DROP and land']
+      const what = d.cargoName || 'crate';
+      const steps = d.kind === 'cargo' ? [`Land on PICKUP and hold still while the ${what} loads`, `Fly the ${what} to DROP and land`]
         : d.kind === 'rescue' ? ['Land on CREW and hold still while they board', 'Climb out of the top of the screen to reach orbit']
+        : d.kind === 'route' ? [`Fly through survey markers 1 to ${d.rings.length}, in order`, 'Land on LZ']
         : d.kind === 'canyon' ? ['Land on LZ', 'Don’t touch the rock overhead'] : ['Land on LZ'];
-      html = `<span class="eyebrow">Mission ${missionSel + 1} of ${MISSIONS.length} · ${world.name} · ${KIND_LABEL[d.kind]}</span>
+      if (d.fragile) steps.push(`Fragile: with the crate aboard, touch down slower than ${d.fragile.toFixed(1)} m/s`);
+      if (d.timeLimit) steps.push(`Deliver within ${d.timeLimit} seconds, before it goes cold`);
+      if (d.comfort) steps.push('Keep Apogee comfortable: turn as little as you can, stay within 20° of level, and keep under 6 m/s');
+      html = `<span class="eyebrow">${missionLabel(missionSel)}${d.side ? '' : ` of ${MISSIONS.length}`} · ${world.name} · ${d.label || KIND_LABEL[d.kind]}</span>
         <h1 class="good">${d.name}</h1>
         <p>${d.brief}</p>
         <ol class="goals">${steps.map(t => `<li>${t}</li>`).join('')}</ol>
@@ -1853,10 +2030,10 @@ kbd {
         </div>`;
     } else if (m === 'missionEnd') {
       const r = mission.result, d = mission.def;
-      const hasNext = r.ok && missionSel + 1 < MISSIONS.length;
+      const hasNext = r.ok && !d.side && missionSel + 1 < MISSIONS.length;
       if (r.ok) {
         const fresh = r.stars - r.prev;
-        html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
+        html = `<span class="eyebrow">${missionLabel(missionSel)} · ${d.name}</span>
           <h1 class="good">Mission complete</h1>
           <p class="squares">${starHtml(r.stars)}</p>
           ${STORY[d.id] ? radioQuote(STORY[d.id].react[r.stars - 1]) : ''}
@@ -1864,7 +2041,10 @@ kbd {
             <span class="met">★ Mission complete</span>
             <span class="${r.met[1] ? 'met' : ''}">★ ${Math.floor(r.fuel)} kg fuel left (goal ${d.stars.fuel} kg)</span>
             <span class="${r.met[2] ? 'met' : ''}">★ ${r.t.toFixed(1)} s (goal ${d.stars.time} s)</span>
+            ${d.timeLimit ? `<span>${(d.timeLimit - r.t).toFixed(1)} s to spare before the coffee went cold</span>` : ''}
+            ${d.comfort ? `<span>Apogee’s comfort: ${Math.round(r.comfort)}%</span>` : ''}
           </div>
+          ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
                   : `<p class="limits">No new stars this time. Your best is ${r.prev} of 3.</p>`}
           <div class="btns">
@@ -1874,10 +2054,10 @@ kbd {
             <button class="btn ghost" id="toMissions">All missions</button>
           </div>`;
       } else {
-        html = `<span class="eyebrow">Mission ${missionSel + 1} · ${d.name}</span>
+        html = `<span class="eyebrow">${missionLabel(missionSel)} · ${d.name}</span>
           <h1 class="bad">Mission failed</h1>
           <p>${cap(lastResult.reasons.join(', '))}.</p>
-          ${radioQuote(FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)])}
+          ${radioQuote(r.quip || FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)])}
           <div class="btns">
             <button class="btn" id="go">Retry</button>
             ${replayBtn()}
@@ -1886,7 +2066,7 @@ kbd {
           <p class="limits">${showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
       }
     } else if (m === 'paused') {
-      const where = tut ? 'Tutorial' : mission ? `Mission ${missionSel + 1} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
+      const where = tut ? 'Tutorial' : mission ? `${missionLabel(missionSel)} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
         : daily ? `Daily · site ${daily.site} of ${DAILY_SITES}` : `${world.name} · site ${level}`;
       html = `<h1>Paused</h1>
         <p class="limits">${where}</p>
@@ -1982,7 +2162,7 @@ kbd {
     const ep = $('epilogue');
     if (ep) ep.addEventListener('click', () => playStory(EPILOGUE, { label: 'Epilogue', title: 'Home' }, () => setMode('missions')));
     const lb = $('logBtn');
-    if (lb) lb.addEventListener('click', () => { const st = STORY[MISSIONS[missionSel].id]; playStory(st.intro, chapterFor(missionSel), () => setMode('brief')); });
+    if (lb) lb.addEventListener('click', () => { const st = STORY[ALL[missionSel].id]; playStory(st.intro, chapterFor(missionSel), () => setMode('brief')); });
 
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
       selectWorld(WORLDS.find(w => w.id === b.dataset.id));
@@ -2036,13 +2216,14 @@ kbd {
   }
 
   function chapterFor(i) {
-    const d = MISSIONS[i], st = STORY[d.id];
+    const d = ALL[i], st = STORY[d.id];
+    if (d.side) return { label: `Side mission · ${WORLDS.find(w => w.id === d.world).name}`, title: d.name };
     if (!st || !st.chapter) return null;
     return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
   }
   function openMission(i) {
     missionSel = i;
-    const d = MISSIONS[i], st = STORY[d.id];
+    const d = ALL[i], st = STORY[d.id];
     if (storyOn && st && !storySeen.includes(d.id)) {
       world = WORLDS.find(w => w.id === d.world);
       buildMissionTerrain(d); makeBackdrop();
@@ -2123,7 +2304,7 @@ kbd {
 
   function renderMissions() {
     card.innerHTML = `<h1 class="good">Missions</h1>
-      <p class="sub">${totalStars()} of ${MISSIONS.length * 3} stars · ${completedCount()} of ${MISSIONS.length} complete</p>
+      <p class="sub">Campaign: ${totalStars()} of ${MISSIONS.length * 3} ★ · Side missions: ${sideStars()} of ${SIDES.length * 3} ★</p>
       <div class="mlist">${MISSIONS.map((d, i) => {
         const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
         return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
@@ -2134,22 +2315,34 @@ kbd {
           <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
         </button>`;
       }).join('')}</div>
-      <p class="limits">Finish a mission to unlock the next. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
+      <h2 class="sect">Side missions from the crew</h2>
+      <div class="mlist">${SIDES.map((d, k) => {
+        const i = MISSIONS.length + k, w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
+        return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
+          <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
+          <span class="mnum">Side · ${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
+          <b>${d.name}</b>
+          <span class="mtype">${w.name} · ${d.label}</span>
+          <span class="mstars">${open ? starHtml(st) : `<span class="mtype">Unlocks after ${afterName(d)}</span>`}</span>
+        </button>`;
+      }).join('')}</div>
+      <p class="limits">Finish a mission to unlock the next. Side missions unlock as the campaign goes on. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">Main menu</button>`;
     card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
     $('back').addEventListener('click', () => setMode('title'));
-    const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].pop();
+    paintFaces(card);
+    const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].filter(b => +b.dataset.i < MISSIONS.length).pop();
     setTimeout(() => (firstOpen || $('back')).focus({ preventScroll: true }), 0);
   }
 
   const replayBtn = () => lastRun && lastRun.frames && lastRun.frames.length > 20
-    ? `<button class="btn ghost" id="replayBtn">${lastResult && lastResult.pad ? 'Watch replay' : 'Watch the crash'}</button>` : '';
+    ? `<button class="btn ghost" id="replayBtn">${lastRun.result === 'crashed' ? 'Watch the crash' : 'Watch replay'}</button>` : '';
   function startReplay() {
     const fr = lastRun && lastRun.frames;
     if (!fr || fr.length < 20) return;
     const start = Math.max(0, fr.length - 60 * 5);
     replay = { fr, t: start, back: mode, done: false, endAt: 0, speed: 1,
-      L: { x: fr[start][0], y: fr[start][1], a: fr[start][2], vx: 0, vy: 0, firing: false, cargo: lander.cargo, crew: lander.crew } };
+      L: { x: fr[start][0], y: fr[start][1], a: fr[start][2], vx: 0, vy: 0, firing: false, cargo: lander.cargo, crew: lander.crew, cat: lander.cat } };
     particles = [];
     setMode('replay');
   }
@@ -2287,11 +2480,11 @@ kbd {
     c.restore();
   }
   let toastTimer = 0;
-  function showToast(text) {
+  function showToast(text, ms = 1400) {
     const t = $('toast');
     t.textContent = text; t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
+    toastTimer = setTimeout(() => { t.hidden = true; }, ms);
   }
 
   function dailyBox() {
@@ -2540,6 +2733,7 @@ kbd {
     if (mode === 'replay' && replay) drawLander(replay.L, time);
     if (mode === 'title' || mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
+    if (mission && mission.def.rings && !MENU_MODES.includes(mode)) drawRings(time);
     if (shaking) ctx.restore();
     if (mode === 'replay' && replay) {
       // cinematic bars
@@ -2609,6 +2803,15 @@ kbd {
       c.fillStyle = Math.floor(time / 300) % 2 ? '#9fe0b8' : '#2f7a55';
       c.beginPath(); c.arc(0, -4.4, 0.5, 0, Math.PI * 2); c.fill();
     }
+    if (L.cat) {
+      // Apogee, peeking out of the hatch
+      c.fillStyle = '#ff9a3d';
+      c.beginPath(); c.arc(0, -4.35, 0.62, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.moveTo(-0.6, -4.55); c.lineTo(-0.48, -5.35); c.lineTo(-0.08, -4.9); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(0.6, -4.55); c.lineTo(0.48, -5.35); c.lineTo(0.08, -4.9); c.closePath(); c.fill();
+      c.fillStyle = '#15151f';
+      c.fillRect(-0.32, -4.5, 0.16, 0.16); c.fillRect(0.16, -4.5, 0.16, 0.16);
+    }
   }
 
   function drawGhost(time) {
@@ -2677,6 +2880,14 @@ kbd {
       c.moveTo(fw / 2 - 0.8 * u, top + fh * 0.62); c.lineTo(fw / 2 + 0.8 * u, top + fh * 0.88);
       c.moveTo(fw / 2 + 0.8 * u, top + fh * 0.62); c.lineTo(fw / 2 - 0.8 * u, top + fh * 0.88);
       c.stroke();
+    } else if (f.style === 'paw') {
+      c.fillStyle = c0; c.fillRect(0, top, fw, fh);
+      c.fillStyle = c1;
+      const cx = fw / 2, cy = top + fh * 0.64;
+      c.beginPath(); c.ellipse(cx, cy, 0.48 * u, 0.36 * u, 0, 0, Math.PI * 2); c.fill();
+      for (const [dx, dy] of [[-0.58, -0.42], [-0.21, -0.7], [0.21, -0.7], [0.58, -0.42]]) {
+        c.beginPath(); c.arc(cx + dx * u, cy + dy, 0.17 * u, 0, Math.PI * 2); c.fill();
+      }
     } else if (f.style === 'wave') {
       const g = c.createLinearGradient(0, 0, fw, 0);
       g.addColorStop(0, c0); g.addColorStop(1, c1);
@@ -2723,6 +2934,26 @@ kbd {
       ctx.fillStyle = col.flame;
       ctx.fillText(p.label || `×${p.mult}`, X, Y + Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z))));
     }
+  }
+
+  function drawRings(time) {
+    const d = mission.def, g = currentGoal();
+    const next = g && g.type === 'ring' ? g.i : d.rings.length;
+    d.rings.forEach(([x, y], i) => {
+      const done = i < next, active = i === next;
+      ctx.save();
+      ctx.globalAlpha = done ? 0.3 : active ? 0.75 + 0.25 * Math.sin(time / 200) : 0.5;
+      ctx.strokeStyle = done ? col.reg : '#ff9ad5';
+      ctx.lineWidth = active ? 3 : 2;
+      ctx.setLineDash(active ? [] : [6, 6]);
+      ctx.beginPath(); ctx.arc(sx(x), sy(y), RING_R * scale, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.font = `700 ${Math.min(18, Math.max(11, base * 4 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(done ? '✓' : String(i + 1), sx(x), sy(y));
+      ctx.restore();
+    });
   }
 
   function drawCrate(x, y) {
@@ -2828,7 +3059,7 @@ kbd {
       hud.meta.style.color = 'var(--flame)';
     } else if (mission) {
       hud.score.textContent = `${flightT.toFixed(1)} s`;
-      hud.meta.textContent = `MISSION ${missionSel + 1} · ${mission.def.name.toUpperCase()}`;
+      hud.meta.textContent = `${missionLabel(missionSel).toUpperCase()} · ${mission.def.name.toUpperCase()}`;
       hud.meta.style.color = 'var(--flame)';
     } else if (match) {
       hud.score.textContent = fmt(match.scores[cur()]);
@@ -2842,7 +3073,7 @@ kbd {
       hud.meta.style.color = daily ? 'var(--flame)' : '';
     }
     const obj = $('objective');
-    if (mission && (mode === 'flying' || mode === 'paused')) { obj.hidden = false; obj.textContent = goalText(); }
+    if (mission && (mode === 'flying' || mode === 'paused')) { obj.hidden = false; obj.textContent = objectiveText(); obj.classList.toggle('warn', !!objectiveWarn()); }
     else obj.hidden = true;
   }
 
