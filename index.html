@@ -184,6 +184,16 @@ kbd {
 .tally th:first-child, .tally td:first-child { text-align: left; color: var(--regolith-dim); }
 .tally tfoot td { font-weight: 500; color: var(--regolith); border-bottom: 0; }
 .tally .crash { color: var(--bad); }
+.mute {
+  position: absolute; z-index: 6;
+  right: 10px; bottom: 10px;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 6px 10px; cursor: pointer;
+  background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 4px;
+}
+.mute[aria-pressed="true"] { color: var(--regolith-dim); }
+.mute:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -229,6 +239,7 @@ kbd {
     <div class="overlay" id="overlay">
       <div class="card" id="card"></div>
     </div>
+    <button class="mute" id="mute" aria-pressed="false">Sound on</button>
   </div>
   <div class="pad" id="pad">
     <button id="bl" aria-label="Rotate left">◀ ROT</button>
@@ -375,6 +386,119 @@ kbd {
     hull: { fill: 'rgba(0,0,0,0)', stroke: t, legs: t, detail: t },
     flame: { core: t, tail: t }
   });
+
+  // ---- Sound ----
+  // Everything is synthesised with the Web Audio API, so there are no audio files to load.
+  const sfx = (() => {
+    let ac = null, master = null, noiseBuf = null;
+    let engG, engF, rcsG, windG, windF;
+    let muted = store.get('ds-mute', '0') === '1';
+    const VOL = 0.7;
+    const noise = (loop = true) => { const n = ac.createBufferSource(); n.buffer = noiseBuf; n.loop = loop; return n; };
+    function init() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      try { ac = new AC(); } catch (e) { return false; }
+      master = ac.createGain(); master.gain.value = muted ? 0 : VOL; master.connect(ac.destination);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      // main engine: low-passed noise plus a sawtooth rumble
+      engF = ac.createBiquadFilter(); engF.type = 'lowpass'; engF.frequency.value = 420; engF.Q.value = 0.8;
+      engG = ac.createGain(); engG.gain.value = 0;
+      const en = noise(); en.connect(engF);
+      const rum = ac.createOscillator(); rum.type = 'sawtooth'; rum.frequency.value = 46;
+      const rumG = ac.createGain(); rumG.gain.value = 0.25;
+      rum.connect(rumG); rumG.connect(engF);
+      engF.connect(engG); engG.connect(master);
+      en.start(); rum.start();
+      // rotation thrusters: a thin high hiss
+      const rf = ac.createBiquadFilter(); rf.type = 'highpass'; rf.frequency.value = 3000;
+      rcsG = ac.createGain(); rcsG.gain.value = 0;
+      const rn = noise(); rn.connect(rf); rf.connect(rcsG); rcsG.connect(master); rn.start();
+      // wind: band-passed noise that follows the gusts
+      windF = ac.createBiquadFilter(); windF.type = 'bandpass'; windF.frequency.value = 500; windF.Q.value = 0.6;
+      windG = ac.createGain(); windG.gain.value = 0;
+      const wn = noise(); wn.connect(windF); windF.connect(windG); windG.connect(master); wn.start();
+      return true;
+    }
+    const live = () => ac && ac.state === 'running' && !muted;
+    function env(g, t, peak, attack, decay) {
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+    }
+    function tone(freq, type, start, dur, peak, toFreq) {
+      if (!live()) return;
+      const t = ac.currentTime + start;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t);
+      if (toFreq) o.frequency.exponentialRampToValueAtTime(toFreq, t + dur);
+      env(g, t, peak, 0.005, dur);
+      o.connect(g); g.connect(master);
+      o.start(t); o.stop(t + dur + 0.05);
+    }
+    function burst(start, dur, peak, from, to) {
+      if (!live()) return;
+      const t = ac.currentTime + start;
+      const n = noise(false), f = ac.createBiquadFilter(), g = ac.createGain();
+      f.type = 'lowpass';
+      f.frequency.setValueAtTime(from, t);
+      f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      env(g, t, peak, 0.005, dur);
+      n.connect(f); f.connect(g); g.connect(master);
+      n.start(t); n.stop(t + dur + 0.05);
+    }
+    return {
+      unlock() {
+        if (!ac && !init()) return;
+        if (ac.state === 'suspended') ac.resume().catch(() => {});
+      },
+      suspend() { if (ac && ac.state === 'running') ac.suspend().catch(() => {}); },
+      get muted() { return muted; },
+      setMuted(v) {
+        muted = v;
+        store.set('ds-mute', v ? '1' : '0');
+        if (master) master.gain.setTargetAtTime(v ? 0 : VOL, ac.currentTime, 0.02);
+      },
+      // continuous sounds, called every frame
+      update(st) {
+        if (!ac) return;
+        const t = ac.currentTime;
+        engG.gain.setTargetAtTime(st.engine ? 0.55 : 0, t, st.engine ? 0.03 : 0.08);
+        engF.frequency.setTargetAtTime(st.bright + Math.random() * 140, t, 0.05);
+        rcsG.gain.setTargetAtTime(st.rcs ? 0.06 : 0, t, 0.02);
+        windG.gain.setTargetAtTime(st.wind, t, 0.3);
+        windF.frequency.setTargetAtTime(350 + st.wind * 1400, t, 0.3);
+      },
+      // one-shots
+      thud() { tone(110, 'sine', 0, 0.35, 0.9, 38); burst(0, 0.18, 0.5, 900, 120); },
+      landed(soft) {
+        tone(660, 'triangle', 0.22, 0.35, 0.25);
+        tone(990, 'triangle', 0.36, 0.5, 0.25);
+        if (soft) tone(1320, 'triangle', 0.5, 0.7, 0.2);
+      },
+      boom() { burst(0, 1.6, 1, 2400, 60); tone(70, 'sine', 0, 1.1, 0.9, 28); burst(0.08, 0.5, 0.4, 5000, 400); },
+      beep(urgent) { tone(urgent ? 1180 : 980, 'square', 0, 0.09, 0.12); },
+      empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
+      coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
+      click() { tone(700, 'triangle', 0, 0.06, 0.15); },
+      turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); }
+    };
+  })();
+
+  // Low-fuel alarm: slow beeps under 20 kg, fast under 10, a falling tone when the tank runs dry.
+  let beepT = 0, wasEmpty = false;
+  function fuelAlarm(dt) {
+    if (mode !== 'flying' || !lander) { beepT = 0; wasEmpty = false; return; }
+    const f = lander.fuel;
+    if (f <= 0) { if (!wasEmpty) { sfx.empty(); wasEmpty = true; } return; }
+    wasEmpty = false;
+    if (f < 20) {
+      beepT -= dt;
+      if (beepT <= 0) { sfx.beep(f < 10); beepT = f < 10 ? 0.35 : 0.7; }
+    } else beepT = 0;
+  }
 
   // ---- State ----
   const keys = { left: false, right: false, thrust: false };
@@ -538,6 +662,7 @@ kbd {
       saveCosmetics();
       lastResult = { pad, pts, base, fuelBonus, soft, ...stats };
       lastRun = { frames: recording, result: 'landed' };
+      sfx.thud(); sfx.landed(soft > 0);
       if (match) { endTurn(); return; }
       score += pts;
       setMode('landed');
@@ -551,6 +676,7 @@ kbd {
       explode();
       lastResult = { reasons, pts: 0, ...stats };
       lastRun = { frames: recording, result: 'crashed' };
+      sfx.boom();
       if (match) { endTurn(); return; }
       lives--;
       setMode(lives > 0 ? 'crashed' : 'over');
@@ -621,7 +747,7 @@ kbd {
           <button class="btn ghost" id="hangarBtn">Hangar</button>
         </div>
         <p class="balance">${fmt(credits)} credits</p>
-        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>Space</kbd> start</p>
+        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>M</kbd> sound · <kbd>Space</kbd> start</p>
         ${limits}
         ${best ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
     } else if (m === 'landed') {
@@ -749,8 +875,10 @@ kbd {
         credits -= it.price;
         owned.add(key);
         showToast(`Bought ${it.name}`);
+        sfx.coin();
       } else {
         showToast(`${it.name} equipped`);
+        sfx.click();
       }
       equip[kind] = it.id;
       saveCosmetics();
@@ -798,7 +926,7 @@ kbd {
   function fly(ghostRun) {
     ghost = ghostRun || null;
     setMode('flying');
-    if (match) showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`);
+    if (match) { showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`); sfx.turn(); }
   }
   function advance() {
     if (mode === 'title' || mode === 'over' || mode === 'matchEnd') {
@@ -1098,6 +1226,13 @@ kbd {
     acc += frameDt;
     last = now;
     while (acc >= DT) { step(DT); acc -= DT; }
+    sfx.update({
+      engine: mode === 'flying' && lander.firing,
+      rcs: mode === 'flying' && (keys.left || keys.right) && lander.fuel > 0,
+      wind: (mode === 'flying' || mode === 'landed') && world.wind ? Math.min(0.35, Math.abs(windNow) * 0.12) : 0,
+      bright: world.drag > 0 ? 1100 : 420   // muffled in a vacuum, brighter where there's air
+    });
+    fuelAlarm(frameDt);
     updateCamera(frameDt);
     draw(now);
     if (mode === 'hangar') drawPreview(now);
@@ -1129,6 +1264,7 @@ kbd {
       selectWorld(WORLDS[(i + WORLDS.length) % WORLDS.length]);
       return;
     }
+    if (e.code === 'KeyM' && !e.repeat) { toggleMute(); return; }
     if (e.code === 'KeyG' && !e.repeat) {
       showGhost = !showGhost;
       store.set('ds-ghost', showGhost ? '1' : '0');
@@ -1161,6 +1297,23 @@ kbd {
     b.addEventListener('lostpointercapture', off);
     b.addEventListener('contextmenu', e => e.preventDefault());
   });
+
+  // Browsers only allow audio after the player interacts, so start it on the first key or tap.
+  addEventListener('pointerdown', () => sfx.unlock(), { capture: true });
+  addEventListener('keydown', () => sfx.unlock(), { capture: true });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) sfx.suspend(); else sfx.unlock(); });
+  const muteBtn = $('mute');
+  function syncMute() {
+    muteBtn.textContent = sfx.muted ? 'Sound off' : 'Sound on';
+    muteBtn.setAttribute('aria-pressed', String(sfx.muted));
+  }
+  function toggleMute() {
+    sfx.setMuted(!sfx.muted);
+    syncMute();
+    showToast(sfx.muted ? 'Sound off' : 'Sound on');
+  }
+  muteBtn.addEventListener('click', toggleMute);
+  syncMute();
 
   new ResizeObserver(resize).observe(stage);
   resize();
