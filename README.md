@@ -1,6 +1,6 @@
 # Descent Systems
 
-A Lunar Lander–style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
+A Lunar Lander style browser game. Pick a world, fight its gravity and weather, and set your lander down on a flat pad before the fuel runs out.
 
 **▶ Play it here: [chaseharding.github.io/Descent-Systems](https://chaseharding.github.io/Descent-Systems/)**
 
