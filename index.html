@@ -158,6 +158,32 @@ kbd {
 .item[aria-pressed="true"] { border-color: var(--flame); }
 .item:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+/* Game mode + hot-seat */
+.seg { display: inline-flex; border: 1px solid var(--regolith-dim); border-radius: 6px; overflow: hidden; }
+.seg button {
+  font-family: var(--f-display); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px; background: transparent; color: var(--regolith-dim); border: 0; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--regolith); color: var(--space); }
+.seg button:focus-visible { outline: 2px solid var(--flame); outline-offset: -2px; }
+.names { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.names label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--regolith-dim); }
+.names input {
+  width: 10rem; max-width: 60vw; box-sizing: border-box;
+  font-family: var(--f-mono); font-size: 13px; padding: 7px 9px;
+  background: var(--panel); color: var(--regolith);
+  border: 1px solid var(--space-2); border-radius: 4px;
+  -webkit-user-select: text; user-select: text;
+}
+.names input:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.tally-wrap { max-width: 100%; overflow-x: auto; }
+.tally { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 13px; min-width: 16rem; }
+.tally th, .tally td { padding: 5px 12px; text-align: right; border-bottom: 1px solid var(--space-2); }
+.tally th { font-weight: 500; }
+.tally th:first-child, .tally td:first-child { text-align: left; color: var(--regolith-dim); }
+.tally tfoot td { font-weight: 500; color: var(--regolith); border-bottom: 0; }
+.tally .crash { color: var(--bad); }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -330,6 +356,25 @@ kbd {
     return [f.core, f.tail];
   }
   const fmt = n => n.toLocaleString('en-US');
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ---- Play modes and ghosts ----
+  const ROUNDS = 3;
+  const PLAYER_TINT = ['#7fd6ff', '#ff9ad5'];
+  let playMode = store.get('ds-mode', 'solo') === 'hotseat' ? 'hotseat' : 'solo';
+  const names = [store.get('ds-p1', 'Player 1'), store.get('ds-p2', 'Player 2')];
+  let match = null;          // hot-seat match in progress
+  let spawnPlan = null;      // start position + drift, so retries and both pilots start identically
+  let flightT = 0;           // seconds since this descent began
+  let recording = [];        // [x, y, angle, firing] sampled 60× per second
+  let lastRun = null;        // the descent that just finished
+  let ghost = null;          // the run drawn as a ghost during this descent
+  let showGhost = store.get('ds-ghost', '1') === '1';
+  const cur = () => match ? (match.step === 0 ? match.first : 1 - match.first) : 0;
+  const ghostSkin = t => ({
+    hull: { fill: 'rgba(0,0,0,0)', stroke: t, legs: t, detail: t },
+    flame: { core: t, tail: t }
+  });
 
   // ---- State ----
   const keys = { left: false, right: false, thrust: false };
@@ -384,10 +429,12 @@ kbd {
   }
 
   // ---- Lander ----
-  function spawn() {
+  function spawn(plan) {
+    spawnPlan = plan || { x: rand(W * 0.2, W * 0.8), vx: rand(-4, 4) };
+    flightT = 0; simT = 0; recording = [];
     lander = {
-      x: rand(W * 0.2, W * 0.8), y: H - 12,
-      vx: rand(-4, 4), vy: 0, a: 0,
+      x: spawnPlan.x, y: H - 12,
+      vx: spawnPlan.vx, vy: 0, a: 0,
       fuel: levelFuel, firing: false
     };
     particles = [];
@@ -424,6 +471,9 @@ kbd {
       L.x += L.vx * dt; L.y += L.vy * dt;
       if (L.x < 4) { L.x = 4; L.vx = Math.abs(L.vx) * 0.3; }
       if (L.x > W - 4) { L.x = W - 4; L.vx = -Math.abs(L.vx) * 0.3; }
+      flightT += dt;
+      const fi = Math.floor(flightT * 60);
+      while (recording.length <= fi) recording.push([L.x, L.y, L.a, L.firing ? 1 : 0]);
       checkContact();
     }
     for (const p of particles) {
@@ -484,10 +534,12 @@ kbd {
       const fuelBonus = Math.round(L.fuel * 2);
       const soft = vy < 0.8 ? 50 : 0;
       const pts = Math.round((base + fuelBonus + soft) * world.bonus);
-      score += pts;
       credits += pts;
       saveCosmetics();
       lastResult = { pad, pts, base, fuelBonus, soft, ...stats };
+      lastRun = { frames: recording, result: 'landed' };
+      if (match) { endTurn(); return; }
+      score += pts;
       setMode('landed');
     } else {
       const reasons = [];
@@ -497,8 +549,10 @@ kbd {
       if (vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s (limit ${SAFE_VX})`);
       if (angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
       explode();
+      lastResult = { reasons, pts: 0, ...stats };
+      lastRun = { frames: recording, result: 'crashed' };
+      if (match) { endTurn(); return; }
       lives--;
-      lastResult = { reasons, ...stats };
       setMode(lives > 0 ? 'crashed' : 'over');
     }
   }
@@ -536,6 +590,7 @@ kbd {
     }
     const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
+    if (m === 'title') { match = null; ghost = null; }
     if (m === 'title') {
       const best = bestFor(world);
       html = `<h1 class="good">Descent Systems</h1>
@@ -552,12 +607,21 @@ kbd {
           <span>Air <b>${effectText(world)}</b></span>
           <span>Score <b>×${world.bonus}</b></span>
         </div>
+        <div class="seg" role="group" aria-label="Game mode">
+          <button data-mode="solo" aria-pressed="${playMode === 'solo'}">Solo</button>
+          <button data-mode="hotseat" aria-pressed="${playMode === 'hotseat'}">Hot-seat · 2P</button>
+        </div>
+        ${playMode === 'hotseat' ? `<div class="names">
+          ${[0, 1].map(i => `<label for="p${i + 1}"><i class="dot" style="background:${PLAYER_TINT[i]}"></i>P${i + 1}
+            <input id="p${i + 1}" maxlength="12" autocomplete="off" spellcheck="false" value="${esc(names[i])}"></label>`).join('')}
+        </div>
+        <p class="limits">${ROUNDS} rounds. Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
         <div class="btns">
-          <button class="btn" id="go">Descend to ${world.name}</button>
+          <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : `Descend to ${world.name}`}</button>
           <button class="btn ghost" id="hangarBtn">Hangar</button>
         </div>
         <p class="balance">${fmt(credits)} credits</p>
-        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>Space</kbd> start</p>
+        <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>Space</kbd> start</p>
         ${limits}
         ${best ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
     } else if (m === 'landed') {
@@ -584,12 +648,57 @@ kbd {
           <button class="btn ghost" id="pick">Choose another world</button>
           <button class="btn ghost" id="hangarBtn">Hangar</button>
         </div>`;
+    } else if (m === 'turn') {
+      const pl = cur(), nx = 1 - pl, r = lastResult;
+      html = `<h1 class="${r.pad ? 'good' : 'bad'}">${esc(names[pl])} ${r.pad ? 'landed' : 'crashed'}</h1>
+        <p>${r.pad ? `×${r.pad.mult} pad for <b>${fmt(r.pts)}</b> points.` : `${cap(r.reasons.join(', '))}. No points this round.`}</p>
+        <p class="limits">Round ${match.round} of ${ROUNDS}. ${esc(names[nx])} flies the same descent next, racing ${esc(names[pl])}’s ghost.</p>
+        <button class="btn" id="go">Hand over to ${esc(names[nx])}</button>`;
+    } else if (m === 'roundEnd' || m === 'matchEnd') {
+      const [a, b] = match.scores;
+      const tally = `<div class="tally-wrap"><table class="tally">
+        <thead><tr><th>Round</th>${[0, 1].map(i => `<th style="color:${PLAYER_TINT[i]}">${esc(names[i])}</th>`).join('')}</tr></thead>
+        <tbody>${match.log.map((row, i) => `<tr><td>${i + 1}</td>${row.map(c => !c ? '<td>–</td>' : c.pad ? `<td>${fmt(c.pts)}</td>` : '<td class="crash">crash</td>').join('')}</tr>`).join('')}</tbody>
+        <tfoot><tr><td>Total</td><td>${fmt(a)}</td><td>${fmt(b)}</td></tr></tfoot>
+      </table></div>`;
+      if (m === 'roundEnd') {
+        const lead = a === b ? 'All square.' : `${esc(names[a > b ? 0 : 1])} leads by ${fmt(Math.abs(a - b))}.`;
+        html = `<h1 class="good">Round ${match.round} done</h1>
+          <p>${lead}</p>
+          ${tally}
+          <p class="limits">New terrain next. ${esc(names[match.round % 2])} flies first.</p>
+          <button class="btn" id="go">Round ${match.round + 1}</button>`;
+      } else {
+        const head = a === b ? 'Dead heat' : `${esc(names[a > b ? 0 : 1])} wins`;
+        html = `<h1 class="good">${head}</h1>
+          <p>${a === b ? `Both pilots scored ${fmt(a)}.` : `${fmt(Math.max(a, b))} to ${fmt(Math.min(a, b))} on ${world.name}.`}</p>
+          ${tally}
+          <div class="btns">
+            <button class="btn" id="go">Rematch</button>
+            <button class="btn ghost" id="pick">Back to launch</button>
+          </div>`;
+      }
     }
     card.innerHTML = html;
     const go = $('go');
     go.addEventListener('click', advance);
     const pick = $('pick');
     if (pick) pick.addEventListener('click', () => { genTerrain(); spawn(); setMode('title'); });
+    card.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+      playMode = b.dataset.mode;
+      store.set('ds-mode', playMode);
+      setMode('title');
+      const again = card.querySelector(`.seg button[data-mode="${playMode}"]`);
+      if (again) again.focus({ preventScroll: true });
+    }));
+    [0, 1].forEach(i => {
+      const inp = $('p' + (i + 1));
+      if (!inp) return;
+      inp.addEventListener('input', () => {
+        names[i] = inp.value.trim() || `Player ${i + 1}`;
+        store.set('ds-p' + (i + 1), names[i]);
+      });
+    });
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('hangar'));
     card.querySelectorAll('.world').forEach(b => b.addEventListener('click', () => {
@@ -686,17 +795,46 @@ kbd {
     toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
   }
 
+  function fly(ghostRun) {
+    ghost = ghostRun || null;
+    setMode('flying');
+    if (match) showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`);
+  }
   function advance() {
-    if (mode === 'title' || mode === 'over') {
+    if (mode === 'title' || mode === 'over' || mode === 'matchEnd') {
       level = 1; lives = 3; score = 0; levelFuel = 100;
       genTerrain(); spawn();
+      match = playMode === 'hotseat'
+        ? { round: 1, step: 0, first: 0, scores: [0, 0], log: [], runs: [], plan: spawnPlan }
+        : null;
+      fly(null);
     } else if (mode === 'landed') {
       level++; levelFuel = Math.max(45, 100 - (level - 1) * 8);
       genTerrain(); spawn();
+      fly(null);
     } else if (mode === 'crashed') {
-      spawn();
-    } else return;
-    setMode('flying');
+      // same start, same wind: race your previous attempt
+      spawn(spawnPlan);
+      fly({ ...lastRun, label: 'Last try', tint: col.reg });
+    } else if (mode === 'turn') {
+      match.step = 1;
+      spawn(match.plan);
+      fly(match.runs[match.first]);
+    } else if (mode === 'roundEnd') {
+      match.round++; match.step = 0; match.first = (match.round - 1) % 2;
+      level = match.round; levelFuel = Math.max(45, 100 - (level - 1) * 8);
+      genTerrain(); spawn();
+      match.plan = spawnPlan;
+      fly(null);
+    }
+  }
+  function endTurn() {
+    const pl = cur();
+    match.scores[pl] += lastResult.pts;
+    if (!match.log[match.round - 1]) match.log[match.round - 1] = [null, null];
+    match.log[match.round - 1][pl] = lastResult;
+    match.runs[pl] = { ...lastRun, label: names[pl], tint: PLAYER_TINT[pl] };
+    setMode(match.step === 0 ? 'turn' : match.round >= ROUNDS ? 'matchEnd' : 'roundEnd');
   }
 
   // ---- Rendering ----
@@ -818,7 +956,9 @@ kbd {
     }
     ctx.globalAlpha = 1;
 
-    if (mode === 'flying' || mode === 'landed') drawLander(lander, time);
+    if (ghost && showGhost && mode === 'flying') drawGhost(time);
+    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd');
+    if (mode === 'flying' || sitting) drawLander(lander, time);
     if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
   }
 
@@ -872,6 +1012,31 @@ kbd {
     }
   }
 
+  function drawGhost(time) {
+    const fr = ghost.frames;
+    if (!fr || !fr.length) return;
+    const at = Math.floor(flightT * 60), done = at >= fr.length;
+    const [x, y, a, f] = fr[Math.min(fr.length - 1, at)];
+    ctx.save();
+    if (done && ghost.result === 'crashed') {
+      // mark where the ghost went down
+      ctx.globalAlpha = 0.7; ctx.strokeStyle = ghost.tint; ctx.lineWidth = 2;
+      const X = sx(x), Y = sy(y), r = Math.max(5, scale * 2);
+      ctx.beginPath(); ctx.moveTo(X - r, Y - r); ctx.lineTo(X + r, Y + r); ctx.moveTo(X + r, Y - r); ctx.lineTo(X - r, Y + r); ctx.stroke();
+    } else {
+      ctx.globalAlpha = 0.45;
+      ctx.translate(sx(x), sy(y)); ctx.rotate(a); ctx.scale(scale, scale);
+      paintLander(ctx, { firing: !done && f === 1 }, ghostSkin(ghost.tint), time, 1.6 / scale);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = ghost.tint;
+    ctx.font = `500 11px ${C('--f-mono')}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(ghost.label).toUpperCase(), sx(x), sy(y + 5) - 4);
+    ctx.globalAlpha = 1;
+  }
+
   function drawLander(L, time) {
     ctx.save();
     ctx.translate(sx(L.x), sy(L.y));
@@ -914,8 +1079,15 @@ kbd {
     hud.fuelTxt.textContent = `${Math.ceil(L.fuel)} kg`;
     hud.fuelTxt.className = L.fuel > 25 ? '' : L.fuel > 0 ? 'warn' : 'bad';
     hud.fuelBar.style.width = `${L.fuel}%`;
-    hud.score.textContent = score;
-    hud.meta.textContent = `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
+    if (match) {
+      hud.score.textContent = fmt(match.scores[cur()]);
+      hud.meta.textContent = `${names[cur()].toUpperCase()} · ROUND ${match.round}/${ROUNDS} · ${world.name.toUpperCase()}`;
+      hud.meta.style.color = PLAYER_TINT[cur()];
+    } else {
+      hud.score.textContent = fmt(score);
+      hud.meta.textContent = `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
+      hud.meta.style.color = '';
+    }
   }
 
   // ---- Loop ----
@@ -940,6 +1112,10 @@ kbd {
     ArrowUp: 'thrust', KeyW: 'thrust'
   };
   addEventListener('keydown', e => {
+    if (e.target instanceof HTMLInputElement) {
+      if (e.code === 'Enter') e.target.blur();
+      return;
+    }
     const k = keyMap[e.code];
     if (mode === 'hangar') {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
@@ -951,6 +1127,13 @@ kbd {
       if (e.repeat) return;
       const i = WORLDS.indexOf(world) + (k === 'left' ? -1 : 1);
       selectWorld(WORLDS[(i + WORLDS.length) % WORLDS.length]);
+      return;
+    }
+    if (e.code === 'KeyG' && !e.repeat) {
+      showGhost = !showGhost;
+      store.set('ds-ghost', showGhost ? '1' : '0');
+      showToast(`Ghost ${showGhost ? 'on' : 'off'}`);
+      if (mode === 'title') setMode('title');
       return;
     }
     if (e.code === 'KeyZ' && !e.repeat) {
