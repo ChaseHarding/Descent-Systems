@@ -44,7 +44,7 @@ The main menu has four modes: **Free flight**, **Missions**, **Daily challenge**
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
-**Settings** has switches for auto-zoom, ghosts and sound, plus a list of the controls.
+**Settings** has switches for full 360° rotation, auto-zoom, ghosts and sound, plus a list of the controls.
 
 ## How to play
 
