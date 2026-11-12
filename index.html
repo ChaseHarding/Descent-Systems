@@ -194,6 +194,23 @@ kbd {
 }
 .mute[aria-pressed="true"] { color: var(--regolith-dim); }
 .mute:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
+/* Daily challenge */
+.daily {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 12px 18px; background: var(--panel);
+  border: 1px solid var(--flame); border-radius: 6px;
+  font-size: 12px; color: var(--regolith-dim); max-width: 30rem;
+}
+.daily .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+.daily > b { font-family: var(--f-display); font-size: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--flame); }
+.daily span b { color: var(--regolith); font-weight: 500; }
+.card .squares { font-size: 26px; letter-spacing: 0.15em; line-height: 1.2; }
+.share-text {
+  width: min(24rem, 100%); box-sizing: border-box; resize: none;
+  font-family: var(--f-mono); font-size: 12px; padding: 8px;
+  background: var(--panel); color: var(--regolith); border: 1px solid var(--space-2); border-radius: 4px;
+  -webkit-user-select: text; user-select: text;
+}
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -336,16 +353,30 @@ kbd {
     { id: 'plasma', name: 'Pulsing Plasma', price: 3500, blurb: 'Throbs like an ion drive.', pulse: true,
       core: '#ffc2f6', tail: '#8a5cff', swatch: 'linear-gradient(90deg, #ffc2f6, #8a5cff)' }
   ];
-  const itemsOf = kind => kind === 'hull' ? HULLS : FLAMES;
+  const FLAGS = [
+    { id: 'pennant', name: 'Pennant', price: 0, blurb: 'A simple orange pennant.', style: 'pennant',
+      colors: ['#ffb547'], swatch: '#ffb547' },
+    { id: 'tricolor', name: 'Tricolor', price: 300, blurb: 'Three bold bands.', style: 'stripes',
+      colors: ['#7fd6ff', '#f2f4f8', '#ff6b5e'], swatch: 'linear-gradient(180deg, #7fd6ff 33%, #f2f4f8 33% 66%, #ff6b5e 66%)' },
+    { id: 'star', name: 'Lone Star', price: 600, blurb: 'A white star on deep blue.', style: 'star',
+      colors: ['#2a4fb0', '#ffffff'], swatch: 'radial-gradient(circle, #ffffff 25%, #2a4fb0 30%)' },
+    { id: 'checker', name: 'Checkered', price: 1000, blurb: 'The finish-line flag. You made it.', style: 'checker',
+      colors: ['#f2f4f8', '#141414'], swatch: 'repeating-linear-gradient(90deg, #f2f4f8 0 6px, #141414 6px 12px)' },
+    { id: 'jolly', name: 'Jolly Roger', price: 1500, blurb: 'Claim the pad for the pirates.', style: 'skull',
+      colors: ['#141414', '#f2f4f8'], swatch: 'radial-gradient(circle, #f2f4f8 25%, #141414 30%)' },
+    { id: 'banner', name: 'Waving Banner', price: 3000, blurb: 'Ripples in the breeze, even in a vacuum.', style: 'wave',
+      colors: ['#ff9ad5', '#8a5cff'], swatch: 'linear-gradient(90deg, #ff9ad5, #8a5cff)' }
+  ];
+  const itemsOf = kind => kind === 'hull' ? HULLS : kind === 'flame' ? FLAMES : FLAGS;
   const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
 
   let credits = Math.max(0, +store.get('ds-credits', 0) || 0);
   let owned;
   try { owned = new Set(JSON.parse(store.get('ds-owned', '[]'))); } catch (e) { owned = new Set(); }
-  owned.add('hull:standard'); owned.add('flame:standard');
-  const equip = { hull: store.get('ds-hull', 'standard'), flame: store.get('ds-flame', 'standard') };
-  for (const kind of ['hull', 'flame']) {
-    if (!owned.has(kind + ':' + equip[kind]) || !itemsOf(kind).some(i => i.id === equip[kind])) equip[kind] = 'standard';
+  owned.add('hull:standard'); owned.add('flame:standard'); owned.add('flag:pennant');
+  const equip = { hull: store.get('ds-hull', 'standard'), flame: store.get('ds-flame', 'standard'), flag: store.get('ds-flag', 'pennant') };
+  for (const kind of ['hull', 'flame', 'flag']) {
+    if (!owned.has(kind + ':' + equip[kind]) || !itemsOf(kind).some(i => i.id === equip[kind])) equip[kind] = itemsOf(kind)[0].id;
   }
   let trying = null;                              // items being tried on in the hangar
   let hangarSel = { kind: 'hull', id: 'standard' };
@@ -354,10 +385,11 @@ kbd {
     store.set('ds-owned', JSON.stringify([...owned]));
     store.set('ds-hull', equip.hull);
     store.set('ds-flame', equip.flame);
+    store.set('ds-flag', equip.flag);
   }
   const skin = () => {
     const src = trying || equip;
-    return { hull: findItem('hull', src.hull), flame: findItem('flame', src.flame) };
+    return { hull: findItem('hull', src.hull), flame: findItem('flame', src.flame), flag: findItem('flag', src.flag) };
   };
   function flameColors(f, t, hue = 0) {
     if (f.rainbow) {
@@ -372,9 +404,24 @@ kbd {
   // ---- Play modes and ghosts ----
   const ROUNDS = 3;
   const PLAYER_TINT = ['#7fd6ff', '#ff9ad5'];
-  let playMode = store.get('ds-mode', 'solo') === 'hotseat' ? 'hotseat' : 'solo';
+  const storedMode = store.get('ds-mode', 'solo');
+  let playMode = ['solo', 'hotseat', 'daily'].includes(storedMode) ? storedMode : 'solo';
   const names = [store.get('ds-p1', 'Player 1'), store.get('ds-p2', 'Player 2')];
   let match = null;          // hot-seat match in progress
+  let daily = null;          // daily challenge run in progress
+  let flagPlant = null;      // where the flag went in after the last landing
+  const DAILY_SITES = 3;
+  const GAME_URL = 'https://chaseharding.github.io/Descent-Systems/';
+  // The daily challenge runs on UTC dates so friends in different time zones get the same one.
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+  const dailyWorld = () => WORLDS[Math.floor(Date.now() / 86400000) % WORLDS.length];
+  const storedWorld = () => WORLDS.find(w => w.id === store.get('ds-world', 'moon')) || WORLDS[1];
+  function untilReset() {
+    const now = Date.now(), next = Math.floor(now / 86400000 + 1) * 86400000;
+    const mins = Math.ceil((next - now) / 60000);
+    return `${Math.floor(mins / 60)} h ${mins % 60} m`;
+  }
+  if (playMode === 'daily') world = dailyWorld();
   let spawnPlan = null;      // start position + drift, so retries and both pilots start identically
   let flightT = 0;           // seconds since this descent began
   let recording = [];        // [x, y, angle, firing] sampled 60× per second
@@ -509,33 +556,52 @@ kbd {
   let lastResult = null;
   let simT = 0, windDir = 1, windSeed = 0, windNow = 0;
 
-  const rand = (a, b) => a + Math.random() * (b - a);
+  const rand = (a, b) => a + Math.random() * (b - a);   // effects: always truly random
+  // Terrain, start position and wind draw from rng, which the daily challenge seeds by date.
+  let rng = Math.random;
+  const rrand = (a, b) => a + rng() * (b - a);
+  function mulberry32(seed) {
+    return () => {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function hashStr(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
 
   // ---- Terrain ----
   function genTerrain() {
     const step = 6, n = Math.round(W / step);
     const rough = (4 + level * 1.2) * world.rough;
     const h = [];
-    let y = rand(20, 50);
+    let y = rrand(20, 50);
     for (let i = 0; i <= n; i++) {
-      y += rand(-1, 1) * rough;
+      y += rrand(-1, 1) * rough;
       y = Math.max(6, Math.min(H * 0.5, y));
       h.push(y);
     }
-    const defs = [{ len: 2, mult: 5 }, { len: 3, mult: 3 }, { len: 5, mult: 2 }]
-      .sort(() => Math.random() - 0.5);
+    const defs = [{ len: 2, mult: 5 }, { len: 3, mult: 3 }, { len: 5, mult: 2 }];
+    for (let i = defs.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [defs[i], defs[j]] = [defs[j], defs[i]];
+    }
     pads = [];
     const third = Math.floor(n / 3);
     defs.forEach((d, k) => {
       const lo = k * third + 1, hi = (k + 1) * third - d.len - 1;
-      const s = Math.floor(rand(lo, Math.max(lo, hi)));
+      const s = Math.floor(rrand(lo, Math.max(lo, hi)));
       const py = h[s];
       for (let i = s; i <= s + d.len; i++) h[i] = py;
       pads.push({ x1: s * step, x2: (s + d.len) * step, y: py, mult: d.mult });
     });
     terrain = h.map((y, i) => [i * step, y]);
-    windDir = Math.random() < 0.5 ? -1 : 1;
-    windSeed = rand(0, 100);
+    windDir = rng() < 0.5 ? -1 : 1;
+    windSeed = rrand(0, 100);
   }
   function groundAt(x) {
     const step = terrain[1][0];
@@ -554,7 +620,8 @@ kbd {
 
   // ---- Lander ----
   function spawn(plan) {
-    spawnPlan = plan || { x: rand(W * 0.2, W * 0.8), vx: rand(-4, 4) };
+    spawnPlan = plan || { x: rrand(W * 0.2, W * 0.8), vx: rrand(-4, 4) };
+    flagPlant = null;
     flightT = 0; simT = 0; recording = [];
     lander = {
       x: spawnPlan.x, y: H - 12,
@@ -654,6 +721,9 @@ kbd {
     if (!hullHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.firing = false;
+      // plant the flag beside the lander, on the pad when there's room
+      const side = L.x + 5 <= pad.x2 - 0.5 ? 5 : L.x - 5 >= pad.x1 + 0.5 ? -5 : 5;
+      flagPlant = { x: L.x + side, y: groundAt(L.x + side), t: performance.now() };
       const base = 50 * pad.mult;
       const fuelBonus = Math.round(L.fuel * 2);
       const soft = vy < 0.8 ? 50 : 0;
@@ -665,6 +735,7 @@ kbd {
       sfx.thud(); sfx.landed(soft > 0);
       if (match) { endTurn(); return; }
       score += pts;
+      if (daily) { daily.results.push(lastResult); setMode(daily.site >= DAILY_SITES ? 'dailyEnd' : 'landed'); return; }
       setMode('landed');
     } else {
       const reasons = [];
@@ -678,6 +749,7 @@ kbd {
       lastRun = { frames: recording, result: 'crashed' };
       sfx.boom();
       if (match) { endTurn(); return; }
+      if (daily) { daily.results.push(lastResult); setMode('dailyEnd'); return; }
       lives--;
       setMode(lives > 0 ? 'crashed' : 'over');
     }
@@ -716,16 +788,16 @@ kbd {
     }
     const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
-    if (m === 'title') { match = null; ghost = null; }
+    if (m === 'title') { match = null; ghost = null; daily = null; rng = Math.random; }
     if (m === 'title') {
       const best = bestFor(world);
       html = `<h1 class="good">Descent Systems</h1>
         <p>Pick a world, then set the lander down on a flat pad before the tank runs dry. Narrow pads pay more: <b>×5</b>, <b>×3</b>, <b>×2</b>.</p>
-        <div class="worlds" role="group" aria-label="Choose a world">
+        ${playMode === 'daily' ? dailyBox() : `<div class="worlds" role="group" aria-label="Choose a world">
           ${WORLDS.map(w => `<button class="world" data-id="${w.id}" aria-pressed="${w === world}">
             <i class="orb" style="background:${w.orb}"></i><b>${w.name}</b><span>${w.g.toFixed(2)} m/s²</span>
           </button>`).join('')}
-        </div>
+        </div>`}
         <p>${world.note}</p>
         <div class="brief">
           <span>Gravity <b>${world.g.toFixed(2)} m/s²</b></span>
@@ -736,6 +808,7 @@ kbd {
         <div class="seg" role="group" aria-label="Game mode">
           <button data-mode="solo" aria-pressed="${playMode === 'solo'}">Solo</button>
           <button data-mode="hotseat" aria-pressed="${playMode === 'hotseat'}">Hot-seat · 2P</button>
+          <button data-mode="daily" aria-pressed="${playMode === 'daily'}">Daily</button>
         </div>
         ${playMode === 'hotseat' ? `<div class="names">
           ${[0, 1].map(i => `<label for="p${i + 1}"><i class="dot" style="background:${PLAYER_TINT[i]}"></i>P${i + 1}
@@ -743,13 +816,13 @@ kbd {
         </div>
         <p class="limits">${ROUNDS} rounds. Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
         <div class="btns">
-          <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : `Descend to ${world.name}`}</button>
+          <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : playMode === 'daily' ? 'Start today’s challenge' : `Descend to ${world.name}`}</button>
           <button class="btn ghost" id="hangarBtn">Hangar</button>
         </div>
         <p class="balance">${fmt(credits)} credits</p>
         <p class="keys-hint limits"><kbd>↑</kbd>/<kbd>W</kbd> thrust · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> rotate · <kbd>←</kbd><kbd>→</kbd> on this screen switch world · <kbd>H</kbd> hangar · <kbd>Z</kbd> auto-zoom ${autoZoom ? 'on' : 'off'} · <kbd>G</kbd> ghost ${showGhost ? 'on' : 'off'} · <kbd>M</kbd> sound · <kbd>Space</kbd> start</p>
         ${limits}
-        ${best ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
+        ${best && playMode !== 'daily' ? `<p class="limits">Best on ${world.name}: ${best}</p>` : ''}`;
     } else if (m === 'landed') {
       const r = lastResult;
       html = `<h1 class="good">Contact on ${world.name}</h1>
@@ -804,8 +877,25 @@ kbd {
             <button class="btn ghost" id="pick">Back to launch</button>
           </div>`;
       }
+    } else if (m === 'dailyEnd') {
+      const done = daily.results.length === DAILY_SITES && daily.results.every(r => r.pad);
+      const key = 'ds-daily-best-' + daily.date, prev = +store.get(key, 0) || 0, isBest = score > prev;
+      if (isBest) store.set(key, score);
+      html = `<h1 class="${done ? 'good' : 'bad'}">${done ? 'Daily complete' : 'Daily over'}</h1>
+        ${done ? '' : `<p>${cap(lastResult.reasons.join(', '))}.</p>`}
+        <p class="squares" aria-label="${daily.results.filter(r => r.pad).length} of ${DAILY_SITES} sites landed">${squares()}</p>
+        <p>Score <b>${fmt(score)}</b> on ${world.name}. ${isBest ? (prev ? 'New best today!' : 'Your first score today.') : prev ? `Today’s best: ${fmt(prev)}.` : 'No points yet today.'}</p>
+        <div class="btns">
+          <button class="btn" id="go">Try again</button>
+          <button class="btn ghost" id="share">Copy result</button>
+          <button class="btn ghost" id="pick">Back to launch</button>
+        </div>
+        <textarea class="share-text" id="shareText" rows="3" readonly hidden>${esc(shareText())}</textarea>
+        <p class="limits">Every pilot gets the same terrain today. Next challenge in ${untilReset()}.</p>`;
     }
     card.innerHTML = html;
+    const sh = $('share');
+    if (sh) sh.addEventListener('click', copyShare);
     const go = $('go');
     go.addEventListener('click', advance);
     const pick = $('pick');
@@ -813,6 +903,8 @@ kbd {
     card.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
       playMode = b.dataset.mode;
       store.set('ds-mode', playMode);
+      world = playMode === 'daily' ? dailyWorld() : storedWorld();
+      genTerrain(); makeBackdrop();
       setMode('title');
       const again = card.querySelector(`.seg button[data-mode="${playMode}"]`);
       if (again) again.focus({ preventScroll: true });
@@ -858,6 +950,7 @@ kbd {
       <div class="deal"><span><b>${it.name}</b> · ${it.blurb}</span>${action}</div>
       ${shelf('hull', 'Hull finish')}
       ${shelf('flame', 'Engine flame')}
+      ${shelf('flag', 'Landing flag')}
       <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
       <button class="btn ghost" id="back">Back to launch</button>`;
 
@@ -914,6 +1007,11 @@ kbd {
     c.scale(s, s);
     paintLander(c, { firing: true }, skin(), time, 1.6 / s);
     c.restore();
+    c.save();
+    c.translate(w * 0.74, gy);
+    c.scale(s, s);
+    paintFlag(c, skin().flag, time, 1, 1.4 / s);
+    c.restore();
   }
   let toastTimer = 0;
   function showToast(text) {
@@ -923,13 +1021,50 @@ kbd {
     toastTimer = setTimeout(() => { t.hidden = true; }, 1400);
   }
 
+  function dailyBox() {
+    const best = +store.get('ds-daily-best-' + todayKey(), 0) || 0;
+    return `<div class="daily">
+      <span class="eyebrow">Daily challenge · ${todayKey()}</span>
+      <b>${world.name}</b>
+      <span>${DAILY_SITES} sites in a row with one lander. Same terrain for every pilot today.</span>
+      <span>${best ? `Your best today: <b>${fmt(best)}</b> · ` : ''}New challenge in ${untilReset()}</span>
+    </div>`;
+  }
+  const squares = () => Array.from({ length: DAILY_SITES }, (_, i) => {
+    const r = daily.results[i];
+    return !r ? '⬛' : r.pad ? '🟩' : '🟥';
+  }).join('');
+  const shareText = () => `Descent Systems daily ${daily.date}\n${world.name} ${squares()} ${fmt(score)} pts\n${GAME_URL}`;
+  function copyShare() {
+    const ta = $('shareText');
+    const fallback = () => {
+      if (ta) { ta.hidden = false; ta.focus(); ta.select(); }
+      showToast('Copy the text below to share');
+    };
+    try {
+      navigator.clipboard.writeText(shareText()).then(() => { showToast('Result copied'); sfx.click(); }, fallback);
+    } catch (e) { fallback(); }
+  }
+  function seedSite(n) { rng = mulberry32(hashStr(`${daily.date}:${world.id}:${n}`)); }
+  function startDaily() {
+    world = dailyWorld(); makeBackdrop();
+    match = null;
+    daily = { date: todayKey(), site: 1, results: [] };
+    level = 1; lives = 1; score = 0; levelFuel = 100;
+    seedSite(1); genTerrain(); spawn(); rng = Math.random;
+    fly(null);
+  }
+
   function fly(ghostRun) {
     ghost = ghostRun || null;
     setMode('flying');
     if (match) { showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`); sfx.turn(); }
+    if (daily) showToast(`Daily · site ${daily.site} of ${DAILY_SITES}`);
   }
   function advance() {
-    if (mode === 'title' || mode === 'over' || mode === 'matchEnd') {
+    if (mode === 'title' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
+      if (playMode === 'daily') { startDaily(); return; }
+      rng = Math.random;
       level = 1; lives = 3; score = 0; levelFuel = 100;
       genTerrain(); spawn();
       match = playMode === 'hotseat'
@@ -938,7 +1073,8 @@ kbd {
       fly(null);
     } else if (mode === 'landed') {
       level++; levelFuel = Math.max(45, 100 - (level - 1) * 8);
-      genTerrain(); spawn();
+      if (daily) { daily.site = level; seedSite(level); }
+      genTerrain(); spawn(); rng = Math.random;
       fly(null);
     } else if (mode === 'crashed') {
       // same start, same wind: race your previous attempt
@@ -1085,7 +1221,8 @@ kbd {
     ctx.globalAlpha = 1;
 
     if (ghost && showGhost && mode === 'flying') drawGhost(time);
-    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd');
+    const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd');
+    if (sitting && flagPlant) drawFlag(time);
     if (mode === 'flying' || sitting) drawLander(lander, time);
     if (mode === 'title') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
   }
@@ -1165,6 +1302,67 @@ kbd {
     ctx.globalAlpha = 1;
   }
 
+  function starPath(c, cx, cy, r) {
+    c.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.42 : r;
+      c.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+    }
+    c.closePath();
+  }
+  // Draws a flag with its pole foot at the origin (metres, y down). prog 0→1 raises the pole, then unfurls the cloth.
+  function paintFlag(c, f, time, prog, lw) {
+    if (!f || prog <= 0) return;
+    const poleH = 6 * Math.min(1, prog / 0.55);
+    c.lineCap = 'round';
+    c.strokeStyle = '#c9cfdc'; c.lineWidth = lw;
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -poleH); c.stroke();
+    const u = Math.max(0, Math.min(1, (prog - 0.55) / 0.45));
+    if (!u) return;
+    const fw = 3.6 * u, fh = 2.3, top = -6;
+    const [c0, c1, c2] = f.colors;
+    if (f.style === 'pennant') {
+      c.beginPath(); c.moveTo(0, top); c.lineTo(fw, top + fh / 2); c.lineTo(0, top + fh); c.closePath();
+      c.fillStyle = c0; c.fill();
+    } else if (f.style === 'stripes') {
+      [c0, c1, c2].forEach((col, i) => { c.fillStyle = col; c.fillRect(0, top + i * fh / 3, fw, fh / 3 + 0.02); });
+    } else if (f.style === 'star') {
+      c.fillStyle = c0; c.fillRect(0, top, fw, fh);
+      c.fillStyle = c1; starPath(c, fw / 2, top + fh / 2, 0.75 * u); c.fill();
+    } else if (f.style === 'checker') {
+      const cols = 6, rows = 4;
+      for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+        c.fillStyle = (i + j) % 2 ? c1 : c0;
+        c.fillRect(i * fw / cols, top + j * fh / rows, fw / cols + 0.02, fh / rows + 0.02);
+      }
+    } else if (f.style === 'skull') {
+      c.fillStyle = c0; c.fillRect(0, top, fw, fh);
+      c.fillStyle = c1; c.strokeStyle = c1; c.lineWidth = lw * 1.3;
+      c.beginPath(); c.arc(fw / 2, top + fh * 0.38, 0.5 * u, 0, Math.PI * 2); c.fill();
+      c.beginPath();
+      c.moveTo(fw / 2 - 0.8 * u, top + fh * 0.62); c.lineTo(fw / 2 + 0.8 * u, top + fh * 0.88);
+      c.moveTo(fw / 2 + 0.8 * u, top + fh * 0.62); c.lineTo(fw / 2 - 0.8 * u, top + fh * 0.88);
+      c.stroke();
+    } else if (f.style === 'wave') {
+      const g = c.createLinearGradient(0, 0, fw, 0);
+      g.addColorStop(0, c0); g.addColorStop(1, c1);
+      c.fillStyle = g;
+      const n = 14;
+      for (let i = 0; i < n; i++) {
+        const k = i / n, off = Math.sin(time / 240 - i * 0.7) * 0.32 * k;
+        c.fillRect(k * fw, top + off, fw / n + 0.1, fh);
+      }
+    }
+  }
+  function drawFlag(time) {
+    const prog = (time - flagPlant.t - 350) / 700;
+    ctx.save();
+    ctx.translate(sx(flagPlant.x), sy(flagPlant.y));
+    ctx.scale(scale, scale);
+    paintFlag(ctx, skin().flag, time, prog, 1.6 / scale);
+    ctx.restore();
+  }
+
   function drawLander(L, time) {
     ctx.save();
     ctx.translate(sx(L.x), sy(L.y));
@@ -1213,8 +1411,10 @@ kbd {
       hud.meta.style.color = PLAYER_TINT[cur()];
     } else {
       hud.score.textContent = fmt(score);
-      hud.meta.textContent = `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
-      hud.meta.style.color = '';
+      hud.meta.textContent = daily
+        ? `DAILY · ${world.name.toUpperCase()} · SITE ${daily.site}/${DAILY_SITES}`
+        : `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
+      hud.meta.style.color = daily ? 'var(--flame)' : '';
     }
   }
 
@@ -1247,7 +1447,7 @@ kbd {
     ArrowUp: 'thrust', KeyW: 'thrust'
   };
   addEventListener('keydown', e => {
-    if (e.target instanceof HTMLInputElement) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       if (e.code === 'Enter') e.target.blur();
       return;
     }
@@ -1257,7 +1457,7 @@ kbd {
       return;
     }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
-    if (mode === 'title' && (k === 'left' || k === 'right')) {
+    if (mode === 'title' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
       e.preventDefault();
       if (e.repeat) return;
       const i = WORLDS.indexOf(world) + (k === 'left' ? -1 : 1);
