@@ -8,7 +8,8 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Features
 
-- **Five worlds** with real surface gravity, each with its own sky, terrain and atmosphere
+- **Eight worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io and blinding clouds on Venus
+- **Guided tutorial** that teaches a first landing step by step
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
@@ -28,9 +29,20 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 |---|---|---|---|
 | Pluto | 0.62 m/s² | No atmosphere, slow and floaty | ×0.75 |
 | Moon | 1.62 m/s² | No atmosphere, the classic | ×1 |
+| Europa | 1.31 m/s² | Vapor geysers burst from the ice and shove you upward | ×1.25 |
 | Titan | 1.35 m/s² | Thick air drag, light wind | ×1 |
+| Io | 1.80 m/s² | Volcanic vents glow, then erupt. Touching an eruption is a crash | ×1.75 |
 | Mars | 3.71 m/s² | Thin air, gusting dust storms | ×1.5 |
 | Earth | 9.81 m/s² | Fast falls, strong wind | ×2.5 |
+| Venus | 8.87 m/s² | Extreme mode: crushing air, hurricane winds, and clouds that hide everything except the pad beacons | ×3 |
+
+## Menus
+
+The main menu has four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. Below them are links to the **Hangar**, **Badges**, **Settings** and **How to play**, which replays the tutorial.
+
+New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
+
+**Settings** has switches for auto-zoom, ghosts and sound, plus a list of the controls.
 
 ## How to play
 
@@ -48,7 +60,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 |---|---|
 | ↑ / W | Main engine |
 | ← → / A D | Rotate |
-| ← → (start screen) | Switch world |
+| ← → (world picker) | Switch world |
 | Space / Enter | Start or continue |
 | H | Open the hangar |
 | Z | Toggle auto-zoom |
@@ -56,7 +68,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | M | Toggle sound |
 | P / Esc | Pause and resume (Esc also backs out of menus) |
 | B | Open badges |
-| Esc | Leave the hangar or badges screen |
+| Esc | Back out of a menu screen |
 
 On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game, and a **Pause** button sits in the corner while you fly.
 
@@ -108,7 +120,7 @@ Open **Badges** from the start screen to see your progress. Nine badges unlock e
 | Badge | How to earn it | Reward |
 |---|---|---|
 | First contact | Land on any pad | |
-| Grand Tour | Land on all five worlds | Grand Tour hull |
+| Grand Tour | Land on all eight worlds | Grand Tour hull |
 | Earthling | Land on Earth | |
 | Feather | Touch down slower than 0.3 m/s | Feather Light flame |
 | Plumb line | Land within 1° of level, drifting under 0.2 m/s | |
@@ -147,7 +159,7 @@ Choose **Daily** on the start screen. Everyone who plays on the same day gets th
   Descent Systems daily 2026-11-12
   Mars 🟩🟩🟥 1,240 pts
   ```
-- The challenge changes at midnight UTC, so friends in different time zones always get the same one.
+- The world rotates daily through all eight. The challenge changes at midnight UTC, so friends in different time zones always get the same one.
 
 ## Running locally
 
