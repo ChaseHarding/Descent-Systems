@@ -15,6 +15,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
+- **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
 
@@ -67,6 +68,7 @@ Every point you score is banked as credits the moment you touch down. Spend them
 
 - **Hull finishes:** Mission White, Gold Foil, Mars Rust, Titan Amber, Chrome
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
+- **Landing flags:** Pennant (free), Tricolor, Lone Star, Checkered, Jolly Roger, Waving Banner. Your flag plants itself beside the lander after every touchdown.
 
 ## Hot-seat mode
 
@@ -77,6 +79,19 @@ Switch to **Hot-seat · 2P** on the start screen and enter both names.
 - The first pilot alternates every round, and the highest total after three rounds wins.
 
 In solo, retrying after a crash also restarts you from the same spot with a ghost of your last attempt.
+
+## Daily challenge
+
+Choose **Daily** on the start screen. Everyone who plays on the same day gets the same world, terrain, starting drift and wind.
+
+- You fly 3 sites in a row with one lander. A crash ends the run.
+- Retry as often as you like. Your best score for the day is saved.
+- **Copy result** gives you a spoiler-free summary to send to friends:
+  ```
+  Descent Systems daily 2026-11-12
+  Mars 🟩🟩🟥 1,240 pts
+  ```
+- The challenge changes at midnight UTC, so friends in different time zones always get the same one.
 
 ## Running locally
 
