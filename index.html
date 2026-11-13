@@ -310,6 +310,24 @@ kbd {
 .card .tagline { color: var(--regolith-dim); margin-top: -4px; }
 .menu { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 480px) { .menu { grid-template-columns: minmax(0, 1fr); } }
+/* The two places you can visit: big cards with live previews */
+.places { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.place {
+  position: relative; min-width: 0; padding: 0; overflow: hidden; cursor: pointer; text-align: left;
+  display: flex; flex-direction: column; border: 1px solid var(--space-2); border-radius: 8px;
+  background: var(--panel); color: var(--regolith); font-family: var(--f-mono);
+}
+.place .thumb { display: block; width: 100%; aspect-ratio: 2 / 1; }
+.place .thumb.pixel { image-rendering: pixelated; }
+.place .pl { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px 12px; border-top: 1px solid var(--space-2); }
+.place b { font-family: var(--f-display); font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase; }
+.place .pl span { font-size: 12px; color: var(--regolith-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.place:hover { border-color: var(--flame); }
+.place:hover b { color: var(--flame); }
+.place:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.place .pl { position: relative; }
+.place .dot { position: absolute; top: 10px; right: 10px; font-style: normal; white-space: nowrap; line-height: 1.4; width: max-content; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+@media (max-width: 480px) { .place b { font-size: 15px; } .place .pl { padding: 8px 10px 10px; } }
 .mode {
   min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
   padding: 14px 16px; text-align: left; cursor: pointer;
@@ -2441,6 +2459,16 @@ kbd {
       html = `<h1 class="good title">Descent Systems</h1>
         <p class="tagline">Land anywhere in the solar system.</p>
         ${isNew ? `<button class="newbie" id="tutBtn"><b>New here? Start with the tutorial</b><span>A guided first landing, about a minute</span></button>` : ''}
+        <div class="places">
+          <button class="place" id="hangarBtn" aria-label="Hangar: ${fmt(credits)} credits">
+            <canvas class="thumb" id="hangarThumb" aria-hidden="true"></canvas>
+            <span class="pl"><b>Hangar</b><span>${hangarLine()}</span></span>
+          </button>
+          <button class="place" id="loungeBtn" aria-label="Break room">
+            <canvas class="thumb pixel" id="roomThumb" width="200" height="100" aria-hidden="true"></canvas>
+            <span class="pl"><b>Break room</b><span>${loungeLine()}</span>${newCards() ? '<i class="dot">New</i>' : ''}</span>
+          </button>
+        </div>
         <nav class="menu" aria-label="Game modes">
           <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
           <button class="mode" data-go="missions"><b>Missions</b><span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
@@ -2448,9 +2476,7 @@ kbd {
           <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
         </nav>
         <div class="subnav">
-          <button class="link" id="hangarBtn">Hangar<span>${fmt(credits)} cr</span></button>
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
-          <button class="link" id="loungeBtn">Break room</button>
           <button class="link" id="settingsBtn">Settings</button>
           <button class="link" id="howBtn">How to play</button>
           ${installLink()}
@@ -2736,7 +2762,7 @@ kbd {
     const row = (id, label, sub, on) => `<button class="toggle" id="${id}" aria-pressed="${on}">
       <span><b>${label}</b><small>${sub}</small></span><i aria-hidden="true"></i></button>`;
     const keyRows = [['Main engine', '↑ or W'], ['Rotate', '← → or A D'], ['Pause', 'P or Esc'], ['Sound', 'M'], ['Music', 'N'],
-      ['Ghosts', 'G'], ['Auto-zoom', 'Z'], ['Hangar', 'H'], ['Badges', 'B']];
+      ['Ghosts', 'G'], ['Auto-zoom', 'Z'], ['Hangar', 'H'], ['Break room', 'R'], ['Badges', 'B']];
     card.innerHTML = `<h1 class="good">Settings</h1>
       <div class="settings">
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
@@ -3054,9 +3080,9 @@ kbd {
       if (n >= text.length) { clearInterval(lounge.typer); drawFace(face, who, face.dataset.mood, false, false); lounge.talking = null; }
     }, 24);
   }
-  function drawRoom() {
-    const cv = $('room');
-    if (!cv || !lounge) return;
+  function drawRoom(cv = $('room'), st = lounge) {
+    if (!cv || !st) return;
+    const lounge = st;
     const c = cv.getContext('2d'), t = performance.now(), home = wrenHome();
     c.imageSmoothingEnabled = false;
     // wall, floor, lamp
@@ -3142,6 +3168,27 @@ kbd {
     if (x >= 156 && x <= 180 && y >= 64 && y <= 80) return 'C';
     return null;
   }
+  // the title screen's little window into the break room
+  let thumbRoom = null;
+  function crewFaces() {
+    const faces = {};
+    for (const who of ['F', 'G', 'W']) {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 32;
+      drawFace(cv, who, DEFAULT_MOOD[who], false, false, true);
+      faces[who] = cv;
+    }
+    return faces;
+  }
+  function hangarLine() {
+    const n = ['hull', 'flame', 'flag'].reduce((k, kind) => k + itemsOf(kind).filter(it => it.price > 0 && it.price <= credits && !owned.has(kind + ':' + it.id)).length, 0);
+    return `${fmt(credits)} cr${n ? ` · ${n} you can buy` : ''}`;
+  }
+  function loungeLine() {
+    const n = newCards();
+    if (n) return `${n} new postcard${n === 1 ? '' : 's'}`;
+    return wrenHome() ? 'The whole crew is in' : 'Dottie, Gus and Apogee are in';
+  }
+
   function renderLounge() {
     const home = wrenHome();
     const faces = {};
@@ -3441,8 +3488,7 @@ kbd {
     if (f) f.focus({ preventScroll: true });
   }
 
-  function drawPreview(time) {
-    const pv = $('preview');
+  function drawPreview(time, pv = $('preview')) {
     if (!pv) return;
     const w = pv.clientWidth, h = pv.clientHeight;
     if (!w || !h) return;
@@ -3728,7 +3774,7 @@ kbd {
     if (sitting && flagPlant) drawFlag(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
     if (mode === 'replay' && replay) drawLander(replay.L, time);
-    if (mode === 'title' || mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
+    if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
     if (mission && mission.def.rings && !MENU_MODES.includes(mode)) drawRings(time);
     if (world.hazard === 'storm' && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
@@ -4170,6 +4216,11 @@ kbd {
     updateCamera(frameDt);
     draw(now);
     if (mode === 'hangar') drawPreview(now);
+    if (mode === 'title') {
+      drawPreview(now, $('hangarThumb'));
+      if (!thumbRoom) thumbRoom = { faces: crewFaces(), cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null };
+      drawRoom($('roomThumb'), thumbRoom);
+    }
     updateHud();
     requestAnimationFrame(frame);
   }
@@ -4206,6 +4257,7 @@ kbd {
     }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyB' && !e.repeat) { setMode('badges'); return; }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
+    if (mode === 'title' && e.code === 'KeyR' && !e.repeat) { setMode('lounge'); return; }
     if (mode === 'setup' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
       e.preventDefault();
       if (e.repeat) return;
