@@ -22,6 +22,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 26 hand-built missions in three acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
+- **Round trips**: five missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
@@ -32,7 +33,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **Crew requests**: three small jobs from the crew every day, like soft landings, ×5 pads, rovers or petting Apogee, each paying credits, with a bonus for finishing all three
-- **36 badges** to earn, 27 of which unlock exclusive cosmetics
+- **37 badges** to earn, 28 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -110,7 +111,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | B | Open badges |
 | Esc | Back out of a menu screen |
 
-On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game, and a **Pause** button sits in the corner while you fly.
+On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game, and a **Pause** button sits in the corner while you fly. While Crumb the rover is out on a round trip, the same keys and buttons drive it: ← → (**DRIVE**) roll it along and ↑ (**HOP**) jumps.
 
 ### Scoring
 
@@ -253,13 +254,29 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
 
+### Round trips
+
+Round trips turn a landing into the middle of the mission. Land on LZ and Crumb, the rover Gus built out of a shopping cart, a cooler and a lot of tape, rolls down a ramp from Biscuit's hatch. Drive it to do the job before its battery runs out, drive back up the ramp, then launch and dock with the Descent Systems mothership waiting above. Docking is gentle: get close under the port and slow down, and the clamp holds you up and pulls you in.
+
+Crumb drives differently on every world. Slopes steeper than 45° stop it, so steps and ledges need a **HOP**, and hops get higher as gravity drops: a small wiggle on Mars, a big bounce on Pluto. Europa's ice has little grip, and Titan's thick air slows everything down. Pink arrows at the edge of the screen point to the nearest job on each side.
+
+| Round trip | From | World | Unlocks after | The job |
+|---|---|---|---|---|
+| Rock Collection | Gus | Moon | Supply Run | Grab three glowing moon rocks for the break room shelf |
+| Beacon Repair | Dottie | Mars | Dust Ledge | Stop beside two dark landing beacons until they light up. One sits past a rock step |
+| Bounce House | Rex | Pluto | Edge of the World | Hop up three ledges for the ice crystals Rex left there "for safekeeping" |
+| Ice Cores | Wren | Europa | Echo | Grab two ice cores and fix Wren's old seismometer, on slippery ice |
+| Where's Apogee? | Apogee | Titan | Methane Canyon | Find Apogee, who hopped out of the rover to explore. She runs off twice before she gives up |
+
+Fuel carries through the whole trip, so a wasteful landing costs you on the climb back up. Stars are for fuel left after docking and total time.
+
 ![Side missions in flight: Wren's numbered survey markers glowing through the clouds of Venus; Apogee the cat peeking out of the hatch on Stowaway; and The Coffee Crisis countdown with Dottie nagging over the radio](media/side-missions.png)
 
 You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-seven badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -283,6 +300,7 @@ Open **Badges** from the start screen to see your progress. Twenty-seven badges 
 | Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
 | Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
 | Signal chaser | Finish Act 3: Beyond Pluto | Unit Zero hull |
+| Off-roader | Finish all five round trips | Field Kit hull |
 | Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
 | Barista | Finish The Coffee Crisis with 15 seconds to spare | Espresso flame |
