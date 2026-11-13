@@ -105,6 +105,9 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .score b { display: block; font-family: var(--f-display); font-size: 22px; font-weight: 700; color: var(--regolith); }
 .score span { color: var(--regolith-dim); letter-spacing: 0.08em; }
+.score { max-width: calc(100% - var(--hudw, 170px) - 38px); box-sizing: border-box; }
+.score span { display: block; text-wrap: balance; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .score { padding: 5px 8px; font-size: 11px; } .score b { font-size: 20px; } .score span { letter-spacing: 0.04em; } }
 
 .overlay {
   position: absolute; inset: 0;
@@ -679,6 +682,10 @@ kbd {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
   font-size: 12px; letter-spacing: 0.06em; pointer-events: none;
+}
+@media (max-width: 560px) {
+  .objective { max-width: calc(100% - var(--hudw, 170px) - 38px); box-sizing: border-box; font-size: 11px; }
+  .toast { bottom: 50px; max-width: calc(100% - 32px); box-sizing: border-box; text-align: center; }
 }
 .pad { display: none; gap: 10px; }
 .pad button {
@@ -6414,6 +6421,7 @@ kbd {
     base = Math.min(cw / W, ch / H);
     scale = base * cam.z;
     makeBackdrop();
+    fitHud();
   }
 
   // ---- Camera ----
@@ -7113,9 +7121,19 @@ kbd {
   // a magnetic storm turns readouts into noise
   const scramble = str => str.replace(/[0-9.]/g, ch => Math.random() < 0.75 ? '▒#%?07'[Math.floor(Math.random() * 6)] : ch);
   const grade = (v, lim) => v <= lim ? 'ok' : v <= lim * 2 ? 'warn' : 'bad';
+  // keep the score box clear of the flight readout on narrow screens
+  let hudFitT = 0;
+  function fitHud() {
+    const w = document.querySelector('.hud').offsetWidth;
+    if (w) stage.style.setProperty('--hudw', w + 'px');
+    // the objective sits just under the score box, however tall it has wrapped
+    const sc = document.querySelector('.score'), ob = $('objective');
+    if (sc.offsetHeight) ob.style.top = (sc.offsetTop + sc.offsetHeight + 6) + 'px';
+  }
   function updateHud() {
     const L = lander;
     if (!L) return;
+    if (++hudFitT % 30 === 1) fitHud();
     const alt = Math.max(0, L.y - 3 - surfaceAt(L.x));
     const vy = -L.vy, vx = Math.abs(L.vx), ang = L.a * 180 / Math.PI;
     hud.alt.textContent = L.sling && !L.sling.ground ? `load ${Math.max(0, L.sling.y - surfaceAt(L.sling.x)).toFixed(1)} m` : `${alt.toFixed(1)} m`;
@@ -7180,6 +7198,8 @@ kbd {
     const obj = $('objective');
     if (mission && (mode === 'flying' || mode === 'paused')) { obj.hidden = false; obj.textContent = objectiveText(); obj.classList.toggle('warn', !!objectiveWarn()); }
     else obj.hidden = true;
+    // keep each “ · ” attached to the word before it, so wrapped labels don’t start with a dot
+    if (hud.meta.textContent.includes(' · ')) hud.meta.textContent = hud.meta.textContent.replace(/ · /g, '\u00a0· ');
   }
 
   // ---- Loop ----
