@@ -1392,10 +1392,26 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, 11, 15, 2, 1, '#7fd6ff'); px(c, 18, 15, 2, 1, '#7fd6ff');
       px(c, 15, 22, 2, 1, '#c99068');
     } };
+  // Crumb's portrait: a boxy little rover face, two camera eyes and a speaker grille that lights up when he beeps
+  function drawCrumbFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#16243a');
+    px(c, 15, 3, 2, 7, '#c9cfdc'); px(c, 14, 2, 4, 2, open ? '#58e0a0' : '#2f7a58');
+    px(c, 5, 10, 22, 14, '#3a4668'); px(c, 6, 11, 20, 12, '#e8edf5');
+    px(c, 6, 19, 20, 2, '#ffb547');
+    const eye = (x) => { if (blink) px(c, x, 15, 5, 1, '#15151f'); else { px(c, x, 13, 5, 5, '#15151f'); px(c, x + 1, 14, 3, 3, '#7fd6ff'); px(c, x + 1, 14, 1, 1, '#ffffff'); } };
+    eye(9); eye(18);
+    px(c, 13, 21, 6, 1, open ? '#58e0a0' : '#8a93ab');
+    px(c, 4, 24, 24, 2, '#3a4668');
+    for (const x of [5, 21]) { px(c, x, 25, 6, 6, '#2a3045'); px(c, x + 2, 27, 2, 2, '#8a93ab'); }
+    if (bare) return;
+    c.fillStyle = 'rgba(0, 0, 0, 0.16)';
+    for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
+  }
   function drawFace(cv, who, mood, open, blink, bare) {
     const c = cv.getContext('2d'), f = FACES[who];
     c.clearRect(0, 0, 32, 32);
     if (who === 'A') { drawCat(c, open, blink, bare); return; }
+    if (who === 'K') { drawCrumbFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -1426,7 +1442,7 @@ details.act > .limits { margin: 0 0 8px; }
     for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
   }
   // which face each line gets; anything not listed uses the speaker's usual look
-  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy' };
+  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy' };
   const MOODS = [
     ['Morning, pilot', 'happy'], ['Hey hey', 'happy'], ['Huh. Not bad', 'deadpan'], ['…Mayday', 'worried'], ['You came for me', 'happy'], ['Hi, pilot! So, funny', 'worried'], ['Oh. Oh no', 'worried'], ['I’m not scared', 'worried'], ['I’m aboard! I’m alive', 'happy'], ['Pilot. The sunrise line', 'worried'], ['Fine. FINE', 'deadpan'], ['I need a favor', 'neutral'], ['Got them', 'happy'], ['Everyone’s home', 'happy'], ['So. Apex', 'neutral'], ['Welcome aboard, Rex', 'happy'], ['Well, well', 'deadpan'], ['Pilot! I’m throwing', 'happy'], ['It’s soup', 'worried'], ['Okay, science question', 'happy'], ['Science says', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
@@ -1446,7 +1462,8 @@ details.act > .limits { margin: 0 0 8px; }
     G: { name: 'Engineering · Gus', color: 'var(--ok)' },
     W: { name: 'Wren Aldana', color: '#ff9ad5' },
     A: { name: 'Apogee · Cat', color: '#ff9a3d' },
-    R: { name: 'Rex Valor · Apex', color: '#ffd27a' }
+    R: { name: 'Rex Valor · Apex', color: '#ffd27a' },
+    K: { name: 'Crumb · Rover', color: '#9ad8ff' }
   };
   // intro: lines before the mission. react: one line each for 1, 2 and 3 stars.
   const STORY = {
@@ -1812,13 +1829,14 @@ details.act > .limits { margin: 0 0 8px; }
   Object.assign(STORY, {
     'rock-collection': {
       intro: [
-        ['G', 'Big news! Biscuit has a rover now. I built it out of a shopping cart, a cooler and a lot of tape. It lives under her belly.'],
-        ['G', 'Land on LZ and it rolls down the ramp. Drive to three glowing moon rocks, drive back in, then fly up and dock with the mothership.'],
+        ['G', 'Big news! Biscuit has a rover now. I built him out of a shopping cart, a cooler and a lot of tape. His name is Crumb, and he lives under her belly.'],
+        ['K', '*beep boop!* (Gus: That’s him saying hi. He says hi to everyone. He said hi to the fridge.)'],
+        ['G', 'Land on LZ and he rolls down the ramp. Drive to three glowing moon rocks, drive back in, then fly up and dock with the mothership.'],
         ['F', 'Docking is easy. Get close, go slow, and the clamp does the rest. Gus, please tell me the clamp isn’t tape.'],
         ['G', 'The clamp is… mostly not tape.']],
-      react: [['G', 'Moon rocks! I’m putting them on the break room shelf. That one looks like Dottie.'],
+      react: [['G', 'Moon rocks! Crumb wants you to have them for your Pad. That one looks like Dottie.'],
         ['F', 'It does not look like me.'],
-        ['G', 'Three rocks and a perfect dock! I’m naming the rover Crumb. Biscuit and Crumb. A team.']] },
+        ['K', '*the happiest beeps you have ever heard* (Gus: Biscuit and Crumb. A team. I may cry.)']] },
     'beacon-repair': {
       intro: [
         ['F', 'Two of our landing beacons on Mars went dark. Without them, the next pilot lands by guessing.'],
@@ -2318,7 +2336,7 @@ details.act > .limits { margin: 0 0 8px; }
     mission.stage++;
     mission.rover = { x: fx, y: fy, vx: 0, vy: 0, a: 0, ground: true, out: 0, dir: 1, batt: mission.def.battery, hopHeld: true, boardT: null, spin: 0 };
     holdCard = null;
-    setTimeout(() => { if (mission && mission.rover) showToast(`Rover out! ${mission.def.task}.`, 2200); }, 400);
+    setTimeout(() => { if (mission && mission.rover) showToast(`Crumb: *happy beeps* ${mission.def.task}!`, 2200); }, 400);
     sfx.click();
   }
   function roverStep(dt) {
@@ -2327,7 +2345,7 @@ details.act > .limits { margin: 0 0 8px; }
       R.boardT += dt;
       if (R.boardT >= 0.8) {
         mission.rover = null; mission.stage++;
-        showToast('Rover aboard. Launch and dock with the mothership!', 2400); sfx.coin();
+        showToast('Crumb: *sleepy beep* He’s aboard. Launch and dock with the mothership!', 2400); sfx.coin();
       }
       return false;
     }
@@ -2392,7 +2410,8 @@ details.act > .limits { margin: 0 0 8px; }
         const left = mission.items.filter(i => !i.done).length;
         if (it.what === 'cat') sfx.purr(); else sfx.coin();
         const what = { sample: 'Rock', crystal: 'Crystal', core: 'Ice core', beacon: (it.name ? it.name[0].toUpperCase() + it.name.slice(1) : 'Beacon') + ' fixed' }[it.what];
-        showToast(it.line || (left ? `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${left} to go` : `${what}${it.what === 'beacon' ? '' : ' grabbed'}! Now drive back to Biscuit`), 2200);
+        const beep = ['*beep!*', '*boop!*', '*bweep!*', '*beep boop!*'][mission.items.length - left - 1 & 3];
+        showToast(it.line || (left ? `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${beep} ${left} to go` : `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${beep} Now drive back to Biscuit`), 2200);
         if (!left) mission.stage++;
         break;
       }
@@ -2516,6 +2535,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'long-way-round') award('surveyor');
     if (d.id === 'ice-cream' && mission.melt < 50) award('brainfreeze');
     if (d.id === 'skipping-stones') award('skipper');
+    const find = d.kind === 'trip' && prev === 0 && DEN_ITEMS.shelf.find(x => x.trip === d.id);
+    if (find) setTimeout(() => showToast(`New for your Pad shelf, from Crumb: ${find.name}!`, 3000), 1600);
     const gift = LANDERS.find(l => l.story === d.id);
     if (gift && prev === 0) { syncFleet(); setTimeout(() => showToast(`New lander unlocked: the ${gift.name}! It’s in the hangar.`, 3200), 1200); }
     if (d.id === 'swing-shift' && mission.deliverV != null && mission.deliverV < 0.8) award('crane');
@@ -4174,6 +4195,42 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
   ];
   const wrenHome = () => (missionStars['last-light'] || 0) > 0;
+  const crumbHome = () => SIDES.some(d => d.kind === 'trip' && missionStars[d.id] > 0);
+  // Crumb trundles along the front of the floor, stopping to look around now and then
+  function crumbRoam(st, t, lo, hi) {
+    const r = st.crumb || (st.crumb = { x: lo + Math.random() * (hi - lo), dir: Math.random() < 0.5 ? -1 : 1, pause: t + 1200, last: t, beep: 0 });
+    const dt = Math.min(0.3, (t - r.last) / 1000);
+    r.last = t; r.moving = false;
+    if (reduceMotion || t < r.pause) return r;
+    r.x += r.dir * 7 * dt; r.moving = true;
+    if (r.x < lo) { r.x = lo; r.dir = 1; r.pause = t + 900; r.bonk = t; }
+    if (r.x > hi) { r.x = hi; r.dir = -1; r.pause = t + 900; r.bonk = t; }
+    if (Math.random() < dt * 0.25) { r.pause = t + 800 + Math.random() * 2400; if (Math.random() < 0.4) r.dir *= -1; }
+    return r;
+  }
+  // x is his middle, y the floor under his wheels
+  function crumbPx(c, r, y, t) {
+    const X = Math.round(r.x), Y = Math.round(y), dir = r.dir;
+    const bob = r.moving && Math.floor(t / 150) % 2 ? -1 : 0;
+    const f = (dx, w) => dir > 0 ? X + dx : X - dx - w;
+    c.fillStyle = 'rgba(0,0,0,0.25)'; c.fillRect(X - 8, Y - 1, 16, 2);
+    for (const wx of [-7, 3]) { px(c, f(wx, 4), Y - 4, 4, 4, '#2a3045'); px(c, f(wx + 1, 2), Y - 3, 2, 2, r.moving && Math.floor(t / 120) % 2 ? '#c9cfdc' : '#8a93ab'); }
+    px(c, f(-7, 14), Y - 10 + bob, 14, 1, '#3a4668');
+    px(c, f(-7, 14), Y - 9 + bob, 14, 5, '#e8edf5');
+    px(c, f(-7, 14), Y - 7 + bob, 14, 1, '#ffb547');
+    px(c, f(-7, 14), Y - 5 + bob, 14, 1, '#3a4668');
+    px(c, f(3, 3), Y - 9 + bob, 3, 2, '#7fd6ff');
+    px(c, f(-5, 1), Y - 14 + bob, 1, 4, '#c9cfdc');
+    px(c, f(-6, 2), Y - 15 + bob, 2, 1, Math.floor(t / 400) % 2 ? '#58e0a0' : '#2f7a58');
+    if (t < r.beep) {   // a little note when he beeps
+      const k = 1 - (r.beep - t) / 1500;
+      c.fillStyle = `rgba(154,216,255,${1 - k})`; c.font = '7px monospace'; c.textBaseline = 'alphabetic';
+      c.fillText('♪', X + 4, Y - 14 - k * 6);
+    }
+    if (r.bonk && t - r.bonk < 500) { px(c, dir > 0 ? X - 10 : X + 9, Y - 8, 1, 3, '#ffb547'); px(c, dir > 0 ? X - 10 : X + 9, Y - 4, 1, 1, '#ffb547'); }
+  }
+  const CRUMB_Y = 97;
+  const crumbHit = (r, x, y) => r && Math.abs(x - r.x) < 9 && y >= CRUMB_Y - 16 && y <= CRUMB_Y + 2;
   const plural = (n, w) => `${fmt(n)} ${w}${n === 1 ? '' : 's'}`;
   // What each person has to say, given how your career is going. Some lines only turn up once you've done something.
   function loungeLines(who) {
@@ -4188,6 +4245,8 @@ details.act > .limits { margin: 0 0 8px; }
       L.push('This coffee machine makes a noise like a dying whale. I’ve grown attached to it.');
       L.push('Apogee keeps a strict schedule. Sleep, judge, sleep. You caught her on a sleep shift.');
       add(done === 0, 'First day? Relax. Nobody’s scratched Biscuit yet. Today.');
+      add(crumbHome(), 'Crumb follows me to the coffee machine every morning. I didn’t ask for an assistant. I have one now.');
+      add(crumbHome(), 'Somebody put a sticker on Crumb. It says “World’s Okayest Rover”. No, I don’t know who. Stop looking at me.');
       add(crashes >= 5, `I keep a crash tally on the whiteboard. You’re at ${fmt(crashes)}. I’ve started drawing little flames next to them.`);
       add(crashes === 0 && lands >= 5, `${fmt(lands)} landings and not a single crash. Gus has stopped sleeping in the hangar.`);
       add(lands >= 25, `${fmt(lands)} landings. Our last pilot managed nine, and one of those was a bounce.`);
@@ -4221,6 +4280,17 @@ details.act > .limits { margin: 0 0 8px; }
       add(denLook.light === 'disco', 'Your cabin has a disco ball now? I could hear it through two walls. Disco balls don’t make noise. And yet.');
       add(!!got.fleet, 'Five landers. We started with one lander and a dream. Now we have five landers and a parking problem.');
       add(denLook.wallL === 'catcal', 'You bought my Apogee calendar. That makes three sold. One to me, one to Gus, and one to you. We’re basically a franchise.');
+    } else if (who === 'K') {
+      L.push('*beep boop!* (Gus: He says good morning. He says it every time he sees you. Even at night.)');
+      L.push('*bweep?* (He wants to know if there are any more rocks. There are always more rocks.)');
+      L.push('*happy whirring* (He’s doing a little spin. That’s the highest honor a rover can give.)');
+      L.push('*boop.* (He bumped into the table. Again. He’s fine. The table is fine.)');
+      L.push('*beep beep beep* (Dottie: That’s his “Apogee is sitting on me” beep. She isn’t. He just likes saying it.)');
+      add(lounge && lounge.cat && lounge.cat.id === 'crumb', '*very, very quiet beeps* (Apogee is asleep on top of him. He has not moved in two hours. He will not move.)');
+      add(ms('bounce-house'), '*boing boing* (He’s been practicing his Pluto hops. Indoors. Gus moved the mugs.)');
+      add(ms('wheres-apogee'), '*proud beep* (Ever since Titan, he and Apogee are inseparable. He saves her the sunny spot.)');
+      add(ms('core-drill'), '*thoughtful bloop* (He keeps playing back the beat he heard under Europa’s ice. Wren asked him to.)');
+      add(ms('beacon-repair'), '*blinks his antenna light* (He learned that from the Mars beacons. He does it whenever anyone looks sad.)');
     } else if (who === 'G') {
       L.push('I’m teaching Biscuit to recognize her own name. Progress is slow, on account of her being a lander.');
       L.push('One bang from the hangar: normal. Two bangs: also normal. Three bangs: run.');
@@ -4260,6 +4330,8 @@ details.act > .limits { margin: 0 0 8px; }
       add(denLook.floor === 'arcade', 'I put Descent Systems on your arcade cabinet. My high score is still on there. It’s under the name “NOT GUS”.');
       add(arcBest() > 2400, 'Someone beat NOT GUS’s arcade score. I’m not upset. I’m going to go sit in the hangar for a while. In the dark. Not upset.');
       add(fleetOwned.has('whisker'), 'Apogee has never once sat in the Whisker. I built it to her exact measurements. She sat in the box it came in.');
+      add(crumbHome(), 'I gave Crumb a little blanket for his charging dock. He beeped twice. That means “thank you”. Or “low battery”. Same thing, really.');
+      add(crumbHome(), 'Crumb’s top speed is five meters a second. Indoors it’s more like “zoom, bonk, sorry”.');
     } else if (who === 'W') {
       L.push('This room used to be a supply closet. I slept here the whole first year. Gus thinks I’m joking.');
       L.push('Biscuit’s first landing was on Pluto too. I bounced twice. Don’t put that on the website.');
@@ -4279,6 +4351,7 @@ details.act > .limits { margin: 0 0 8px; }
       add(ms('unit-zero'), 'My handwriting, on a probe I never built. I’ve checked my old notebooks twice. Then a third time.');
       add(fleetOwned.has('lark'), 'You’re looking after my old Lark. She pulls a little to the left. So do I. We understand each other.');
       add(denLook.wallL === 'starchart', 'I saw my star chart in your cabin. You know two of those constellations are made up, right? You’ll never guess which.');
+      add(crumbHome(), 'Crumb parked next to my desk and listened to the old signal recordings with me. For an hour. He didn’t beep once.');
     } else if (who === 'A') {
       L.push('Prrrrrrrrrrr.');
       L.push('Mrrp? (She opens one eye, rates you a six out of ten, and goes back to sleep.)');
@@ -4314,6 +4387,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (L.length > 1 && i === last) i = (i + 1) % L.length;
     lounge.last[who] = i;
     if (who === 'A') { lounge.catAwake = performance.now() + 4000; sfx.purr(); reqEvent('pet'); }
+    if (who === 'K' && lounge.crumb) { lounge.crumb.beep = performance.now() + 1500; lounge.crumb.pause = performance.now() + 1800; }
     loungeSay(who, L[i]);
   }
   function loungeSay(who, text) {
@@ -4324,7 +4398,7 @@ details.act > .limits { margin: 0 0 8px; }
     const face = box.querySelector('canvas.face'), p = box.querySelector('p');
     drawFace(face, who, face.dataset.mood, false, false);
     lounge.talking = who;
-    if (who !== 'A') sfx.radio();
+    if (who === 'K') sfx.beep(); else if (who !== 'A') sfx.radio();
     if (reduceMotion) { lounge.talking = null; drawRoom(); return; }
     p.textContent = '';
     let n = 0, tick = 0;
@@ -4393,6 +4467,12 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 40, 60, 120, 3, '#7a5c44'); px(c, 42, 63, 116, 3, '#5a4636'); px(c, 46, 66, 3, 12, '#4a3a2c'); px(c, 151, 66, 3, 12, '#4a3a2c');
     for (const [x, col2] of [[62, '#ffb547'], [100, '#9fe0b8'], [134, '#ff9ad5']]) { px(c, x, 55, 5, 5, col2); px(c, x + 5, 56, 2, 3, col2); }
     if (!home) { px(c, 122, 54, 9, 6, '#e8e0d0'); px(c, 123, 56, 7, 1, '#8a8f9c'); }
+    // Crumb, out and about (and sometimes giving Apogee a ride)
+    if (crumbHome()) {
+      const cr = crumbRoam(lounge, t, 14, 186);
+      crumbPx(c, cr, CRUMB_Y, t);
+      if (lounge.cat.id === 'crumb') { lounge.cat.x = Math.round(cr.x) - 6; lounge.cat.y = CRUMB_Y - 16 + (cr.moving && Math.floor(t / 150) % 2 ? -1 : 0); }
+    }
     // Apogee, asleep somewhere new each visit (or awake, if you've just bothered her)
     const s = lounge.cat, awake = performance.now() < lounge.catAwake;
     const o = '#ff9a3d', d = '#c96a1e';
@@ -4421,6 +4501,7 @@ details.act > .limits { margin: 0 0 8px; }
     const r = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH, s = lounge.cat;
     if (x >= s.x - 5 && x <= s.x + 16 && y >= s.y - 6 && y <= s.y + 8) return 'A';
+    if (crumbHome() && crumbHit(lounge.crumb, x, y)) return 'K';
     for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= CREW_X[who] + 6 && x <= CREW_X[who] + 26 && y >= 30 && y <= 60) return who;
     if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
     if (x >= 48 && x <= 72 && y >= 6 && y <= 26) return 'B';
@@ -4457,7 +4538,7 @@ details.act > .limits { margin: 0 0 8px; }
       drawFace(cv, who, DEFAULT_MOOD[who], false, false, true);
       faces[who] = cv;
     }
-    catSpot = CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)];
+    catSpot = crumbHome() && Math.random() < 0.3 ? { id: 'crumb', x: 100, y: 81 } : CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)];
     lounge = { faces, cat: catSpot, catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
@@ -4467,6 +4548,7 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" data-talk="G">Gus</button>
         <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
         <button class="btn ghost" data-talk="A">Pet Apogee</button>
+        ${crumbHome() ? '<button class="btn ghost" data-talk="K">Crumb</button>' : ''}
       </div>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
@@ -4695,6 +4777,17 @@ details.act > .limits { margin: 0 0 8px; }
       { id: 'trophy', name: 'Gold trophy', price: 1000, blurb: 'You bought your own trophy. Nobody needs to know.',
         draw(c, x, y) { px(c, x + 4, y + 1, 8, 5, '#ffd27a'); px(c, x + 2, y + 2, 2, 2, '#ffd27a'); px(c, x + 12, y + 2, 2, 2, '#ffd27a'); px(c, x + 7, y + 6, 2, 3, '#c98a2a'); px(c, x + 5, y + 9, 6, 3, '#c98a2a'); px(c, x + 5, y + 2, 1, 2, '#fff1c7'); } },
       // souvenirs: you can't buy these, you collect them by landing on each world
+      // Crumb's finds: one from each round trip
+      { id: 'c-rocks', trip: 'rock-collection', name: 'Three moon rocks', price: 0, blurb: 'The three rocks Crumb drove home from the Moon. Gus insists the middle one looks like Dottie. Dottie insists it does not.',
+        draw(c, x, y) { px(c, x + 2, y + 10, 12, 2, '#5a4636'); px(c, x + 3, y + 7, 3, 3, '#8a8a8a'); px(c, x + 7, y + 6, 3, 4, '#a0a0a0'); px(c, x + 11, y + 8, 3, 2, '#7a7a7a'); px(c, x + 8, y + 7, 1, 1, '#4a4a4a'); px(c, x + 4, y + 7, 1, 1, '#c0c0c0'); } },
+      { id: 'c-beacon', trip: 'beacon-repair', name: 'Old beacon bulb', price: 0, blurb: 'The burnt-out bulb Crumb swapped on Mars. It still glows, very faintly, when nobody’s watching.',
+        draw(c, x, y, t) { px(c, x + 5, y + 10, 6, 2, '#4a5578'); px(c, x + 6, y + 8, 4, 2, '#8a93ab'); const on = reduceMotion || Math.floor(t / 1200) % 3 === 0; px(c, x + 5, y + 3, 6, 5, on ? '#ff6b5e' : '#7a3a3a'); px(c, x + 6, y + 2, 4, 1, on ? '#ff6b5e' : '#7a3a3a'); px(c, x + 6, y + 4, 1, 1, '#ffd0c8'); } },
+      { id: 'c-crystal', trip: 'bounce-house', name: 'Rex’s ice crystal', price: 0, blurb: 'One of the crystals Rex left on Pluto “for safekeeping”. He gave it to you. He then asked for it back. You kept it.',
+        draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 7, y + 2, 2, 8, '#b9a6ff'); px(c, x + 5, y + 5, 2, 5, '#9a86e8'); px(c, x + 9, y + 4, 2, 6, '#d2c6ff'); px(c, x + 7, y + 3, 1, 2, '#ffffff'); } },
+      { id: 'c-core', trip: 'core-drill', name: 'Europa ice core', price: 0, blurb: 'A slice of Wren’s Europa ice core, in a tube. Hold it up to the light and you can see the layers. Wren says one of them is “interesting”.',
+        draw(c, x, y) { px(c, x + 3, y + 10, 10, 2, '#4a5578'); px(c, x + 4, y + 4, 8, 6, 'rgba(207,227,255,0.35)'); px(c, x + 5, y + 5, 6, 4, '#cfeaff'); px(c, x + 7, y + 5, 1, 4, '#9ad8ff'); px(c, x + 9, y + 5, 1, 4, '#a8c8e8'); px(c, x + 4, y + 3, 8, 1, '#8a93ab'); } },
+      { id: 'c-pebble', trip: 'wheres-apogee', name: 'Apogee’s pebble', price: 0, blurb: 'The pebble Apogee brought you back from Titan. In cat, this is a very big deal. Do not move it. She will know.',
+        draw(c, x, y) { px(c, x + 3, y + 10, 10, 2, '#a47a4c'); px(c, x + 4, y + 9, 8, 1, '#c99a64'); px(c, x + 6, y + 6, 4, 3, '#b07a4a'); px(c, x + 7, y + 5, 2, 1, '#c08a5a'); px(c, x + 7, y + 6, 1, 1, '#e0b080'); } },
       { id: 's-pluto', world: 'pluto', name: 'Pluto heart ice', price: 0, blurb: 'A chunk of Pluto’s heart-shaped ice plain. Wren has one just like it. Keep it frozen. Or don’t. It’s Pluto, it’ll cope.',
         draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#4a5578'); px(c, x + 4, y + 3, 3, 3, '#f2d6c9'); px(c, x + 8, y + 3, 3, 3, '#f2d6c9'); px(c, x + 4, y + 5, 7, 3, '#f2d6c9'); px(c, x + 5, y + 8, 5, 1, '#f2d6c9'); px(c, x + 7, y + 9, 1, 1, '#f2d6c9'); px(c, x + 9, y + 5, 2, 3, '#d9b8aa'); px(c, x + 5, y + 4, 1, 1, '#ffffff'); } },
       { id: 's-moon', world: 'moon', name: 'Moon rock', price: 0, blurb: 'A real Moon rock in a little glass case. Dottie checked: legally, it isn’t a souvenir. It’s “sample 0047”.',
@@ -4803,7 +4896,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -4897,6 +4990,8 @@ details.act > .limits { margin: 0 0 8px; }
     it('floor').draw(c, S('floor').x, S('floor').y, t, st);
     // Apogee, asleep (or awake, if you've just bothered her)
     if (scene && scene.cat) drawDenCat(c, denCatSpot(scene.cat, look), performance.now() < (scene.catAwake || 0), t);
+    // Crumb comes to visit
+    if (scene && crumbHome()) crumbPx(c, crumbRoam(scene, t, 12, 186), CRUMB_Y, t);
     // lighting
     if (L.fixture) L.fixture(c, t);
     L.overlay(c, t);
@@ -5201,11 +5296,13 @@ details.act > .limits { margin: 0 0 8px; }
     const own = denOwns(pool, it.id), placed = denLook[spot] === it.id;
     const ownedN = list.filter(x => x.id !== 'none' && denOwns(pool, x.id)).length, totalN = list.filter(x => x.id !== 'none').length;
     const owns = x => denOwns(pool, x.id);
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : `${fmt(x.price)} cr`;
+    const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
+    else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
@@ -5227,7 +5324,7 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         <div class="col">
           <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
-          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => !y.world && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world ? ' locked' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
+          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => !y.world && !y.trip && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip ? ' locked' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
             <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
@@ -5252,6 +5349,12 @@ details.act > .limits { margin: 0 0 8px; }
       const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
       if (denUI.cat) { const at = denCatSpot(denUI.cat, look()); if (x >= at.x - 5 && x <= at.x + 16 && y >= at.y - 6 && y <= at.y + 8) { pet(); return; } }
       if (denUI.visitor && x >= 88 && x <= 112 && y >= 33 && y <= 56) { chat(); return; }
+      if (crumbHome() && crumbHit(denUI.crumb, x, y)) {
+        const L = loungeLines('K').filter(l => !/table|Apogee is asleep on top/.test(l));
+        denUI.crumb.beep = performance.now() + 1500; denUI.crumb.pause = performance.now() + 1800;
+        sfx.beep(); denSay('K', L[Math.floor(Math.random() * L.length)]);
+        return;
+      }
       const hit = denHit(e);
       if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
       if (hit === 'wallR' && denLook.wallR === 'cert' && !denUI.trying) { sfx.click(); licenseFrom = 'den'; setMode('license'); return; }
@@ -6227,7 +6330,7 @@ details.act > .limits { margin: 0 0 8px; }
     ganymede: ['F', 'Ganymede has the most beautiful auroras. It also turned my headset into a polka station. Send a new headset.'],
     mercury: ['F', 'Mercury. The Sun is enormous and takes everything personally. Gus packed sunscreen. SPF four thousand.']
   };
-  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex' };
+  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb' };
   let cardsSeen;
   try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
   const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
