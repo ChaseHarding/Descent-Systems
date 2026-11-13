@@ -52,7 +52,9 @@ async function networkFirst(req) {
   const cache = await caches.open(VERSION);
   try {
     const res = await Promise.race([
-      fetch(req),
+      // 'no-cache' makes the browser check with the server every time instead of reusing
+      // a copy it saved up to 10 minutes ago, so a fresh push shows up on the next reload
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }),
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000))
     ]);
     if (res.ok) cache.put('./index.html', res.clone());
