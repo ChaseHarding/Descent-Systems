@@ -647,6 +647,24 @@ kbd {
 .toggle[aria-pressed="true"] i { background: var(--flame); }
 .toggle[aria-pressed="true"] i::after { transform: translateX(16px); background: var(--space); }
 @media (prefers-reduced-motion: reduce) { .toggle i, .toggle i::after { transition: none; } }
+.mtabs { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mtab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; cursor: pointer;
+  background: var(--panel); color: var(--regolith-dim); border: 1px solid var(--space-2); border-radius: 6px; font-family: var(--f-mono); }
+.mtab b { font-family: var(--f-display); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.mtab span { font-size: 11px; color: var(--flame); opacity: 0.8; }
+.mtab.on { color: var(--regolith); border-color: var(--flame); box-shadow: inset 0 -2px 0 var(--flame); }
+.mtab:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
+.mbody { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+details.act { width: 100%; border: 1px solid var(--space-2); border-radius: 8px; padding: 0 10px; }
+details.act[open] { padding-bottom: 10px; }
+details.act summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 2px; cursor: pointer; }
+details.act summary::-webkit-details-marker { display: none; }
+details.act summary::after { content: '▸'; color: var(--regolith-dim); transition: transform 0.15s; }
+details.act[open] summary::after { transform: rotate(90deg); }
+details.act .atitle { font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith); text-align: left; }
+details.act .ameta { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--flame); white-space: nowrap; }
+details.act.locked .atitle, details.act.locked .ameta { color: var(--regolith-dim); }
+details.act > .limits { margin: 0 0 8px; }
 .card h2.sect { margin: 6px 0 0; font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); }
 /* Tutorial coach */
 .coach {
@@ -3932,6 +3950,7 @@ kbd {
     return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
   }
   function openMission(i) {
+    missionTab = tabOf(i);
     missionSel = i;
     const d = ALL[i], st = STORY[d.id];
     if (storyOn && st && !storySeen.includes(d.id)) {
@@ -4012,42 +4031,81 @@ kbd {
     s.after();
   }
 
+  // The mission list: three tabs (story, side jobs, round trips). Story acts fold up, with the act you're on open.
+  let missionTab = 'story';
+  const tabOf = i => i < MISSIONS.length ? 'story' : ALL[i].kind === 'trip' ? 'trip' : 'side';
+  const ACTS = () => [
+    [0, ACT1, 'Act 1 · The Signal', ''],
+    [ACT1, ACT2, 'Act 2 · New Frontiers', 'Finish Last Light to begin Act 2.'],
+    [ACT2, MISSIONS.length, 'Act 3 · Beyond Pluto', 'Finish Sunrise to begin Act 3.']
+  ];
+  function storyTile(d, i) {
+    const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
+    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
+      <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
+      <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
+      <b>${d.name}</b>
+      <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
+      <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
+    </button>`;
+  }
+  function sideTile(d, i) {
+    const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
+    return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
+      <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
+      <span class="mnum">${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
+      <b>${d.name}</b>
+      <span class="mtype">${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}</span>
+      <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${d.afterWorld ? `Land on ${WORLDS.find(x => x.id === d.afterWorld).name} in free flight` : `Unlocks after ${afterName(d)}`}</span>`}</span>
+    </button>`;
+  }
   function renderMissions() {
+    const sideIdx = kind => SIDES.map((d, k) => MISSIONS.length + k).filter(i => (ALL[i].kind === 'trip') === (kind === 'trip'));
+    const starsOf = list => list.reduce((n, i) => n + (missionStars[ALL[i].id] || 0), 0);
+    const sides = sideIdx('side'), trips = sideIdx('trip');
+    const tabs = [
+      ['story', 'Story', totalStars(), MISSIONS.length * 3],
+      ['side', 'Side jobs', starsOf(sides), sides.length * 3],
+      ['trip', 'Round trips', starsOf(trips), trips.length * 3]
+    ];
+    let body = '';
+    if (missionTab === 'story') {
+      const acts = ACTS();
+      // the act you're on: the first one that's open and not finished
+      let cur = acts.findIndex(([a, b]) => missionOpen(a) && completedCount(a, b) < b - a);
+      if (cur < 0) cur = acts.length - 1;
+      body = acts.map(([a, b, title, lockText], k) => {
+        const open = missionOpen(a), done = completedCount(a, b), n = b - a;
+        const meta = !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
+        return `<details class="act${open ? '' : ' locked'}"${k === cur ? ' open' : ''}>
+          <summary><span class="atitle">${title}</span><span class="ameta">${meta}</span></summary>
+          ${open ? '' : `<p class="limits">${lockText}</p>`}
+          <div class="mlist">${MISSIONS.slice(a, b).map((d, j) => storyTile(d, a + j)).join('')}</div>
+        </details>`;
+      }).join('') + (completedCount(ACT2) === MISSIONS.length - ACT2 ? '<p class="limits act4">Act 4 is on its way. Unit Zero is still beeping.</p>' : '');
+    } else {
+      const list = missionTab === 'trip' ? trips : sides;
+      // the ones you can fly first, locked ones after
+      const sorted = list.filter(i => missionOpen(i)).concat(list.filter(i => !missionOpen(i)));
+      body = `<p class="limits">${missionTab === 'trip' ? 'Land, drive Crumb the rover out to do the job, then launch and dock with the mothership.' : 'Favors for the crew, each with its own twist. They unlock as the story goes on.'}</p>
+        <div class="mlist">${sorted.map(i => sideTile(ALL[i], i)).join('')}</div>`;
+    }
     card.innerHTML = `<h1 class="good">Missions</h1>
-      <p class="sub">Campaign: ${totalStars()} of ${MISSIONS.length * 3} ★ · Side missions: ${sideStars()} of ${SIDES.length * 3} ★</p>
-      <h2 class="sect">Act 1 · The Signal</h2>
-      <div class="mlist">${MISSIONS.map((d, i) => {
-        const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-        const head = i === ACT1 ? `</div><h2 class="sect">Act 2 · New Frontiers</h2>${missionOpen(ACT1) ? '' : '<p class="limits">Finish Last Light to begin Act 2.</p>'}<div class="mlist">`
-          : i === ACT2 ? `</div><h2 class="sect">Act 3 · Beyond Pluto</h2>${missionOpen(ACT2) ? '' : '<p class="limits">Finish Sunrise to begin Act 3.</p>'}<div class="mlist">` : '';
-        return `${head}<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
-          <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
-          <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
-          <b>${d.name}</b>
-          <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
-          <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
-        </button>`;
-      }).join('')}</div>
-      ${completedCount(ACT2) === MISSIONS.length - ACT2 ? '<p class="limits act4">Act 4 is on its way. Unit Zero is still beeping.</p>' : ''}
-      <h2 class="sect">Side missions from the crew</h2>
-      <div class="mlist">${SIDES.map((d, k) => {
-        const head = k === SIDES.findIndex(x => x.kind === 'trip') ? `</div><h2 class="sect">Round trips</h2><p class="limits">Land, drive Crumb the rover out to do the job, then launch and dock with the mothership.</p><div class="mlist">` : '';
-        const i = MISSIONS.length + k, w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-        return `${head}<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
-          <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
-          <span class="mnum">Side · ${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
-          <b>${d.name}</b>
-          <span class="mtype">${w.name} · ${d.label}</span>
-          <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${d.afterWorld ? `Land on ${WORLDS.find(x => x.id === d.afterWorld).name} in free flight` : `Unlocks after ${afterName(d)}`}</span>`}</span>
-        </button>`;
-      }).join('')}</div>
-      <p class="limits">Finish a mission to unlock the next. Side missions unlock as the campaign goes on. Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
+      <div class="mtabs" role="tablist">${tabs.map(([id, name, got, max]) => `<button role="tab" class="mtab${id === missionTab ? ' on' : ''}" data-tab="${id}" aria-selected="${id === missionTab}"><b>${name}</b><span>${got}/${max} ★</span></button>`).join('')}</div>
+      <div class="mbody">${body}</div>
+      <p class="limits">Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">Main menu</button>`;
     card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
+    card.querySelectorAll('.mtab').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.tab === missionTab) return;
+      missionTab = b.dataset.tab; sfx.click(); renderMissions();
+      const t = card.querySelector('.mtab.on'); if (t) t.focus({ preventScroll: true });
+    }));
     $('back').addEventListener('click', () => setMode('title'));
     paintFaces(card);
-    const firstOpen = [...card.querySelectorAll('.mtile:not(:disabled)')].filter(b => +b.dataset.i < MISSIONS.length).pop();
-    setTimeout(() => (firstOpen || $('back')).focus({ preventScroll: true }), 0);
+    const firstOpen = [...card.querySelectorAll('details[open] .mtile:not(:disabled), .mbody > .mlist .mtile:not(:disabled)')];
+    const pick = missionTab === 'story' ? firstOpen.pop() : firstOpen[0];
+    setTimeout(() => (pick || $('back')).focus({ preventScroll: true }), 0);
   }
 
   const replayBtn = () => lastRun && lastRun.frames && lastRun.frames.length > 20
