@@ -18,7 +18,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: four optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger and a survey route through the clouds of Venus
-- **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit
+- **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
@@ -94,6 +94,8 @@ Every point you score is banked as credits the moment you touch down. Spend them
 
 Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and more) appear in the hangar once you earn them.
 
+<p align="center"><img src="media/hangar.png" alt="The hangar: a live preview of the lander in the Spa Day hull with an Espresso flame, above shelves of hull finishes and engine flames" width="480"></p>
+
 ## Missions
 
 Open **Missions** from the start screen. The campaign has 12 hand-built missions across all five worlds, and finishing one unlocks the next.
@@ -118,6 +120,8 @@ Open **Missions** from the start screen. The campaign has 12 hand-built missions
 - **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
 - **Rescue:** land on CREW and hold still while they board, then climb out of the top of the screen to reach orbit.
 
+<p align="center"><img src="media/missions.png" alt="The mission select screen: twelve campaign missions with their star ratings, and a row of side missions from the crew, each tile showing the crew member who gave it" width="560"></p>
+
 The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. A mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing the last mission unlocks an epilogue. Story scenes can be turned off in Settings.
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
@@ -136,6 +140,8 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | The Long Way Round | Wren | Venus | Last Light | Survey route: fly through Wren's three numbered markers in order, then land |
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
+
+![Side missions in flight: Wren's numbered survey markers glowing through the clouds of Venus; Apogee the cat peeking out of the hatch on Stowaway; and The Coffee Crisis countdown with Dottie nagging over the radio](media/side-missions.png)
 
 You can set down safely on any pad and lift off again. Each mission awards up to three stars: one for finishing, one for fuel left, and one for time. Every new star pays credits. If you fail, your last attempt flies beside you as a ghost.
 
@@ -169,6 +175,8 @@ Open **Badges** from the start screen to see your progress. Fourteen badges unlo
 | Surveyor | Fly Wren's whole survey route on Venus | Wren's Original hull |
 | Crew favorite | Earn all 12 side-mission stars | The Crew flag |
 
+<p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
+
 ## Break room
 
 Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
@@ -176,6 +184,21 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 - Click someone, or use the buttons below the scene, to hear what's on their mind. Their lines change as you play: Dottie keeps a tally of your crashes, Gus comments on your feather landings and paint jobs, and side missions you've finished come up in conversation.
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
+
+<p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus and Wren around a table, a corkboard and a coffee machine with Apogee curled up on the counter, and Wren talking about the day Apogee sat on her lap" width="560"></p>
+
+### Postcards
+
+The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and all eight worlds have one.
+
+### Maintenance log
+
+Gus writes up every crash and every hard landing in Biscuit's maintenance log. Each entry depends on what went wrong: too fast, tilted, sliding sideways, missing the pad, hitting a canyon roof or flying through an eruption on Io. He also names the dents. Open **Maintenance log** in the break room, or click the Biscuit poster on the wall. It keeps your 40 most recent entries and a running total of repairs.
+
+<p align="center">
+  <img src="media/postcards.png" alt="The postcard album: pixel-art postcards from Pluto, the Moon, Europa, Titan, Mars and Earth, with the Io card flipped over to show Gus's note" width="49%">
+  <img src="media/maintenance-log.png" alt="Biscuit's maintenance log on a clipboard: Gus's handwritten repair notes, including a dent named Little Steve and paint that is now officially toasted" width="49%">
+</p>
 
 ### Bulletin board
 
@@ -185,6 +208,8 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 - **Landing of the week** shows your best free-flight landing: the score, the world, the pad and how softly you touched down.
 - **Days since last crash** resets every time you crash.
 - A lost-cat poster for Apogee, a karaoke sign-up sheet (with your name on it if you set one in hot-seat), Gus's yogurt experiment, today's daily challenge and a progress chart. Some notes change once you've finished certain missions.
+
+<p align="center"><img src="media/bulletin-board.png" alt="The bulletin board: sticky notes pinned to cork, including Dottie's complaint about the ×2 pad, a found-cat notice for Apogee, the karaoke sign-up sheet and the landing of the week" width="560"></p>
 
 ## Hot-seat mode
 
@@ -250,7 +275,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README: `landing.gif`, `crew.png`, `story.png`, and `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
