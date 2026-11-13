@@ -31,6 +31,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
+- **Crew requests**: three small jobs from the crew every day, like soft landings, ×5 pads, rovers or petting Apogee, each paying credits, with a bonus for finishing all three
 - **35 badges** to earn, 26 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
@@ -60,7 +61,7 @@ The main menu opens on three big cards with live previews:
 - **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
 - **The Pad**: a live view of your cabin, decorated however you left it, with how many decorations you've collected.
 
-Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, your **pilot license**, **Settings** and **How to play**, which replays the tutorial.
+Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**, then a **Crew requests** strip showing who's asking and how many of today's jobs are still open. At the bottom are links to **Badges**, your **pilot license**, **Settings** and **How to play**, which replays the tutorial.
 
 <p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes, with Badges, License, Settings and How to play links along the bottom" width="560"></p>
 
@@ -422,6 +423,28 @@ Switch to **Hot-seat · 2P** on the start screen and enter both names.
 - The first pilot alternates every round, and the highest total after three rounds wins.
 
 In solo, retrying after a crash also restarts you from the same spot with a ghost of your last attempt.
+
+## Crew requests
+
+Every day the crew posts three small jobs. Open **Crew requests** from the main menu or the break room to see them. Each one shows who's asking, a progress bar and what it pays:
+
+| From | Request | Pays |
+|---|---|---|
+| Gus | Land twice under 0.5 m/s | 300 cr |
+| Dottie | Land on a given world twice | 250 cr |
+| Dottie | Land on a ×5 pad twice | 350 cr |
+| Wren | Land with at least half your fuel left | 300 cr |
+| Gus | Land twice with under 2° of tilt | 250 cr |
+| Gus | Land on a moving rover or the barge | 350 cr |
+| Dottie | Reach site 3 in a single free flight | 350 cr |
+| Dottie | Earn 3 stars in missions | 300 cr |
+| Dottie | Finish all three sites of the daily challenge | 300 cr |
+| Gus | Reach site 4 in an endless run | 350 cr |
+| Dottie | Send a friend a ghost challenge | 200 cr |
+| Apogee | Pet Apogee three times | 150 cr |
+| Gus | Score 600 in the arcade (once you own the cabinet) | 300 cr |
+
+Requests count from free flight, missions, the daily challenge, endless runs and ghost races. Credits are paid the moment you finish one, and finishing all three adds a 250 credit bonus from Dottie. Requests change at midnight UTC, the same time as the daily challenge, and everyone gets the same three each day, so friends can compare. Until Wren is home, Gus takes over her request.
 
 ## Daily challenge
 
