@@ -343,6 +343,8 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 
 <p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus and Wren around a table, a corkboard and a coffee machine with Apogee curled up on the counter, and Wren talking about the day Apogee sat on her lap" width="560"></p>
 
+- Once you've finished your first round trip, **Crumb** the rover lives here too. He trundles along the front of the room, bonks into walls and stops to look around. Some days Apogee naps on top of him while he drives. Tap him, or the **Crumb** button, and he beeps. The crew translates: he has his own lines, and he grows new ones as you finish more round trips. Dottie, Gus and Wren have things to say about him too.
+
 ### Postcards
 
 The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
@@ -419,6 +421,10 @@ The first time you land on each world, you bring a souvenir home for your shelf,
 | Mars | A vial of red dust that pours like an hourglass |
 | Venus | A sealed jar of cloud |
 | Earth | A seashell from the ocean by the landing barge |
+
+#### Crumb's finds
+
+Each round trip also brings home a shelf item, found by Crumb: three moon rocks (one looks like Dottie), the old beacon bulb from Mars, one of Rex's ice crystals, a slice of Wren's Europa ice core, and the pebble Apogee brought you from Titan. They have their own group in the shelf picker. Crumb also visits the Pad, rolling around the floor, and you can tap him there to say hi.
 
 ### Company
 
