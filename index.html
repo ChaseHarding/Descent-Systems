@@ -466,6 +466,15 @@ kbd {
 .race-score .won { border-color: var(--flame); }
 .race-score .won b { color: var(--flame); }
 /* Crew requests */
+.crew-toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 60; width: min(28rem, calc(100vw - 32px)); box-sizing: border-box; display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--flame); border-radius: 10px; background: var(--space); color: var(--regolith); font-family: var(--f-mono); text-align: left; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); pointer-events: none; opacity: 0; transform: translate(-50%, 140%); transition: transform 0.35s ease, opacity 0.35s ease; }
+.crew-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.crew-toast canvas.face { flex: none; width: 44px; height: 44px; border-radius: 6px; image-rendering: pixelated; }
+.crew-toast .said { min-width: 0; flex: 1; }
+.crew-toast .who { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.crew-toast .who b { font-weight: 500; }
+.crew-toast .who em { font-style: normal; color: var(--ok); letter-spacing: 0.04em; white-space: nowrap; }
+.crew-toast p { margin: 3px 0 0; font-size: 13px; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .crew-toast { transition: none; } }
 .reqs { width: 100%; max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .reqs .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); }
 .reqs .radio.req { position: relative; max-width: none; width: 100%; box-sizing: border-box; text-align: left; }
@@ -5578,6 +5587,40 @@ kbd {
     pet: { who: 'A', n: 3, pay: 150, text: () => 'Mrrp. (Pet Apogee three times today, in the break room or your Pad. She has it in her calendar.)' },
     arcade: { who: 'G', n: 1, pay: 300, text: () => 'Score 600 or more in Descent Systems Classic. NOT GUS believes in you. NOT GUS is not me.', needs: () => owned.has(denKey('floor', 'arcade')) }
   };
+  // what each crew member says when their request is done
+  const REQ_DONE = {
+    soft: 'Two feather landings! Biscuit’s knees feel brand new. Mine still click, but that’s not your fault.',
+    world: 'The clients stopped calling. That means they’re happy. Or asleep. Either way, they paid.',
+    pad5: 'Two ×5 pads. The investors smiled. Both of them. One of them cried a little.',
+    fuel: 'Half a tank left. Now that’s flying on a budget. I’m proud of you, pilot.',
+    fuelG: 'Half a tank left! I’m framing the fuel receipt. It’s my favorite receipt now.',
+    tilt: 'Perfectly level. I checked with my spirit level. Then my other spirit level. Then I hugged them both.',
+    rover: 'The rover driver says you’re the smoothest landing she’s ever had on her roof. She’s had four.',
+    site: 'Site three, one lander, zero excuses. I’ve updated your file. It’s getting thick. In a good way.',
+    stars: 'Numbers delivered. My report looks amazing now. I added a chart. The chart goes up.',
+    daily: 'Daily challenge done. You beat everyone. I haven’t checked, but I’m saying it anyway.',
+    run: 'Site four! And the perk didn’t explode! I’m going to go lie down. Happily.',
+    share: 'Gossip received. You won. Probably. I’m telling everyone either way.',
+    pet: 'Mrrp. (She has marked the appointment as completed. You may go.)',
+    arcade: 'Six hundred! NOT GUS is very impressed. NOT GUS is also not jealous. NOT GUS is fine.',
+    bonus: 'All three done! I’ve added a bonus to your account and a gold star to your file. The star cost more.'
+  };
+  // crew messages pop up one at a time at the bottom of the screen
+  const crewQ = []; let crewBusy = false;
+  function crewToast(who, text, pay) { crewQ.push([who, text, pay]); if (!crewBusy) crewNext(); }
+  function crewNext() {
+    const n = crewQ.shift();
+    if (!n) { crewBusy = false; return; }
+    crewBusy = true;
+    let el = $('crewToast');
+    if (!el) { el = document.createElement('div'); el.id = 'crewToast'; el.className = 'crew-toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    const [who, text, pay] = n;
+    el.innerHTML = `${faceTag(who, text)}<div class="said"><span class="who"><b style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</b><em>${pay}</em></span><p>${esc(text)}</p></div>`;
+    paintFaces(el);
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    sfx.coin(); if (who === 'A') sfx.purr(); else sfx.radio();
+    setTimeout(() => { el.classList.remove('show'); setTimeout(crewNext, 400); }, 4600);
+  }
   let reqFrom = 'title';
   // Wren's requests go to Gus until she's home
   const reqWho = it => { const T = REQ_TYPES[it.type]; return T.who === 'W' && !wrenHome() && T.alt ? T.alt[0] : T.who; };
@@ -5629,14 +5672,13 @@ kbd {
       if (it.prog >= T.n) {
         it.done = true;
         credits += T.pay;
-        const who = SIGN[reqWho(it)];
-        setTimeout(() => { showToast(`${who}’s request done! +${fmt(T.pay)} credits`, 2600); sfx.coin(); }, delay);
-        delay += 2800;
+        const who = reqWho(it), line = who === 'G' && T.who === 'W' ? REQ_DONE.fuelG : REQ_DONE[it.type];
+        setTimeout(() => crewToast(who, line, `+${fmt(T.pay)} cr`), delay);
       }
     }
     if (changed && !st.bonus && st.items.every(i => i.done)) {
       st.bonus = true; credits += REQ_BONUS;
-      setTimeout(() => { showToast(`All three requests done! Dottie added a ${fmt(REQ_BONUS)} credit bonus`, 3000); sfx.coin(); }, delay);
+      setTimeout(() => crewToast('F', REQ_DONE.bonus, `+${fmt(REQ_BONUS)} bonus`), delay);
     }
     if (changed) { store.set('ds-req', JSON.stringify(st)); saveCosmetics(); }
   }
