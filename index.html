@@ -391,6 +391,14 @@ kbd {
 .mode span { font-size: 12px; color: var(--regolith-dim); }
 .mode:hover { border-color: var(--flame); }
 .mode:hover b { color: var(--flame); }
+.mode.wide { grid-column: 1 / -1; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.perks { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.perk { min-width: 0; display: flex; flex-direction: column; gap: 4px; padding: 12px; text-align: left; cursor: pointer; background: var(--panel); color: var(--regolith); border: 1px solid var(--space-2); border-radius: 8px; font-family: var(--f-mono); }
+.perk b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
+.perk span { font-size: 12px; }
+.perk small { font-size: 11px; color: var(--regolith-dim); }
+.perk:hover, .perk:focus-visible { border-color: var(--flame); outline: none; }
+@media (max-width: 520px) { .perks { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 480px) {
   .menu { gap: 8px; }
   .mode { padding: 10px 12px; }
@@ -767,6 +775,8 @@ kbd {
       colors: ['#7affc4', '#a66bff'], swatch: 'linear-gradient(90deg, #7affc4, #a66bff)' },
     { id: 'nautical', name: 'Nautical', price: 0, unlock: 'sealegs', blurb: 'Navy, white and a dash of red. Ahoy.', style: 'stripes',
       colors: ['#1d3a6e', '#f4f1e8', '#ff6b5e'], swatch: 'linear-gradient(180deg, #1d3a6e 33%, #f4f1e8 33% 66%, #ff6b5e 66%)' },
+    { id: 'infinity', name: 'Infinity', price: 0, unlock: 'longhaul', blurb: 'For pilots who just keep going.', style: 'wave',
+      colors: ['#ffb547', '#ff6b5e'], swatch: 'linear-gradient(90deg, #ffb547, #ff6b5e)' },
     { id: 'racing', name: 'Rex’s Racing Flag', price: 0, unlock: 'beatrex', blurb: 'Rex handed it over himself. Through gritted teeth.', style: 'checker',
       colors: ['#1a1a22', '#ffd27a'], swatch: 'repeating-conic-gradient(#1a1a22 0 25%, #ffd27a 0 50%) 0 0 / 10px 10px' }
   ];
@@ -804,10 +814,13 @@ kbd {
   for (const u of UPGRADES) upg[u.id] = Math.min(u.prices.length, +upg[u.id] || 0);
   let upgOn = store.get('ds-upgOn', '1') === '1';
   const saveUpg = () => { store.set('ds-upg', JSON.stringify(upg)); store.set('ds-upgOn', upgOn ? '1' : '0'); };
-  const upgActive = () => upgOn && !daily && !match && !tut;
+  const upgActive = () => upgOn && !daily && !match && !tut && !run;
   const upgLevel = id => upgActive() ? upg[id] : 0;
-  function safeVy() { return SAFE_VY + STRUT_BONUS[upgLevel('struts')]; }
-  const burnMul = () => 1 - 0.08 * upgLevel('thrust');
+  const perk = id => run ? run.perks[id] || 0 : 0;
+  function safeVy() { return SAFE_VY + STRUT_BONUS[upgLevel('struts')] + 0.3 * perk('struts'); }
+  function safeVx() { return SAFE_VX + 0.4 * perk('feet'); }
+  function safeAng() { return SAFE_ANG + 4 * perk('steady'); }
+  const burnMul = () => (1 - 0.08 * upgLevel('thrust')) * (1 - 0.1 * perk('engine'));
   const tankMul = () => 1 + 0.1 * upgLevel('tank');
   let hangarSel = { kind: 'hull', id: 'standard' };
   function saveCosmetics() {
@@ -881,6 +894,7 @@ kbd {
     { id: 'sealegs', name: 'Sea legs', desc: 'Land on the barge rocking on Earth’s ocean.', reward: 'flag:nautical' },
     { id: 'crane', name: 'Crane operator', desc: 'Deliver Gus’s telescope on a cable, setting it down slower than 0.8 m/s.', reward: 'flame:sodium' },
     { id: 'loaded', name: 'Fully loaded', desc: 'Max out every upgrade in Gus’s workshop.', reward: 'hull:gus' },
+    { id: 'longhaul', name: 'Long haul', desc: 'Clear 10 sites in a single endless run.', reward: 'flag:infinity' },
     { id: 'crewfav', name: 'Crew favorite', desc: 'Earn every side-mission star.', reward: 'flag:crew', prog: () => [sideStars(), SIDES.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
@@ -1907,6 +1921,7 @@ kbd {
   const names = [store.get('ds-p1', 'Player 1'), store.get('ds-p2', 'Player 2')];
   let match = null;          // hot-seat match in progress
   let daily = null;          // daily challenge run in progress
+  let run = null;            // endless run in progress
   let mission = null;        // mission in progress
   let tut = null;            // tutorial in progress
   let missionSel = 0;        // which mission the briefing shows
@@ -2384,9 +2399,10 @@ kbd {
   // Gusting wind: a steady breeze plus two slow waves, occasionally reversing on stormy worlds.
   function windAt(t) {
     if (!world.wind) return 0;
+    const shield = perk('shield') ? 0.5 : 1;
     const s = t + windSeed;
     const gust = 0.55 + 0.35 * Math.sin(s * 0.45) + 0.25 * Math.sin(s * 1.6 + 1.3);
-    return world.wind * windDir * gust * (mission && mission.def.windMul || 1);
+    return world.wind * windDir * gust * (mission && mission.def.windMul || 1) * shield;
   }
 
   // ---- Lander ----
@@ -2420,10 +2436,10 @@ kbd {
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
       if (rot && L.fuel > 0 && !L.grounded) {
-        const na = L.a + rot * ROT_RATE * rotMul() * dt;
+        const na = L.a + rot * ROT_RATE * rotMul() * (perk('gyro') ? 1.3 : 1) * dt;
         L.a = fullSpin ? Math.atan2(Math.sin(na), Math.cos(na))          // wrap to ±180°
                        : Math.max(-Math.PI / 2, Math.min(Math.PI / 2, na));
-        L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
+        if (!perk('gyro')) L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
       L.firing = keys.thrust && L.fuel > 0;
       let ax = windNow - world.drag * L.vx;
@@ -2560,13 +2576,13 @@ kbd {
     const vy = -(L.vy - (pad && pad.vy || 0)), vx = Math.abs(L.vx - (pad && pad.vx || 0));
     const stats = { vy, vx, ang: angDeg };
     // just lifted off a pad and sank back onto it (low gravity makes this easy): settle again instead of crashing
-    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && vy <= safeVy() && vx <= SAFE_VX) {
+    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && vy <= safeVy() && vx <= safeVx()) {
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.grounded = true;
       return;
     }
 
-    if (!hullHit && !roofHit && !lavaHit && pad && vy <= safeVy() && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+    if (!hullHit && !roofHit && !lavaHit && pad && vy <= safeVy() && vx <= safeVx() && angDeg <= safeAng()) {
       if (pad.move && pad.parkT == null) { pad.parkT = simT; updateMovers(); }   // the driver hits the brakes
       if (tut) { tutorialLanded(pad, vy, vx, angDeg); return; }
       if (mission) { missionTouchdown(pad, vy, vx, angDeg); return; }
@@ -2588,6 +2604,7 @@ kbd {
       onLanded(pad, vy, vx, angDeg, L.fuel);
       noteLanding(pad, vy, pts);
       if (match) { endTurn(); return; }
+      if (run) { runLanded(pts, pad); return; }
       score += pts;
       if (daily) {
         daily.results.push(lastResult);
@@ -2606,8 +2623,8 @@ kbd {
       if (footHit && !pad && !wet) reasons.push('touched down off a pad');
       const rel = pad && pad.move ? ` relative to the ${pad.kind || 'rover'}` : '';
       if ((footHit || hullHit) && vy > safeVy()) reasons.push(`descending at ${vy.toFixed(1)} m/s${rel} (limit ${safeVy().toFixed(1)})`);
-      if ((footHit || hullHit) && vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s${rel} (limit ${SAFE_VX})`);
-      if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
+      if ((footHit || hullHit) && vx > safeVx()) reasons.push(`drifting at ${vx.toFixed(1)} m/s${rel} (limit ${safeVx()})`);
+      if ((footHit || hullHit) && angDeg > safeAng()) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${safeAng()}°)`);
       if (!reasons.length) reasons.push('hit the ground at a bad angle');
       crashCount++; store.set('ds-crashes', String(crashCount)); store.set('ds-lastCrash', String(Date.now()));
       if (!tut) logRepair({ world: world.name, pad: !hullHit && pad, roof: roofHit, lava: lavaHit, vy, vx, ang: angDeg, fuel: L.fuel });
@@ -2621,9 +2638,81 @@ kbd {
       if (mission) { mission.result = { ok: false }; setMode('missionEnd'); return; }
       if (match) { endTurn(); return; }
       if (daily) { daily.results.push(lastResult); setMode('dailyEnd'); return; }
+      if (run) { runCrashed(); return; }
       lives--;
       setMode(lives > 0 ? 'crashed' : 'over');
     }
+  }
+
+  // ---- Endless run: one lander, random worlds, a perk from Gus after every landing ----
+  // Fuel carries over between sites, and each landing refuels you a little (better pads pay more fuel).
+  const PERKS = [
+    { id: 'fuel', name: 'Spare canister', max: 99, desc: '+40 kg of fuel right now', gus: 'Found a spare canister behind the coffee machine. Don’t ask why it was there.', apply: r => { r.fuel = Math.min(r.maxFuel, r.fuel + 40); } },
+    { id: 'tank', name: 'Bigger tank', max: 3, desc: '+25 kg tank size, and fill it up by 25', gus: 'Welded on a bigger tank. It’s a little lopsided. She’ll be fine.', apply: r => { r.maxFuel += 25; r.fuel += 25; } },
+    { id: 'engine', name: 'Tuned engine', max: 3, desc: 'Main engine burns 10% less fuel', gus: 'Tuned the engine. She purrs. Apogee is jealous.' },
+    { id: 'struts', name: 'Soft struts', max: 3, desc: '+0.3 m/s safe touchdown speed', gus: 'Softer struts! Land a little harder. Not a lot harder.' },
+    { id: 'feet', name: 'Wide feet', max: 2, desc: '+0.4 m/s safe sideways drift', gus: 'Wider feet. She looks like she’s wearing snowshoes. Very stable snowshoes.' },
+    { id: 'steady', name: 'Steady hands', max: 2, desc: '+4° safe tilt at touchdown', gus: 'Recalibrated the gyros. A little crooked is fine now. A little.' },
+    { id: 'gyro', name: 'Free gyros', max: 1, desc: 'Turning costs no fuel, and turns 30% faster', gus: 'Free gyros! Spin all you like. Please don’t spin all you like.' },
+    { id: 'shield', name: 'Wind shield', max: 1, desc: 'Wind pushes you half as hard', gus: 'Bolted on a wind shield. It’s a cookie sheet. It works.' },
+    { id: 'radar', name: 'Landing radar', max: 1, desc: 'See where you’ll touch down, and how fast', gus: 'Radar online! The dotted line is your future. Make it a nice one.' },
+    { id: 'refinery', name: 'Fuel refinery', max: 2, desc: '+50% fuel from every landing', gus: 'A tiny refinery! It makes fuel from moon dust. And hope.' },
+    { id: 'spare', name: 'Spare lander', max: 1, desc: 'Survive one crash this run', gus: 'I built a spare Biscuit. Biscuit Two. Please don’t make me use it.', rare: true }
+  ];
+  const RUN_WORLDS = [['pluto', 'moon', 'titan', 'vesta', 'europa', 'ganymede'], ['io', 'mercury', 'mars'], ['earth', 'venus']];
+  const REFUEL = { 2: 15, 3: 25, 4: 30, 5: 40 };
+  const runBest = () => { try { return JSON.parse(store.get('ds-run-best', 'null')); } catch (e) { return null; } };
+  function runPickWorld() {
+    const tier = run.site <= 2 ? 1 : run.site <= 5 ? 2 : 3;
+    const pool = RUN_WORLDS.slice(0, tier).flat().filter(id => id !== (world && world.id) || tier === 0);
+    return WORLDS.find(w => w.id === pool[Math.floor(Math.random() * pool.length)]);
+  }
+  function startRun() {
+    match = null; daily = null; mission = null; tut = null; ghost = null; rng = Math.random;
+    run = { site: 1, score: 0, fuel: 100, maxFuel: 100, perks: {}, lives: 0, taken: [] };
+    score = 0; lives = 1;
+    runSite();
+  }
+  function runSite() {
+    world = runPickWorld();
+    level = run.site;
+    genTerrain(); makeBackdrop();
+    run.siteFuel = run.fuel;
+    levelFuel = run.fuel;
+    spawn();
+    lander.fuelMax = run.maxFuel;
+    fly(null);
+    showToast(`Endless run · site ${run.site} · ${world.name}`, 1800);
+  }
+  function runLanded(pts, pad) {
+    run.score += pts; score = run.score;
+    const gain = Math.round((REFUEL[pad.mult] || 20) * (1 + 0.5 * perk('refinery')));
+    run.refuel = gain;
+    run.fuel = Math.min(run.maxFuel, lander.fuel + gain);
+    run.lastPts = pts;
+    // three different perks, skipping any that are maxed out; the spare lander is rare
+    const open = PERKS.filter(x => (run.perks[x.id] || 0) < x.max && !(x.id === 'spare' && run.lives > 0) && (!x.rare || Math.random() < 0.35));
+    run.offer = [];
+    while (run.offer.length < 3 && open.length) run.offer.push(open.splice(Math.floor(Math.random() * open.length), 1)[0]);
+    if (run.site >= 10) award('longhaul');
+    setMode('runPerk');
+  }
+  function runChoose(id) {
+    const pk = PERKS.find(x => x.id === id);
+    run.perks[id] = (run.perks[id] || 0) + 1;
+    if (id === 'spare') run.lives++;
+    if (pk.apply) pk.apply(run);
+    run.taken.push(pk.name);
+    showToast(`GUS: ${pk.gus}`, 2800);
+    run.site++;
+    runSite();
+  }
+  function runCrashed() {
+    if (run.lives > 0) { run.lives--; setMode('runSpare'); return; }
+    const best = runBest(), isBest = !best || run.score > best.score;
+    if (isBest) store.set('ds-run-best', JSON.stringify({ sites: run.site - 1, score: run.score }));
+    run.isBest = isBest; run.prevBest = best;
+    setMode('runEnd');
   }
 
   // ---- World selection ----
@@ -2646,7 +2735,7 @@ kbd {
 
   // ---- Screens ----
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log'];
-  const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
+  const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar') card.classList.remove('wide');
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
@@ -2692,10 +2781,10 @@ kbd {
       renderHangar();
       return;
     }
-    const limits = `<p class="limits">Safe touchdown: vertical under ${safeVy().toFixed(1)} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
+    const limits = `<p class="limits">Safe touchdown: vertical under ${safeVy().toFixed(1)} m/s · horizontal under ${safeVx()} m/s · tilt under ${safeAng()}°</p>`;
     let html = '';
     if (m === 'title') {
-      match = null; ghost = null; daily = null; mission = null; tut = null; rng = Math.random;
+      match = null; ghost = null; daily = null; mission = null; tut = null; run = null; rng = Math.random;
       const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
     }
@@ -2719,6 +2808,7 @@ kbd {
           <button class="mode" data-go="missions"><b>Missions</b><span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
           <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
           <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
+          <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
         </nav>
         <div class="subnav">
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
@@ -2764,6 +2854,27 @@ kbd {
         <p class="limits">Touchdown at ${r.vy.toFixed(2)} m/s vertical, ${r.vx.toFixed(2)} m/s horizontal, ${r.ang.toFixed(1)}° tilt</p>
         <p class="balance">+${fmt(r.pts)} credits banked · ${fmt(credits)} total</p>
         <div class="btns"><button class="btn" id="go">Next site</button>${replayBtn()}</div>`;
+    } else if (m === 'runPerk') {
+      const r = lastResult;
+      html = `<span class="eyebrow">Endless run · site ${run.site} · ${world.name}</span>
+        <h1 class="good">Site ${run.site} cleared</h1>
+        <p>×${r.pad.mult} pad for <b>${fmt(run.lastPts)}</b> points · run total <b>${fmt(run.score)}</b></p>
+        <p class="limits">Refueled +${run.refuel} kg · tank ${Math.round(run.fuel)} of ${run.maxFuel} kg${run.lives ? ' · spare lander ready' : ''}</p>
+        <h2 class="sect">Gus has three upgrades on the bench. Pick one</h2>
+        <div class="perks">${run.offer.map(pk => `<button class="perk" data-perk="${pk.id}"><b>${pk.name}</b><span>${pk.desc}</span>${pk.max > 1 && pk.max < 99 ? `<small>${run.perks[pk.id] || 0} of ${pk.max} taken</small>` : ''}</button>`).join('')}</div>`;
+    } else if (m === 'runSpare') {
+      html = `<h1 class="bad">Biscuit Two, deployed</h1>
+        <p>${cap(lastResult.reasons.join(', '))}.</p>
+        <p>Your spare lander saves the run. Same site, same fuel as when you arrived.</p>
+        <div class="btns"><button class="btn" id="go">Try again</button>${replayBtn()}</div>`;
+    } else if (m === 'runEnd') {
+      const b = run.prevBest, sites = run.site - 1;
+      html = `<span class="eyebrow">Endless run</span>
+        <h1 class="bad">Run over</h1>
+        <p>${cap(lastResult.reasons.join(', '))} on ${world.name}.</p>
+        <p>You cleared <b>${sites}</b> site${sites === 1 ? '' : 's'} for <b>${fmt(run.score)}</b> points.${run.isBest ? ' <b>New best run!</b>' : b ? ` Best: site ${b.sites}, ${fmt(b.score)} points.` : ''}</p>
+        ${run.taken.length ? `<p class="limits">Upgrades this run: ${run.taken.join(', ')}</p>` : ''}
+        <div class="btns"><button class="btn" id="go">New run</button>${replayBtn()}<button class="btn ghost" id="pick">Main menu</button></div>`;
     } else if (m === 'crashed') {
       html = `<h1 class="bad">Lander lost</h1>
         <p>${cap(lastResult.reasons.join(', '))}.</p>
@@ -2968,6 +3079,7 @@ kbd {
     if (mb) mb.addEventListener('click', () => setMode('missions'));
     card.querySelectorAll('[data-setup]').forEach(b => b.addEventListener('click', () => openSetup(b.dataset.setup)));
     card.querySelectorAll('[data-go="missions"]').forEach(b => b.addEventListener('click', () => setMode('missions')));
+    card.querySelectorAll('[data-go="run"]').forEach(b => b.addEventListener('click', startRun));
     for (const id of ['tutBtn', 'howBtn']) { const b = $(id); if (b) b.addEventListener('click', startTutorial); }
     const ib = $('installBtn');
     if (ib) ib.addEventListener('click', installApp);
@@ -2985,6 +3097,7 @@ kbd {
     if (nx) nx.addEventListener('click', () => openMission(missionSel + 1));
     const ep = $('epilogue');
     if (ep) ep.addEventListener('click', () => { const [lines, ch] = EPILOGUES[ALL[missionSel].id]; playStory(lines, ch, () => setMode('missions')); });
+    card.querySelectorAll('[data-perk]').forEach(b => b.addEventListener('click', () => runChoose(b.dataset.perk)));
     const lb = $('logBtn');
     if (lb) lb.addEventListener('click', () => { const st = STORY[ALL[missionSel].id]; playStory(st.intro, chapterFor(missionSel), () => setMode('brief')); });
 
@@ -3697,6 +3810,7 @@ kbd {
     'hull:vesta': 'The Asteroid hull. Pre-scuffed! Saves me a lot of work, honestly.',
     'hull:rover': 'Rover Yellow! Beep beep. I’m legally required to say beep beep.',
     'flame:sodium': 'Sodium Orange. Very construction-site. I’m putting on a hard hat.',
+    'flag:infinity': 'The Infinity flag. For the pilot who doesn’t know when to stop. Respectfully.',
     'flag:nautical': 'The Nautical flag. Ahoy, Captain Pilot.',
     'hull:gus': 'The Gus Special! My colors! On Biscuit! I need to sit down.',
     'hull:apex': 'Rex’s paint job. Don’t tell him it looks good. He’ll never stop talking.',
@@ -4071,6 +4185,8 @@ kbd {
   }
   function advance() {
     if (mode === 'paused') { setMode('flying'); return; }
+    if (mode === 'runEnd') { startRun(); return; }
+    if (mode === 'runSpare') { levelFuel = run.siteFuel; spawn(spawnPlan); lander.fuelMax = run.maxFuel; fly({ ...lastRun, label: 'Last try', tint: col.reg }); return; }
     if (mode === 'brief') { startMission(null); return; }
     if (mode === 'tutFail') { startTutorial(); return; }
     if (mode === 'tutDone') { openSetup('solo'); return; }
@@ -4276,7 +4392,7 @@ kbd {
     if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
     const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd' || mode === 'tutDone' || mode === 'touchdown');
     if (sitting && flagPlant) drawFlag(time);
-    if ((mode === 'flying' || mode === 'paused') && upgLevel('radar') && lander) drawRadar(time);
+    if ((mode === 'flying' || mode === 'paused') && (upgLevel('radar') || perk('radar')) && lander) drawRadar(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
     if (mode === 'replay' && replay) drawLander(replay.L, time);
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
@@ -4488,7 +4604,7 @@ kbd {
     ctx.globalAlpha = 1;
     if (hit) {
       const pad = pads.find(p => hit.x - 3.4 >= p.x1 && hit.x + 3.4 <= p.x2);
-      const ok = pad && hit.vy <= safeVy() && hit.vx <= SAFE_VX;
+      const ok = pad && hit.vy <= safeVy() && hit.vx <= safeVx();
       const c = ok ? '#9fe0b8' : hit.vy <= safeVy() * 2 ? '#ffb547' : '#ff6b5e';
       const X = sx(hit.x), Y = sy(hit.y), r = Math.max(5, 3.4 * scale);
       ctx.strokeStyle = c; ctx.lineWidth = 2;
@@ -4729,9 +4845,9 @@ kbd {
     hud.vx.textContent = `${L.vx >= 0 ? '→' : '←'} ${vx.toFixed(1)} m/s`;
     hud.vy.textContent = `${vy >= 0 ? '↓' : '↑'} ${Math.abs(vy).toFixed(1)} m/s`;
     hud.ang.textContent = `${ang.toFixed(0)}°`;
-    hud.vx.className = grade(vx, SAFE_VX);
+    hud.vx.className = grade(vx, safeVx());
     hud.vy.className = vy < 0 ? 'ok' : grade(vy, safeVy());
-    hud.ang.className = grade(Math.abs(ang), SAFE_ANG);
+    hud.ang.className = grade(Math.abs(ang), safeAng());
     hud.windRow.hidden = !world.wind;
     if (world.wind) {
       hud.wind.textContent = `${windNow >= 0 ? '→' : '←'} ${Math.abs(windNow).toFixed(1)} m/s²`;
@@ -4773,6 +4889,10 @@ kbd {
       hud.score.textContent = fmt(match.scores[cur()]);
       hud.meta.textContent = `${names[cur()].toUpperCase()} · ROUND ${match.round}/${ROUNDS} · ${world.name.toUpperCase()}`;
       hud.meta.style.color = PLAYER_TINT[cur()];
+    } else if (run) {
+      hud.score.textContent = fmt(run.score);
+      hud.meta.textContent = `RUN · SITE ${run.site} · ${world.name.toUpperCase()}${run.lives ? ' · SPARE' : ''}`;
+      hud.meta.style.color = 'var(--flame)';
     } else {
       hud.score.textContent = fmt(score);
       hud.meta.textContent = daily
@@ -4828,7 +4948,7 @@ kbd {
     ArrowUp: 'thrust', KeyW: 'thrust'
   };
   // screens where Space/Enter means "continue"; elsewhere they press the focused button as usual
-  const ADVANCES = ['setup', 'brief', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'paused', 'tutDone', 'tutFail'];
+  const ADVANCES = ['runSpare', 'runEnd', 'setup', 'brief', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'paused', 'tutDone', 'tutFail'];
   addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       if (e.code === 'Enter') e.target.blur();
