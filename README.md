@@ -12,6 +12,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 - **Eleven worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io, blinding clouds on Venus, fuel-boiling sunlight on Mercury, a spinning asteroid and instrument-scrambling storms on Ganymede
 - **Moving landing pads**: rovers that drive back and forth across most worlds, and a barge rocking on Earth's ocean. Match their speed, then touch down
+- **Meteor showers** on airless worlds: red markers and dotted tracks show where each meteor will land, so you can dodge them
 - **Guided tutorial** that teaches a first landing step by step
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
@@ -19,7 +20,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
-- **Side missions**: twelve optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
+- **Side missions**: thirteen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
@@ -27,7 +28,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **33 badges** to earn, 24 of which unlock exclusive cosmetics
+- **34 badges** to earn, 25 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -97,6 +98,7 @@ On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game
 
 - Pads pay **×5**, **×3** or **×2**. The narrowest pad pays the most.
 - From the second site on, many worlds can add a **moving pad worth ×4**: a rover driving back and forth on a flat track (Pluto, Vesta, the Moon, Ganymede, Titan, Mercury and Mars) or a barge rocking on the sea (Earth). Only your speed relative to the deck counts, so match its speed before you touch down. The driver hits the brakes once you're aboard. Missing the barge means splashing into the ocean.
+- From the second site on, Pluto, Vesta, the Moon and Mercury sometimes have a **meteor shower**. Before each meteor lands, a pulsing red marker appears on the ground with a dotted track up into the sky, about two seconds ahead. Getting hit is a crash. The shower's timing is fixed when the site is built, so daily and hot-seat pilots face the same one.
 - Unused fuel adds a bonus, and a touchdown under 0.8 m/s adds another 50 points.
 - The world's score bonus multiplies the total.
 - In solo, you have 3 landers. Each new site has rougher terrain and less fuel.
@@ -195,6 +197,7 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | Static | Dottie | Ganymede | Landing on Ganymede in free flight | Blind landing: a magnetic storm scrambles your instruments the whole way down |
 | Ride Along | Gus | Moon | Supply Run | Moving pad: land on Moonbase Pim's supply rover while it drives (its brakes are "on order") |
 | Swing Shift | Gus | Moon | Lifeline | Sling load: fly Gus's telescope on a 9-meter cable and set it down on DROP slower than 1.5 m/s |
+| Shooting Stars | Dottie | Moon | Tranquility | Meteor shower: reach the far LZ through a heavy shower |
 | Hopscotch | Rex | Vesta | Edge of the World | Pad hopping: touch down on pads 1, 2 and 3 in order, and try to beat Rex's 90 seconds |
 | Northern Lights | Dottie | Ganymede | Relay Run | Photo route: fly through three markers up in the aurora, then land |
 | Shadow Hopper | Wren | Mercury | Spare Key | Pad hopping: hop between three pads in the shadows while the sun boils your fuel |
@@ -207,7 +210,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-four badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-five badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -243,6 +246,7 @@ Open **Badges** from the start screen to see your progress. Twenty-four badges u
 | Crane operator | Set Gus's telescope down slower than 0.8 m/s | Sodium Orange flame |
 | Fully loaded | Max out every upgrade in Gus's workshop | Gus Special hull |
 | Long haul | Clear 10 sites in a single endless run | Infinity flag |
+| Dodgeball | Land on a pad in the middle of a meteor shower | Shooting Star flag |
 | Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>

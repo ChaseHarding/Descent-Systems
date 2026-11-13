@@ -777,6 +777,8 @@ kbd {
       colors: ['#1d3a6e', '#f4f1e8', '#ff6b5e'], swatch: 'linear-gradient(180deg, #1d3a6e 33%, #f4f1e8 33% 66%, #ff6b5e 66%)' },
     { id: 'infinity', name: 'Infinity', price: 0, unlock: 'longhaul', blurb: 'For pilots who just keep going.', style: 'wave',
       colors: ['#ffb547', '#ff6b5e'], swatch: 'linear-gradient(90deg, #ffb547, #ff6b5e)' },
+    { id: 'shooting', name: 'Shooting Star', price: 0, unlock: 'dodger', blurb: 'A white star on midnight purple. Make a wish.', style: 'star',
+      colors: ['#2a1a4a', '#fff4e0'], swatch: 'radial-gradient(circle, #fff4e0 25%, #2a1a4a 30%)' },
     { id: 'racing', name: 'Rex’s Racing Flag', price: 0, unlock: 'beatrex', blurb: 'Rex handed it over himself. Through gritted teeth.', style: 'checker',
       colors: ['#1a1a22', '#ffd27a'], swatch: 'repeating-conic-gradient(#1a1a22 0 25%, #ffd27a 0 50%) 0 0 / 10px 10px' }
   ];
@@ -895,6 +897,7 @@ kbd {
     { id: 'crane', name: 'Crane operator', desc: 'Deliver Gus’s telescope on a cable, setting it down slower than 0.8 m/s.', reward: 'flame:sodium' },
     { id: 'loaded', name: 'Fully loaded', desc: 'Max out every upgrade in Gus’s workshop.', reward: 'hull:gus' },
     { id: 'longhaul', name: 'Long haul', desc: 'Clear 10 sites in a single endless run.', reward: 'flag:infinity' },
+    { id: 'dodger', name: 'Dodgeball', desc: 'Land on a pad in the middle of a meteor shower.', reward: 'flag:shooting' },
     { id: 'crewfav', name: 'Crew favorite', desc: 'Earn every side-mission star.', reward: 'flag:crew', prog: () => [sideStars(), SIDES.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
@@ -1300,6 +1303,14 @@ kbd {
         ['W', 'Three stars on Venus. Biscuit, I think we’ve been replaced. Happily.']] }
   });
   Object.assign(STORY, {
+    'shooting-stars': {
+      intro: [
+        ['F', 'Good news and bad news, pilot. The good news: there’s a meteor shower over the Moon tonight, and it’s beautiful.'],
+        ['G', 'The bad news: you’re flying through it! Each one leaves a red marker on the ground before it lands. Don’t be over a red marker.'],
+        ['F', 'The survey team is at the far LZ. Get there, land, and do not get hit by space. That’s an order.']],
+      react: [['F', 'You’re down and you’re dent-free. The survey team made a wish. It was “please don’t crash.” Granted.'],
+        ['G', 'Not a single scratch! I had the dent hammer ready and everything.'],
+        ['F', 'Flawless, through a meteor shower. I’m going to need a minute. And a coffee.']] },
     'swing-shift': {
       intro: [
         ['G', 'Pilot! I built a telescope for the kids at Moonbase Pim. It’s beautiful. It’s also too big to fit inside Biscuit.'],
@@ -1507,6 +1518,12 @@ kbd {
       spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 140, time: 75 },
       ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
       pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
+    { id: 'shooting-stars', name: 'Shooting Stars', side: true, giver: 'F', after: 'tranquility', world: 'moon', kind: 'land',
+      label: 'Meteor shower', fuel: 200, credits: 220, meteors: [1.6, 2.6, 2],
+      brief: 'A meteor shower is passing over the Moon tonight, and the survey team at the far LZ needs a ride before it gets worse. Red markers show where each meteor will land.',
+      spawn: { x: 24, y: 105, vx: 0 }, stars: { fuel: 90, time: 35 },
+      ground: [[0, 40], [20, 44], [44, 36], [70, 42], [96, 34], [120, 40], [146, 32], [170, 38], [192, 30], [216, 30], [240, 36]],
+      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 30 }] },
     { id: 'hopscotch', name: 'Hopscotch', side: true, giver: 'R', after: 'edge-of-the-world', world: 'vesta', kind: 'hop',
       label: 'Pad hopping', fuel: 420, credits: 280, rexTime: 90,
       brief: 'Rex Valor has challenged you: touch down on pads 1, 2 and 3 on Vesta, in order. He claims he did it in 90 seconds.',
@@ -1690,6 +1707,7 @@ kbd {
     for (const p of fixed) pts.push([p.x1, p.y], [p.x2, p.y]);
     waters = d.water ? d.water.map(w => ({ ...w })) : [];
     terrain = pts.sort((a, b) => a[0] - b[0]);
+    meteors = d.meteors ? planMeteors(d.meteors[0], d.meteors[1], d.meteors[2] || 3) : [];
     pads = d.pads.map(p => ({ ...p, label: p.id, mult: 1, move: p.move && { ...p.move, y0: p.move.y0 ?? p.y } }));
     shades = d.shade ? d.shade.map(s => s.slice()) : []; stormSeed = 0;
     ceilings = (d.ceilings || []).map(c => c.slice().sort((a, b) => a[0] - b[0]));
@@ -1871,6 +1889,7 @@ kbd {
     if (fuel < 5) award('fumes');
     if (world.hazard === 'storm' && stormState().on) award('blindfaith');
     if (pad.kind === 'rover') award('hitchhiker');
+    if (meteors.length) award('dodger');
     if (pad.kind === 'barge') award('sealegs');
     checkProgress();
   }
@@ -2192,6 +2211,7 @@ kbd {
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
       radio() { tone(2525, 'sine', 0, 0.12, 0.05); },
+      impact(dist) { const v = Math.max(0.15, 1 - dist / 120); burst(0, 0.6, 0.5 * v, 1600, 90); tone(85, 'sine', 0, 0.45, 0.5 * v, 35); },
       static() { burst(0, 0.7, 0.3, 7000, 1500); burst(0.25, 0.4, 0.15, 5000, 2500); },
       purr() { for (let i = 0; i < 6; i++) burst(i * 0.16, 0.12, 0.22, 260, 90); },   // the Quindar tone from Apollo-era radio
       erupt(lava) { burst(0, 1.4, lava ? 0.45 : 0.25, lava ? 1400 : 4000, lava ? 120 : 900); if (lava) tone(55, 'sawtooth', 0, 0.8, 0.25, 30); },
@@ -2227,6 +2247,7 @@ kbd {
   let terrain = [], pads = [], stars = [], dust = [], ceilings = [], vents = [], shades = [];
   let stormSeed = 0, stormWas = false, stormWarned = false;
   let waters = [];   // Earth's ocean, where the barge sails
+  let meteors = [];  // a meteor shower's schedule: when and where each one lands
   // game feel: screen shake, the pause before a result card, and the landing replay
   let shake = 0, holdCard = null, hold = null, replay = null;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2307,6 +2328,9 @@ kbd {
       }
     }
     terrain = h.map((y, i) => [i * step, y]);
+    meteors = [];
+    const showerRoll = rng();
+    if (!tut && level >= 2 && METEOR_WORLDS.includes(world.id) && showerRoll < 0.5) meteors = planMeteors(3.5, 6);
     windDir = rng() < 0.5 ? -1 : 1;
     windSeed = rrand(0, 100);
     // geysers / volcanic vents, kept clear of the pads
@@ -2352,6 +2376,43 @@ kbd {
     let y = groundAt(x);
     for (const p of pads) if (p.move && x >= p.x1 && x <= p.x2 && p.y > y) y = p.y;
     return y;
+  }
+  // ---- Meteor showers on airless worlds ----
+  // Each meteor's impact time and spot are set when the site is built (from rng), so daily and hot-seat
+  // pilots face the same shower. A red marker and a dotted track show where one will land before it arrives.
+  const METEOR_WORLDS = ['pluto', 'moon', 'vesta', 'mercury'];
+  const METEOR_V = 42, METEOR_WARN = 2.0;
+  function planMeteors(gapLo, gapHi, start = 4, until = 150) {
+    const list = [];
+    for (let t = start + rrand(0, gapHi); t < until; t += rrand(gapLo, gapHi)) {
+      const ang = rrand(0.45, 0.85), dir = rng() < 0.5 ? -1 : 1;
+      list.push({ t, x: rrand(6, W - 6), ang, dir });
+    }
+    return list;
+  }
+  const meteorFall = m => (H + 20 - groundAt(m.x)) / (METEOR_V * Math.cos(m.ang));   // seconds from sky to ground
+  function meteorPos(m, tau) {   // tau: seconds until impact
+    const d = METEOR_V * tau;
+    return [m.x - m.dir * Math.sin(m.ang) * d, groundAt(m.x) + Math.cos(m.ang) * d];
+  }
+  function meteorTick() {
+    for (const m of meteors) {
+      if (m.done) continue;
+      const tau = m.t - simT;
+      if (tau <= 0) {
+        m.done = true;
+        const gy = groundAt(m.x);
+        spawnDust(m.x, gy, 20, 1.6);
+        for (let k = 0; k < 22; k++) particles.push({ x: m.x, y: gy + 0.5, vx: rand(-9, 9), vy: rand(3, 13), g: world.g * 2 + 2, life: rand(0.5, 1.3), max: 1.3, kind: 'blast' });
+        if (lander && Math.abs(lander.x - m.x) < 40) addShake(3);
+        if (mode === 'flying') sfx.impact(lander ? Math.abs(lander.x - m.x) : 99);
+        continue;
+      }
+      if (mode === 'flying' && lander && !lander.grounded && tau < meteorFall(m)) {
+        const [mx, my] = meteorPos(m, tau);
+        if (Math.hypot(mx - lander.x, my - (lander.y - 0.5)) < 3.3) lander.meteorHit = true;
+      }
+    }
   }
   const ERUPT = 2.2, WARN = 1.6, PLUME_H = 42;
   // Mercury: sunlight boils fuel away except in shadow. Vesta: spin pushes outward. Ganymede: magnetic storms come and go.
@@ -2411,6 +2472,7 @@ kbd {
     flagPlant = null;
     flightT = 0; simT = 0; recording = [];
     for (const p of pads) delete p.parkT;   // a new attempt: the rover is back on the move
+    for (const m of meteors) m.done = false;
     lander = {
       x: spawnPlan.x, y: spawnPlan.y ?? H - 12,
       vx: spawnPlan.vx, vy: spawnPlan.vy ?? 0, a: 0,
@@ -2487,6 +2549,7 @@ kbd {
       L.x += L.vx * dt; L.y += L.vy * dt;
       if (L.x < 4) { L.x = 4; L.vx = Math.abs(L.vx) * 0.3; }
       if (L.x > W - 4) { L.x = W - 4; L.vx = -Math.abs(L.vx) * 0.3; }
+      if (meteors.length) { meteorTick(); if (L.meteorHit) { checkContact(); return; } }
       if (L.sling && slingStep(dt)) return;
       flightT += dt;
       const fi = Math.floor(flightT * 60);
@@ -2568,7 +2631,8 @@ kbd {
       const top = plumeTop(v, st);
       return [...hull, ...feet].some(([x, y]) => Math.abs(x - v.x) < 3.5 && y < top);
     });
-    if (!hullHit && !footHit && !roofHit && !lavaHit) return;
+    const rockHit = !!L.meteorHit;
+    if (!hullHit && !footHit && !roofHit && !lavaHit && !rockHit) return;
 
     const pad = pads.find(p => feet.every(([x]) => x >= p.x1 && x <= p.x2));
     const angDeg = Math.abs(L.a * 180 / Math.PI);
@@ -2576,13 +2640,13 @@ kbd {
     const vy = -(L.vy - (pad && pad.vy || 0)), vx = Math.abs(L.vx - (pad && pad.vx || 0));
     const stats = { vy, vx, ang: angDeg };
     // just lifted off a pad and sank back onto it (low gravity makes this easy): settle again instead of crashing
-    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && vy <= safeVy() && vx <= safeVx()) {
+    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && !rockHit && vy <= safeVy() && vx <= safeVx()) {
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.grounded = true;
       return;
     }
 
-    if (!hullHit && !roofHit && !lavaHit && pad && vy <= safeVy() && vx <= safeVx() && angDeg <= safeAng()) {
+    if (!hullHit && !roofHit && !lavaHit && !rockHit && pad && vy <= safeVy() && vx <= safeVx() && angDeg <= safeAng()) {
       if (pad.move && pad.parkT == null) { pad.parkT = simT; updateMovers(); }   // the driver hits the brakes
       if (tut) { tutorialLanded(pad, vy, vx, angDeg); return; }
       if (mission) { missionTouchdown(pad, vy, vx, angDeg); return; }
@@ -2617,6 +2681,7 @@ kbd {
       const reasons = [];
       if (hullHit && !footHit) reasons.push('hull struck terrain');
       if (lavaHit) reasons.push('caught in a volcanic eruption');
+      if (rockHit) reasons.push('hit by a meteor');
       if (roofHit) reasons.push('scraped the rock overhead');
       const wet = waters.some(w => L.x > w.x1 && L.x < w.x2) && !pad;
       if (wet) reasons.push('splashed into the ocean');
@@ -2940,6 +3005,7 @@ kbd {
       if (d.comfort) steps.push('Keep Apogee comfortable: turn as little as you can, stay within 20° of level, and keep under 6 m/s');
       if (d.melt) steps.push('With the ice cream aboard, sunlight melts it. Shadows stop the melting');
       if (d.pads.some(p => p.move)) steps.push('The pad is moving. Match its speed before you touch down: only your speed relative to the deck counts');
+      if (d.meteors) steps.push('Meteors are falling. A red marker and a dotted track show where each one will land: don’t be in the way');
       if (d.storm) steps.push('The storm scrambles your instruments the whole way down. Watch the lander, not the numbers');
       if (world.hazard === 'heat') steps.push('Sunlight boils fuel out of your tank. In the shadows, it stops');
       if (world.hazard === 'spin') steps.push('Vesta’s spin pushes you away from the middle, harder near the edges');
@@ -3378,6 +3444,7 @@ kbd {
       add(crashes > 0, `Biscuit’s been rebuilt ${plural(crashes, 'time')}. I keep every bent bolt in a jar. The jar is a bucket now.`);
       add(!!got.feather, 'That feather landing! I felt it in my soul. And on my seismograph, barely.');
       add(ms('ride-along'), 'The Pim rover’s brakes finally arrived. They installed them backwards. It now only drives in reverse.');
+      add(ms('shooting-stars'), 'I made a wish during your meteor shower run. I wished you wouldn’t crash. You’re welcome.');
       add(ms('spa-day'), 'Biscuit loved her spa day. I can tell, because she only leaked a little bit yesterday.');
       add(!!got.rival, 'Someone said you beat a friend in hot-seat. I printed the scoreboard. It’s on the fridge.');
       add(!!got.collector, 'You’ve bought Biscuit so many paint jobs that she has a wardrobe now. I built her a closet.');
@@ -3811,6 +3878,7 @@ kbd {
     'hull:rover': 'Rover Yellow! Beep beep. I’m legally required to say beep beep.',
     'flame:sodium': 'Sodium Orange. Very construction-site. I’m putting on a hard hat.',
     'flag:infinity': 'The Infinity flag. For the pilot who doesn’t know when to stop. Respectfully.',
+    'flag:shooting': 'The Shooting Star flag. Earned the hard way: by not getting hit by one.',
     'flag:nautical': 'The Nautical flag. Ahoy, Captain Pilot.',
     'hull:gus': 'The Gus Special! My colors! On Biscuit! I need to sit down.',
     'hull:apex': 'Rex’s paint job. Don’t tell him it looks good. He’ll never stop talking.',
@@ -4181,6 +4249,7 @@ kbd {
     if (match) { showToast(`${names[cur()]}’s turn · round ${match.round} of ${ROUNDS}`); sfx.turn(); }
     if (daily) showToast(`Daily · site ${daily.site} of ${DAILY_SITES}`);
     if (mission) showToast(goalText());
+    else if (meteors.length && !tut) showToast('Meteor shower! Red markers show where they’ll land', 2600);
     if (tut) renderCoach();
   }
   function advance() {
@@ -4366,6 +4435,7 @@ kbd {
       }
       if (mission) drawMissionProps(time);
       if (vents.length) drawVents(time);
+      if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
     }
 
     const sk = skin();
@@ -4613,6 +4683,33 @@ kbd {
       ctx.fillText(`${hit.vy.toFixed(1)} m/s${pad ? '' : ' · off pad'}`, X, Y - 10);
     }
     ctx.restore();
+  }
+  // meteors: a pulsing red target and a dotted track while one is on its way, then a bright streak
+  function drawMeteors(time) {
+    for (const m of meteors) {
+      if (m.done) continue;
+      const tau = m.t - simT, fall = meteorFall(m);
+      if (tau > fall + METEOR_WARN) continue;
+      const gx = sx(m.x), gy = sy(groundAt(m.x));
+      const pulse = 0.5 + 0.5 * Math.sin(time / 90);
+      ctx.save();
+      ctx.strokeStyle = `rgba(255, 107, 94, ${0.45 + 0.4 * pulse})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(gx, gy, 3 * scale, 0.9 * scale, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx - 1.2 * scale, gy); ctx.lineTo(gx + 1.2 * scale, gy); ctx.stroke();
+      // the track it will follow
+      const [ex, ey] = meteorPos(m, fall);
+      ctx.setLineDash([3, 6]); ctx.strokeStyle = 'rgba(255, 180, 120, 0.28)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(sx(ex), sy(ey)); ctx.lineTo(gx, gy); ctx.stroke(); ctx.setLineDash([]);
+      if (tau < fall) {
+        const [mx, my] = meteorPos(m, tau), [tx, ty] = meteorPos(m, tau + 0.35);
+        const g = ctx.createLinearGradient(sx(tx), sy(ty), sx(mx), sy(my));
+        g.addColorStop(0, 'rgba(255, 140, 60, 0)'); g.addColorStop(1, 'rgba(255, 220, 160, 0.95)');
+        ctx.strokeStyle = g; ctx.lineWidth = Math.max(2, 0.9 * scale); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(sx(tx), sy(ty)); ctx.lineTo(sx(mx), sy(my)); ctx.stroke();
+        ctx.fillStyle = '#fff4e0'; ctx.beginPath(); ctx.arc(sx(mx), sy(my), Math.max(2.5, 0.7 * scale), 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    }
   }
   // the sea on Earth: deep blue with a moving wave line
   function drawWater(time) {
