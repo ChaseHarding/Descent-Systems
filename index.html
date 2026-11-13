@@ -2730,7 +2730,8 @@ kbd {
   function runPickWorld() {
     const tier = run.site <= 2 ? 1 : run.site <= 5 ? 2 : 3;
     const pool = RUN_WORLDS.slice(0, tier).flat().filter(id => id !== (world && world.id) || tier === 0);
-    return WORLDS.find(w => w.id === pool[Math.floor(Math.random() * pool.length)]);
+    const id = pool[Math.floor(Math.random() * pool.length)];   // pick once, then look it up
+    return WORLDS.find(w => w.id === id) || WORLDS[1];
   }
   function startRun() {
     match = null; daily = null; mission = null; tut = null; ghost = null; rng = Math.random;
@@ -2763,6 +2764,7 @@ kbd {
     setMode('runPerk');
   }
   function runChoose(id) {
+    if (mode !== 'runPerk' || !run) return;   // a double-click lands here twice: only the first one counts
     const pk = PERKS.find(x => x.id === id);
     run.perks[id] = (run.perks[id] || 0) + 1;
     if (id === 'spare') run.lives++;
