@@ -177,6 +177,15 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
+### Bulletin board
+
+Click the corkboard on the break room wall, or the **Bulletin board** button, to read the notes the crew pins up. They keep track of you:
+
+- Dottie's pad notice ("WHO KEEPS LANDING ON THE ×2 PAD") counts which free-flight pads you land on, with tally marks.
+- **Landing of the week** shows your best free-flight landing: the score, the world, the pad and how softly you touched down.
+- **Days since last crash** resets every time you crash.
+- A lost-cat poster for Apogee, a karaoke sign-up sheet (with your name on it if you set one in hot-seat), Gus's yogurt experiment, today's daily challenge and a progress chart. Some notes change once you've finished certain missions.
+
 ## Hot-seat mode
 
 Switch to **Hot-seat · 2P** on the start screen and enter both names.
@@ -247,4 +256,4 @@ The `media/` folder holds the images used in this README: `landing.gif`, `crew.p
 
 Progress is saved in your browser's local storage, so it stays on that device and browser. Clearing site data resets it, and players sharing one browser share one wallet.
 
-Fonts are [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch) and [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono), loaded from Google Fonts.
+Fonts are [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch), [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) and [Caveat](https://fonts.google.com/specimen/Caveat) (the handwriting on the bulletin board), loaded from Google Fonts.
