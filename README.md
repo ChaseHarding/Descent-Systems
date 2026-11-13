@@ -18,6 +18,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: four optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger and a survey route through the clouds of Venus
+- **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
@@ -42,7 +43,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Menus
 
-The main menu has four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. Below them are links to the **Hangar**, **Badges**, **Settings** and **How to play**, which replays the tutorial.
+The main menu has four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. Below them are links to the **Hangar**, **Badges**, **Break room**, **Settings** and **How to play**, which replays the tutorial.
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
@@ -167,6 +168,14 @@ Open **Badges** from the start screen to see your progress. Fourteen badges unlo
 | Cat whisperer | Land Stowaway with Apogee at 75% comfort or better | Paw Print flag |
 | Surveyor | Fly Wren's whole survey route on Venus | Wren's Original hull |
 | Crew favorite | Earn all 12 side-mission stars | The Crew flag |
+
+## Break room
+
+Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
+
+- Click someone, or use the buttons below the scene, to hear what's on their mind. Their lines change as you play: Dottie keeps a tally of your crashes, Gus comments on your feather landings and paint jobs, and side missions you've finished come up in conversation.
+- Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
+- Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
 ## Hot-seat mode
 
