@@ -162,6 +162,47 @@ kbd {
 /* Hangar */
 .card .balance { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; color: var(--flame); font-variant-numeric: tabular-nums; }
 .preview { display: block; width: 100%; max-width: 320px; aspect-ratio: 3 / 2; border: 1px solid var(--space-2); border-radius: 6px; }
+/* Hangar: the garage on the left, the shelves on the right */
+.card.wide { max-width: 58rem; }
+.hangar { width: 100%; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.hangar .top { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.bay { width: 100%; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; text-align: left; }
+.bay .col { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.garage { display: block; width: 100%; aspect-ratio: 4 / 3; border: 1px solid var(--space-2); border-radius: 8px; background: var(--space); }
+.hangar .radio.quote { max-width: none; padding: 8px 10px; }
+.hangar .radio .face { width: 44px; height: 44px; }
+.card .hangar .radio p { font-size: 13px; min-height: 2.6em; }
+.look { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; font-size: 12px; }
+.look h3 { margin: 0; font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); }
+.look .row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.look .row .k { color: var(--regolith-dim); text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; }
+.look .row .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.look .row .v { font-variant-numeric: tabular-nums; color: var(--regolith-dim); }
+.look .row .v.ok { color: var(--ok); }
+.look .row .v.lock { color: var(--bad); }
+.look .total { display: flex; justify-content: space-between; border-top: 1px solid var(--space-2); padding-top: 6px; font-weight: 500; }
+.look .btns { justify-content: flex-start; }
+.look .btn { padding: 8px 14px; font-size: 12px; }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--space); border: 1px solid var(--space-2); border-radius: 8px; }
+.tabs button { padding: 8px 4px; border: 0; border-radius: 5px; background: none; color: var(--regolith-dim); cursor: pointer; font-family: var(--f-display); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.tabs button[aria-selected="true"] { background: var(--space-2); color: var(--flame); }
+.tabs button:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }
+.tabs small { font-family: var(--f-mono); font-weight: 400; letter-spacing: 0; color: var(--regolith-dim); }
+.bay .items { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.item .sw.big { height: 22px; }
+.item.locked { opacity: 0.75; }
+.item.locked span { color: var(--regolith-dim); }
+.detail { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; font-size: 12px; }
+.detail b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.04em; }
+.card .detail p { font-size: 12px; color: var(--regolith-dim); }
+.detail .bar { display: block; height: 5px; background: var(--space-2); border-radius: 3px; overflow: hidden; }
+.detail .bar i { display: block; height: 100%; background: var(--flame); }
+.detail .btns { justify-content: flex-start; }
+.detail .btn { padding: 8px 14px; font-size: 12px; }
+@media (max-width: 720px) {
+  .bay { grid-template-columns: minmax(0, 1fr); }
+  .garage { aspect-ratio: 16 / 9; }
+}
 .deal { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: center; font-size: 13px; }
 .deal span { color: var(--regolith-dim); }
 .deal b { color: var(--regolith); font-weight: 500; }
@@ -309,7 +350,7 @@ kbd {
 .card h1.title { font-size: clamp(34px, 8vw, 64px); }
 .card .tagline { color: var(--regolith-dim); margin-top: -4px; }
 .menu { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 480px) { .menu { grid-template-columns: minmax(0, 1fr); } }
+
 /* The two places you can visit: big cards with live previews */
 .places { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .place {
@@ -326,7 +367,7 @@ kbd {
 .place:hover b { color: var(--flame); }
 .place:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 .place .pl { position: relative; }
-.place .dot { position: absolute; top: 10px; right: 10px; font-style: normal; white-space: nowrap; line-height: 1.4; width: max-content; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.place .dot { position: absolute; top: -10px; right: 8px; font-style: normal; white-space: nowrap; line-height: 1.4; width: max-content; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
 @media (max-width: 480px) { .place b { font-size: 15px; } .place .pl { padding: 8px 10px 10px; } }
 .mode {
   min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
@@ -338,6 +379,13 @@ kbd {
 .mode span { font-size: 12px; color: var(--regolith-dim); }
 .mode:hover { border-color: var(--flame); }
 .mode:hover b { color: var(--flame); }
+@media (max-width: 480px) {
+  .menu { gap: 8px; }
+  .mode { padding: 10px 12px; }
+  .mode b { font-size: 15px; }
+  .mode span { font-size: 11px; line-height: 1.35; }
+}
+@media (max-width: 360px) { .menu { grid-template-columns: minmax(0, 1fr); } .places { gap: 8px; } }
 .newbie {
   width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px;
   padding: 12px; cursor: pointer; border: 0; border-radius: 8px;
@@ -2405,6 +2453,7 @@ kbd {
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log'];
   const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    if (m !== 'hangar') card.classList.remove('wide');
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -2444,6 +2493,7 @@ kbd {
     if (m === 'hangar') {
       trying = { ...equip };
       hangarSel = { kind: 'hull', id: equip.hull };
+      hangarLine0 = null;
       renderHangar();
       return;
     }
@@ -3432,6 +3482,66 @@ kbd {
     setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
+  // Gus has an opinion about everything you put on Biscuit
+  const GUS_SAYS = {
+    'hull:standard': 'Factory grey. Classic. Biscuit looks like she means business.',
+    'hull:white': 'Mission White! Very official. Very astronaut-y.',
+    'hull:gold': 'Ooh, Gold Foil. Fancy. She’s going to be unbearable now.',
+    'hull:rust': 'Mars Rust. She looks like she’s been places. Because she has.',
+    'hull:amber': 'Titan Amber. Warm, cozy, slightly methane-scented.',
+    'hull:chrome': 'Chrome! I can see my face in her. I look tired.',
+    'hull:grand': 'The Grand Tour finish. Every world, and she’s got the paint to prove it.',
+    'hull:champion': 'The Champion hull. Somewhere, your hot-seat rival is weeping.',
+    'hull:pathfinder': 'Pathfinder! Campaign colors. I teared up a little.',
+    'hull:spa': 'Spa Day. She’s glowing. Literally, it’s the paint.',
+    'hull:original': 'Wren’s original colors. Oh. Oh, that’s lovely. Give me a second.',
+    'hull:vesta': 'The Asteroid hull. Pre-scuffed! Saves me a lot of work, honestly.',
+    'hull:apex': 'Rex’s paint job. Don’t tell him it looks good. He’ll never stop talking.',
+    'flame:standard': 'The standard flame. Hot, orange, dependable. Like me.',
+    'flame:blue': 'Methane Blue. Cool color, very hot fire. Science!',
+    'flame:green': 'Boron Green! Very spooky. Very sci-fi.',
+    'flame:white': 'White-Hot. Don’t look directly at it. I did. I’m fine.',
+    'flame:rainbow': 'A rainbow flame. Biscuit has never been happier.',
+    'flame:plasma': 'Pulsing Plasma. It hums. I don’t know why it hums.',
+    'flame:feather': 'Feather Light, for the gentlest pilot in the system. That’s you.',
+    'flame:bullseye': 'The Bullseye flame! For people who never miss. Show-off.',
+    'flame:comet': 'Comet Tail. She leaves a little sparkle wherever she goes.',
+    'flame:espresso': 'Espresso flame. Dottie keeps sniffing the exhaust.',
+    'flame:solar': 'Solar Flare. Mercury-grade. Please don’t point it at me.',
+    'flag:pennant': 'The good old pennant. Simple. Honest. Flappy.',
+    'flag:jolly': 'A pirate flag? Arr. I mean: approved.',
+    'flag:banner': 'The Waving Banner. It waves in a vacuum. Don’t ask me how.',
+    'flag:paw': 'Apogee’s paw print. She’s pretending she doesn’t care. She cares.',
+    'flag:crew': 'The crew flag! That’s us! That’s all of us!',
+    'flag:aurora': 'The Aurora flag. Dottie stared at it for a full minute.',
+    'flag:racing': 'Rex’s racing flag. He handed it over through gritted teeth. I filmed it.'
+  };
+  const gusOn = (kind, it) => GUS_SAYS[kind + ':' + it.id] || `${it.name}? Good choice. Biscuit approves.`;
+  let hangarLine0 = null;
+  function gusSay(text) {
+    hangarLine0 = text;
+    const box = $('gusSay');
+    if (!box) return;
+    const face = box.querySelector('canvas.face'), p = box.querySelector('p');
+    p.textContent = text;
+    if (reduceMotion || !face) return;
+    let k = 0;
+    clearInterval(gusSay.t);
+    gusSay.t = setInterval(() => {
+      k++;
+      drawFace(face, 'G', 'happy', k % 2 === 1, false);
+      if (k > 7) { clearInterval(gusSay.t); drawFace(face, 'G', 'happy', false, false); }
+    }, 90);
+  }
+  // how the badge that unlocks an item is coming along
+  function badgeHint(it) {
+    const a = ACH.find(x => x.id === it.unlock);
+    if (!a) return '';
+    const pr = a.prog ? a.prog() : null;
+    return `<p>Badge reward. Earn <b style="font-size:12px">${a.name}</b>: ${a.desc}</p>
+      ${pr ? `<span class="bar"><i style="width:${Math.min(100, Math.round(pr[0] / pr[1] * 100))}%"></i></span><p>${fmt(Math.min(pr[0], pr[1]))} of ${fmt(pr[1])}</p>` : ''}`;
+  }
+
   function renderHangar(focus) {
     const shelf = (kind, label) => `<section class="shelf"><h2>${label}</h2><div class="items">${
       itemsOf(kind).map(it => {
@@ -3449,20 +3559,73 @@ kbd {
     else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more</button>`;
 
-    card.innerHTML = `<h1 class="good">Hangar</h1>
-      <p class="balance">${fmt(credits)} credits</p>
-      <canvas class="preview" id="preview" aria-label="Lander preview"></canvas>
-      <div class="deal"><span><b>${it.name}</b> · ${it.blurb}</span>${action}</div>
-      ${shelf('hull', 'Hull finish')}
-      ${shelf('flame', 'Engine flame')}
-      ${shelf('flag', 'Landing flag')}
+    // the whole look being tried on: what's owned, what it costs, what's locked
+    const KINDS = [['hull', 'Hull'], ['flame', 'Flame'], ['flag', 'Flag']];
+    const look = KINDS.map(([k, label]) => {
+      const x = findItem(k, trying[k]), o = owned.has(k + ':' + x.id);
+      return { k, label, x, own: o, locked: !o && !!x.unlock, cost: o || x.unlock ? 0 : x.price };
+    });
+    const total = look.reduce((n, r) => n + r.cost, 0), anyLocked = look.some(r => r.locked);
+    const same = look.every(r => equip[r.k] === r.x.id);
+    let lookBtn;
+    if (anyLocked) lookBtn = `<button class="btn" disabled>Includes a locked reward</button>`;
+    else if (same) lookBtn = `<button class="btn" disabled>This is your current look</button>`;
+    else if (!total) lookBtn = `<button class="btn" id="lookAct">Equip this look</button>`;
+    else if (credits >= total) lookBtn = `<button class="btn" id="lookAct">Buy &amp; equip · ${fmt(total)} cr</button>`;
+    else lookBtn = `<button class="btn" disabled>Need ${fmt(total - credits)} more</button>`;
+    const tab = hangarSel.kind;
+    const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
+    const tile = (kind, x) => {
+      const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? 'Locked · badge' : `${fmt(x.price)} cr`;
+      return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
+        <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
+    };
+    if (!hangarLine0) hangarLine0 = total || !same ? gusOn(hangarSel.kind, it) : 'Welcome to the hangar! Try anything on. Biscuit doesn’t mind, she loves attention.';
+
+    card.classList.add('wide');
+    card.innerHTML = `<div class="hangar">
+      <div class="top"><h1 class="good">Hangar</h1><p class="balance">${fmt(credits)} credits</p></div>
+      <div class="bay">
+        <div class="col">
+          <canvas class="garage" id="preview" aria-label="Biscuit in the hangar, wearing the look you're trying on"></canvas>
+          <div class="radio quote" id="gusSay">${faceTag('G', 'Pilot!')}<div class="said"><span class="who" style="color:${SPEAKERS.G.color}">${SPEAKERS.G.name}</span><p>${esc(hangarLine0)}</p></div></div>
+          <div class="look">
+            <h3>Your look</h3>
+            ${look.map(r => `<div class="row"><span class="k">${r.label}</span><span class="n">${r.x.name}</span>
+              <span class="v${r.own ? (equip[r.k] === r.x.id ? ' ok' : '') : r.locked ? ' lock' : ''}">${r.own ? (equip[r.k] === r.x.id ? 'Equipped' : 'Owned') : r.locked ? 'Locked' : `${fmt(r.x.price)} cr`}</span></div>`).join('')}
+            <div class="total"><span>Total</span><span>${total ? `${fmt(total)} cr` : 'Free'}</span></div>
+            <div class="btns">${lookBtn}${same ? '' : '<button class="btn ghost" id="lookReset">Reset</button>'}</div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="tabs" role="tablist" aria-label="Cosmetic type">${KINDS.map(([k, label]) =>
+            `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${label} <small>${ownedCount(k)}/${itemsOf(k).length}</small></button>`).join('')}</div>
+          <div class="items" role="tabpanel">${itemsOf(tab).map(x => tile(tab, x)).join('')}</div>
+          <div class="detail">
+            <b>${it.name}</b>
+            <p>${it.blurb}</p>
+            ${!own && it.unlock ? badgeHint(it) : ''}
+            <div class="btns">${action}</div>
+          </div>
+        </div>
+      </div>
       <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
-      <button class="btn ghost" id="back">Main menu</button>`;
+      <button class="btn ghost" id="back">Main menu</button>
+    </div>`;
+    paintFaces(card);
+    card.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.tab;
+      hangarSel = { kind: k, id: trying[k] };
+      renderHangar(`[data-tab="${k}"]`);
+    }));
 
     card.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
       const { kind, id } = b.dataset;
       trying[kind] = id;
       hangarSel = { kind, id };
+      const x = findItem(kind, id);
+      hangarLine0 = !owned.has(kind + ':' + id) && x.unlock ? `Ooh, the ${x.name}. That one’s a badge reward. Earn it and it’s yours, free.` : gusOn(kind, x);
       renderHangar(`.item[data-kind="${kind}"][data-id="${id}"]`);
     }));
     const act = $('act');
@@ -3474,18 +3637,120 @@ kbd {
         owned.add(key);
         showToast(`Bought ${it.name}`);
         sfx.coin();
+        hangarLine0 = `Sold! ${gusOn(kind, it)}`;
       } else {
         showToast(`${it.name} equipped`);
         sfx.click();
+        hangarLine0 = gusOn(kind, it);
       }
       equip[kind] = it.id;
       saveCosmetics();
       checkProgress();
       renderHangar(`.item[data-kind="${kind}"][data-id="${it.id}"]`);
     });
+    const la = $('lookAct');
+    if (la) la.addEventListener('click', () => {
+      let spent = 0;
+      for (const [k] of [['hull'], ['flame'], ['flag']]) {
+        const x = findItem(k, trying[k]), key = k + ':' + x.id;
+        if (!owned.has(key)) { if (x.unlock) return; spent += x.price; }
+      }
+      if (spent > credits) return;
+      credits -= spent;
+      for (const k of ['hull', 'flame', 'flag']) { owned.add(k + ':' + trying[k]); equip[k] = trying[k]; }
+      saveCosmetics();
+      checkProgress();
+      if (spent) { sfx.coin(); showToast(`New look: ${fmt(spent)} cr`); hangarLine0 = 'A whole new look! Biscuit is doing a little spin. She can’t actually spin. Emotionally, she’s spinning.'; }
+      else { sfx.click(); showToast('Look equipped'); hangarLine0 = 'Looking sharp. Ready to fly.'; }
+      renderHangar('#back');
+    });
+    const lr = $('lookReset');
+    if (lr) lr.addEventListener('click', () => {
+      trying = { ...equip };
+      hangarSel = { kind: hangarSel.kind, id: equip[hangarSel.kind] };
+      hangarLine0 = 'Back to the usual. Comfortable. I get it.';
+      renderHangar(`[data-tab="${hangarSel.kind}"]`);
+    });
     $('back').addEventListener('click', () => { trying = null; setMode('title'); });
+    if (!focus && hangarLine0) setTimeout(() => gusSay(hangarLine0), 0);
+    else if (hangarLine0 && /^\.item|^#back|^\[data/.test(focus)) setTimeout(() => gusSay(hangarLine0), 0);
     const f = focus && card.querySelector(focus);
     if (f) f.focus({ preventScroll: true });
+  }
+
+  // The hangar: a big door open to the sky of the world you flew last, Biscuit hovering over the pad, Gus at his workbench
+  let garageGus = null;
+  function drawGarage(time) {
+    const pv = $('preview');
+    if (!pv) return;
+    const w = pv.clientWidth, h = pv.clientHeight;
+    if (!w || !h) return;
+    const pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+    if (pv.width !== pw || pv.height !== ph) { pv.width = pw; pv.height = ph; }
+    const c = pv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const fy = h * 0.78, u = h / 100;
+    // back wall with panels and rivets
+    c.fillStyle = '#121a33'; c.fillRect(0, 0, w, fy);
+    c.fillStyle = '#16203e';
+    for (let x = 0; x < w; x += 18 * u) c.fillRect(x, 0, 1, fy);
+    for (let y = 14 * u; y < fy; y += 18 * u) c.fillRect(0, y, w, 1);
+    // the big door, open onto the world outside
+    const dx = w * 0.24, dw = w * 0.52, dt = 10 * u;
+    const sky = c.createLinearGradient(0, dt, 0, fy);
+    sky.addColorStop(0, world.sky[0]); sky.addColorStop(1, world.sky[1]);
+    c.fillStyle = sky; c.fillRect(dx, dt, dw, fy - dt);
+    if (world.stars) { c.fillStyle = col.reg; for (let i = 0; i < 22; i++) { const sx2 = dx + ((i * 73) % 100) / 100 * dw, sy2 = dt + ((i * 37) % 60) / 100 * (fy - dt); c.globalAlpha = world.stars * (0.4 + 0.4 * Math.sin(time / 800 + i)); c.fillRect(sx2, sy2, 1.2, 1.2); } c.globalAlpha = 1; }
+    c.fillStyle = world.orb; c.beginPath(); c.arc(dx + dw * 0.78, dt + (fy - dt) * 0.28, 6 * u, 0, Math.PI * 2); c.fill();
+    c.fillStyle = world.ground;
+    c.beginPath(); c.moveTo(dx, fy); c.lineTo(dx, fy - 7 * u); c.lineTo(dx + dw * 0.3, fy - 11 * u); c.lineTo(dx + dw * 0.55, fy - 6 * u); c.lineTo(dx + dw * 0.8, fy - 10 * u); c.lineTo(dx + dw, fy - 5 * u); c.lineTo(dx + dw, fy); c.fill();
+    // door frame with hazard stripes along the top
+    c.fillStyle = '#2a3556'; c.fillRect(dx - 3 * u, dt - 3 * u, 3 * u, fy - dt + 3 * u); c.fillRect(dx + dw, dt - 3 * u, 3 * u, fy - dt + 3 * u);
+    c.save(); c.beginPath(); c.rect(dx - 3 * u, dt - 5 * u, dw + 6 * u, 5 * u); c.clip();
+    c.fillStyle = '#ffb547'; c.fillRect(dx - 3 * u, dt - 5 * u, dw + 6 * u, 5 * u);
+    c.fillStyle = '#1a1a22';
+    for (let x = dx - 10 * u; x < dx + dw + 10 * u; x += 6 * u) { c.beginPath(); c.moveTo(x, dt); c.lineTo(x + 3 * u, dt); c.lineTo(x + 6 * u, dt - 5 * u); c.lineTo(x + 3 * u, dt - 5 * u); c.fill(); }
+    c.restore();
+    // hanging lamps and their light
+    for (const lx of [w * 0.12, w * 0.88]) {
+      c.fillStyle = '#2a3556'; c.fillRect(lx - 0.5, 0, 1, 6 * u);
+      c.fillStyle = '#3d4a6e'; c.beginPath(); c.moveTo(lx - 4 * u, 9 * u); c.lineTo(lx + 4 * u, 9 * u); c.lineTo(lx + 2 * u, 6 * u); c.lineTo(lx - 2 * u, 6 * u); c.fill();
+      const cone = c.createLinearGradient(0, 9 * u, 0, fy);
+      cone.addColorStop(0, 'rgba(255, 220, 160, 0.16)'); cone.addColorStop(1, 'rgba(255, 220, 160, 0)');
+      c.fillStyle = cone; c.beginPath(); c.moveTo(lx - 4 * u, 9 * u); c.lineTo(lx + 4 * u, 9 * u); c.lineTo(lx + 16 * u, fy); c.lineTo(lx - 16 * u, fy); c.fill();
+    }
+    // floor, pad and blinking pad lights
+    const fl = c.createLinearGradient(0, fy, 0, h);
+    fl.addColorStop(0, '#1a2240'); fl.addColorStop(1, '#0b1022');
+    c.fillStyle = fl; c.fillRect(0, fy, w, h - fy);
+    c.fillStyle = '#2a3556'; c.fillRect(0, fy, w, 1.5);
+    const px0 = w * 0.33, px1 = w * 0.67, py = fy + 6 * u;
+    c.fillStyle = 'rgba(255, 181, 71, 0.12)'; c.beginPath(); c.ellipse(w / 2, py, (px1 - px0) / 2, 4 * u, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = col.flame; c.lineWidth = 2; c.beginPath(); c.ellipse(w / 2, py, (px1 - px0) / 2, 4 * u, 0, 0, Math.PI * 2); c.stroke();
+    for (let i = 0; i < 6; i++) {
+      const a = i / 6 * Math.PI * 2, on = Math.floor(time / 300 + i) % 6 === 0;
+      c.fillStyle = on ? '#fff2c0' : '#7a5a22';
+      c.beginPath(); c.arc(w / 2 + Math.cos(a) * (px1 - px0) / 2, py + Math.sin(a) * 4 * u, 1.4 * u, 0, Math.PI * 2); c.fill();
+    }
+    // Gus at his workbench, with a toolbox and a mug
+    if (!garageGus) { garageGus = document.createElement('canvas'); garageGus.width = garageGus.height = 32; drawFace(garageGus, 'G', 'happy', false, false, true); }
+    const gs = Math.max(1, Math.floor(26 * u / 32 * 2) / 2), gx = w * 0.03, gy0 = fy - 24 * u - 32 * gs * 0.5;
+    c.imageSmoothingEnabled = false;
+    c.drawImage(garageGus, gx, fy - 14 * u - 32 * gs, 32 * gs, 32 * gs);
+    c.fillStyle = '#5a4636'; c.fillRect(0, fy - 14 * u, w * 0.2, 2.5 * u);
+    c.fillStyle = '#3d2f24'; c.fillRect(0, fy - 11.5 * u, w * 0.2, 11.5 * u);
+    c.fillStyle = '#ff6b5e'; c.fillRect(w * 0.11, fy - 18 * u, 7 * u, 4 * u); c.fillStyle = '#c94a40'; c.fillRect(w * 0.11, fy - 18 * u, 7 * u, 1 * u);
+    c.fillStyle = '#9fe0b8'; c.fillRect(w * 0.025, fy - 17 * u, 3 * u, 3 * u);
+    // the flag, planted on the right
+    const s = h / 26;
+    c.save(); c.translate(w * 0.86, fy + 2 * u); c.scale(s * 0.8, s * 0.8); paintFlag(c, skin().flag, time, 1, 1.4 / s); c.restore();
+    // Biscuit, hovering over the pad with the engine lit
+    c.save();
+    c.translate(w / 2, fy - 16 * u + Math.sin(time / 700) * s * 0.35);
+    c.rotate(Math.sin(time / 1300) * 0.06);
+    c.scale(s, s);
+    paintLander(c, { firing: true }, skin(), time, 1.6 / s);
+    c.restore();
   }
 
   function drawPreview(time, pv = $('preview')) {
@@ -4215,7 +4480,7 @@ kbd {
     sfx.music(musicMood(), musicIntensity(), mode === 'paused');
     updateCamera(frameDt);
     draw(now);
-    if (mode === 'hangar') drawPreview(now);
+    if (mode === 'hangar') drawGarage(now);
     if (mode === 'title') {
       drawPreview(now, $('hangarThumb'));
       if (!thumbRoom) thumbRoom = { faces: crewFaces(), cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null };
