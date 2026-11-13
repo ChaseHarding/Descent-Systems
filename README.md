@@ -10,21 +10,21 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Features
 
-- **Eight worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io and blinding clouds on Venus
+- **Eleven worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io, blinding clouds on Venus, fuel-boiling sunlight on Mercury, a spinning asteroid and instrument-scrambling storms on Ganymede
 - **Guided tutorial** that teaches a first landing step by step
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
-- **Mission campaign**: 12 hand-built missions with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
-- **Side missions**: four optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger and a survey route through the clouds of Venus
+- **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
+- **Side missions**: ten optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **23 badges** to earn, 14 of which unlock exclusive cosmetics
+- **28 badges** to earn, 19 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -34,10 +34,13 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 | World | Gravity | Conditions | Score bonus |
 |---|---|---|---|
 | Pluto | 0.62 m/s² | No atmosphere, slow and floaty | ×0.75 |
+| Vesta | 0.25 m/s² | A tiny asteroid: barely any gravity, ground that curves away at the edges, and a spin that pushes you outward from the middle | ×1.25 |
 | Moon | 1.62 m/s² | No atmosphere, the classic | ×1 |
 | Europa | 1.31 m/s² | Vapor geysers burst from the ice and shove you upward | ×1.25 |
+| Ganymede | 1.43 m/s² | Auroras overhead. Magnetic storms roll in every so often and scramble your instruments, so you land by eye | ×1.5 |
 | Titan | 1.35 m/s² | Thick air drag, light wind | ×1 |
 | Io | 1.80 m/s² | Volcanic vents glow, then erupt. Touching an eruption is a crash | ×1.75 |
+| Mercury | 3.70 m/s² | A huge sun and no air. Sunlight boils fuel out of the tank, so hop between the shadows of crater rims | ×1.75 |
 | Mars | 3.71 m/s² | Thin air, gusting dust storms | ×1.5 |
 | Earth | 9.81 m/s² | Fast falls, strong wind | ×2.5 |
 | Venus | 8.87 m/s² | Extreme mode: crushing air, hurricane winds, and clouds that hide everything except the pad beacons | ×3 |
@@ -100,7 +103,9 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the start screen. The campaign has 12 hand-built missions across all five worlds, and finishing one unlocks the next.
+Open **Missions** from the start screen. The campaign has 18 hand-built missions in two acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light.
+
+**Act 1 · The Signal**
 
 | # | Mission | World | Type |
 |---|---|---|---|
@@ -117,14 +122,26 @@ Open **Missions** from the start screen. The campaign has 12 hand-built missions
 | 11 | The Needle | Earth | Canyon |
 | 12 | Last Light | Earth | Rescue |
 
+**Act 2 · New Frontiers**
+
+| # | Mission | World | Type |
+|---|---|---|---|
+| 13 | Core Sample | Vesta | Cargo |
+| 14 | Edge of the World | Vesta | Precision |
+| 15 | Relay Run | Ganymede | Cargo |
+| 16 | Mayday | Ganymede | Rescue |
+| 17 | Spare Key | Mercury | Precision |
+| 18 | Sunrise | Mercury | Rescue, against the clock |
+
 - **Precision:** land on the marked pad, LZ.
 - **Cargo:** land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes the lander heavier and slower to turn.
 - **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
 - **Rescue:** land on CREW and hold still while they board, then climb out of the top of the screen to reach orbit.
+- **Pad hopping** (side missions): touch down safely on numbered pads in order.
 
 <p align="center"><img src="media/missions.png" alt="The mission select screen: twelve campaign missions with their star ratings, and a row of side missions from the crew, each tile showing the crew member who gave it" width="560"></p>
 
-The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. A mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing the last mission unlocks an epilogue. Story scenes can be turned off in Settings.
+The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
 
@@ -132,7 +149,7 @@ The campaign tells a story over the radio. You fly for Descent Systems, the smal
 
 ### Side missions
 
-Below the campaign is a row of optional side missions. Each one is a favor for someone on the crew, unlocks partway through the campaign, and has its own rule on top of the usual landing limits.
+Below the campaign is a row of optional side missions. Each one is a favor for someone on the crew and has its own rule on top of the usual landing limits. Most unlock partway through the campaign. Ice Cream Social, Skipping Stones and Static unlock the first time you land on their world in free flight.
 
 | Side mission | From | World | Unlocks after | The twist |
 |---|---|---|---|---|
@@ -140,6 +157,12 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | The Coffee Crisis | Dottie | Mars | Dust Ledge | Timed delivery: get a fresh pot to DROP within 70 seconds, while Dottie counts down on the radio |
 | Stowaway | Gus | Titan | Haze Delivery | Passenger: Apogee the cat rides along. Turning, tilting past 20° or flying faster than 6 m/s makes her queasy, and her comfort shows in the goal box |
 | The Long Way Round | Wren | Venus | Last Light | Survey route: fly through Wren's three numbered markers in order, then land |
+| Ice Cream Social | Gus | Mercury | Landing on Mercury in free flight | Melting cargo: sunlight melts the ice cream, shadows stop it. It fails at 100% melted |
+| Skipping Stones | Gus | Vesta | Landing on Vesta in free flight | Survey route: fly through four markers over the curve of the asteroid, then land on the far side |
+| Static | Dottie | Ganymede | Landing on Ganymede in free flight | Blind landing: a magnetic storm scrambles your instruments the whole way down |
+| Hopscotch | Rex | Vesta | Edge of the World | Pad hopping: touch down on pads 1, 2 and 3 in order, and try to beat Rex's 90 seconds |
+| Northern Lights | Dottie | Ganymede | Relay Run | Photo route: fly through three markers up in the aurora, then land |
+| Shadow Hopper | Wren | Mercury | Spare Key | Pad hopping: hop between three pads in the shadows while the sun boils your fuel |
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
 
@@ -149,12 +172,12 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Fourteen badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Nineteen badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
 | First contact | Land on any pad | |
-| Grand Tour | Land on all eight worlds | Grand Tour hull |
+| Grand Tour | Land on every world | Grand Tour hull |
 | Earthling | Land on Earth | |
 | Feather | Touch down slower than 0.3 m/s | Feather Light flame |
 | Plumb line | Land within 1° of level, drifting under 0.2 m/s | |
@@ -168,14 +191,19 @@ Open **Badges** from the start screen to see your progress. Fourteen badges unlo
 | Collector | Buy 10 items in the hangar | |
 | Saver | Hold 5,000 credits at once | |
 | Mission ready | Complete your first mission | |
-| Campaign hero | Complete all 12 missions | Pathfinder hull |
+| Campaign hero | Complete the original 12 missions (Act 1) | Pathfinder hull |
 | Star collector | Earn 24 mission stars | Comet Tail flame |
-| Flawless | Earn all 36 mission stars | Mission Patch flag |
+| Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
+| Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
+| Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
 | Barista | Finish The Coffee Crisis with 15 seconds to spare | Espresso flame |
 | Cat whisperer | Land Stowaway with Apogee at 75% comfort or better | Paw Print flag |
 | Surveyor | Fly Wren's whole survey route on Venus | Wren's Original hull |
-| Crew favorite | Earn all 12 side-mission stars | The Crew flag |
+| Brain freeze | Deliver Gus's ice cream on Mercury less than half melted | Solar Flare flame |
+| Stone skipper | Skip through all four markers on Vesta, then land | Asteroid hull |
+| Blind faith | Land on Ganymede in the middle of a magnetic storm | Aurora flag |
+| Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
 
@@ -191,7 +219,7 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 
 ### Postcards
 
-The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and all eight worlds have one.
+The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
 
 ### Maintenance log
 
@@ -234,7 +262,7 @@ Choose **Daily** on the start screen. Everyone who plays on the same day gets th
   Descent Systems daily 2026-11-12
   Mars 🟩🟩🟥 1,240 pts
   ```
-- The world rotates daily through all eight. The challenge changes at midnight UTC, so friends in different time zones always get the same one.
+- The world rotates daily through all eleven. The challenge changes at midnight UTC, so friends in different time zones always get the same one.
 
 ## Install it on your phone
 
