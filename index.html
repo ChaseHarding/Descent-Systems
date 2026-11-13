@@ -445,6 +445,20 @@ kbd {
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; }
 .lounge .radio.quote { max-width: none; min-height: 88px; }
+/* Descent Systems Classic: the arcade cabinet */
+.arcade { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.arcade .cab { width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #2a1a4a; border: 2px solid #4a2f7a; border-radius: 16px 16px 8px 8px; box-shadow: inset 0 0 0 3px #1a0f30; }
+.arcade .marquee { padding: 8px; border-radius: 6px; background: #ff9ad5; color: #2a1a4a; text-align: center; font-family: var(--f-display); font-weight: 700; font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; }
+.arcade canvas { display: block; width: 100%; aspect-ratio: 4 / 3; border: 3px solid #0d0618; border-radius: 12px; background: #020a05; touch-action: none; }
+.arc-entry { display: flex; flex-direction: column; gap: 6px; align-items: center; color: #7dff9a; font-family: var(--f-mono); font-size: 13px; }
+.arc-entry .row { display: flex; gap: 8px; }
+.arc-entry input { width: 9em; padding: 8px 10px; background: #020a05; color: #7dff9a; border: 1px solid #3dff7a; border-radius: 4px; font-family: var(--f-mono); font-size: 16px; letter-spacing: 0.15em; text-transform: uppercase; }
+.arc-pad { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; }
+.arc-pad button { padding: 14px 8px; border: 2px solid #4a2f7a; border-radius: 8px; background: #1a0f30; color: #ff9ad5; font-family: var(--f-display); font-weight: 700; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.arc-pad button.held { background: #ff9ad5; color: #1a0f30; }
+.arc-pad .thr { color: #7dff9a; border-color: #2e6b45; }
+.arc-pad .thr.held { background: #7dff9a; color: #02160a; }
+.arc-pad button:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 /* The Pad: your cabin */
 .den { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .den .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); text-wrap: balance; }
@@ -2319,6 +2333,10 @@ kbd {
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       shutter() { burst(0, 0.035, 0.35, 5000, 1500); burst(0.07, 0.05, 0.3, 3000, 900); },
+      arcThrust() { burst(0, 0.1, 0.05, 520, 300); },
+      arcLand(perfect) { tone(523, 'square', 0, 0.08, 0.07); tone(784, 'square', 0.09, 0.08, 0.07); if (perfect) tone(1046, 'square', 0.18, 0.18, 0.07); },
+      arcCrash() { burst(0, 0.7, 0.35, 1600, 60); tone(110, 'square', 0, 0.4, 0.08, 40); },
+      arcStart() { tone(392, 'square', 0, 0.07, 0.06); tone(523, 'square', 0.08, 0.07, 0.06); tone(659, 'square', 0.16, 0.12, 0.06); },
       knock() { tone(150, 'triangle', 0, 0.06, 0.35); tone(140, 'triangle', 0.16, 0.06, 0.35); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
       radio() { tone(2525, 'sine', 0, 0.12, 0.05); },
@@ -2913,12 +2931,13 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade'];
   const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
-    if (m !== 'hangar' && m !== 'den') card.classList.remove('wide');
+    if (m !== 'hangar' && m !== 'den' && m !== 'arcade') card.classList.remove('wide');
+    if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
     if (m !== 'den') closeDenPhoto();
-    if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; }
+    if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -2949,7 +2968,8 @@ kbd {
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
     if (m === 'lounge') { renderLounge(); return; }
-    if (m === 'den') { renderDen(); return; }
+    if (m === 'den') { renderDen(true); return; }
+    if (m === 'arcade') { renderArcade(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
     if (m === 'log') { renderLog(); return; }
@@ -3611,6 +3631,7 @@ kbd {
       add(stats.worlds.includes('venus'), 'Venus clouds are 96% carbon dioxide and 4% my anxiety while you’re flying through them.');
       add(stats.worlds.includes('ganymede'), 'Ganymede’s storm scrambled my radio so hard it picked up a cooking show. I made the soufflé. It collapsed. Like my hopes.');
       add(denLook.floor === 'arcade', 'I put Descent Systems on your arcade cabinet. My high score is still on there. It’s under the name “NOT GUS”.');
+      add(arcBest() > 2400, 'Someone beat NOT GUS’s arcade score. I’m not upset. I’m going to go sit in the hangar for a while. In the dark. Not upset.');
       add(fleetOwned.has('whisker'), 'Apogee has never once sat in the Whisker. I built it to her exact measurements. She sat in the box it came in.');
     } else if (who === 'W') {
       L.push('This room used to be a supply closet. I slept here the whole first year. Gus thinks I’m joking.');
@@ -4108,7 +4129,7 @@ kbd {
           c.strokeStyle = '#6c7690'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 12, y + 16); c.lineTo(x + 5, y + 29); c.moveTo(x + 12, y + 16); c.lineTo(x + 19, y + 29); c.moveTo(x + 12, y + 16); c.lineTo(x + 12, y + 29); c.stroke();
           c.save(); c.translate(x + 12, y + 14); c.rotate(-0.55); px(c, -12, -2, 20, 4, '#c9cfdc'); px(c, -13, -3, 3, 6, '#9aa3b8'); px(c, 7, -1, 3, 2, '#3a4668'); c.restore();
         } },
-      { id: 'arcade', name: 'Arcade cabinet', price: 2000, blurb: 'It only plays Descent Systems. Gus is “fixing” that.',
+      { id: 'arcade', name: 'Arcade cabinet', price: 2000, blurb: 'A working cabinet that plays Descent Systems Classic. Put it in your Pad, then tap it to play. Gus’s high score is on there under “NOT GUS”.',
         draw(c, x, y, t) {
           px(c, x + 2, y, 20, 29, '#2a1a4a'); px(c, x + 3, y + 1, 18, 3, '#ff9ad5'); px(c, x + 4, y + 6, 16, 10, '#05070f');
           for (let i = 0; i < 16; i++) px(c, x + 4 + i, y + 13 + (i % 5 === 2 ? 0 : (i * 7) % 3 === 0 ? -1 : 1), 1, 1, '#c9cfdc');
@@ -4522,7 +4543,7 @@ kbd {
       fresh = true;
     }
     if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
-    if (!keepSpot) denUI.trying = null;
+    if (!keepSpot && denUI) denUI.trying = null;
     card.classList.add('wide');
     const spot = denUI.spot, s = denSpot(spot), pool = s.pool, list = DEN_ITEMS[pool];
     const shown = denUI.trying || denLook[spot];
@@ -4549,6 +4570,7 @@ kbd {
             ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
             <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
             <button class="btn ghost" id="denSnap">Take a photo</button>
+            ${denLook.floor === 'arcade' ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
           </div>
           <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}</button>`).join('')}</div>
         </div>
@@ -4579,11 +4601,14 @@ kbd {
       const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
       if (denUI.cat) { const at = denCatSpot(denUI.cat, look()); if (x >= at.x - 5 && x <= at.x + 16 && y >= at.y - 6 && y <= at.y + 8) { pet(); return; } }
       if (denUI.visitor && x >= 88 && x <= 112 && y >= 33 && y <= 56) { chat(); return; }
-      pick(denHit(e));
+      const hit = denHit(e);
+      if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
+      pick(hit);
     });
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
     $('denSnap').addEventListener('click', denSnap);
+    const arcB = $('denArcade'); if (arcB) arcB.addEventListener('click', () => { sfx.click(); setMode('arcade'); });
     $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
       const who = guests[Math.floor(Math.random() * guests.length)];
@@ -4619,6 +4644,243 @@ kbd {
     });
     const cb = $('denCancel'); if (cb) cb.addEventListener('click', () => { denUI.trying = null; sfx.click(); renderDen(true); });
     $('back').addEventListener('click', () => setMode('title'));
+  }
+
+  // ---- Descent Systems Classic: the playable arcade cabinet in the Pad ----
+  // A tiny vector-graphics lander game in the style of the 1979 arcade machines. Fuel is your life:
+  // land on a pad for points, crash and you lose fuel, and the game ends when the tank runs dry.
+  const ALS = 1.5, AFOOT = 4.5 * ALS, AHALF = 3.5 * ALS, AW = 320, AH = 240, AGRAV = 3, ATHRUST = 7.6, ATURN = 2.8, ABURN = 24, AFUEL = 1000;
+  const ARC_SEED = [{ n: 'NOT GUS', s: 2400 }, { n: 'REX', s: 2150 }, { n: 'DOTTIE', s: 1700 }, { n: 'WREN', s: 1350 }, { n: 'APOGEE', s: 30 }];
+  const arcScores = () => { try { const v = JSON.parse(store.get('ds-arcade', 'null')); return Array.isArray(v) && v.length ? v : ARC_SEED.slice(); } catch (e) { return ARC_SEED.slice(); } };
+  const arcBest = () => Math.max(0, ...arcScores().filter(x => !ARC_SEED.some(d => d.n === x.n && d.s === x.s)).map(x => x.s));
+  let arc = null;
+  const aclamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  function arcTerrain() {
+    const defs = [{ w: 15, m: 5 }, { w: 23, m: 3 }, { w: 33, m: 2 }].sort(() => Math.random() - 0.5);
+    const zones = [[36, 114], [126, 204], [216, 306]];
+    const pads = defs.map((d, i) => { const x0 = zones[i][0] + Math.random() * (zones[i][1] - zones[i][0] - d.w); return { x0, x1: x0 + d.w, m: d.m, y: 0 }; });
+    const pts = []; let x = 0, y = 165 + Math.random() * 45;
+    pts.push([0, y]);
+    const wander = limit => { while (true) { const nx = x + 4 + Math.random() * 9; if (nx > limit - 3) break; x = nx; y = aclamp(y + (Math.random() - 0.5) * 36, 105, 230); pts.push([x, y]); } };
+    for (const p of pads) {
+      wander(p.x0);
+      p.y = aclamp(y + (Math.random() - 0.5) * 24, 120, 226);
+      pts.push([p.x0, p.y], [p.x1, p.y]); x = p.x1; y = p.y;
+    }
+    wander(AW + 3); pts.push([AW, aclamp(y + (Math.random() - 0.5) * 30, 105, 230)]);
+    return { pts, pads };
+  }
+  const arcGround = (T, x) => { const P = T.pts; for (let i = 1; i < P.length; i++) if (x <= P[i][0]) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; return y0 + (y1 - y0) * ((x - x0) / Math.max(0.001, x1 - x0)); } return P[P.length - 1][1]; };
+  function arcRound() {
+    arc.T = arcTerrain();
+    arc.L = { x: 16, y: 44, vx: 15 + Math.random() * 4, vy: 0, a: Math.PI / 2 * 0.6 };
+    arc.st = 'play'; arc.msg = ''; arc.zoom = false; arc.bits = [];
+  }
+  function arcStart() {
+    arc.score = 0; arc.fuel = AFUEL; arc.round = 0;
+    sfx.arcStart(); arcRound();
+    const e = $('arcEntry'); if (e) e.hidden = true;
+  }
+  function arcStep(dt) {
+    const A = arc, L = A.L, k = A.keys;
+    if (A.st === 'landed' || A.st === 'crashed') {
+      A.t -= dt;
+      for (const b of A.bits) { b.x += b.vx * dt; b.y += b.vy * dt; b.vy += AGRAV * dt; b.r += b.vr * dt; }
+      if (A.t <= 0) { if (A.fuel <= 0) arcOver(); else { A.round++; arcRound(); } }
+      return;
+    }
+    if (A.st !== 'play') return;
+    if (k.l) L.a -= ATURN * dt;
+    if (k.r) L.a += ATURN * dt;
+    L.a = aclamp(L.a, -Math.PI / 2, Math.PI / 2);
+    A.thrusting = k.t && A.fuel > 0;
+    if (A.thrusting) {
+      L.vx += Math.sin(L.a) * ATHRUST * dt; L.vy -= Math.cos(L.a) * ATHRUST * dt;
+      A.fuel = Math.max(0, A.fuel - ABURN * dt);
+      A.snd -= dt; if (A.snd <= 0) { sfx.arcThrust(); A.snd = 0.1; }
+    }
+    L.vy += AGRAV * dt; L.x += L.vx * dt; L.y += L.vy * dt;
+    if (L.x < 0) L.x += AW; if (L.x > AW) L.x -= AW;
+    if (L.y < -30) { L.y = -30; L.vy = Math.max(0, L.vy); }
+    const gl = arcGround(A.T, Math.max(0, L.x - AHALF)), gr = arcGround(A.T, Math.min(AW, L.x + AHALF));
+    if (L.y + AFOOT >= Math.min(gl, gr)) {
+      const pad = A.T.pads.find(p => L.x - AHALF >= p.x0 && L.x + AHALF <= p.x1);
+      const ok = pad && Math.abs(L.a) < 0.21 && L.vy < 2.6 && Math.abs(L.vx) < 1.6;
+      if (ok) {
+        L.y = pad.y - AFOOT;
+        const perfect = L.vy < 1.3 && Math.abs(L.vx) < 0.8;
+        const pts = (perfect ? 100 : 30) * pad.m;
+        A.score += pts;
+        if (perfect) A.fuel += 60;
+        A.msg = perfect ? `PERFECT LANDING  +${pts}` : `HARD LANDING  +${pts}`;
+        A.sub = perfect ? 'SMOOTH. VERY SMOOTH. +60 FUEL' : 'GUS FELT THAT ONE';
+        A.st = 'landed'; A.t = 2.6; sfx.arcLand(perfect);
+      } else {
+        A.fuel = Math.max(0, A.fuel - 150);
+        A.msg = 'CRASHED  -150 FUEL'; A.sub = pad ? (Math.abs(L.a) >= 0.21 ? 'TOO MUCH TILT' : 'TOO FAST') : 'MISSED THE PAD';
+        A.st = 'crashed'; A.t = 2.6; sfx.arcCrash();
+        A.bits = Array.from({ length: 16 }, () => ({ x: L.x, y: L.y, vx: (Math.random() - 0.5) * 22, vy: -Math.random() * 16, r: Math.random() * 6, vr: (Math.random() - 0.5) * 10, len: 1.5 + Math.random() * 3 }));
+      }
+      A.zoom = false;
+    }
+    const alt = Math.min(gl, gr) - (L.y + AFOOT);
+    if (alt < 42) A.zoom = true; else if (alt > 62) A.zoom = false;
+  }
+  function arcOver() {
+    arc.st = 'over';
+    const list = arcScores();
+    arc.qualifies = arc.score > 0 && (list.length < 5 || arc.score > list[Math.min(4, list.length - 1)].s);
+    const e = $('arcEntry');
+    if (arc.qualifies && e) { e.hidden = false; const i = $('arcName'); i.value = store.get('ds-arcade-name', ''); setTimeout(() => i.focus({ preventScroll: true }), 50); }
+  }
+  function arcSave() {
+    const i = $('arcName'), n = (i.value.trim().toUpperCase().replace(/[^A-Z0-9 ]/g, '') || 'PILOT').slice(0, 8);
+    store.set('ds-arcade-name', n);
+    const list = arcScores(); list.push({ n, s: arc.score, me: 1 });
+    list.sort((a, b) => b.s - a.s);
+    store.set('ds-arcade', JSON.stringify(list.slice(0, 5)));
+    $('arcEntry').hidden = true; arc.qualifies = false; arc.st = 'attract'; arc.saved = n;
+    if (arc.score > 2400) showToast('You beat NOT GUS. Gus is “fine”.');
+    sfx.coin();
+  }
+  function arcDraw() {
+    const A = arc, cv = A.cv; if (!cv) return;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const c = cv.getContext('2d'), k = w / AW, now = performance.now();
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = '#020a05'; c.fillRect(0, 0, w, h);
+    const G = '#7dff9a';
+    c.strokeStyle = G; c.fillStyle = G; c.lineWidth = Math.max(1, 1.1 * k); c.lineJoin = 'round';
+    if (!reduceMotion) { c.shadowColor = '#3dff7a'; c.shadowBlur = 6 * k; }
+    // camera: the whole world, or zoomed in near the ground
+    let z = 1, x0 = 0, y0 = 0;
+    if (A.zoom && A.L) { z = 2.4; x0 = aclamp(A.L.x - AW / z / 2, 0, AW - AW / z); y0 = aclamp(A.L.y - AH / z * 0.45, 0, AH - AH / z); }
+    const s = k * z, X = wx => (wx - x0) * s, Y = wy => (wy - y0) * s;
+    // terrain and pads
+    if (A.T) {
+      c.beginPath(); A.T.pts.forEach(([px1, py1], i) => i ? c.lineTo(X(px1), Y(py1)) : c.moveTo(X(px1), Y(py1))); c.stroke();
+      c.font = `${Math.round(8 * k * Math.min(z, 1.6))}px "IBM Plex Mono", ui-monospace, monospace`; c.textAlign = 'center'; c.textBaseline = 'top';
+      for (const p of A.T.pads) {
+        c.lineWidth = Math.max(2, 2.4 * k); c.beginPath(); c.moveTo(X(p.x0), Y(p.y)); c.lineTo(X(p.x1), Y(p.y)); c.stroke();
+        c.lineWidth = Math.max(1, 1.1 * k);
+        c.fillText(`${p.m}X`, X((p.x0 + p.x1) / 2), Y(p.y) + 4 * k);
+      }
+    }
+    // the lander, or what's left of it
+    if (A.L && A.st !== 'attract' && A.st !== 'over') {
+      if (A.st === 'crashed') {
+        for (const b of A.bits) { c.beginPath(); c.moveTo(X(b.x - Math.cos(b.r) * b.len), Y(b.y - Math.sin(b.r) * b.len)); c.lineTo(X(b.x + Math.cos(b.r) * b.len), Y(b.y + Math.sin(b.r) * b.len)); c.stroke(); }
+      } else {
+        const L = A.L;
+        c.save(); c.translate(X(L.x), Y(L.y)); c.rotate(L.a); c.scale(s * ALS, s * ALS); c.lineWidth = Math.max(1, 1.1 * k) / (s * ALS);
+        c.beginPath(); for (let i = 0; i <= 8; i++) { const an = i / 8 * Math.PI * 2; const px2 = Math.cos(an) * 2.4, py2 = -1.6 + Math.sin(an) * 2.2; i ? c.lineTo(px2, py2) : c.moveTo(px2, py2); } c.stroke();
+        c.strokeRect(-3, 0.6, 6, 1.6);
+        c.beginPath(); c.moveTo(-2.4, 2.2); c.lineTo(-4, 4.5); c.moveTo(2.4, 2.2); c.lineTo(4, 4.5); c.moveTo(-5, 4.5); c.lineTo(-3, 4.5); c.moveTo(3, 4.5); c.lineTo(5, 4.5);
+        c.moveTo(-1, 2.2); c.lineTo(-1.6, 3.4); c.lineTo(1.6, 3.4); c.lineTo(1, 2.2); c.stroke();
+        if (A.thrusting && A.st === 'play') { c.beginPath(); c.moveTo(-1.2, 3.8); c.lineTo(0, 3.8 + 2.5 + Math.random() * 3.5); c.lineTo(1.2, 3.8); c.stroke(); }
+        c.restore();
+      }
+    }
+    // HUD
+    c.shadowBlur = reduceMotion ? 0 : 4 * k;
+    const fs = Math.round(8.5 * k);
+    c.font = `${fs}px "IBM Plex Mono", ui-monospace, monospace`; c.textBaseline = 'top';
+    const L = A.L;
+    if (A.st !== 'attract') {
+      c.textAlign = 'left';
+      c.fillText(`SCORE ${String(A.score).padStart(4, '0')}`, 8 * k, 7 * k);
+      c.fillText(`FUEL  ${String(Math.ceil(A.fuel)).padStart(4, '0')}`, 8 * k, 7 * k + fs * 1.3);
+      if (L && A.st === 'play') {
+        const alt = Math.max(0, Math.round(arcGround(A.T, aclamp(L.x, 0, AW)) - L.y - AFOOT));
+        c.textAlign = 'right';
+        c.fillText(`ALTITUDE ${String(alt).padStart(3, ' ')}`, w - 8 * k, 7 * k);
+        c.fillText(`H SPEED ${(L.vx >= 0 ? '→' : '←')} ${Math.abs(L.vx).toFixed(1)}`, w - 8 * k, 7 * k + fs * 1.3);
+        c.fillText(`V SPEED ${(L.vy >= 0 ? '↓' : '↑')} ${Math.abs(L.vy).toFixed(1)}`, w - 8 * k, 7 * k + fs * 2.6);
+      }
+      if (A.fuel > 0 && A.fuel < 150 && A.st === 'play' && Math.floor(now / 300) % 2) { c.textAlign = 'center'; c.fillText('LOW FUEL', w / 2, 7 * k); }
+    }
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    const big = Math.round(13 * k);
+    if (A.st === 'landed' || A.st === 'crashed') {
+      c.font = `${big}px "IBM Plex Mono", ui-monospace, monospace`; c.fillText(A.msg, w / 2, h * 0.22);
+      c.font = `${fs}px "IBM Plex Mono", ui-monospace, monospace`; c.fillText(A.sub, w / 2, h * 0.22 + big * 1.3);
+      if (A.fuel <= 0) c.fillText('OUT OF FUEL', w / 2, h * 0.22 + big * 2.4);
+    }
+    if (A.st === 'attract' || A.st === 'over') {
+      c.fillStyle = 'rgba(2,10,5,0.72)'; c.shadowBlur = 0; c.fillRect(w * 0.14, h * 0.1, w * 0.72, h * 0.8); c.fillStyle = G; c.shadowBlur = reduceMotion ? 0 : 4 * k;
+      c.font = `${big}px "IBM Plex Mono", ui-monospace, monospace`;
+      c.fillText(A.st === 'over' ? 'GAME OVER' : 'DESCENT SYSTEMS', w / 2, h * 0.19);
+      c.font = `${fs}px "IBM Plex Mono", ui-monospace, monospace`;
+      c.fillText(A.st === 'over' ? `FINAL SCORE ${A.score}` : 'CLASSIC  ·  1 PLAYER', w / 2, h * 0.19 + big * 1.15);
+      c.fillText('HIGH SCORES', w / 2, h * 0.38);
+      arcScores().slice(0, 5).forEach((r, i) => {
+        const y = h * 0.38 + fs * 1.55 * (i + 1);
+        const mine = r.me && r.n === A.saved && Math.floor(now / 350) % 2;
+        c.globalAlpha = mine ? 0.45 : 1;
+        c.textAlign = 'left'; c.fillText(`${i + 1}. ${r.n}`, w * 0.27, y);
+        c.textAlign = 'right'; c.fillText(String(r.s), w * 0.73, y);
+        c.globalAlpha = 1;
+      });
+      c.textAlign = 'center';
+      if (!(A.st === 'over' && A.qualifies) && Math.floor(now / 500) % 2) c.fillText(A.st === 'over' ? 'PRESS THRUST TO PLAY AGAIN' : 'PRESS THRUST TO START', w / 2, h * 0.84);
+    }
+    c.shadowBlur = 0;
+    // scanlines
+    c.fillStyle = 'rgba(0,0,0,0.22)';
+    for (let y = 0; y < h; y += 3) c.fillRect(0, y, w, 1);
+  }
+  function arcLoop(now) {
+    if (!arc || mode !== 'arcade') return;
+    const dt = Math.min(0.1, (now - (arc.last || now)) / 1000); arc.last = now;
+    arc.acc += dt;
+    while (arc.acc >= 1 / 120) { arcStep(1 / 120); arc.acc -= 1 / 120; }
+    arcDraw();
+    arc.raf = requestAnimationFrame(arcLoop);
+  }
+  function arcPress(btn, down) {
+    if (!arc) return;
+    if (btn === 't' && down && (arc.st === 'attract' || (arc.st === 'over' && !arc.qualifies))) { arcStart(); return; }
+    arc.keys[btn] = down;
+  }
+  function arcKey(e, down) {
+    if (e.target instanceof HTMLInputElement) return false;
+    const m = { ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r', ArrowUp: 't', KeyW: 't', Space: 't' }[e.code];
+    if (m) { e.preventDefault(); if (!(down && e.repeat)) arcPress(m, down); return true; }
+    if (down && e.code === 'Escape') { setMode('den'); return true; }
+    return false;
+  }
+  function renderArcade() {
+    card.classList.add('wide');
+    card.innerHTML = `<div class="arcade">
+      <div class="cab">
+        <div class="marquee">Descent Systems Classic</div>
+        <canvas id="arcCv" aria-label="Descent Systems Classic arcade game"></canvas>
+        <div class="arc-entry" id="arcEntry" hidden>
+          <label for="arcName">New high score! Your name</label>
+          <div class="row"><input id="arcName" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn" id="arcSave">Save</button></div>
+        </div>
+        <div class="arc-pad">
+          <button data-arc="l" aria-label="Turn left">◀</button>
+          <button data-arc="t" class="thr" aria-label="Thrust">Thrust</button>
+          <button data-arc="r" aria-label="Turn right">▶</button>
+        </div>
+      </div>
+      <p class="limits">Land on the pads for points: perfect landings score more and refill a little fuel. Crashing costs 150 fuel, and the game ends when the tank runs dry. Keyboard: ← → to turn, ↑ or Space to thrust.</p>
+      <button class="btn ghost" id="back">Back to the Pad</button>
+    </div>`;
+    arc = { cv: $('arcCv'), st: 'attract', keys: { l: false, r: false, t: false }, score: 0, fuel: AFUEL, acc: 0, last: 0, snd: 0, bits: [], T: arcTerrain(), L: null };
+    card.querySelectorAll('[data-arc]').forEach(b => {
+      const k = b.dataset.arc;
+      const on = e => { e.preventDefault(); b.classList.add('held'); arcPress(k, true); };
+      const off = e => { b.classList.remove('held'); arcPress(k, false); };
+      b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
+      b.addEventListener('contextmenu', e => e.preventDefault());
+    });
+    $('arcSave').addEventListener('click', arcSave);
+    $('arcName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); arcSave(); } });
+    $('back').addEventListener('click', () => setMode('den'));
+    arc.raf = requestAnimationFrame(arcLoop);
   }
 
   // ---- Postcards: the first landing on each world earns one from the crew ----
@@ -6120,7 +6382,7 @@ kbd {
       bright: world.drag > 0 ? 1100 : 420   // muffled in a vacuum, brighter where there's air
     });
     fuelAlarm(frameDt);
-    sfx.music(musicMood(), musicIntensity(), mode === 'paused');
+    sfx.music(musicMood(), musicIntensity(), mode === 'paused' || mode === 'arcade');
     updateCamera(frameDt);
     draw(now);
     if (mode === 'hangar') drawGarage(now);
@@ -6148,6 +6410,7 @@ kbd {
       if (e.code === 'Enter') e.target.blur();
       return;
     }
+    if (mode === 'arcade') { arcKey(e, true); return; }
     const k = keyMap[e.code];
     if (mode === 'replay') { e.preventDefault(); endReplay(); return; }
     if (mode === 'story') {
@@ -6198,7 +6461,7 @@ kbd {
     else if (e.code === 'Enter' && ADVANCES.includes(mode) && !document.activeElement.classList.contains('world')) { e.preventDefault(); advance(); }
     else if (e.code === 'Space') e.preventDefault();
   });
-  addEventListener('keyup', e => { const k = keyMap[e.code]; if (k) keys[k] = false; });
+  addEventListener('keyup', e => { if (mode === 'arcade') { arcKey(e, false); return; } const k = keyMap[e.code]; if (k) keys[k] = false; });
   // auto-pause when the player looks away
   addEventListener('blur', () => { keys.left = keys.right = keys.thrust = false; if (mode === 'flying') setMode('paused'); });
 
