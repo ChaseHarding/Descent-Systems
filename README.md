@@ -323,6 +323,10 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 
 Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
 
+### Photo mode
+
+Press **Take a photo** in the Pad to snap a crisp 1200×600 picture of your cabin, with Apogee and whoever's visiting, and a small "Descent Systems · The Pad" caption in the corner. On iPhone, **Share** opens the share sheet, where **Save Image** puts it in your photos (you can also press and hold the picture). On a computer, **Save** downloads it as a PNG. Saving doesn't work in sandboxed previews, but it does on the hosted game.
+
 ### Souvenirs
 
 The first time you land on each world, you bring a souvenir home for your shelf, along with that world's postcard. You can't buy them; the shelf picker shows which ones you still need and where to land to get them:
