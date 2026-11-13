@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 31 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
+<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 43 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
 <meta name="theme-color" content="#0a0e1c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e1c'/%3E%3Cpath d='M12 15L11 9l3-3h4l3 3-1 6z' fill='none' stroke='%23c9cfdc' stroke-width='1.6' stroke-linejoin='round'/%3E%3Crect x='10' y='15' width='12' height='4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3Cpath d='M12 19l-4 6M20 19l4 6M6.5 25h3M22.5 25h3' stroke='%23c9cfdc' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M14 20l2 8 2-8z' fill='%23ffb547'/%3E%3C/svg%3E">
 <!-- Share preview (Open Graph + Twitter/X) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Descent Systems">
 <meta property="og:title" content="Descent Systems">
-<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 31 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
+<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 43 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
 <meta property="og:url" content="https://chaseharding.github.io/Descent-Systems/">
-<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=2">
+<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=3">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Biscuit the lander firing her engine above a ×5 landing pad in space, beside the Descent Systems title and its features.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Descent Systems">
-<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 31 missions, 5 landers, your own cabin and ghost races against friends.">
-<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=2">
+<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 43 missions, 5 landers, your own cabin and ghost races against friends.">
+<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=3">
 <!-- Installable app (PWA) -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -877,7 +877,9 @@ kbd {
     { id: 'tabby', name: 'Tabby', price: 0, unlock: 'ship:whisker', blurb: 'Orange tabby with a white chest. Comes with the Whisker.',
       fill: '#ff9a3d', stroke: '#fff4e0', legs: '#fff4e0', detail: '#9fe0b8', swatch: 'linear-gradient(90deg, #ff9a3d, #fff4e0)' },
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
-      fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' }
+      fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' },
+    { id: 'unitzero', name: 'Unit Zero', price: 0, unlock: 'outer', blurb: 'The old Descent Systems colors from a probe nobody built. Gus copied them exactly.',
+      fill: '#16243a', stroke: '#9ad8ff', legs: '#c9cfdc', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #16243a, #9ad8ff)' }
   ];
   const FLAMES = [
     { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
@@ -1092,7 +1094,8 @@ kbd {
     { id: 'campaign', name: 'Campaign hero', desc: 'Complete the original 12 missions.', reward: 'hull:pathfinder', prog: () => [completedCount(0, ACT1), ACT1] },
     { id: 'stars24', name: 'Star collector', desc: 'Earn 24 mission stars.', reward: 'flame:comet', prog: () => [Math.min(totalStars(), 24), 24] },
     { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 stars in the original 12 missions.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
-    { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1), MISSIONS.length - ACT1] },
+    { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
+    { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Beyond Pluto.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2), MISSIONS.length - ACT2] },
     { id: 'beatrex', name: 'Beat Rex', desc: 'Finish Hopscotch faster than Rex’s 90 seconds.', reward: 'flag:racing' },
     { id: 'gentle', name: 'Spa treatment', desc: 'Deliver Biscuit’s spa crate without a crack.', reward: 'hull:spa' },
     { id: 'barista', name: 'Barista', desc: 'Finish The Coffee Crisis with 15 seconds to spare.', reward: 'flame:espresso' },
@@ -1247,9 +1250,56 @@ kbd {
       nags: [[40, 'FLIGHT: Forty seconds to sunrise.'], [20, 'FLIGHT: Twenty seconds. Gus is putting on a second hat.'], [8, 'ENGINEERING: It’s getting VERY bright out here, pilot!']],
       shade: [[28, 56], [136, 178]],
       ground: [[0, 44], [24, 40], [48, 46], [72, 54], [96, 48], [120, 42], [146, 38], [172, 38], [196, 46], [220, 52], [240, 48]],
-      pads: [{ id: 'CREW', x1: 148, x2: 164, y: 36 }] }
+      pads: [{ id: 'CREW', x1: 148, x2: 164, y: 36 }] },
+    // ---- Act 3: Beyond Pluto ----
+    { id: 'big-ear', name: 'Big Ear', world: 'pluto', kind: 'sling', label: 'Sling load', cargoName: 'dish', sling: 6, fragile: 1.8, fuel: 480, credits: 480,
+      brief: 'A strange signal is coming from somewhere past Pluto. Gus built a listening dish to hear it better. It rides on a cable under Biscuit: pick it up, then set it down gently on the ridge.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 90, time: 115 },
+      ground: [[0, 34], [12, 30], [40, 30], [56, 36], [74, 42], [92, 40], [106, 36], [134, 36], [150, 42], [170, 48], [196, 50], [216, 46], [240, 42]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 108, x2: 132, y: 36 }] },
+    { id: 'triangulation', name: 'Triangulation', world: 'moon', kind: 'hop', label: 'Pad hopping', fuel: 320, credits: 500,
+      brief: 'One dish hears the signal. Three beacons tell you where it comes from. Touch down on pads 1, 2 and 3 on the Moon, in order, to plant them.',
+      spawn: { x: 20, y: 90, vx: 0 }, stars: { fuel: 100, time: 70 },
+      goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
+      ground: [[0, 40], [18, 36], [36, 38], [58, 38], [74, 46], [92, 54], [110, 56], [132, 56], [150, 50], [168, 44], [184, 42], [206, 42], [222, 48], [240, 44]],
+      pads: [{ id: '1', x1: 38, x2: 56, y: 38 }, { id: '2', x1: 112, x2: 130, y: 56 }, { id: '3', x1: 186, x2: 204, y: 42 }] },
+    { id: 'echo', name: 'Echo', world: 'europa', kind: 'land', label: 'Geyser field', fuel: 220, credits: 520,
+      brief: 'Something under Europa’s ice is echoing the signal. Set a hydrophone down in the middle of the geyser field. The geysers throw you upward when they blow, so watch for the warning.',
+      spawn: { x: 30, y: 110, vx: 0 }, stars: { fuel: 105, time: 38 },
+      vents: [[36, 6, 1], [84, 5.5, 3.2], [146, 6.5, 0.5]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      pads: [{ id: 'LZ', x1: 106, x2: 122, y: 40 }] },
+    { id: 'interference', name: 'Interference', world: 'io', kind: 'cargo', label: 'Cargo', cargoName: 'filter', mass: 0.85, fuel: 300, credits: 540,
+      brief: 'Io’s eruptions drown out the signal. Carry Gus’s noise filter from PICKUP to DROP. Two vents erupt in rhythm and the lava only reaches about 40 meters up, so either fly high over them or wait for the gap.',
+      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 90, time: 68 },
+      vents: [[96, 7, 0], [156, 6.5, 3]],
+      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 32 }, { id: 'DROP', x1: 198, x2: 220, y: 38 }] },
+    { id: 'cloud-relay', name: 'Cloud Relay', world: 'venus', kind: 'route', label: 'Relay route', fuel: 260, credits: 560,
+      brief: 'The numbers in the signal need decoding, and Venus’s cloud relay is the only machine that can do it. Fly through its three markers to reboot it, then land. Trust the markers, not the fog.',
+      spawn: { x: 22, y: 112, vx: 0 }, rings: [[64, 96], [118, 62], [176, 92]], stars: { fuel: 150, time: 34 },
+      ground: [[0, 44], [22, 40], [44, 46], [66, 36], [90, 30], [112, 36], [134, 28], [156, 34], [178, 46], [198, 40], [224, 40], [240, 46]],
+      pads: [{ id: 'LZ', x1: 200, x2: 222, y: 40 }] },
+    { id: 'old-station', name: 'Old Station', world: 'titan', kind: 'canyon', fuel: 230, credits: 580,
+      brief: 'Wren’s old weather station sits at the bottom of a methane canyon, under the rock. Drop in on the left, then creep beneath the overhang to the pad. Touch the rock and it’s over.',
+      spawn: { x: 40, vx: 0 }, stars: { fuel: 105, time: 68 },
+      ground: [[0, 72], [18, 74], [36, 70], [48, 66], [56, 44], [64, 24], [84, 18], [104, 16], [124, 18], [146, 16], [172, 16], [194, 20], [204, 40], [214, 70], [240, 76]],
+      ceilings: [[[94, 62], [110, 44], [130, 40], [160, 38], [186, 40], [200, 62]]],
+      pads: [{ id: 'LZ', x1: 150, x2: 168, y: 16 }] },
+    { id: 'rex-shortcut', name: 'Rex’s Shortcut', world: 'vesta', kind: 'rescue', mass: 0.85, fuel: 340, credits: 600,
+      brief: 'Rex went looking for the signal on his own, tried a shortcut around Vesta, and got flung into a crater. Land at CREW, get him aboard, and climb out to orbit. Lean against the spin.',
+      spawn: { x: 140, y: 90, vx: 0 }, stars: { fuel: 70, time: 105 },
+      ground: [[0, 20], [24, 30], [44, 38], [56, 34], [72, 34], [88, 46], [110, 52], [130, 55], [150, 52], [176, 46], [200, 36], [220, 28], [240, 20]],
+      pads: [{ id: 'CREW', x1: 56, x2: 72, y: 34 }] },
+    { id: 'unit-zero', name: 'Unit Zero', world: 'pluto', kind: 'canyon', label: 'Finale', fuel: 210, credits: 700,
+      brief: 'The finale. The signal is coming from the bottom of a canyon on Pluto’s far side, under a long overhang. Slow in, gentle down. Whatever is down there has been waiting a long time.',
+      spawn: { x: 40, vx: 0 }, stars: { fuel: 55, time: 58 },
+      ground: [[0, 80], [20, 82], [40, 78], [54, 74], [62, 50], [70, 28], [90, 22], [112, 20], [134, 22], [156, 18], [178, 18], [192, 22], [202, 44], [214, 74], [240, 80]],
+      ceilings: [[[100, 70], [116, 48], [136, 44], [160, 42], [186, 44], [200, 70]]],
+      pads: [{ id: 'LZ', x1: 158, x2: 176, y: 18 }] }
   ];
-  const ACT1 = 12;   // the first twelve missions: the original campaign, which the older badges count
+  const ACT1 = 12;
+  const ACT2 = 18;   // Acts 1 and 2; Act 3 (Beyond Pluto) runs from here to the end   // the first twelve missions: the original campaign, which the older badges count
   // ---- Character portraits: 32×32 pixel art drawn in code ----
   const px = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
   const outline = (c, x, y, w, h, col) => { px(c, x, y, w, 1, col); px(c, x, y + h - 1, w, 1, col); px(c, x, y, 1, h, col); px(c, x + w - 1, y, 1, h, col); };
@@ -1636,7 +1686,107 @@ kbd {
         ['W', 'Short hops, long rests. Let the shadows do the work.']],
       react: [['W', 'That’s it. That’s exactly how I used to do it.'],
         ['G', 'Barely any fuel boiled off! Biscuit is very proud of herself.'],
-        ['W', 'You hopped those shadows better than I ever did. Don’t tell anyone I said that.']] }
+        ['W', 'You hopped those shadows better than I ever did. Don’t tell anyone I said that.']] },
+    'big-ear': { chapter: [9, 'Not Again'],
+      intro: [
+        ['G', 'So. Funny thing. The Ganymede relay picked up a signal last night. Not polka. Four beeps, then a pause. Over and over.'],
+        ['F', 'The last time this crew chased a strange signal, we found Wren. So forgive me if I take this one seriously.'],
+        ['W', 'It’s coming from somewhere past Pluto. We need a bigger ear. Gus built one.'],
+        ['G', 'It’s a dish! A big one. It rides on a cable under Biscuit. Set it down gently on the ridge, please. It’s my best dish.']],
+      react: [['G', 'The dish is up, and it’s listening! Four beeps, then a pause. Still going.'],
+        ['W', 'Clean drop. Now we listen.'],
+        ['G', 'Not a scratch! Not on the dish, not on Biscuit. Best day.']] },
+    'triangulation': {
+      intro: [
+        ['F', 'One dish hears it. Three beacons tell us where it’s coming from. Plant them on the Moon at pads 1, 2 and 3.'],
+        ['R', 'Rex Valor, reporting from my new desk. Which is next to the yogurt fridge. Pilot, if you need a pro, I’m right here.'],
+        ['W', 'Touch down on each pad, in order. Rex, sit.']],
+      react: [['F', 'Three beacons, one line. It points straight out past Pluto. Way past.'],
+        ['R', 'Not bad. I’d have been faster. I’d also have gotten lost. Don’t write that down.'],
+        ['W', 'Three perfect touchdowns. The beacons agree with each other, and so do I.']] },
+    'echo': { chapter: [10, 'Follow the Static'],
+      intro: [
+        ['G', 'Weird news. The signal bounces. Something under Europa’s ice is echoing it back, a few seconds late.'],
+        ['W', 'Ice makes a wonderful microphone. Set a hydrophone down in the geyser field and we’ll hear the echo clearly.'],
+        ['F', 'The geysers throw you upward when they blow. Watch for the warning, then go.']],
+      react: [['G', 'I can hear it under the ice! Four beeps, pause. It sounds older down there. Is that possible?'],
+        ['F', 'Hydrophone’s down, and the geysers didn’t get you. Good flying.'],
+        ['W', 'Right in the middle of the field. You read those geysers like a book.']] },
+    'interference': {
+      intro: [
+        ['F', 'Io is drowning the signal out. Every eruption sounds like a stadium full of static.'],
+        ['G', 'I built a filter! It’s a big box. Carry it from PICKUP to DROP, and don’t fly through any lava. The filter isn’t lava-proof. Neither is Biscuit.'],
+        ['R', 'Free pro tip: the eruptions come in rhythm. Wait for the gap, then go.']],
+      react: [['G', 'Filter’s on! The static’s gone and the signal’s crystal clear. And there’s more in it than beeps. There are numbers.'],
+        ['R', 'Through the eruptions, clean. Okay. You’re good. I said it. Once.'],
+        ['F', 'Not a single lava burn. Gus is calling it a miracle. I’m calling it competence.']] },
+    'cloud-relay': { chapter: [11, 'Old Recordings'],
+      intro: [
+        ['W', 'The numbers in the signal are coordinates. And a date. A date from before Descent Systems even existed.'],
+        ['F', 'Venus’s cloud relay can decode the rest, but it’s been offline since storm season. Fly through its three markers to reboot it, then land.'],
+        ['G', 'The clouds are thick. Watch the markers, not the fog.']],
+      react: [['F', 'Relay’s back. The decoder says the date is twenty-one years ago.'],
+        ['W', 'Twenty-one years. That’s the year I started flying. That’s a coincidence. It has to be.'],
+        ['G', 'Perfect run through the clouds! Wren’s gone very quiet, though.']] },
+    'old-station': {
+      intro: [
+        ['W', 'My old weather station on Titan recorded everything back then. It’s at the bottom of a methane canyon, under the rock. If the signal was around twenty-one years ago, it heard it.'],
+        ['F', 'Drop into the canyon and creep under the overhang to the pad. Touch the rock and it’s over.'],
+        ['G', 'Bring back the tapes! Actual tapes! I’ve never seen tapes!']],
+      react: [['W', 'It heard it. Twenty-one years ago: the same four beeps. Coming from Pluto. Not past it. Pluto.'],
+        ['G', 'Tapes recovered! They’re so small! Why are they so small?'],
+        ['F', 'Wren is listening to the tapes with her headphones on. She hasn’t said a word in an hour.']] },
+    'rex-shortcut': { chapter: [12, 'Beyond Pluto'],
+      intro: [
+        ['F', 'Pilot, we have a problem. Rex took the Apex Vector and went to find the source on his own.'],
+        ['R', '…Mayday. Again. I tried a shortcut around Vesta, the spin flung me into a crater, and I’m out of fuel. This is becoming a pattern.'],
+        ['W', 'Land at CREW, get him aboard, and climb out. Then we go to Pluto. Together this time.'],
+        ['G', 'I’m making a second sign.']],
+      react: [['R', 'Twice. You’ve saved me twice. I’m going to have to name a lander after you.'],
+        ['F', 'Rex is aboard. He brought snacks as an apology. They’re good snacks.'],
+        ['G', 'Second sign deployed! It says “told you so, again.”']] },
+    'unit-zero': {
+      intro: [
+        ['W', 'This is it. The signal is coming from the bottom of a canyon on Pluto’s far side, under the overhang.'],
+        ['F', 'Same rules as always, pilot. Slow in, gentle down, no heroics. Well. Some heroics.'],
+        ['R', 'For the record, I’m not scared. I’m sitting next to the cat, and the cat is scared.'],
+        ['G', 'Biscuit’s ready. I gave her a pep talk. She was very brave about it.']],
+      react: [['W', 'It’s a probe. Small, old, still beeping. And there’s writing on the side.'],
+        ['G', 'It says “Descent Systems · Unit Zero.” But we don’t have a Unit Zero. Biscuit is Unit One.'],
+        ['W', 'That’s my handwriting. But I have never seen this probe in my life.']] },
+    'radio-polka': {
+      intro: [
+        ['G', 'Now that we have three beacons on the Moon, I had an idea. A radio station. All polka. Fly through my three broadcast markers to switch them on, then land!'],
+        ['F', 'Absolutely not.'],
+        ['G', 'Dottie said yes!'],
+        ['F', 'I said absolutely not.']],
+      react: [['G', 'Descent Systems Polka Radio is ON THE AIR!'],
+        ['F', 'I can hear it from my office. I can hear it in my dreams.'],
+        ['G', 'Perfect broadcast! Somewhere past Pluto, someone is hearing polka. You’re welcome, universe.']] },
+    'geyser-surfing': {
+      intro: [
+        ['R', 'Rex Valor here. Rematch. Europa, three pads, geysers going off all around. Touch 1, 2 and 3, in order. My time: 75 seconds.'],
+        ['W', 'He timed it in a simulator.'],
+        ['R', 'A very realistic simulator!']],
+      react: [['R', 'Okay. You surfed those geysers. I’m impressed. Quietly. On the inside.'],
+        ['G', 'Three pads and not one geyser ride. Rex has gone to stand in the corner.'],
+        ['R', 'Fine. You’re the best pilot in the system. Don’t tell my mom. She thinks it’s me.']] },
+    'catnip-run': {
+      intro: [
+        ['F', 'Apogee has been staring at Wren’s old tapes for three days. She needs a break. Titan grows the best catnip in the system. Don’t ask how.'],
+        ['A', 'Mrrp. (She would like it delivered. Carefully.)'],
+        ['F', 'PICKUP to DROP, gently. If that crate gets bumped, catnip goes everywhere, and Apogee will never forgive either of us.']],
+      react: [['A', 'Prrrrrrrrrrrrrr. (Apogee has entered a state of pure bliss. She may never move again.)'],
+        ['F', 'Catnip delivered. Apogee is rolling around on the break room floor. I have never seen her this happy.'],
+        ['G', 'Not a single leaf out of place! Apogee looked at me. Really looked at me. I think we’re friends now.']] },
+    'meteor-watch': {
+      intro: [
+        ['W', 'Before we head past Pluto, I want to show you something. There’s a meteor shower over Mercury tonight, and the best seat is in the shade by the LZ.'],
+        ['G', 'Meteors AND the sun! Mercury really is trying to get us.'],
+        ['W', 'Red markers show where each meteor will land. Get to the shade and put her down. Then we watch.']],
+      react: [['W', 'There. Look up. That’s why I started flying.'],
+        ['G', 'I counted forty meteors! Thirty-nine. I counted one twice.'],
+        ['W', 'Thank you, pilot. Whatever we find out there, I’m glad you’re the one flying.']] }
   });
   const EPILOGUE2 = [
     ['F', 'Everyone’s home. Gus has been hugging Biscuit for twenty minutes.'],
@@ -1653,7 +1803,15 @@ kbd {
     ['W', 'And when you’re rested, come find me. Vesta, Ganymede, Mercury: Descent Systems is expanding.'],
     ['F', 'Thanks for flying with us. Free flight, the daily challenge and the hangar are all still open. Go have fun.']
   ];
-  const EPILOGUES = { 'last-light': [EPILOGUE, { label: 'Epilogue', title: 'Home' }], 'sunrise': [EPILOGUE2, { label: 'Epilogue', title: 'Everyone Home' }] };
+  const EPILOGUE3 = [
+    ['F', 'We brought Unit Zero home. It’s sitting in the break room, still beeping. Apogee won’t stop staring at it.'],
+    ['G', 'I opened it up. The parts are ours. Our bolts, our wiring, even my favorite brand of tape. But I never built it.'],
+    ['R', 'Apex keeps records going back thirty years. Nobody launched anything toward Pluto twenty-one years ago. Nobody.'],
+    ['W', 'The handwriting is mine. The date is the day I first flew. And the last thing the signal says is a new set of coordinates.'],
+    ['F', 'Farther out than anyone has ever flown. Get some rest, pilot. When we work out how to get there, we’re going to need you.'],
+    ['A', 'Mrrp. (Unit Zero beeps. Apogee beeps back. Nobody knows what that means yet.) TO BE CONTINUED IN ACT 4.']
+  ];
+  const EPILOGUES = { 'last-light': [EPILOGUE, { label: 'Epilogue', title: 'Home' }], 'sunrise': [EPILOGUE2, { label: 'Epilogue', title: 'Everyone Home' }], 'unit-zero': [EPILOGUE3, { label: 'Epilogue', title: 'Unit Zero' }] };
   const FAIL_QUIPS = [
     ['F', 'That’s going in the report. In crayon, so it’s gentle.'],
     ['G', 'Biscuit is fine. Biscuit is in several places, but fine.'],
@@ -1754,7 +1912,35 @@ kbd {
       shade: [[22, 54], [102, 136], [186, 220]],
       goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
       ground: [[0, 42], [20, 38], [30, 36], [46, 36], [64, 46], [88, 52], [112, 46], [126, 46], [148, 52], [172, 44], [196, 34], [210, 34], [228, 40], [240, 44]],
-      pads: [{ id: '1', x1: 30, x2: 46, y: 36 }, { id: '2', x1: 112, x2: 126, y: 46 }, { id: '3', x1: 196, x2: 210, y: 34 }] }
+      pads: [{ id: '1', x1: 30, x2: 46, y: 36 }, { id: '2', x1: 112, x2: 126, y: 46 }, { id: '3', x1: 196, x2: 210, y: 34 }] },
+    // ---- Act 3 side missions ----
+    { id: 'radio-polka', name: 'Polka Radio', side: true, giver: 'G', after: 'triangulation', world: 'moon', kind: 'route',
+      label: 'Broadcast route', fuel: 240, credits: 300,
+      brief: 'Gus wants to use the new Moon beacons for a radio station. All polka, all the time. Fly through his three broadcast markers to switch them on, then land.',
+      spawn: { x: 20, y: 80, vx: 0 }, rings: [[60, 84], [120, 100], [180, 84]], stars: { fuel: 90, time: 45 },
+      ground: [[0, 40], [22, 44], [44, 38], [66, 46], [90, 52], [114, 46], [138, 40], [160, 46], [184, 40], [200, 36], [222, 36], [240, 42]],
+      pads: [{ id: 'LZ', x1: 202, x2: 220, y: 36 }] },
+    { id: 'geyser-surfing', name: 'Geyser Surfing', side: true, giver: 'R', after: 'echo', world: 'europa', kind: 'hop',
+      label: 'Pad hopping', fuel: 300, credits: 320, rexTime: 75,
+      brief: 'Rex wants a rematch: three pads on Europa, with geysers going off all around. Touch down on 1, 2 and 3, in order. He claims 75 seconds.',
+      spawn: { x: 24, y: 70, vx: 0 }, stars: { fuel: 110, time: 85 },
+      vents: [[60, 5.5, 1], [132, 6, 3.5], [200, 6, 0]],
+      goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
+      ground: [[0, 40], [16, 38], [34, 38], [52, 44], [72, 50], [92, 52], [112, 52], [132, 48], [152, 42], [172, 42], [192, 46], [212, 40], [240, 44]],
+      pads: [{ id: '1', x1: 16, x2: 34, y: 38 }, { id: '2', x1: 94, x2: 110, y: 52 }, { id: '3', x1: 154, x2: 170, y: 42 }] },
+    { id: 'catnip-run', name: 'Catnip Run', side: true, giver: 'F', after: 'old-station', world: 'titan', kind: 'cargo',
+      label: 'Fragile cargo', cargoName: 'catnip', fragile: 1.3, mass: 0.85, fuel: 300, credits: 300,
+      brief: 'Apogee has been staring at Wren’s old tapes for three days and needs a break. Titan grows the best catnip in the system. Carry the crate from PICKUP to DROP, gently.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 60, time: 85 },
+      ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+    { id: 'meteor-watch', name: 'Meteor Watch', side: true, giver: 'W', after: 'rex-shortcut', world: 'mercury', kind: 'land',
+      label: 'Meteor shower', fuel: 240, credits: 340, meteors: [2, 3, 3],
+      brief: 'Before the trip past Pluto, Wren wants to show you a meteor shower over Mercury. The best seat is in the shade by the LZ. Red markers show where each meteor will land.',
+      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 100, time: 45 },
+      shade: [[8, 40], [100, 130], [182, 226]],
+      ground: [[0, 40], [20, 36], [44, 40], [68, 48], [92, 44], [116, 50], [140, 46], [164, 40], [186, 36], [218, 36], [232, 40], [240, 42]],
+      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 36 }] }
   ];
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
@@ -1922,7 +2108,7 @@ kbd {
     pads = d.pads.map(p => ({ ...p, label: p.id, mult: 1, move: p.move && { ...p.move, y0: p.move.y0 ?? p.y } }));
     shades = d.shade ? d.shade.map(s => s.slice()) : []; stormSeed = 0;
     ceilings = (d.ceilings || []).map(c => c.slice().sort((a, b) => a[0] - b[0]));
-    vents = [];
+    vents = (d.vents || []).map(([x, period, phase]) => ({ x, period, phase, was: false }));
     missionTerrain = true;
   }
   // ---- Tutorial ----
@@ -3583,7 +3769,8 @@ kbd {
       <h2 class="sect">Act 1 · The Signal</h2>
       <div class="mlist">${MISSIONS.map((d, i) => {
         const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-        const head = i === ACT1 ? `</div><h2 class="sect">Act 2 · New Frontiers</h2>${missionOpen(ACT1) ? '' : '<p class="limits">Finish Last Light to begin Act 2.</p>'}<div class="mlist">` : '';
+        const head = i === ACT1 ? `</div><h2 class="sect">Act 2 · New Frontiers</h2>${missionOpen(ACT1) ? '' : '<p class="limits">Finish Last Light to begin Act 2.</p>'}<div class="mlist">`
+          : i === ACT2 ? `</div><h2 class="sect">Act 3 · Beyond Pluto</h2>${missionOpen(ACT2) ? '' : '<p class="limits">Finish Sunrise to begin Act 3.</p>'}<div class="mlist">` : '';
         return `${head}<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
           <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
           <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
@@ -3592,6 +3779,7 @@ kbd {
           <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
         </button>`;
       }).join('')}</div>
+      ${completedCount(ACT2) === MISSIONS.length - ACT2 ? '<p class="limits act4">Act 4 is on its way. Unit Zero is still beeping.</p>' : ''}
       <h2 class="sect">Side missions from the crew</h2>
       <div class="mlist">${SIDES.map((d, k) => {
         const i = MISSIONS.length + k, w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
@@ -3700,6 +3888,8 @@ kbd {
       add(stats.worlds.length >= 3, `We’ve sent you ${stats.worlds.length} postcards. Gus insists on writing his in all caps. I insist on correcting them.`);
       add(ms('mayday'), 'Rex Valor keeps “accidentally” leaving Apex brochures in the break room. Apogee sleeps on them. Every single one.');
       add(ms('sunrise'), 'Gus has framed the sunscreen bottle from Mercury. It’s on the wall next to the yogurt. Don’t ask.');
+      add(ms('big-ear'), 'Gus put the dish feed on a speaker in here. Four beeps, pause. I hear it when I close my eyes.');
+      add(ms('unit-zero'), 'Unit Zero is in the corner, still beeping. I put a little blanket on it. Don’t ask me why.');
       add(stats.worlds.includes('ganymede'), 'Ganymede’s storms turned my headset into a polka station. I’ve started to enjoy the polka. Please help me.');
       add(ms('coffee-crisis'), 'The Mars office coffee machine works again. They named it after you. It still makes the whale noise.');
       add(ms('stowaway'), 'Apogee hasn’t gone near the launch pad since Titan. She has, however, gone near my keyboard. Constantly.');
@@ -3740,6 +3930,8 @@ kbd {
       add(stats.worlds.includes('vesta'), 'I want to go back to Vesta. I jumped there once and I was gone for a full minute. Best minute of my life.');
       add(ms('mayday'), 'Rex asked how I keep Biscuit so shiny. I told him: love. And a polishing cloth. Mostly the cloth.');
       add(ms('sunrise'), 'You came and got me on Mercury. I’ve named a wrench after you. It’s my best wrench.');
+      add(ms('interference'), 'The signal has numbers in it! I tried to decode them myself and got a pizza order. That was my mistake, not the signal’s.');
+      add(ms('rex-shortcut'), 'Rex brings snacks every morning now. Twice-rescued Rex is my favorite Rex.');
       add(wrenHome(), 'Wren’s teaching me to braid hair. I’m practicing on a mop. The mop looks incredible.');
       add(sideStars() === SIDES.length * 3, 'The crew voted you employee of the month. It was unanimous. Apogee abstained.');
       L.push('Fun fact: Biscuit’s left leg is two millimeters shorter than her right. I’ve never told her. She’d be self-conscious.');
@@ -3775,6 +3967,8 @@ kbd {
       L.push('Dottie and I used to race office chairs down the hangar ramp. I won. She disputes it. She is wrong.');
       L.push('Being stranded taught me two things. Always pack extra fuel, and always pack extra cookies. In that order. Sometimes the other order.');
       add(stats.worlds.includes('pluto'), 'Every time you land on Pluto, I think about Biscuit’s first bounce there. You’ve gotten much better at that than I ever was.');
+      add(ms('old-station'), 'Twenty-one years. I keep listening to those tapes. I know that beep. I just don’t know why I know it.');
+      add(ms('unit-zero'), 'My handwriting, on a probe I never built. I’ve checked my old notebooks twice. Then a third time.');
       add(fleetOwned.has('lark'), 'You’re looking after my old Lark. She pulls a little to the left. So do I. We understand each other.');
       add(denLook.wallL === 'starchart', 'I saw my star chart in your cabin. You know two of those constellations are made up, right? You’ll never guess which.');
     } else if (who === 'A') {
