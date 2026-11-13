@@ -460,6 +460,11 @@ kbd {
 .den-items .pv { display: flex; width: 100%; height: 46px; align-items: center; justify-content: center; background: var(--space); border-radius: 3px; overflow: hidden; }
 .den-items .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
 .den .ok-note { margin: 0; font-size: 13px; color: var(--ok); }
+.photo-pop { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(5, 7, 15, 0.86);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.photo-pop .pp { width: 100%; max-width: 52rem; display: flex; flex-direction: column; gap: 12px; align-items: center; padding: 14px; background: var(--space); border: 1px solid var(--space-2); border-radius: 10px; font-family: var(--f-mono); color: var(--regolith); }
+.photo-pop img { display: block; width: 100%; height: auto; border-radius: 6px; image-rendering: pixelated; -webkit-touch-callout: default; }
+.photo-pop p { margin: 0; font-size: 13px; color: var(--regolith-dim); text-align: center; text-wrap: balance; }
 .den .den-items .grp { grid-column: 1 / -1; margin: 4px 0 0; font-family: var(--f-display); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--flame); }
 .den .den-items .item.locked { opacity: 0.55; }
 @media (min-width: 861px) { .den .den-items { max-height: 340px; overflow-y: auto; padding-right: 2px; } }
@@ -2313,6 +2318,7 @@ kbd {
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
+      shutter() { burst(0, 0.035, 0.35, 5000, 1500); burst(0.07, 0.05, 0.3, 3000, 900); },
       knock() { tone(150, 'triangle', 0, 0.06, 0.35); tone(140, 'triangle', 0.16, 0.06, 0.35); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
       radio() { tone(2525, 'sine', 0, 0.12, 0.05); },
@@ -2911,6 +2917,7 @@ kbd {
   const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den') card.classList.remove('wide');
+    if (m !== 'den') closeDenPhoto();
     if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
@@ -4457,6 +4464,51 @@ kbd {
     }, 24);
   }
   let denThumbScene = null;
+  // ---- Photo mode: a crisp, big picture of your cabin to save or share ----
+  function closeDenPhoto() {
+    const pop = $('photoPop');
+    if (!pop) return;
+    if (pop.dataset.url) URL.revokeObjectURL(pop.dataset.url);
+    pop.remove();
+    const b = $('denSnap'); if (b) b.focus({ preventScroll: true });
+  }
+  function denSnap() {
+    if (!denUI) return;
+    const off = document.createElement('canvas'); off.width = RW; off.height = RH;
+    drawDen(off, denLook, null, performance.now(), { ...denUI, talking: null });
+    const K = 6, out = document.createElement('canvas'); out.width = RW * K; out.height = RH * K;
+    const c = out.getContext('2d'); c.imageSmoothingEnabled = false;
+    c.drawImage(off, 0, 0, RW * K, RH * K);
+    const label = 'DESCENT SYSTEMS · THE PAD';
+    c.font = '700 20px "Chakra Petch", "Trebuchet MS", system-ui, sans-serif'; c.textBaseline = 'middle';
+    const w = c.measureText(label).width + 28;
+    c.fillStyle = 'rgba(10,14,28,0.75)'; rrect(c, out.width - w - 30, out.height - 62, w, 34, 8); c.fill();
+    c.fillStyle = '#ffb547'; c.fillText(label, out.width - w - 16, out.height - 45);
+    sfx.shutter();
+    const cv = $('denCv');
+    if (cv && cv.animate && !reduceMotion) cv.animate([{ filter: 'brightness(2.6)' }, { filter: 'brightness(1)' }], { duration: 380, easing: 'ease-out' });
+    out.toBlob(blob => {
+      if (!blob || mode !== 'den') return;
+      closeDenPhoto();
+      const url = URL.createObjectURL(blob), file = new File([blob], 'my-cabin.png', { type: 'image/png' });
+      const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+      const pop = document.createElement('div');
+      pop.id = 'photoPop'; pop.className = 'photo-pop'; pop.dataset.url = url;
+      pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Your photo');
+      pop.innerHTML = `<div class="pp">
+        <img src="${url}" alt="A photo of your cabin in Descent Systems">
+        <p>${canShare ? 'Tap Share, then Save Image to put it in your photos, or send it to a friend.' : 'Save it, or press and hold the picture to copy or save it.'}</p>
+        <div class="btns">${canShare ? '<button class="btn" id="ppShare">Share</button>' : ''}<button class="btn${canShare ? ' ghost' : ''}" id="ppSave">Save</button><button class="btn ghost" id="ppClose">Close</button></div>
+      </div>`;
+      document.body.appendChild(pop);
+      pop.addEventListener('click', e => { if (e.target === pop) closeDenPhoto(); });
+      $('ppClose').addEventListener('click', closeDenPhoto);
+      $('ppSave').addEventListener('click', () => { const a = document.createElement('a'); a.href = url; a.download = 'my-cabin.png'; document.body.appendChild(a); a.click(); a.remove(); });
+      const sh = $('ppShare');
+      if (sh) sh.addEventListener('click', () => { navigator.share({ files: [file], title: 'My cabin', text: 'My cabin in Descent Systems' }).catch(() => {}); });
+      (sh || $('ppSave')).focus({ preventScroll: true });
+    }, 'image/png');
+  }
 
   function renderDen(keepSpot) {
     let fresh = false;
@@ -4496,6 +4548,7 @@ kbd {
             ${denUI.cat ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
             ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
             <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
+            <button class="btn ghost" id="denSnap">Take a photo</button>
           </div>
           <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}</button>`).join('')}</div>
         </div>
@@ -4530,6 +4583,7 @@ kbd {
     });
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
+    $('denSnap').addEventListener('click', denSnap);
     $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
       const who = guests[Math.floor(Math.random() * guests.length)];
@@ -6103,6 +6157,8 @@ kbd {
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
     if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
+    if (mode === 'den' && e.code === 'Escape' && $('photoPop')) { closeDenPhoto(); return; }
+    if (mode === 'den' && $('photoPop')) return;
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
