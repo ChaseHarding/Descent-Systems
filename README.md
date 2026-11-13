@@ -23,6 +23,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: thirteen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
+- **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
@@ -52,14 +53,15 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Menus
 
-The main menu opens on two big cards with live previews:
+The main menu opens on three big cards with live previews:
 
 - **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford.
 - **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
+- **The Pad**: a live view of your cabin, decorated however you left it, with how many decorations you've collected.
 
 Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, **Settings** and **How to play**, which replays the tutorial.
 
-<p align="center"><img src="media/home.png" alt="The main menu: big Hangar and Break room cards with live previews above the four game modes" width="560"></p>
+<p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes" width="560"></p>
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
@@ -301,6 +303,28 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 
 <p align="center"><img src="media/bulletin-board.png" alt="The bulletin board: sticky notes pinned to cork, including Dottie's complaint about the ×2 pad, a found-cat notice for Apogee, the karaoke sign-up sheet and the landing of the week" width="560"></p>
 
+## The Pad
+
+Open **The Pad** from the start screen to visit your own cabin, a cozy retro-future spaceship room. It has curved walls, glowing light strips along the ceiling, a capsule bunk, a window bench with cushions, a backlit shelf alcove, a floating desk with an egg chair, and a big rounded window looking down on a planet. Tap any spot in the room, or use the buttons under it, to change what goes there:
+
+| Spot | What can go there |
+|---|---|
+| Left wall | Lander poster (in your current paint), star chart, company pennant, Apogee calendar, solar system map, a signed Rex Valor poster |
+| Window | In orbit over the last world you flew, blinds down, Earth from orbit, Saturn, a nebula |
+| Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign |
+| Shelf (3 spots) | Cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket, gold trophy |
+| Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
+| Corner | Potted fern, beanbag, mini fridge, guitar, telescope, an arcade cabinet that only plays Descent Systems |
+| Rug | Orange rug, striped runner, Saturn rug, cat face rug |
+| Bedding | Six colors for the bunk and the window-bench cushions: crimson, cloud cream, blush pink, tangerine, starry night and mint |
+| Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead or a twinkling starfield |
+| Flooring | Plush carpet, gloss floor, glowing light panels, rose carpet or deck grating |
+| Lights | The color of the glowing strips: amber, ice blue, rose, color-cycling aurora, pulsing red alert, a disco ball, or night mode with just the window and your reading light |
+
+Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
+
+<p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin with amber light strips, a capsule bunk with red blankets, a window bench with red cushions under a big rounded window looking down on Earth, an Apogee calendar, a neon LAND sign, a backlit shelf with a trophy, snow globe and rubber duck, and a retro computer on a floating desk, with the window view picker beside it" width="640"></p>
+
 ## Endless run
 
 Choose **Endless run** on the main menu for a roguelike run: how far can one lander go?
@@ -376,7 +400,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
