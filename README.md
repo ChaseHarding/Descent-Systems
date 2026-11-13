@@ -47,7 +47,14 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Menus
 
-The main menu has four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. Below them are links to the **Hangar**, **Badges**, **Break room**, **Settings** and **How to play**, which replays the tutorial.
+The main menu opens on two big cards with live previews:
+
+- **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford.
+- **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
+
+Below them are the four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. At the bottom are links to **Badges**, **Settings** and **How to play**, which replays the tutorial.
+
+<p align="center"><img src="media/home.png" alt="The main menu: big Hangar and Break room cards with live previews above the four game modes" width="560"></p>
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
@@ -72,6 +79,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | ← → (world picker) | Switch world |
 | Space / Enter | Start or continue |
 | H | Open the hangar |
+| R | Open the break room |
 | Z | Toggle auto-zoom |
 | G | Toggle ghosts |
 | M | Toggle sound |
@@ -305,7 +313,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
