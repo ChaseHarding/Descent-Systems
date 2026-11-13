@@ -99,7 +99,14 @@ On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game
 
 ## Hangar
 
-Every point you score is banked as credits the moment you touch down. Spend them in the hangar on cosmetics. Click any item to try it on in the live preview before you buy it. Cosmetics never change how the lander flies.
+Every point you score is banked as credits the moment you touch down. Spend them in the hangar on cosmetics. Cosmetics never change how the lander flies.
+
+The hangar is a garage: Biscuit hovers over the pad in front of a big open door looking out on the world you flew last, and Gus works at his bench and comments on everything you put on her.
+
+- **Tabs** for **Hull**, **Flame** and **Flag**, each showing how many you own.
+- **Try anything on.** Click an item to see it on Biscuit in the garage.
+- **Your look** adds up the hull, flame and flag you're trying on, shows the total cost, and buys and equips everything in one go (or resets to what you had).
+- **Locked badge rewards** say which badge earns them and how close you are, with a progress bar where there is one.
 
 - **Hull finishes:** Mission White, Gold Foil, Mars Rust, Titan Amber, Chrome
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
@@ -107,7 +114,7 @@ Every point you score is banked as credits the moment you touch down. Spend them
 
 Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and more) appear in the hangar once you earn them.
 
-<p align="center"><img src="media/hangar.png" alt="The hangar: a live preview of the lander in the Spa Day hull with an Espresso flame, above shelves of hull finishes and engine flames" width="480"></p>
+<p align="center"><img src="media/hangar.png" alt="The hangar: Biscuit hovering over the pad in a garage with Gus at his workbench, a Your look panel totaling the cost, and a tabbed grid of engine flames" width="640"></p>
 
 ## Missions
 
