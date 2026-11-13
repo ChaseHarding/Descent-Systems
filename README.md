@@ -444,7 +444,7 @@ Every day the crew posts three small jobs. Open **Crew requests** from the main 
 | Apogee | Pet Apogee three times | 150 cr |
 | Gus | Score 600 in the arcade (once you own the cabinet) | 300 cr |
 
-Requests count from free flight, missions, the daily challenge, endless runs and ghost races. Credits are paid the moment you finish one, and finishing all three adds a 250 credit bonus from Dottie. Requests change at midnight UTC, the same time as the daily challenge, and everyone gets the same three each day, so friends can compare. Until Wren is home, Gus takes over her request.
+Requests count from free flight, missions, the daily challenge, endless runs and ghost races. Credits are paid the moment you finish one, and the crew member who asked pops up at the bottom of the screen to react in their own words. Gus frames your fuel receipt, the rover driver reviews your landing on her roof, and Apogee marks the appointment as completed. Finishing all three adds a 250 credit bonus, plus a gold star on your file from Dottie. Requests change at midnight UTC, the same time as the daily challenge, and everyone gets the same three each day, so friends can compare. Until Wren is home, Gus takes over her request.
 
 ## Daily challenge
 
