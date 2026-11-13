@@ -29,7 +29,7 @@
 <meta name="apple-mobile-web-app-title" content="Descent">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: one full-height stage — canvas fills it, instrument HUD pinned top-left, touch pad below on phones.
    Each world brings its own sky/ground colors into the canvas; the HUD chrome stays constant. */
@@ -341,6 +341,31 @@ kbd {
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; }
 .lounge .radio.quote { max-width: none; min-height: 88px; }
+/* Bulletin board */
+.board { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.cork {
+  width: 100%; box-sizing: border-box; padding: 22px 18px; border-radius: 6px;
+  border: 8px solid #5a4636; background-color: #a47a4c;
+  background-image: radial-gradient(rgba(60, 36, 16, 0.35) 1px, transparent 1.5px), radial-gradient(rgba(255, 230, 190, 0.18) 1px, transparent 1.5px);
+  background-size: 9px 9px, 13px 13px; background-position: 0 0, 4px 6px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 20px 16px; align-items: start;
+}
+.note {
+  position: relative; min-width: 0; padding: 16px 14px 12px; color: #2a2a33; text-align: left;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.35); transform: rotate(var(--r, 0deg));
+}
+.note::before { content: ""; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--pin, #ff6b5e); box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.4); }
+.note.tape::before { top: -9px; width: 54px; height: 16px; margin-left: -27px; border-radius: 1px; background: rgba(255, 250, 230, 0.6); box-shadow: none; }
+.note h3 { margin: 0 0 6px; font-family: var(--f-display); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: inherit; }
+.card .note p, .note li { margin: 0; font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive; font-size: 19px; line-height: 1.2; color: inherit; text-align: left; }
+.note .sig { display: block; margin-top: 6px; text-align: right; font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive; font-size: 18px; }
+.note ul { margin: 0; padding: 0; list-style: none; }
+.note li { border-bottom: 1px solid rgba(42, 42, 51, 0.25); padding: 3px 0; }
+.note s { opacity: 0.7; }
+.note .big { display: block; font-family: var(--f-display); font-weight: 700; font-size: 34px; line-height: 1; text-align: center; margin: 4px 0; }
+.note .tally { font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.08em; word-break: break-all; }
+.note canvas { display: block; width: 64px; height: 64px; margin: 4px auto 6px; image-rendering: pixelated; }
+.note .star { position: absolute; top: 8px; right: 10px; color: #e0a000; font-size: 22px; }
 /* Settings */
 .settings { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .toggle {
@@ -635,11 +660,19 @@ kbd {
   // ---- Badges (achievements) ----
   let stats;
   try { stats = JSON.parse(store.get('ds-stats', '{}')) || {}; } catch (e) { stats = {}; }
-  stats = { landings: +stats.landings || 0, worlds: Array.isArray(stats.worlds) ? stats.worlds : [], bestSite: +stats.bestSite || 0 };
+  stats = { landings: +stats.landings || 0, worlds: Array.isArray(stats.worlds) ? stats.worlds : [], bestSite: +stats.bestSite || 0,
+    pads: { 2: 0, 3: 0, 5: 0, ...(stats.pads || {}) }, best: stats.best || null };
   let got;
   try { got = JSON.parse(store.get('ds-ach', '{}')) || {}; } catch (e) { got = {}; }
   const saveStats = () => store.set('ds-stats', JSON.stringify(stats));
   let crashCount = +store.get('ds-crashes', '0') || 0;
+  if (!store.get('ds-first', '')) store.set('ds-first', String(Date.now()));
+  // free-flight landings, for the bulletin board
+  function noteLanding(pad, vy, pts) {
+    if (pad.mult in stats.pads) stats.pads[pad.mult]++;
+    if (!stats.best || pts > stats.best.pts) stats.best = { pts, world: world.name, vy: +vy.toFixed(2), mult: pad.mult, t: Date.now() };
+    saveStats();
+  }
   const boughtCount = () => [...HULLS.map(i => 'hull:' + i.id), ...FLAMES.map(i => 'flame:' + i.id)]
     .concat(typeof FLAGS !== 'undefined' ? FLAGS.map(i => 'flag:' + i.id) : [])
     .filter(k => owned.has(k) && findItem(k.split(':')[0], k.split(':')[1]).price > 0).length;
@@ -1824,6 +1857,7 @@ kbd {
       lastRun = { frames: recording, result: 'landed' };
       sfx.thud(); sfx.landed(soft > 0);
       onLanded(pad, vy, vx, angDeg, L.fuel);
+      noteLanding(pad, vy, pts);
       if (match) { endTurn(); return; }
       score += pts;
       if (daily) {
@@ -1843,7 +1877,7 @@ kbd {
       if ((footHit || hullHit) && vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s (limit ${SAFE_VX})`);
       if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
       if (!reasons.length) reasons.push('hit the ground at a bad angle');
-      crashCount++; store.set('ds-crashes', String(crashCount));
+      crashCount++; store.set('ds-crashes', String(crashCount)); store.set('ds-lastCrash', String(Date.now()));
       explode();
       addShake(14);
       holdCard = { dur: 1000, slow: false };
@@ -1878,7 +1912,7 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board'];
   const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
@@ -1911,6 +1945,7 @@ kbd {
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
     if (m === 'lounge') { renderLounge(); return; }
+    if (m === 'board') { renderBoard(); return; }
     if (m === 'settings') { renderSettings(); return; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
@@ -2431,6 +2466,7 @@ kbd {
   let lounge = null;
   const RW = 200, RH = 100;
   const CREW_X = { F: 52, G: 86, W: 120 };
+  let catSpot = null;
   const CAT_SPOTS = [
     { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
   ];
@@ -2544,6 +2580,10 @@ kbd {
     c.fillStyle = w.orb; c.beginPath(); c.arc(110, 19, 6, 0, Math.PI * 2); c.fill();
     c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(113, 21, 6, 0, Math.PI * 2); c.fill();
     px(c, 99, 8, 2, 32, '#3a4668'); px(c, 72, 40, 56, 3, '#4a5578');
+    // the bulletin board
+    px(c, 50, 8, 20, 16, '#5a4636'); px(c, 51, 9, 18, 14, '#a47a4c');
+    px(c, 53, 11, 5, 5, '#ffe58a'); px(c, 60, 10, 6, 7, '#f4f1e8'); px(c, 55, 17, 6, 4, '#ffc6e4'); px(c, 63, 18, 4, 4, '#cfe3ff');
+    px(c, 55, 11, 1, 1, '#ff6b5e'); px(c, 62, 10, 1, 1, '#ff6b5e'); px(c, 57, 17, 1, 1, '#9fe0b8');
     // shelf of badges: one little trophy per badge earned
     px(c, 6, 26, 40, 2, '#4a5578');
     const nb = Math.min(earned(), 12);
@@ -2602,6 +2642,7 @@ kbd {
     if (x >= s.x - 5 && x <= s.x + 16 && y >= s.y - 6 && y <= s.y + 8) return 'A';
     for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= CREW_X[who] + 6 && x <= CREW_X[who] + 26 && y >= 30 && y <= 60) return who;
     if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
+    if (x >= 48 && x <= 72 && y >= 6 && y <= 26) return 'B';
     return null;
   }
   function renderLounge() {
@@ -2612,7 +2653,8 @@ kbd {
       drawFace(cv, who, DEFAULT_MOOD[who], false, false, true);
       faces[who] = cv;
     }
-    lounge = { faces, cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
+    catSpot = CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)];
+    lounge = { faces, cat: catSpot, catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
       <canvas class="room" id="room" width="${RW}" height="${RH}" role="img" aria-label="The Descent Systems break room: the crew around a table, a coffee machine, a window, and Apogee the cat asleep nearby"></canvas>
@@ -2623,11 +2665,15 @@ kbd {
         <button class="btn ghost" data-talk="A">Pet Apogee</button>
       </div>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
-      <button class="btn ghost" id="back">Main menu</button>
+      <div class="btns">
+        <button class="btn" id="boardBtn">Bulletin board</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>
     </div>`;
     card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => loungeTalk(b.dataset.talk)));
-    $('room').addEventListener('click', e => { const who = roomHit(e); if (who) loungeTalk(who); });
+    $('room').addEventListener('click', e => { const who = roomHit(e); if (who === 'B') setMode('board'); else if (who) loungeTalk(who); });
     $('back').addEventListener('click', () => setMode('title'));
+    $('boardBtn').addEventListener('click', () => setMode('board'));
     drawRoom();
     lounge.anim = setInterval(drawRoom, 100);
     // someone says hello when you walk in
@@ -2636,6 +2682,73 @@ kbd {
     const first = present[Math.floor(Math.random() * present.length)];
     loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+
+  // ---- Bulletin board: notes the crew pins up about you ----
+  const tally = n => Array.from({ length: Math.ceil(Math.min(n, 40) / 5) }, (_, i) => '|'.repeat(Math.min(5, Math.min(n, 40) - i * 5))).join(' ') + (n > 40 ? ' …' : '');
+  const daysSince = t => Math.floor((Date.now() - t) / 86400000);
+  function boardNotes() {
+    const P = stats.pads, total = P[2] + P[3] + P[5], home = wrenHome();
+    const ms = id => (missionStars[id] || 0) > 0;
+    const pilot = names[0] && names[0] !== 'Player 1' ? esc(names[0]) : 'Pilot';
+    const notes = [];
+    // 1. Dottie's pad notice
+    let pad;
+    if (!total) pad = `<h3>Free flight pads</h3><p>Pads pay ×2, ×3 and ×5. Nobody has landed on one yet. Suspicious.</p>`;
+    else if (P[2] >= P[5] && P[2] >= P[3]) pad = `<h3>Who keeps landing on the ×2 pad</h3><p>The ×5 pad is RIGHT THERE.</p><p class="tally">×2 ${tally(P[2])}</p>`;
+    else if (P[5] >= P[3]) pad = `<h3>Re: the ×5 pad</h3><p>Whoever keeps landing on it: show-off. Keep doing it.</p><p class="tally">×5 ${tally(P[5])}</p>`;
+    else pad = `<h3>Pad report</h3><p>Mostly ×3 landings. Safe. Sensible. Boring. I approve, quietly.</p>`;
+    notes.push({ cls: '', bg: '#ffe58a', r: -2, html: pad + '<span class="sig">— D.</span>' });
+    // 2. Apogee: lost, then found
+    const spots = { machine: 'asleep on the coffee machine', table: 'on the break room table', counter: 'licking the sugar on the counter', box: 'in a box. Her box. Allegedly.' };
+    const seen = catSpot ? spots[catSpot.id] : 'somewhere warm';
+    notes.push({ cls: 'tape', bg: '#f4f1e8', r: 2, cat: true, html: ms('stowaway')
+      ? `<h3>Found: one cat</h3><p>Apogee was on Titan. Do not ask. She is fine and will never forgive any of us.</p><span class="sig">— Dottie</span>`
+      : `<h3>Lost cat</h3><p>Apogee. Orange. Judgmental. Answers to nothing.</p><p>Last seen: ${seen}.</p><span class="sig">— Dottie</span>` });
+    // 3. Karaoke sign-up
+    notes.push({ cls: '', bg: '#cfe3ff', r: -1, pin: '#9fe0b8', html: `<h3>Karaoke night · Friday</h3><ul>
+      <li>Gus: “Biscuit, a Ballad” (original, 11 minutes)</li>
+      <li><s>Dottie</s> Not singing. Stop writing my name.</li>
+      ${home ? '<li>Wren: duet with Gus, apparently</li>' : ''}
+      <li><s>Apogee</s></li>
+      <li>${pilot}: ${got.rival ? 'champion’s choice' : '__________'}</li>
+    </ul>` });
+    // 4. Best landing printout
+    const b = stats.best;
+    notes.push({ cls: 'tape', bg: '#ffffff', r: 1.5, html: b
+      ? `<span class="star" aria-hidden="true">★</span><h3>Landing of the week</h3><span class="big">${fmt(b.pts)}</span><p>${b.world}, the ×${b.mult} pad, touching down at ${b.vy.toFixed(2)} m/s. Framed by Gus.</p>`
+      : `<h3>Landing of the week</h3><p>This spot is reserved for your best free-flight landing. Gus has the frame ready.</p>` });
+    // 5. Days since last crash
+    const lc = +store.get('ds-lastCrash', '0');
+    notes.push({ cls: '', bg: '#f4f1e8', r: -1.5, html: `<h3>Days since last crash</h3><span class="big">${lc ? daysSince(lc) : '∞'}</span>
+      <p>${!lc ? 'Not one crash. Gus wants this laminated.' : daysSince(lc) === 0 ? 'Reset this morning. Again. — D.' : 'Keep it going. Biscuit is counting on you.'}</p>` });
+    // 6. Gus's yogurt
+    const day = daysSince(+store.get('ds-first', String(Date.now()))) + 1;
+    notes.push({ cls: '', bg: '#c9f0d8', r: 2.5, pin: '#ffb547', html: `<h3>Yogurt experiment</h3><p>Day ${day}. It is NOT a snack. ${day > 6 ? 'It moved yesterday. Good sign?' : 'Do not touch.'}</p><span class="sig">— Gus</span>` });
+    // 7. Today's daily
+    notes.push({ cls: '', bg: '#ffc6e4', r: -2.5, html: `<h3>Today’s daily</h3><p>${dailyWorld().name}. Gus’s prediction: you crash on site 2. Prove him wrong.</p>` });
+    // 8. Campaign chart, or Wren's agenda once she's home
+    notes.push({ cls: 'tape', bg: '#ffe58a', r: 1, html: home
+      ? `<h3>Meeting · Tuesday</h3><ul><li>Second lander? (Dottie: no)</li><li>Budget (Dottie: also no)</li><li>Cake (everyone: yes)</li></ul><span class="sig">— W.</span>`
+      : `<h3>Progress</h3><p>Missions: ${completedCount()} of ${MISSIONS.length}</p><p>Side jobs: ${SIDES.filter(d => ms(d.id)).length} of ${SIDES.length}</p><p>Badges: ${earned()} of ${ACH.length}</p><span class="sig">— D.</span>` });
+    return notes;
+  }
+  function renderBoard() {
+    const notes = boardNotes();
+    card.innerHTML = `<div class="board">
+      <h1 class="good">Bulletin board</h1>
+      <div class="cork">${notes.map(n => `<div class="note ${n.cls}" style="--r:${n.r}deg; background:${n.bg};${n.pin ? ` --pin:${n.pin};` : ''}">
+        ${n.cat ? '<canvas width="32" height="32" class="catpic" aria-hidden="true"></canvas>' : ''}${n.html}</div>`).join('')}</div>
+      <div class="btns">
+        <button class="btn" id="toLounge">Back to the break room</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>
+    </div>`;
+    const cp = card.querySelector('.catpic');
+    if (cp) drawFace(cp, 'A', 'neutral', false, false);
+    $('toLounge').addEventListener('click', () => setMode('lounge'));
+    $('back').addEventListener('click', () => setMode('title'));
+    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
   function renderHangar(focus) {
@@ -3374,6 +3487,7 @@ kbd {
       return;
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
+    if (mode === 'board') { if (e.code === 'Escape') setMode('lounge'); return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
