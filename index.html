@@ -459,6 +459,24 @@ kbd {
 .arc-pad .thr { color: #7dff9a; border-color: #2e6b45; }
 .arc-pad .thr.held { background: #7dff9a; color: #02160a; }
 .arc-pad button:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+/* Pilot license */
+.license { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.license #licCv { display: block; width: 100%; aspect-ratio: 600 / 375; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
+@media (max-width: 860px) { .license #licCv { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; } }
+.license .radio.quote { max-width: none; width: 100%; }
+.lic-edit { width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; text-align: left; }
+.lic-name { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--regolith-dim); }
+.lic-name input { padding: 8px 10px; background: var(--space); color: var(--regolith); border: 1px solid var(--space-2); border-radius: 4px; font-family: var(--f-mono); font-size: 16px; }
+.lic-name input:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }
+.lic-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 8px; align-items: center; }
+.lic-row > span { font-size: 12px; color: var(--regolith-dim); }
+.lchips, .lsws { display: flex; flex-wrap: wrap; gap: 5px; }
+.lchips button { padding: 6px 9px; border: 1px solid var(--space-2); border-radius: 4px; background: var(--space); color: var(--regolith-dim); font-family: var(--f-mono); font-size: 11px; cursor: pointer; }
+.lchips button[aria-pressed="true"] { border-color: var(--flame); color: var(--flame); }
+.lsw { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--space-2); cursor: pointer; padding: 0; }
+.lsw[aria-pressed="true"] { border-color: var(--flame); box-shadow: 0 0 0 2px var(--space), 0 0 0 4px var(--flame); }
+.lchips button:focus-visible, .lsw:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
+@media (max-width: 480px) { .lic-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
 /* The Pad: your cabin */
 .den { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .den .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); text-wrap: balance; }
@@ -967,7 +985,8 @@ kbd {
   let stats;
   try { stats = JSON.parse(store.get('ds-stats', '{}')) || {}; } catch (e) { stats = {}; }
   stats = { landings: +stats.landings || 0, worlds: Array.isArray(stats.worlds) ? stats.worlds : [], bestSite: +stats.bestSite || 0,
-    pads: { 2: 0, 3: 0, 5: 0, ...(stats.pads || {}) }, best: stats.best || null };
+    pads: { 2: 0, 3: 0, 5: 0, ...(stats.pads || {}) }, best: stats.best || null,
+    softest: stats.softest != null ? +stats.softest : null, byWorld: stats.byWorld || {}, byLander: stats.byLander || {} };
   let got;
   try { got = JSON.parse(store.get('ds-ach', '{}')) || {}; } catch (e) { got = {}; }
   const saveStats = () => store.set('ds-stats', JSON.stringify(stats));
@@ -1995,6 +2014,9 @@ kbd {
 
   function onLanded(pad, vy, vx, ang, fuel) {
     stats.landings++;
+    stats.softest = stats.softest == null ? vy : Math.min(stats.softest, vy);
+    stats.byWorld[world.id] = (stats.byWorld[world.id] || 0) + 1;
+    stats.byLander[ship().id] = (stats.byLander[ship().id] || 0) + 1;
     if (!stats.worlds.includes(world.id)) {
       stats.worlds.push(world.id);
       const side = SIDES.find(x => x.afterWorld === world.id);
@@ -2931,13 +2953,13 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license'];
   const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
-    if (m !== 'hangar' && m !== 'den' && m !== 'arcade') card.classList.remove('wide');
+    if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
-    if (m !== 'den') closeDenPhoto();
-    if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
+    closeDenPhoto();
+    if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade' && m !== 'license') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -2970,6 +2992,7 @@ kbd {
     if (m === 'lounge') { renderLounge(); return; }
     if (m === 'den') { renderDen(true); return; }
     if (m === 'arcade') { renderArcade(); return; }
+    if (m === 'license') { renderLicense(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
     if (m === 'log') { renderLog(); return; }
@@ -3020,6 +3043,7 @@ kbd {
         </nav>
         <div class="subnav">
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
+          <button class="link" id="licenseBtn">License<span>${rankOf().name}</span></button>
           <button class="link" id="settingsBtn">Settings</button>
           <button class="link" id="howBtn">How to play</button>
           ${installLink()}
@@ -3282,6 +3306,8 @@ kbd {
     });
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('hangar'));
+    const lcb = $('licenseBtn');
+    if (lcb) lcb.addEventListener('click', () => { licenseFrom = 'title'; setMode('license'); });
     const bb = $('badgesBtn');
     if (bb) bb.addEventListener('click', () => setMode('badges'));
     const mb = $('missionsBtn');
@@ -4019,7 +4045,7 @@ kbd {
           c.lineWidth = 0.8; c.beginPath(); c.moveTo(x + 15, y + 10); c.lineTo(x + 15 + Math.sin(m) * 6.5, y + 10 - Math.cos(m) * 6.5); c.stroke();
           px(c, x + 15, y + 2, 1, 1, '#ff6b5e');
         } },
-      { id: 'cert', name: 'Pilot license', price: 0, blurb: 'Framed. Official. Laminated twice, just in case.',
+      { id: 'cert', name: 'Pilot license', price: 0, blurb: 'Framed. Official. Laminated twice, just in case. Tap it in your Pad to see the full card.',
         draw(c, x, y) { px(c, x + 3, y + 1, 24, 18, '#c9a24a'); px(c, x + 4, y + 2, 22, 16, '#f4f1e8'); px(c, x + 7, y + 5, 16, 1, '#8a8f9c'); px(c, x + 7, y + 8, 12, 1, '#8a8f9c'); px(c, x + 7, y + 11, 14, 1, '#8a8f9c'); circ(c, x + 21, y + 14, 2.5, '#ff6b5e'); } },
       { id: 'patch', name: 'Mission patch', price: 300, blurb: 'Embroidered by Dottie during a very long meeting.',
         draw(c, x, y) { circ(c, x + 15, y + 10, 9, '#ffb547'); circ(c, x + 15, y + 10, 8, '#1e2b55'); px(c, x + 13, y + 7, 4, 3, '#e8ebf2'); px(c, x + 12, y + 10, 6, 1, '#e8ebf2'); px(c, x + 12, y + 11, 1, 2, '#e8ebf2'); px(c, x + 17, y + 11, 1, 2, '#e8ebf2'); px(c, x + 15, y + 4, 1, 1, '#ffe58a'); px(c, x + 9, y + 13, 12, 1, '#ff6b5e'); } },
@@ -4491,7 +4517,7 @@ kbd {
     if (!pop) return;
     if (pop.dataset.url) URL.revokeObjectURL(pop.dataset.url);
     pop.remove();
-    const b = $('denSnap'); if (b) b.focus({ preventScroll: true });
+    const b = $('denSnap') || $('licShare'); if (b) b.focus({ preventScroll: true });
   }
   function denSnap() {
     if (!denUI) return;
@@ -4508,25 +4534,30 @@ kbd {
     sfx.shutter();
     const cv = $('denCv');
     if (cv && cv.animate && !reduceMotion) cv.animate([{ filter: 'brightness(2.6)' }, { filter: 'brightness(1)' }], { duration: 380, easing: 'ease-out' });
+    showPhotoPop(out, 'my-cabin.png', 'My cabin', 'My cabin in Descent Systems', 'A photo of your cabin in Descent Systems');
+  }
+  // shows a finished picture with Share (where the browser can share files) and Save
+  function showPhotoPop(out, filename, title, text, alt) {
+    const from = mode;
     out.toBlob(blob => {
-      if (!blob || mode !== 'den') return;
+      if (!blob || mode !== from) return;
       closeDenPhoto();
-      const url = URL.createObjectURL(blob), file = new File([blob], 'my-cabin.png', { type: 'image/png' });
+      const url = URL.createObjectURL(blob), file = new File([blob], filename, { type: 'image/png' });
       const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
       const pop = document.createElement('div');
       pop.id = 'photoPop'; pop.className = 'photo-pop'; pop.dataset.url = url;
-      pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Your photo');
+      pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', title);
       pop.innerHTML = `<div class="pp">
-        <img src="${url}" alt="A photo of your cabin in Descent Systems">
+        <img src="${url}" alt="${alt}">
         <p>${canShare ? 'Tap Share, then Save Image to put it in your photos, or send it to a friend.' : 'Save it, or press and hold the picture to copy or save it.'}</p>
         <div class="btns">${canShare ? '<button class="btn" id="ppShare">Share</button>' : ''}<button class="btn${canShare ? ' ghost' : ''}" id="ppSave">Save</button><button class="btn ghost" id="ppClose">Close</button></div>
       </div>`;
       document.body.appendChild(pop);
       pop.addEventListener('click', e => { if (e.target === pop) closeDenPhoto(); });
       $('ppClose').addEventListener('click', closeDenPhoto);
-      $('ppSave').addEventListener('click', () => { const a = document.createElement('a'); a.href = url; a.download = 'my-cabin.png'; document.body.appendChild(a); a.click(); a.remove(); });
+      $('ppSave').addEventListener('click', () => { const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); });
       const sh = $('ppShare');
-      if (sh) sh.addEventListener('click', () => { navigator.share({ files: [file], title: 'My cabin', text: 'My cabin in Descent Systems' }).catch(() => {}); });
+      if (sh) sh.addEventListener('click', () => { navigator.share({ files: [file], title, text }).catch(() => {}); });
       (sh || $('ppSave')).focus({ preventScroll: true });
     }, 'image/png');
   }
@@ -4603,6 +4634,7 @@ kbd {
       if (denUI.visitor && x >= 88 && x <= 112 && y >= 33 && y <= 56) { chat(); return; }
       const hit = denHit(e);
       if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
+      if (hit === 'wallR' && denLook.wallR === 'cert' && !denUI.trying) { sfx.click(); licenseFrom = 'den'; setMode('license'); return; }
       pick(hit);
     });
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
@@ -4881,6 +4913,184 @@ kbd {
     $('arcName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); arcSave(); } });
     $('back').addEventListener('click', () => setMode('den'));
     arc.raf = requestAnimationFrame(arcLoop);
+  }
+
+  // ---- Pilot license: a shareable ID card with your portrait, rank and career stats ----
+  const LIC_HAIR = [['short', 'Short'], ['curly', 'Curly'], ['long', 'Long'], ['bun', 'Bun'], ['buzz', 'Buzz'], ['mohawk', 'Mohawk'], ['none', 'Bald']];
+  const LIC_HAIR_COLS = ['#2a1a12', '#5a3520', '#a8652a', '#e8c070', '#c94236', '#e8e8ee', '#4a5aa8', '#ff9ad5'];
+  const LIC_SKINS = ['#f6d3b3', '#e8b48c', '#c98d62', '#a46a43', '#7a4a2c', '#5a3520'];
+  const LIC_SUITS = [['flame', 'Flight orange', '#ff9a3d'], ['navy', 'Navy', '#2f4380'], ['mint', 'Mint', '#4fae8a'], ['pink', 'Pink', '#e07ab8'], ['white', 'White', '#e8ebf2'], ['red', 'Red', '#b8322a']];
+  const LIC_ACC = [['none', 'None'], ['glasses', 'Glasses'], ['goggles', 'Goggles'], ['headset', 'Headset'], ['helmet', 'Helmet']];
+  const RANKS = [['Cadet', 0], ['Junior Pilot', 15], ['Pilot', 40], ['Senior Pilot', 90], ['Flight Lieutenant', 160], ['Captain', 260], ['Commander', 400], ['Legend', 600]];
+  let lic = (() => { let v = {}; try { v = JSON.parse(store.get('ds-license', '{}')) || {}; } catch (e) {} return { name: store.get('ds-p1', '') || 'Pilot', hair: 'short', hairCol: 1, skin: 1, suit: 'flame', acc: 'none', ...v }; })();
+  if (!store.get('ds-license-no', '')) store.set('ds-license-no', String(100000 + Math.floor(Math.random() * 900000)));
+  const saveLic = () => store.set('ds-license', JSON.stringify(lic));
+  let licenseFrom = 'title';
+  const careerPoints = () => stats.landings + 8 * completedCount() + 4 * earned() + 5 * stats.worlds.length;
+  function rankOf(pts = careerPoints()) {
+    let i = 0; while (i + 1 < RANKS.length && pts >= RANKS[i + 1][1]) i++;
+    const next = RANKS[i + 1];
+    return { i, name: RANKS[i][0], next: next ? next[0] : null, frac: next ? (pts - RANKS[i][1]) / (next[1] - RANKS[i][1]) : 1 };
+  }
+  const topKey = o => { const e = Object.entries(o || {}); return e.length ? e.sort((a, b) => b[1] - a[1])[0][0] : null; };
+  // the portrait: 32 x 32 pixels, drawn crisp at any size
+  function drawPilot(c, x, y, size, L = lic) {
+    const off = document.createElement('canvas'); off.width = off.height = 32;
+    const p = off.getContext('2d'), P = (a, b, w, h, col) => { p.fillStyle = col; p.fillRect(a, b, w, h); };
+    const skin = LIC_SKINS[L.skin] || LIC_SKINS[1], hc = LIC_HAIR_COLS[L.hairCol] || LIC_HAIR_COLS[1], suit = (LIC_SUITS.find(s => s[0] === L.suit) || LIC_SUITS[0])[2];
+    const g = p.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#cfe3ff'); g.addColorStop(1, '#9fb8e0'); p.fillStyle = g; p.fillRect(0, 0, 32, 32);
+    if (L.hair === 'long') P(8, 10, 16, 14, hc);
+    // suit with a mission patch, neck, head
+    P(4, 25, 24, 7, suit); P(6, 24, 20, 1, suit); P(12, 24, 8, 3, 'rgba(0,0,0,0.18)'); P(20, 27, 3, 3, '#ffb547'); P(21, 28, 1, 1, '#0a0e1c');
+    P(14, 21, 4, 4, skin); P(14, 23, 4, 1, 'rgba(0,0,0,0.15)');
+    P(11, 8, 10, 1, skin); P(10, 9, 12, 11, skin); P(11, 20, 10, 2, skin); P(9, 13, 1, 3, skin); P(22, 13, 1, 3, skin);
+    P(13, 14, 2, 2, '#1a1a2a'); P(18, 14, 2, 2, '#1a1a2a'); P(13, 14, 1, 1, '#ffffff'); P(18, 14, 1, 1, '#ffffff');
+    P(14, 18, 4, 1, '#8a3a3a'); P(13, 17, 1, 1, '#8a3a3a'); P(18, 17, 1, 1, '#8a3a3a'); P(12, 17, 1, 1, 'rgba(255,120,120,0.5)'); P(19, 17, 1, 1, 'rgba(255,120,120,0.5)');
+    // hair
+    const H = (a, b, w, h) => P(a, b, w, h, hc);
+    if (L.hair === 'short') { H(10, 7, 12, 3); H(9, 9, 2, 4); H(21, 9, 2, 3); H(12, 10, 5, 1); }
+    if (L.hair === 'curly') { H(9, 6, 14, 4); H(8, 8, 3, 5); H(21, 8, 3, 5); H(10, 5, 3, 1); H(15, 5, 3, 1); H(19, 5, 2, 1); H(11, 10, 2, 1); H(16, 10, 2, 1); }
+    if (L.hair === 'long') { H(10, 7, 12, 3); H(9, 9, 2, 6); H(21, 9, 2, 6); H(12, 10, 6, 1); }
+    if (L.hair === 'bun') { H(10, 7, 12, 3); H(9, 9, 2, 3); H(21, 9, 2, 3); H(14, 3, 4, 4); H(13, 4, 6, 2); }
+    if (L.hair === 'buzz') { P(10, 8, 12, 2, hc); P(10, 10, 1, 2, hc); P(21, 10, 1, 2, hc); }
+    if (L.hair === 'mohawk') { H(14, 3, 4, 7); H(13, 5, 6, 2); }
+    // accessories
+    if (L.acc === 'glasses') { p.strokeStyle = '#1a1a2a'; p.lineWidth = 1; p.strokeRect(12.5, 13.5, 3, 3); p.strokeRect(17.5, 13.5, 3, 3); P(16, 14, 1, 1, '#1a1a2a'); }
+    if (L.acc === 'goggles') { P(9, 10, 14, 1, '#5a4636'); P(11, 8, 4, 3, '#3a4668'); P(17, 8, 4, 3, '#3a4668'); P(12, 9, 2, 1, '#8fd3ff'); P(18, 9, 2, 1, '#8fd3ff'); }
+    if (L.acc === 'headset') { P(9, 7, 1, 7, '#3a4668'); P(22, 7, 1, 7, '#3a4668'); P(10, 6, 12, 1, '#3a4668'); P(8, 13, 2, 4, '#3a4668'); P(22, 13, 2, 4, '#3a4668'); P(9, 17, 1, 2, '#3a4668'); P(9, 19, 4, 1, '#3a4668'); P(13, 19, 1, 1, '#ff6b5e'); }
+    if (L.acc === 'helmet') {
+      p.fillStyle = 'rgba(220,235,255,0.22)'; p.beginPath(); p.arc(16, 14, 10.5, 0, Math.PI * 2); p.fill();
+      p.strokeStyle = '#e8ebf2'; p.lineWidth = 1.2; p.beginPath(); p.arc(16, 14, 10.5, 0, Math.PI * 2); p.stroke();
+      P(9, 6, 3, 1, 'rgba(255,255,255,0.8)'); P(8, 7, 1, 3, 'rgba(255,255,255,0.6)'); P(8, 23, 16, 2, '#e8ebf2'); P(8, 24, 16, 1, '#9aa3b8');
+    }
+    c.save(); c.imageSmoothingEnabled = false; c.drawImage(off, x, y, size, size); c.restore();
+  }
+  // the whole card, at 600 x 375 logical pixels times k
+  function drawLicense(c, k) {
+    const W = 600, Hh = 375, R = rankOf();
+    c.save(); c.scale(k, k);
+    const F = (w, sz, fam) => `${w} ${sz}px ${fam === 'd' ? '"Chakra Petch", "Trebuchet MS", sans-serif' : fam === 's' ? 'Caveat, "Brush Script MT", cursive' : '"IBM Plex Mono", ui-monospace, monospace'}`;
+    c.save(); rrect(c, 0, 0, W, Hh, 22); c.clip();
+    const g = c.createLinearGradient(0, 0, W, Hh); g.addColorStop(0, '#1a2a5e'); g.addColorStop(1, '#0a0e1c'); c.fillStyle = g; c.fillRect(0, 0, W, Hh);
+    // orbits and stars in the background
+    c.strokeStyle = 'rgba(201,207,220,0.07)'; c.lineWidth = 1.5;
+    for (const r of [90, 140, 190, 240]) { c.beginPath(); c.ellipse(500, 330, r, r * 0.45, -0.3, 0, Math.PI * 2); c.stroke(); }
+    for (let i = 0; i < 40; i++) { const a = Math.sin(i * 12.9898) * 43758.5, b = Math.sin(i * 78.233) * 12543.1; c.fillStyle = 'rgba(220,226,240,0.35)'; c.fillRect(((a - Math.floor(a)) * W) | 0, (64 + (b - Math.floor(b)) * (Hh - 64)) | 0, 1.5, 1.5); }
+    // header band
+    c.fillStyle = '#ffb547'; c.fillRect(0, 0, W, 62);
+    c.fillStyle = '#0a0e1c'; c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+    c.font = F(700, 24, 'd'); c.fillText('DESCENT SYSTEMS', 28, 34);
+    c.font = F(500, 11, 'm'); c.fillText('INTERPLANETARY PILOT LICENSE', 28, 51);
+    c.textAlign = 'right'; c.font = F(500, 11, 'm'); c.fillText('LICENSE NO.', W - 28, 28);
+    c.font = F(700, 18, 'd'); c.fillText(`DS-${store.get('ds-license-no', '000000')}`, W - 28, 50);
+    // portrait and its frame
+    c.fillStyle = '#f4f1e8'; rrect(c, 24, 80, 156, 156, 10); c.fill();
+    drawPilot(c, 30, 86, 144);
+    c.textAlign = 'left'; c.fillStyle = 'rgba(201,207,220,0.65)'; c.font = F(400, 10, 'm');
+    const issued = new Date(+store.get('ds-first', String(Date.now())));
+    c.fillText(`ISSUED ${issued.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}`, 28, 256);
+    // Apogee's paw-print stamp, if she approves of you
+    if (got.whisperer) {
+      c.save(); c.translate(150, 222); c.rotate(-0.25); c.globalAlpha = 0.85;
+      c.strokeStyle = '#ff6b5e'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 24, 0, Math.PI * 2); c.stroke();
+      c.fillStyle = '#ff6b5e'; c.beginPath(); c.ellipse(0, 5, 8, 6.5, 0, 0, Math.PI * 2); c.fill();
+      for (const [a, b] of [[-9, -5], [-3, -10], [4, -10], [10, -5]]) { c.beginPath(); c.arc(a, b, 3, 0, Math.PI * 2); c.fill(); }
+      c.font = F(700, 7, 'm'); c.textAlign = 'center'; c.fillText('APPROVED', 0, 20); c.restore();
+    }
+    // signature
+    c.strokeStyle = 'rgba(201,207,220,0.4)'; c.lineWidth = 1; c.beginPath(); c.moveTo(28, 318); c.lineTo(180, 318); c.stroke();
+    c.fillStyle = '#e8ebf2'; c.font = F(600, 30, 's'); c.textAlign = 'left'; c.fillText('Dottie', 38, 312);
+    c.fillStyle = 'rgba(201,207,220,0.65)'; c.font = F(400, 9, 'm'); c.fillText('FLIGHT DIRECTOR', 28, 332);
+    // name and rank
+    const X = 206;
+    c.fillStyle = 'rgba(201,207,220,0.65)'; c.font = F(400, 10, 'm'); c.fillText('NAME', X, 92);
+    const name = (lic.name || 'Pilot').toUpperCase();
+    let fs = 30; c.font = F(700, fs, 'd'); while (c.measureText(name).width > W - X - 28 && fs > 14) { fs -= 1; c.font = F(700, fs, 'd'); }
+    c.fillStyle = '#ffffff'; c.fillText(name, X, 122);
+    for (let i = 0; i < Math.min(R.i, 6); i++) { c.strokeStyle = '#ffb547'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(X + i * 13, 138); c.lineTo(X + 5 + i * 13, 145); c.lineTo(X + 10 + i * 13, 138); c.stroke(); }
+    if (R.i >= 7) { c.fillStyle = '#ffb547'; c.font = F(700, 16, 'd'); c.fillText('★ ★ ★', X, 147); }
+    const rx = X + (R.i >= 7 ? 62 : Math.min(R.i, 6) * 13 + (R.i ? 6 : 0));
+    c.fillStyle = '#ffb547'; c.font = F(700, 17, 'd'); c.fillText(R.name.toUpperCase(), rx, 147);
+    c.fillStyle = 'rgba(255,255,255,0.12)'; c.fillRect(X, 156, 230, 4); c.fillStyle = '#ffb547'; c.fillRect(X, 156, 230 * Math.max(0.02, R.frac), 4);
+    c.fillStyle = 'rgba(201,207,220,0.65)'; c.font = F(400, 9, 'm'); c.fillText(R.next ? `NEXT RANK: ${R.next.toUpperCase()}` : 'HIGHEST RANK. GUS IS SPEECHLESS.', X, 172);
+    // career stats
+    const fw = topKey(stats.byWorld), fl = topKey(stats.byLander);
+    const soft = stats.softest != null ? stats.softest : stats.best ? stats.best.vy : null;
+    const cells = [
+      ['LANDINGS', fmt(stats.landings)], ['WORLDS', `${stats.worlds.length} of ${WORLDS.length}`],
+      ['SOFTEST TOUCHDOWN', soft != null ? `${soft.toFixed(2)} m/s` : '—'], ['FAVORITE WORLD', fw ? worldName(fw) : '—'],
+      ['FAVORITE LANDER', landerById(fl || curLander).name], ['MISSIONS', `${completedCount()} of ${MISSIONS.length} · ${totalStars()}★`],
+      ['BADGES', `${earned()} of ${ACH.length}`], ['CRASHES', fmt(crashCount)]
+    ];
+    cells.forEach(([lab, val], i) => {
+      const cx = X + (i % 2) * 196, cy = 196 + Math.floor(i / 2) * 36;
+      c.fillStyle = 'rgba(201,207,220,0.65)'; c.font = F(400, 9, 'm'); c.fillText(lab, cx, cy);
+      c.fillStyle = '#ffffff'; c.font = F(500, 15, 'm'); c.fillText(val, cx, cy + 17);
+    });
+    // machine-readable strip along the bottom
+    c.fillStyle = 'rgba(0,0,0,0.3)'; c.fillRect(0, Hh - 30, W, 30);
+    c.fillStyle = 'rgba(201,207,220,0.55)'; c.font = F(400, 12, 'm');
+    const mrz = `P<DSX${name.replace(/[^A-Z0-9]/g, '<')}<<${R.name.toUpperCase().replace(/ /g, '<')}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`.slice(0, 48) + store.get('ds-license-no', '');
+    c.fillText(mrz, 24, Hh - 11);
+    // a little holographic shimmer in the corner
+    const hg = c.createLinearGradient(W - 104, 300, W - 36, 332); hg.addColorStop(0, 'rgba(255,154,213,0.32)'); hg.addColorStop(0.5, 'rgba(143,211,255,0.32)'); hg.addColorStop(1, 'rgba(159,224,184,0.32)');
+    c.strokeStyle = hg; c.lineWidth = 2; c.beginPath(); c.arc(W - 70, 316, 18, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.ellipse(W - 70, 316, 30, 8, -0.35, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = hg; c.beginPath(); c.arc(W - 70, 316, 6, 0, Math.PI * 2); c.fill();
+    c.restore();
+    c.strokeStyle = 'rgba(255,181,71,0.5)'; c.lineWidth = 1.5; rrect(c, 0.75, 0.75, W - 1.5, Hh - 1.5, 22); c.stroke();
+    c.restore();
+  }
+  function licDottie() {
+    const i = rankOf().i;
+    return i === 0 ? 'Hold still. Regulation photo. No, you can’t retake it. Fine. One retake.'
+      : i <= 2 ? 'Look at that. An actual licensed pilot. I laminated it twice. Gus tried to laminate it a third time.'
+      : i <= 5 ? 'Your license has more stamps on it than my passport. Keep it up, pilot.'
+      : 'Commander. I printed this one on the good card stock. The stuff I hide from Gus.';
+  }
+  function paintLicense() {
+    const cv = $('licCv'); if (!cv) return;
+    const w = cv.clientWidth || 600;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(w * 375 / 600 * dpr);
+    const c = cv.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
+    drawLicense(c, cv.width / 600);
+  }
+  function renderLicense() {
+    card.classList.add('wide');
+    const R = rankOf();
+    const chips = (key, list) => list.map(([id, label]) => `<button data-lic="${key}" data-v="${id}" aria-pressed="${lic[key] === id}">${label}</button>`).join('');
+    const sws = (key, cols, label) => cols.map((col, i) => `<button class="lsw" data-lic="${key}" data-v="${i}" style="background:${col}" aria-label="${label} ${i + 1}" aria-pressed="${lic[key] === i}"></button>`).join('');
+    card.innerHTML = `<div class="license">
+      <h1 class="good">Pilot license</h1>
+      <canvas id="licCv" role="img" aria-label="Your Descent Systems pilot license: ${esc(lic.name)}, rank ${R.name}"></canvas>
+      ${radioQuote(['F', licDottie()])}
+      <div class="lic-edit">
+        <label class="lic-name"><span>Name on the license</span><input id="licName" maxlength="16" autocomplete="off" spellcheck="false" value="${esc(lic.name)}"></label>
+        <div class="lic-row"><span>Hair</span><div class="lchips">${chips('hair', LIC_HAIR)}</div></div>
+        <div class="lic-row"><span>Hair color</span><div class="lsws">${sws('hairCol', LIC_HAIR_COLS, 'Hair color')}</div></div>
+        <div class="lic-row"><span>Skin</span><div class="lsws">${sws('skin', LIC_SKINS, 'Skin tone')}</div></div>
+        <div class="lic-row"><span>Flight suit</span><div class="lsws">${LIC_SUITS.map(([id, label, col]) => `<button class="lsw" data-lic="suit" data-v="${id}" style="background:${col}" aria-label="${label}" aria-pressed="${lic.suit === id}"></button>`).join('')}</div></div>
+        <div class="lic-row"><span>Extra</span><div class="lchips">${chips('acc', LIC_ACC)}</div></div>
+      </div>
+      <p class="limits">Your rank goes up as you land, finish missions, visit worlds and earn badges.</p>
+      <div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Main menu'}</button></div>
+    </div>`;
+    paintFaces(card);
+    paintLicense();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (mode === 'license') paintLicense(); });
+    $('licName').addEventListener('input', e => { lic.name = e.target.value.trim() || 'Pilot'; saveLic(); paintLicense(); });
+    card.querySelectorAll('[data-lic]').forEach(b => b.addEventListener('click', () => {
+      const key = b.dataset.lic, v = /^\d+$/.test(b.dataset.v) ? +b.dataset.v : b.dataset.v;
+      lic[key] = v; saveLic(); sfx.click(); paintLicense();
+      card.querySelectorAll(`[data-lic="${key}"]`).forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    }));
+    $('licShare').addEventListener('click', () => {
+      const out = document.createElement('canvas'); out.width = 1200; out.height = 750;
+      drawLicense(out.getContext('2d'), 2);
+      sfx.shutter();
+      showPhotoPop(out, 'pilot-license.png', 'My pilot license', 'My Descent Systems pilot license', 'Your pilot license');
+    });
+    $('back').addEventListener('click', () => setMode(licenseFrom));
   }
 
   // ---- Postcards: the first landing on each world earns one from the crew ----
@@ -6420,8 +6630,8 @@ kbd {
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
     if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
-    if (mode === 'den' && e.code === 'Escape' && $('photoPop')) { closeDenPhoto(); return; }
-    if (mode === 'den' && $('photoPop')) return;
+    if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
+    if (mode === 'license') { if (e.code === 'Escape') setMode(licenseFrom); return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
