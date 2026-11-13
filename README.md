@@ -27,6 +27,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
+- **Ghost links**: after a free-flight landing, send a friend a link. They fly your exact terrain from the same start, racing your pink ghost, and can send their own ghost back
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
@@ -388,6 +389,14 @@ Choose **Endless run** on the main menu for a roguelike run: how far can one lan
 - After every landing, Gus offers **three perks** and you pick one: a spare fuel canister, a bigger tank, a tuned engine, soft struts, wide feet, steady hands, free gyros, a wind shield, landing radar, a fuel refinery, or (rarely) a spare lander that saves you from one crash.
 - One crash ends the run. Your best run (sites cleared and points) shows on the menu.
 - Workshop upgrades are switched off during a run, so every run starts on the same lander. Landing points still earn credits.
+
+## Ghost links
+
+After any free-flight landing, press **Challenge a friend**. On iPhone that opens the share sheet. Elsewhere, the link is copied so you can paste it into a message.
+
+When your friend opens the link, the game greets them with "**Ace challenged you**", showing which world and site you flew and the score to beat. They fly the exact same terrain from the exact same start, wind and rovers included, with your ghost flying beside them in pink. At the end, a scorecard shows who won. They can race again as many times as they like, watch the replay, or press **Send your ghost back** to challenge you on the same site with their own run.
+
+No server or account is involved. Each free-flight site is built from a random seed, so the link only carries the world, the site number, the seed, your score and your flight path, sampled 15 times a second, delta-encoded and compressed. A typical link is a few hundred characters long. Links always open the game on GitHub Pages.
 
 ## Hot-seat mode
 
