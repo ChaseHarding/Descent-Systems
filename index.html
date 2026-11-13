@@ -335,6 +335,12 @@ kbd {
 .link span { margin-left: 4px; color: var(--regolith-dim); font-family: var(--f-mono); font-weight: 400; letter-spacing: 0; text-transform: none; }
 .link:hover { color: var(--flame); }
 .mode:focus-visible, .link:focus-visible, .newbie:focus-visible, .toggle:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+/* Break room */
+.lounge { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
+.lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.lounge .who-row .btn { padding: 8px 14px; font-size: 12px; }
+.lounge .radio.quote { max-width: none; min-height: 88px; }
 /* Settings */
 .settings { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .toggle {
@@ -633,6 +639,7 @@ kbd {
   let got;
   try { got = JSON.parse(store.get('ds-ach', '{}')) || {}; } catch (e) { got = {}; }
   const saveStats = () => store.set('ds-stats', JSON.stringify(stats));
+  let crashCount = +store.get('ds-crashes', '0') || 0;
   const boughtCount = () => [...HULLS.map(i => 'hull:' + i.id), ...FLAMES.map(i => 'flame:' + i.id)]
     .concat(typeof FLAGS !== 'undefined' ? FLAGS.map(i => 'flag:' + i.id) : [])
     .filter(k => owned.has(k) && findItem(k.split(':')[0], k.split(':')[1]).price > 0).length;
@@ -805,10 +812,29 @@ kbd {
         px(c, 10, 16, 1, 1, '#a8744f'); px(c, 21, 16, 1, 1, '#a8744f');
       } }
   };
-  function drawFace(cv, who, mood, open, blink) {
+  // Apogee, Dottie's cat: orange tabby, green eyes, permanently unimpressed
+  function drawCat(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#20283f');
+    const o = '#ff9a3d', d = '#c96a1e', w = '#fff4e0';
+    px(c, 7, 4, 4, 2, o); px(c, 8, 6, 4, 3, o); px(c, 21, 4, 4, 2, o); px(c, 20, 6, 4, 3, o);
+    px(c, 8, 5, 2, 2, '#ff9ad5'); px(c, 22, 5, 2, 2, '#ff9ad5');
+    px(c, 7, 9, 18, 13, o); px(c, 6, 11, 1, 9, o); px(c, 25, 11, 1, 9, o); px(c, 9, 22, 14, 2, o);
+    px(c, 13, 9, 1, 3, d); px(c, 15, 9, 2, 4, d); px(c, 18, 9, 1, 3, d);
+    px(c, 4, 26, 24, 6, o); px(c, 7, 24, 18, 2, o); px(c, 12, 25, 8, 7, w);
+    px(c, 11, 17, 10, 6, w);
+    if (blink) { px(c, 10, 15, 4, 1, '#15151f'); px(c, 18, 15, 4, 1, '#15151f'); }
+    else { px(c, 10, 13, 4, 4, '#9fe0b8'); px(c, 18, 13, 4, 4, '#9fe0b8'); px(c, 11, 13, 2, 4, '#15151f'); px(c, 19, 13, 2, 4, '#15151f'); px(c, 11, 13, 1, 1, '#f4f4f4'); px(c, 19, 13, 1, 1, '#f4f4f4'); }
+    px(c, 15, 18, 2, 1, '#ff9ad5');
+    if (open) { px(c, 14, 20, 4, 2, '#8a3a30'); }
+    else { px(c, 14, 20, 1, 1, '#8a6a5a'); px(c, 17, 20, 1, 1, '#8a6a5a'); px(c, 15, 19, 2, 1, '#8a6a5a'); }
+    px(c, 2, 18, 7, 1, '#e8e0d0'); px(c, 3, 20, 6, 1, '#e8e0d0'); px(c, 23, 18, 7, 1, '#e8e0d0'); px(c, 23, 20, 6, 1, '#e8e0d0');
+    if (!bare) { c.fillStyle = 'rgba(0, 0, 0, 0.16)'; for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1); }
+  }
+  function drawFace(cv, who, mood, open, blink, bare) {
     const c = cv.getContext('2d'), f = FACES[who];
     c.clearRect(0, 0, 32, 32);
-    px(c, 0, 0, 32, 32, f.bg);
+    if (who === 'A') { drawCat(c, open, blink, bare); return; }
+    if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
     px(c, 14, 23, 4, 3, f.shade);
@@ -833,11 +859,12 @@ kbd {
     else if (mood === 'deadpan') { px(c, 14, 20, 4, 1, m); px(c, 18, 19, 1, 1, m); }
     else px(c, 14, 20, 4, 1, m);
     f.extra(c);
+    if (bare) return;
     c.fillStyle = 'rgba(0, 0, 0, 0.16)';
     for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
   }
   // which face each line gets; anything not listed uses the speaker's usual look
-  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral' };
+  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral' };
   const MOODS = [
     ['Morning, pilot', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
@@ -855,7 +882,8 @@ kbd {
   const SPEAKERS = {
     F: { name: 'Flight · Dottie', color: 'var(--flame)' },
     G: { name: 'Engineering · Gus', color: 'var(--ok)' },
-    W: { name: 'Wren Aldana', color: '#ff9ad5' }
+    W: { name: 'Wren Aldana', color: '#ff9ad5' },
+    A: { name: 'Apogee · Cat', color: '#ff9a3d' }
   };
   // intro: lines before the mission. react: one line each for 1, 2 and 3 stars.
   const STORY = {
@@ -1488,7 +1516,8 @@ kbd {
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
-      radio() { tone(2525, 'sine', 0, 0.12, 0.05); },   // the Quindar tone from Apollo-era radio
+      radio() { tone(2525, 'sine', 0, 0.12, 0.05); },
+      purr() { for (let i = 0; i < 6; i++) burst(i * 0.16, 0.12, 0.22, 260, 90); },   // the Quindar tone from Apollo-era radio
       erupt(lava) { burst(0, 1.4, lava ? 0.45 : 0.25, lava ? 1400 : 4000, lava ? 120 : 900); if (lava) tone(55, 'sawtooth', 0, 0.8, 0.25, 30); },
       badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); }
     };
@@ -1814,6 +1843,7 @@ kbd {
       if ((footHit || hullHit) && vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s (limit ${SAFE_VX})`);
       if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
       if (!reasons.length) reasons.push('hit the ground at a bad angle');
+      crashCount++; store.set('ds-crashes', String(crashCount));
       explode();
       addShake(14);
       holdCard = { dur: 1000, slow: false };
@@ -1848,9 +1878,10 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge'];
   const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
       hold = { until: performance.now() + holdCard.dur, slow: holdCard.slow, next: m };
@@ -1879,6 +1910,7 @@ kbd {
     if (m === 'flying') { overlay.hidden = true; return; }
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
+    if (m === 'lounge') { renderLounge(); return; }
     if (m === 'settings') { renderSettings(); return; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
@@ -1909,6 +1941,7 @@ kbd {
         <div class="subnav">
           <button class="link" id="hangarBtn">Hangar<span>${fmt(credits)} cr</span></button>
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
+          <button class="link" id="loungeBtn">Break room</button>
           <button class="link" id="settingsBtn">Settings</button>
           <button class="link" id="howBtn">How to play</button>
           ${installLink()}
@@ -2151,6 +2184,8 @@ kbd {
     if (ib) ib.addEventListener('click', installApp);
     const sb = $('settingsBtn');
     if (sb) sb.addEventListener('click', () => setMode('settings'));
+    const lgb = $('loungeBtn');
+    if (lgb) lgb.addEventListener('click', () => setMode('lounge'));
     const menuB = $('menuBtn');
     if (menuB) menuB.addEventListener('click', () => setMode('title'));
     const cw2 = $('changeWorld');
@@ -2389,6 +2424,217 @@ kbd {
       }).join('')}</div>
       <button class="btn ghost" id="back">Main menu</button>`;
     $('back').addEventListener('click', () => setMode('title'));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+
+  // ---- Break room: the crew between flights ----
+  let lounge = null;
+  const RW = 200, RH = 100;
+  const CREW_X = { F: 52, G: 86, W: 120 };
+  const CAT_SPOTS = [
+    { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
+  ];
+  const wrenHome = () => (missionStars['last-light'] || 0) > 0;
+  const plural = (n, w) => `${fmt(n)} ${w}${n === 1 ? '' : 's'}`;
+  // What each person has to say, given how your career is going. Some lines only turn up once you've done something.
+  function loungeLines(who) {
+    const done = completedCount(), lands = stats.landings, crashes = crashCount;
+    const ms = id => (missionStars[id] || 0) > 0, seen = id => storySeen.includes(id);
+    const hull = findItem('hull', equip.hull);
+    const L = [];
+    const add = (cond, text) => { if (cond) L.push(text); };
+    if (who === 'F') {
+      L.push('Break room rules: label your food, rinse your mug, and never, ever touch Gus’s yogurt. It’s an experiment.');
+      L.push('Paperwork for a landing: four forms. Paperwork for a crash: eleven. Fly accordingly.');
+      L.push('This coffee machine makes a noise like a dying whale. I’ve grown attached to it.');
+      L.push('Apogee keeps a strict schedule. Sleep, judge, sleep. You caught her on a sleep shift.');
+      add(done === 0, 'First day? Relax. Nobody’s scratched Biscuit yet. Today.');
+      add(crashes >= 5, `I keep a crash tally on the whiteboard. You’re at ${fmt(crashes)}. I’ve started drawing little flames next to them.`);
+      add(crashes === 0 && lands >= 5, `${fmt(lands)} landings and not a single crash. Gus has stopped sleeping in the hangar.`);
+      add(lands >= 25, `${fmt(lands)} landings. Our last pilot managed nine, and one of those was a bounce.`);
+      add(credits >= 5000, `You’ve got ${fmt(credits)} credits banked. Gus has a wish list. Don’t make eye contact.`);
+      add(equip.hull !== 'standard', `Biscuit looks good in ${hull.name}. I would never say that to her face.`);
+      add(ms('coffee-crisis'), 'The Mars office coffee machine works again. They named it after you. It still makes the whale noise.');
+      add(ms('stowaway'), 'Apogee hasn’t gone near the launch pad since Titan. She has, however, gone near my keyboard. Constantly.');
+      add(seen('valles-run') && !wrenHome(), 'I still have Wren’s old flight logs in my desk. I read one whenever the coffee runs out.');
+      add(done >= MISSIONS.length, 'The investors visited. Both of them. They asked where the bake sale money went. I pointed at you.');
+    } else if (who === 'G') {
+      L.push('I’m teaching Biscuit to recognize her own name. Progress is slow, on account of her being a lander.');
+      L.push('One bang from the hangar: normal. Two bangs: also normal. Three bangs: run.');
+      L.push('My yogurt isn’t a snack, it’s a culture. Literally. Please stop labeling it “mystery”.');
+      L.push('I fixed the toaster! It now toasts in four directions at once. Stand back when you use it.');
+      add(crashes > 0, `Biscuit’s been rebuilt ${plural(crashes, 'time')}. I keep every bent bolt in a jar. The jar is a bucket now.`);
+      add(!!got.feather, 'That feather landing! I felt it in my soul. And on my seismograph, barely.');
+      add(ms('spa-day'), 'Biscuit loved her spa day. I can tell, because she only leaked a little bit yesterday.');
+      add(!!got.rival, 'Someone said you beat a friend in hot-seat. I printed the scoreboard. It’s on the fridge.');
+      add(!!got.collector, 'You’ve bought Biscuit so many paint jobs that she has a wardrobe now. I built her a closet.');
+      add(!seen('haze-delivery'), 'Some nights I pick up weird static on the old radio. Probably nothing! Probably.');
+      add(wrenHome(), 'Wren’s teaching me to braid hair. I’m practicing on a mop. The mop looks incredible.');
+      add(sideStars() === SIDES.length * 3, 'The crew voted you employee of the month. It was unanimous. Apogee abstained.');
+    } else if (who === 'W') {
+      L.push('This room used to be a supply closet. I slept here the whole first year. Gus thinks I’m joking.');
+      L.push('Biscuit’s first landing was on Pluto too. I bounced twice. Don’t put that on the website.');
+      L.push('I keep telling Dottie we need a second lander. She keeps telling me about the budget. We both enjoy it.');
+      L.push('Apogee sat on my lap this morning. Dottie says that’s never happened before. Dottie seems upset.');
+      L.push(ms('long-way-round') ? 'You flew my old Venus route. It felt like getting a letter from myself.'
+        : 'My survey markers on Venus are still out there. Whenever you’re ready, pilot.');
+    } else if (who === 'A') {
+      L.push('Prrrrrrrrrrr.');
+      L.push('Mrrp? (She opens one eye, rates you a six out of ten, and goes back to sleep.)');
+      L.push('Mrow. (Translation, according to Dottie: “Why aren’t you flying?”)');
+      L.push('Mrrrow. (She rolls onto her back. It is a trap.)');
+      add(!!got.whisperer, 'Prrrp. (She remembers the smooth ride on Titan. You may scratch her chin.)');
+      add(ms('stowaway') && !got.whisperer, 'Hsss. (She remembers Titan. She remembers everything.)');
+    }
+    return L;
+  }
+  // Before Wren is home, her spot is an empty chair and a photo on the wall; the others talk about her instead.
+  function photoLine() {
+    const opts = storySeen.includes('valles-run')
+      ? [['F', 'That’s Wren. I keep her mug clean. You know. For when she’s back.'],
+         ['G', 'Wren built Biscuit by hand in this building. I found her initials under the console.']]
+      : [['G', 'That’s the founder in the photo. Dottie dusts it every morning. She says she doesn’t.'],
+         ['F', 'Old photo. Before your time. Before Gus’s time. Pass the sugar.']];
+    return opts[Math.floor(Math.random() * opts.length)];
+  }
+  function loungeTalk(who) {
+    if (!lounge) return;
+    if (who === 'P') { loungeSay(...photoLine()); return; }
+    const L = loungeLines(who), last = lounge.last[who];
+    let i = Math.floor(Math.random() * L.length);
+    if (L.length > 1 && i === last) i = (i + 1) % L.length;
+    lounge.last[who] = i;
+    if (who === 'A') { lounge.catAwake = performance.now() + 4000; sfx.purr(); }
+    loungeSay(who, L[i]);
+  }
+  function loungeSay(who, text) {
+    const box = $('loungeSay');
+    if (!box) return;
+    clearInterval(lounge.typer);
+    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    const face = box.querySelector('canvas.face'), p = box.querySelector('p');
+    drawFace(face, who, face.dataset.mood, false, false);
+    lounge.talking = who;
+    if (who !== 'A') sfx.radio();
+    if (reduceMotion) { lounge.talking = null; drawRoom(); return; }
+    p.textContent = '';
+    let n = 0, tick = 0;
+    lounge.typer = setInterval(() => {
+      n += 2; tick++;
+      p.textContent = text.slice(0, n);
+      if (tick % 3 === 0) drawFace(face, who, face.dataset.mood, (tick / 3) % 2 === 1, false);
+      if (n >= text.length) { clearInterval(lounge.typer); drawFace(face, who, face.dataset.mood, false, false); lounge.talking = null; }
+    }, 24);
+  }
+  function drawRoom() {
+    const cv = $('room');
+    if (!cv || !lounge) return;
+    const c = cv.getContext('2d'), t = performance.now(), home = wrenHome();
+    c.imageSmoothingEnabled = false;
+    // wall, floor, lamp
+    px(c, 0, 0, RW, RH, '#1a2240');
+    for (let x = 0; x < RW; x += 16) px(c, x, 0, 1, 78, '#1d2647');
+    px(c, 0, 78, RW, 22, '#10162c'); px(c, 0, 78, RW, 2, '#2a3556');
+    for (let x = 6; x < RW; x += 22) px(c, x, 86, 10, 1, '#161e3a');
+    // window, looking out on whichever world you flew last
+    const w = storedWorld();
+    px(c, 74, 6, 52, 36, '#3a4668');
+    px(c, 76, 8, 48, 16, w.sky[0]); px(c, 76, 24, 48, 16, w.sky[1]);
+    for (const [sx2, sy2] of [[80, 11], [90, 30], [99, 14], [118, 34], [84, 36], [121, 12]]) px(c, sx2, sy2, 1, 1, '#c9cfdc');
+    c.fillStyle = w.orb; c.beginPath(); c.arc(110, 19, 6, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(113, 21, 6, 0, Math.PI * 2); c.fill();
+    px(c, 99, 8, 2, 32, '#3a4668'); px(c, 72, 40, 56, 3, '#4a5578');
+    // shelf of badges: one little trophy per badge earned
+    px(c, 6, 26, 40, 2, '#4a5578');
+    const nb = Math.min(earned(), 12);
+    for (let i = 0; i < nb; i++) { const x = 8 + i * 3; px(c, x, 22, 2, 2, '#ffb547'); px(c, x, 24, 2, 2, '#c98a2a'); }
+    // poster of Biscuit in her current paint
+    const hull = findItem('hull', equip.hull);
+    px(c, 156, 8, 30, 34, '#ffb547'); px(c, 157, 9, 28, 32, '#0d1226');
+    px(c, 166, 16, 10, 8, hull.fill); outline(c, 166, 16, 10, 8, hull.stroke);
+    px(c, 164, 24, 14, 3, hull.fill); outline(c, 164, 24, 14, 3, hull.stroke);
+    px(c, 163, 27, 1, 5, hull.legs); px(c, 178, 27, 1, 5, hull.legs); px(c, 161, 32, 4, 1, hull.legs); px(c, 177, 32, 4, 1, hull.legs);
+    px(c, 160, 36, 22, 1, '#6c7690');
+    // counter and the whale-noise coffee machine
+    px(c, 4, 56, 44, 3, '#4a5578'); px(c, 6, 59, 40, 19, '#2a3556'); px(c, 24, 62, 1, 14, '#1a2240');
+    px(c, 8, 40, 14, 16, '#3d4a5c'); px(c, 9, 41, 12, 3, '#26303f'); px(c, 18, 45, 2, 2, '#ff6b5e');
+    px(c, 11, 49, 7, 7, '#9fb4d8'); px(c, 12, 52, 5, 4, '#5a3520');
+    if (!reduceMotion) for (let k = 0; k < 3; k++) { const ph = ((t / 700) + k / 3) % 1; px(c, 13 + Math.round(Math.sin(ph * 6 + k) * 1.5), 47 - Math.round(ph * 8), 1, 1, `rgba(201,207,220,${0.6 * (1 - ph)})`); }
+    // cardboard box in the corner (Apogee's, technically)
+    px(c, 156, 70, 22, 10, '#8a6a42'); px(c, 156, 70, 22, 2, '#a5835a'); px(c, 166, 72, 2, 8, '#6e5232');
+    // Wren's photo on the wall until she's home
+    if (!home) {
+      px(c, 128, 10, 20, 20, '#c9a24a'); px(c, 129, 11, 18, 18, '#2a1424');
+      c.drawImage(lounge.faces.W, 0, 0, 32, 32, 129, 11, 18, 18);
+    }
+    // the crew, sitting behind the table
+    for (const who of home ? ['F', 'G', 'W'] : ['F', 'G']) {
+      const bob = lounge.talking === who && Math.floor(t / 90) % 2 ? -1 : 0;
+      c.drawImage(lounge.faces[who], CREW_X[who], 30 + bob);
+    }
+    if (!home) { px(c, 124, 42, 22, 3, '#3a4668'); px(c, 126, 45, 3, 15, '#3a4668'); px(c, 141, 45, 3, 15, '#3a4668'); }
+    // table, mugs (Wren's always clean), the reserved card
+    px(c, 40, 60, 120, 3, '#7a5c44'); px(c, 42, 63, 116, 3, '#5a4636'); px(c, 46, 66, 3, 12, '#4a3a2c'); px(c, 151, 66, 3, 12, '#4a3a2c');
+    for (const [x, col2] of [[62, '#ffb547'], [100, '#9fe0b8'], [134, '#ff9ad5']]) { px(c, x, 55, 5, 5, col2); px(c, x + 5, 56, 2, 3, col2); }
+    if (!home) { px(c, 122, 54, 9, 6, '#e8e0d0'); px(c, 123, 56, 7, 1, '#8a8f9c'); }
+    // Apogee, asleep somewhere new each visit (or awake, if you've just bothered her)
+    const s = lounge.cat, awake = performance.now() < lounge.catAwake;
+    const o = '#ff9a3d', d = '#c96a1e';
+    px(c, s.x, s.y + 2, 12, 4, o); px(c, s.x + 1, s.y + 1, 10, 1, o);
+    px(c, s.x + 3, s.y + 2, 1, 3, d); px(c, s.x + 6, s.y + 2, 1, 3, d);
+    px(c, s.x + 12, s.y + 4, 3, 2, o); px(c, s.x + 14, s.y + 3, 1, 1, d);
+    px(c, s.x - 3, s.y, 6, 5, o); px(c, s.x - 3, s.y - 2, 1, 2, o); px(c, s.x + 1, s.y - 2, 1, 2, o);
+    if (awake) { px(c, s.x - 2, s.y + 1, 1, 1, '#9fe0b8'); px(c, s.x + 1, s.y + 1, 1, 1, '#9fe0b8'); }
+    else {
+      px(c, s.x - 2, s.y + 2, 1, 1, '#5a3520'); px(c, s.x + 1, s.y + 2, 1, 1, '#5a3520');
+      if (!reduceMotion) {
+        const ph = (t / 1600) % 1;
+        c.fillStyle = `rgba(201,207,220,${1 - ph})`; c.font = '6px monospace'; c.textBaseline = 'alphabetic';
+        c.fillText('z', s.x + 2 + ph * 4, s.y - 2 - ph * 8);
+      }
+    }
+    if (awake && !reduceMotion && Math.floor(t / 300) % 2) { px(c, s.x - 6, s.y - 5, 2, 2, '#ff9ad5'); px(c, s.x - 5, s.y - 6, 1, 1, '#ff9ad5'); }
+  }
+  // What did they click? The room canvas is 200x100; map the click back into it.
+  function roomHit(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH, s = lounge.cat;
+    if (x >= s.x - 5 && x <= s.x + 16 && y >= s.y - 6 && y <= s.y + 8) return 'A';
+    for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= CREW_X[who] + 6 && x <= CREW_X[who] + 26 && y >= 30 && y <= 60) return who;
+    if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
+    return null;
+  }
+  function renderLounge() {
+    const home = wrenHome();
+    const faces = {};
+    for (const who of ['F', 'G', 'W']) {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 32;
+      drawFace(cv, who, DEFAULT_MOOD[who], false, false, true);
+      faces[who] = cv;
+    }
+    lounge = { faces, cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
+    card.innerHTML = `<div class="lounge">
+      <h1 class="good">Break room</h1>
+      <canvas class="room" id="room" width="${RW}" height="${RH}" role="img" aria-label="The Descent Systems break room: the crew around a table, a coffee machine, a window, and Apogee the cat asleep nearby"></canvas>
+      <div class="who-row" role="group" aria-label="Talk to">
+        <button class="btn ghost" data-talk="F">Dottie</button>
+        <button class="btn ghost" data-talk="G">Gus</button>
+        <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
+        <button class="btn ghost" data-talk="A">Pet Apogee</button>
+      </div>
+      <div class="radio quote" id="loungeSay" aria-live="polite"></div>
+      <button class="btn ghost" id="back">Main menu</button>
+    </div>`;
+    card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => loungeTalk(b.dataset.talk)));
+    $('room').addEventListener('click', e => { const who = roomHit(e); if (who) loungeTalk(who); });
+    $('back').addEventListener('click', () => setMode('title'));
+    drawRoom();
+    lounge.anim = setInterval(drawRoom, 100);
+    // someone says hello when you walk in
+    const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
+    const hellos = { F: 'Pilot. Coffee’s fresh. Well, fresh-ish.', G: 'Oh hey, pilot! Grab a mug. Not that one, that’s a science experiment.', W: 'There’s my favorite pilot. Sit, sit. Biscuit can wait five minutes.' };
+    const first = present[Math.floor(Math.random() * present.length)];
+    loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
@@ -3128,7 +3374,7 @@ kbd {
       return;
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
-    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || (mode === 'setup' && e.code === 'Escape')) {
+    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
