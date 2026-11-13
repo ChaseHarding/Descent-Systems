@@ -22,6 +22,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
+- **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **23 badges** to earn, 14 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
@@ -47,7 +48,7 @@ The main menu has four modes: **Free flight**, **Missions**, **Daily challenge**
 
 New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
 
-**Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts and sound, plus a list of the controls.
+**Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts, sound and music, plus a list of the controls.
 
 ## How to play
 
@@ -71,6 +72,7 @@ The HUD readouts turn amber, then red, as you go past each limit. If you crash, 
 | Z | Toggle auto-zoom |
 | G | Toggle ghosts |
 | M | Toggle sound |
+| N | Toggle music |
 | P / Esc | Pause and resume (Esc also backs out of menus) |
 | B | Open badges |
 | Esc | Back out of a menu screen |
