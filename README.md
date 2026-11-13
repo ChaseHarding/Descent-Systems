@@ -21,12 +21,13 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: twelve optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
+- **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **32 badges** to earn, 23 of which unlock exclusive cosmetics
+- **33 badges** to earn, 24 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -54,7 +55,7 @@ The main menu opens on two big cards with live previews:
 - **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford.
 - **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
 
-Below them are the four modes: **Free flight**, **Missions**, **Daily challenge** and **Hot-seat**. At the bottom are links to **Badges**, **Settings** and **How to play**, which replays the tutorial.
+Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, **Settings** and **How to play**, which replays the tutorial.
 
 <p align="center"><img src="media/home.png" alt="The main menu: big Hangar and Break room cards with live previews above the four game modes" width="560"></p>
 
@@ -122,7 +123,7 @@ The fourth tab in the hangar, **Workshop**, sells upgrades that actually change 
 | Soft struts | 3 | Safe touchdown speed rises from 2.0 to 2.3 / 2.6 / 3.0 m/s | 1,000 / 2,200 / 4,000 |
 | Landing radar | 1 | A dotted line shows where you'll come down if you cut the engine now, with the touchdown speed: green when it would be a safe landing on a pad | 2,500 |
 
-Upgrades apply in free flight and missions. They're always off in the daily challenge, hot-seat and the tutorial, so those stay fair, and a **Use upgrades** switch turns them off everywhere if you want to fly old-school.
+Upgrades apply in free flight and missions. They're always off in the daily challenge, hot-seat, endless run and the tutorial, so those stay fair, and a **Use upgrades** switch turns them off everywhere if you want to fly old-school.
 
 - **Hull finishes:** Mission White, Gold Foil, Mars Rust, Titan Amber, Chrome
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
@@ -206,7 +207,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-three badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-four badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -241,6 +242,7 @@ Open **Badges** from the start screen to see your progress. Twenty-three badges 
 | Sea legs | Land on the barge rocking on Earth's ocean | Nautical flag |
 | Crane operator | Set Gus's telescope down slower than 0.8 m/s | Sodium Orange flame |
 | Fully loaded | Max out every upgrade in Gus's workshop | Gus Special hull |
+| Long haul | Clear 10 sites in a single endless run | Infinity flag |
 | Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
@@ -278,6 +280,16 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 - A lost-cat poster for Apogee, a karaoke sign-up sheet (with your name on it if you set one in hot-seat), Gus's yogurt experiment, today's daily challenge and a progress chart. Some notes change once you've finished certain missions.
 
 <p align="center"><img src="media/bulletin-board.png" alt="The bulletin board: sticky notes pinned to cork, including Dottie's complaint about the ×2 pad, a found-cat notice for Apogee, the karaoke sign-up sheet and the landing of the week" width="560"></p>
+
+## Endless run
+
+Choose **Endless run** on the main menu for a roguelike run: how far can one lander go?
+
+- Every site is on a random world. The first two come from the gentler worlds, Io, Mercury and Mars join from site 3, and Earth and Venus from site 6. Terrain gets rougher as you go.
+- **Fuel carries over.** Each landing refuels you a little: +15 kg for a ×2 pad, +25 for ×3, +30 for a ×4 moving pad and +40 for ×5.
+- After every landing, Gus offers **three perks** and you pick one: a spare fuel canister, a bigger tank, a tuned engine, soft struts, wide feet, steady hands, free gyros, a wind shield, landing radar, a fuel refinery, or (rarely) a spare lander that saves you from one crash.
+- One crash ends the run. Your best run (sites cleared and points) shows on the menu.
+- Workshop upgrades are switched off during a run, so every run starts on the same lander. Landing points still earn credits.
 
 ## Hot-seat mode
 
