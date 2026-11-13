@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 18 missions, a daily challenge and hot-seat duels. Free to play in your browser.">
+<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 31 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
 <meta name="theme-color" content="#0a0e1c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e1c'/%3E%3Cpath d='M12 15L11 9l3-3h4l3 3-1 6z' fill='none' stroke='%23c9cfdc' stroke-width='1.6' stroke-linejoin='round'/%3E%3Crect x='10' y='15' width='12' height='4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3Cpath d='M12 19l-4 6M20 19l4 6M6.5 25h3M22.5 25h3' stroke='%23c9cfdc' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M14 20l2 8 2-8z' fill='%23ffb547'/%3E%3C/svg%3E">
 <!-- Share preview (Open Graph + Twitter/X) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Descent Systems">
 <meta property="og:title" content="Descent Systems">
-<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 18 missions, a daily challenge and hot-seat duels. Free in your browser.">
+<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 31 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
 <meta property="og:url" content="https://chaseharding.github.io/Descent-Systems/">
-<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png">
+<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Descent Systems lander firing its engine above a landing pad, beside the game's title.">
+<meta property="og:image:alt" content="Biscuit the lander firing her engine above a ×5 landing pad in space, beside the Descent Systems title and its features.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Descent Systems">
-<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 18 missions, a daily challenge and hot-seat duels.">
-<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png">
+<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 31 missions, 5 landers, your own cabin and ghost races against friends.">
+<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=2">
 <!-- Installable app (PWA) -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -465,10 +465,38 @@ kbd {
 .race-score b { font-family: var(--f-display); font-size: 26px; font-variant-numeric: tabular-nums; }
 .race-score .won { border-color: var(--flame); }
 .race-score .won b { color: var(--flame); }
+/* First-launch intro and guided tours */
+.intro { width: 100%; max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.intro-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+.intro .iscene { display: block; width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border: 1px solid var(--space-2); border-radius: 10px; }
+.intro .radio.quote { max-width: none; width: 100%; min-height: 100px; }
+.idots { display: flex; gap: 6px; }
+.idots i { width: 8px; height: 8px; border-radius: 50%; background: var(--space-2); }
+.idots i.seen { background: var(--regolith-dim); }
+.idots i.on { background: var(--flame); }
+.tour { box-sizing: border-box; width: 100%; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--flame); border-radius: 8px; background: rgba(255, 181, 71, 0.07); text-align: left; }
+.tour .tstep { font-family: var(--f-display); font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--flame); }
+.tour p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--regolith); }
+.tour .btns { justify-content: flex-start; align-items: center; }
+.gifts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gift { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; border: 1px solid var(--space-2); border-radius: 6px; background: var(--panel); color: var(--regolith); font-family: var(--f-mono); font-size: 12px; cursor: pointer; }
+.gift:hover, .gift:focus-visible { border-color: var(--flame); outline: none; }
+.gift b { font-weight: 500; }
+.gift .pv { display: flex; width: 100%; height: 46px; align-items: center; justify-content: center; overflow: hidden; border-radius: 3px; background: var(--space); }
+.gift .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
+.mode { position: relative; }
+.mode.nudge { border-color: var(--flame); box-shadow: 0 0 0 3px rgba(255, 181, 71, 0.22); }
+.mode .dot { position: absolute; top: -10px; right: 10px; width: auto; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 11px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 /* Pilot license */
 .license { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .license #licCv { display: block; width: 100%; aspect-ratio: 600 / 375; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
-@media (max-width: 860px) { .license #licCv { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; } }
+.lic-wrap { position: relative; width: 100%; }
+@media (max-width: 860px) { .license .lic-wrap { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; } }
+.lic-stamp { position: absolute; right: 7%; top: 36%; display: flex; flex-direction: column; align-items: center; padding: 6px 16px; border: 4px solid #ff6b5e; border-radius: 10px; color: #ff6b5e; background: rgba(10, 14, 28, 0.35); font-family: var(--f-display); text-transform: uppercase; transform: rotate(-12deg); opacity: 0.92; pointer-events: none; animation: stampIn 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+.lic-stamp b { font-size: clamp(18px, 4.2vw, 30px); letter-spacing: 0.12em; }
+.lic-stamp span { font-size: clamp(11px, 2.4vw, 15px); letter-spacing: 0.3em; }
+@keyframes stampIn { from { transform: rotate(-12deg) scale(2.4); opacity: 0; } to { transform: rotate(-12deg) scale(1); opacity: 0.92; } }
+@media (prefers-reduced-motion: reduce) { .lic-stamp { animation: none; } }
 .license .radio.quote { max-width: none; width: 100%; }
 .lic-edit { width: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; text-align: left; }
 .lic-name { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--regolith-dim); }
@@ -2961,11 +2989,13 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
+    if (intro && m !== 'intro') clearInterval(intro.anim);
+    if (m === 'missions') store.set('ds-nudge', '');
     closeDenPhoto();
     if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade' && m !== 'license') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
@@ -3002,6 +3032,7 @@ kbd {
     if (m === 'arcade') { renderArcade(); return; }
     if (m === 'license') { renderLicense(); return; }
     if (m === 'raceInvite') { renderRaceInvite(); return; }
+    if (m === 'intro') { renderIntro(); return; }
     if (m === 'raceEnd') { renderRaceEnd(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
@@ -3022,6 +3053,7 @@ kbd {
     let html = '';
     if (m === 'title') {
       match = null; ghost = null; daily = null; mission = null; tut = null; run = null; rng = Math.random; siteSeed = null;
+      if (intro) { store.set('ds-intro', 'done'); clearInterval(intro.anim); intro = null; }
       if (race && race.active) race = null;
       const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
@@ -3047,7 +3079,7 @@ kbd {
         </div>
         <nav class="menu" aria-label="Game modes">
           <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
-          <button class="mode" data-go="missions"><b>Missions</b><span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
+          <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : ''}<span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
           <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
           <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
           <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
@@ -3252,6 +3284,12 @@ kbd {
           <button class="btn ghost" id="pick">Quit to menu</button>
         </div>
         <p class="keys-hint limits"><kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>`;
+    } else if (m === 'tutDone' && intro) {
+      html = `<span class="eyebrow">Certification flight</span>
+        <h1 class="good">Certified!</h1>
+        <p>Biscuit is down, safe and unscratched. Gus is crying a little. Happy tears. Mostly.</p>
+        <p class="limits">That’s the whole toolkit: thrust, tilt and a gentle touchdown. Every world uses the same controls.</p>
+        <div class="btns"><button class="btn" id="go">Meet the crew</button></div>`;
     } else if (m === 'tutDone') {
       html = `<span class="eyebrow">Tutorial complete</span>
         <h1 class="good">You’re a pilot</h1>
@@ -3390,6 +3428,7 @@ kbd {
       <p class="limits">On touch screens, use the buttons below the game.</p>
       <div class="btns">
         <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
+        <button class="btn ghost" id="introBtn">Replay intro</button>
         <button class="btn ghost" id="back">Main menu</button>
       </div>`;
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
@@ -3399,6 +3438,7 @@ kbd {
     $('setSound').addEventListener('click', () => { toggleMute(); });
     $('setMusic').addEventListener('click', () => { toggleMusic(); });
     $('tutBtn2').addEventListener('click', startTutorial);
+    $('introBtn').addEventListener('click', startIntro);
     $('back').addEventListener('click', () => setMode('title'));
     const f = $(focusId || 'setZoom');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
@@ -3820,6 +3860,11 @@ kbd {
       }
     }
     if (awake && !reduceMotion && Math.floor(t / 300) % 2) { px(c, s.x - 6, s.y - 5, 2, 2, '#ff9ad5'); px(c, s.x - 5, s.y - 6, 1, 1, '#ff9ad5'); }
+    // the guided tour points at things
+    if (lounge.hl && (reduceMotion || Math.floor(t / 400) % 2)) {
+      const [hx, hy, hw, hh] = lounge.hl, x0 = hx - 2, y0 = hy - 2, x1 = hx + hw + 1, y1 = hy + hh + 1, k = '#ff6b5e';
+      for (const [cx, cy, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) { px(c, Math.min(cx, cx + dx * 4), cy, 5, 1, k); px(c, cx, Math.min(cy, cy + dy * 4), 1, 5, k); }
+    }
   }
   // What did they click? The room canvas is 200x100; map the click back into it.
   function roomHit(e) {
@@ -3892,6 +3937,7 @@ kbd {
     // someone says hello when you walk in
     const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
     const hellos = { F: 'Pilot. Coffee’s fresh. Well, fresh-ish.', G: 'Oh hey, pilot! Grab a mug. Not that one, that’s a science experiment.', W: 'There’s my favorite pilot. Sit, sit. Biscuit can wait five minutes.' };
+    if (intro && intro.step === 'lounge') { loungeTourStep(); return; }
     const first = present[Math.floor(Math.random() * present.length)];
     loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
@@ -4586,6 +4632,14 @@ kbd {
         : ['F', DEN_ALONE[Math.floor(Math.random() * DEN_ALONE.length)]];
       fresh = true;
     }
+    if (intro && intro.step === 'den' && !intro.denInit) {
+      intro.denInit = true;
+      intro.gift = !store.get('ds-den', '');
+      if (intro.gift) Object.assign(denLook, { wallL: 'none', floor: 'none', rug: 'none', shelf2: 'none', wallR: 'clock' });
+      denUI.visitor = 'G'; denUI.cat = { id: 'bunk', ...DEN_CAT_SPOTS.bunk }; denUI.spot = 'wall';
+      denUI.say = ['G', intro.gift ? 'Welcome home! It’s a bit bare, so I brought you a housewarming gift. Pick one!' : 'Welcome home! Make yourself comfortable.'];
+      intro.tour = intro.gift ? 0 : 1; fresh = true;
+    }
     if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
     if (!keepSpot && denUI) denUI.trying = null;
     card.classList.add('wide');
@@ -4608,6 +4662,7 @@ kbd {
       <div class="bay">
         <div class="col">
           <canvas class="room" id="denCv" width="${RW}" height="${RH}" role="img" aria-label="Your cabin: a bunk, a desk, a shelf, a window and whatever you've decorated it with"></canvas>
+          ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
             ${denUI.cat ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
@@ -4688,6 +4743,7 @@ kbd {
       place(it.id);
     });
     const cb = $('denCancel'); if (cb) cb.addEventListener('click', () => { denUI.trying = null; sfx.click(); renderDen(true); });
+    denTourWire();
     $('back').addEventListener('click', () => setMode('title'));
   }
 
@@ -5074,11 +5130,11 @@ kbd {
     const chips = (key, list) => list.map(([id, label]) => `<button data-lic="${key}" data-v="${id}" aria-pressed="${lic[key] === id}">${label}</button>`).join('');
     const sws = (key, cols, label) => cols.map((col, i) => `<button class="lsw" data-lic="${key}" data-v="${i}" style="background:${col}" aria-label="${label} ${i + 1}" aria-pressed="${lic[key] === i}"></button>`).join('');
     card.innerHTML = `<div class="license">
-      <h1 class="good">Pilot license</h1>
-      <canvas id="licCv" role="img" aria-label="Your Descent Systems pilot license: ${esc(lic.name)}, rank ${R.name}"></canvas>
-      ${radioQuote(['F', licDottie()])}
+      <h1 class="good">${licenseFrom === 'intro' ? 'Your pilot license' : 'Pilot license'}</h1>
+      <div class="lic-wrap"><canvas id="licCv" role="img" aria-label="Your Descent Systems pilot license: ${esc(lic.name)}, rank ${R.name}"></canvas></div>
+      ${radioQuote(['F', licenseFrom === 'intro' ? 'Hold still. Regulation photo. Type your name, pick your look, and I’ll make it official.' : licDottie()])}
       <div class="lic-edit">
-        <label class="lic-name"><span>Name on the license</span><input id="licName" maxlength="16" autocomplete="off" spellcheck="false" value="${esc(lic.name)}"></label>
+        <label class="lic-name"><span>Name on the license</span><input id="licName" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Your name" value="${licenseFrom === 'intro' && lic.name === 'Pilot' ? '' : esc(lic.name)}"></label>
         <div class="lic-row"><span>Hair</span><div class="lchips">${chips('hair', LIC_HAIR)}</div></div>
         <div class="lic-row"><span>Hair color</span><div class="lsws">${sws('hairCol', LIC_HAIR_COLS, 'Hair color')}</div></div>
         <div class="lic-row"><span>Skin</span><div class="lsws">${sws('skin', LIC_SKINS, 'Skin tone')}</div></div>
@@ -5086,7 +5142,8 @@ kbd {
         <div class="lic-row"><span>Extra</span><div class="lchips">${chips('acc', LIC_ACC)}</div></div>
       </div>
       <p class="limits">Your rank goes up as you land, finish missions, visit worlds and earn badges.</p>
-      <div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Main menu'}</button></div>
+      ${licenseFrom === 'intro' ? '<div class="btns"><button class="btn" id="licStamp">Sign and stamp it</button><button class="link" id="introSkip">Skip intro</button></div>'
+        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Main menu'}</button></div>`}
     </div>`;
     paintFaces(card);
     paintLicense();
@@ -5097,6 +5154,11 @@ kbd {
       lic[key] = v; saveLic(); sfx.click(); paintLicense();
       card.querySelectorAll(`[data-lic="${key}"]`).forEach(o => o.setAttribute('aria-pressed', String(o === b)));
     }));
+    if (licenseFrom === 'intro') {
+      $('licStamp').addEventListener('click', introStamp);
+      $('introSkip').addEventListener('click', () => endIntro(false));
+      return;
+    }
     $('licShare').addEventListener('click', () => {
       const out = document.createElement('canvas'); out.width = 1200; out.height = 750;
       drawLicense(out.getContext('2d'), 2);
@@ -5239,6 +5301,227 @@ kbd {
     } catch (e) {
       showToast(e && e.message === 'nozip' ? 'This browser can’t open challenge links. Try updating it.' : 'That challenge link didn’t work. It may have been cut off.', 3200);
     }
+  }
+
+  // ---- First launch: a short intro, your pilot license, the certification flight, then the crew and your Pad ----
+  let intro = null;          // { step: 'cards' | 'license' | 'flight' | 'lounge' | 'den', i, tour, stamped, anim }
+  const isBrandNew = () => !store.get('ds-intro', '') && !store.get('ds-tut', '') && stats.landings === 0 && credits === 0 && !Object.keys(missionStars || {}).length;
+  const INTRO_CARDS = [
+    ['F', 'radio', 'Is this thing on? Okay. Hi! Welcome to Descent Systems. I’m Dottie, flight director. Also accounting. Also the coffee.'],
+    ['F', 'closet', 'We’re a small outfit. We started in a supply closet. Technically, the supply closet is still our head office.'],
+    ['G', 'biscuit', 'And this is Biscuit! Our lander. Our only lander. I built most of her myself. Please, please don’t scratch her.'],
+    ['F', 'bake', 'We paid for Biscuit with a bake sale. A very big bake sale. Now we need a pilot who can land her anywhere in the solar system.'],
+    ['A', 'cat', 'Mrrp. (This is Apogee, the station cat. Technically, she outranks you.)'],
+    ['F', 'paper', 'So. You want the job? Wonderful. Paperwork first.']
+  ];
+  function startIntro() {
+    intro = { step: 'cards', i: 0, tour: 0 };
+    setMode('intro');
+  }
+  function endIntro(toMissions) {
+    store.set('ds-intro', 'done');
+    if (toMissions) store.set('ds-nudge', 'missions');
+    if (intro) clearInterval(intro.anim);
+    intro = null;
+    setMode('title');
+  }
+  function sayInto(box, who, text, animate = true) {
+    if (!box) return;
+    clearInterval(box._typer);
+    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    const face = box.querySelector('canvas.face'), p = box.querySelector('p');
+    drawFace(face, who, face.dataset.mood, false, false);
+    if (who !== 'A') sfx.radio(); else sfx.purr();
+    if (!animate || reduceMotion) return;
+    p.textContent = '';
+    let n = 0, tick = 0;
+    box._typer = setInterval(() => {
+      n += 2; tick++;
+      p.textContent = text.slice(0, n);
+      if (tick % 3 === 0) drawFace(face, who, face.dataset.mood, (tick / 3) % 2 === 1, false);
+      if (n >= text.length) { clearInterval(box._typer); drawFace(face, who, face.dataset.mood, false, false); }
+    }, 24);
+  }
+  // little pixel scenes for each intro card (160 x 80)
+  function drawIntroScene(cv, scene, t) {
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    px(c, 0, 0, 160, 80, '#0d1226');
+    const stars = n => { for (let i = 0; i < n; i++) { const a = Math.sin(i * 12.9898) * 43758.5, b = Math.sin(i * 78.233) * 12543.1; const tw = reduceMotion ? 1 : 0.5 + 0.5 * Math.sin(t / 700 + i); px(c, Math.floor((a - Math.floor(a)) * 160), Math.floor((b - Math.floor(b)) * 60), 1, 1, `rgba(220,226,240,${(0.3 + 0.6 * tw).toFixed(2)})`); } };
+    if (scene === 'radio') {
+      stars(30);
+      px(c, 26, 52, 108, 28, '#2a3556'); px(c, 26, 50, 108, 3, '#4a5578');
+      for (let i = 0; i < 6; i++) px(c, 34 + i * 6, 58, 3, 3, i % 2 ? '#9fe0b8' : '#ffb547');
+      px(c, 76, 30, 2, 20, '#6c7690'); px(c, 70, 49, 14, 2, '#6c7690');
+      oval(c, 77, 26, 5, 6, '#8a93ab'); for (let k = 0; k < 4; k++) px(c, 74, 22 + k * 2, 7, 1, '#5a6684');
+      px(c, 106, 56, 18, 8, '#1a2240'); px(c, 108, 58, 14, 4, (reduceMotion || Math.floor(t / 500) % 2) ? '#ff6b5e' : '#5a2a2a');
+      const ph = reduceMotion ? 0 : (t / 900) % 1;
+      c.lineWidth = 1.2;
+      for (let k = 0; k < 3; k++) {
+        const r = 10 + k * 8 + ph * 8, al = Math.max(0, 0.75 - k * 0.22 - ph * 0.25);
+        c.strokeStyle = `rgba(255,181,71,${al.toFixed(2)})`;
+        c.beginPath(); c.arc(77, 26, r, -0.8, 0.8); c.stroke();
+        c.beginPath(); c.arc(77, 26, r, Math.PI - 0.8, Math.PI + 0.8); c.stroke();
+      }
+    } else if (scene === 'closet') {
+      px(c, 0, 0, 160, 62, '#1a2240'); px(c, 0, 62, 160, 18, '#10162c'); px(c, 0, 62, 160, 1, '#2a3556');
+      px(c, 80, 0, 1, 8, '#6c7690'); glow(c, 80, 11, 30, 'rgba(255,229,160,0.18)'); circ(c, 80.5, 10, 3, '#fff1c7');
+      px(c, 56, 14, 48, 48, '#3a2c20'); px(c, 58, 16, 44, 46, '#5a4636'); px(c, 94, 40, 3, 3, '#c9a24a');
+      px(c, 64, 22, 32, 11, '#f4f1e8'); px(c, 67, 25, 26, 1, '#0a0e1c'); px(c, 67, 28, 18, 1, '#0a0e1c'); px(c, 67, 30, 22, 1, '#ff6b5e');
+      px(c, 68, 38, 9, 8, '#ffe58a'); px(c, 69, 40, 6, 1, '#8a6a20'); px(c, 69, 42, 5, 1, '#8a6a20');
+      px(c, 114, 18, 2, 44, '#a5835a'); px(c, 109, 56, 12, 6, '#c9a24a'); px(c, 110, 58, 1, 4, '#a5835a'); px(c, 114, 58, 1, 4, '#a5835a'); px(c, 118, 58, 1, 4, '#a5835a');
+      px(c, 30, 48, 16, 14, '#8a93ab'); px(c, 29, 47, 18, 2, '#c9cfdc'); px(c, 32, 44, 2, 4, '#c9cfdc');
+      px(c, 128, 40, 18, 22, '#8a6a42'); px(c, 128, 40, 18, 2, '#a5835a'); px(c, 132, 44, 10, 3, '#f4f1e8');
+    } else if (scene === 'biscuit') {
+      stars(36);
+      px(c, 0, 64, 160, 16, '#1d2647'); px(c, 0, 64, 160, 1, '#7d88a6');
+      px(c, 58, 63, 44, 2, '#ffb547');
+      glow(c, 80, 44, 40, 'rgba(255,181,71,0.10)');
+      const sk = { hull: findItem('hull', 'standard'), flame: findItem('flame', 'standard'), flag: findItem('flag', 'pennant'), model: 'biscuit' };
+      c.save(); c.translate(80, 63 - 3 * 4.6); c.scale(4.6, 4.6); paintLander(c, { firing: false, model: 'biscuit' }, sk, t, 1.2 / 4.6); c.restore();
+      px(c, 108, 40, 1, 24, '#c9cfdc'); c.fillStyle = '#ffb547'; c.beginPath(); c.moveTo(109, 40); c.lineTo(120, 44); c.lineTo(109, 48); c.closePath(); c.fill();
+      if (!reduceMotion && Math.floor(t / 400) % 2) { px(c, 52, 24, 1, 3, '#ffffff'); px(c, 51, 25, 3, 1, '#ffffff'); }
+    } else if (scene === 'bake') {
+      px(c, 0, 0, 160, 80, '#1a2240'); px(c, 0, 66, 160, 14, '#10162c');
+      const flags = ['#ff9ad5', '#ffb547', '#9fe0b8', '#8fd3ff'];
+      for (let i = 0; i < 12; i++) { c.fillStyle = flags[i % 4]; c.beginPath(); const x = 14 + i * 11; c.moveTo(x, 8); c.lineTo(x + 8, 8); c.lineTo(x + 4, 15); c.closePath(); c.fill(); }
+      px(c, 10, 7, 140, 1, '#c9cfdc');
+      px(c, 14, 50, 132, 4, '#f4f1e8'); px(c, 14, 54, 132, 10, '#ff9ad5'); for (let x = 16; x < 146; x += 6) px(c, x, 54, 3, 10, '#ffb3d9');
+      const tops = ['#ff9ad5', '#9fe0b8', '#f4f1e8', '#8fd3ff', '#ffb547'];
+      for (let i = 0; i < 5; i++) { const x = 24 + i * 16; px(c, x, 43, 9, 7, '#c98a2a'); px(c, x + 1, 44, 1, 5, '#a5701e'); px(c, x - 1, 38, 11, 6, tops[i]); px(c, x + 3, 35, 3, 3, '#ff6b5e'); }
+      px(c, 116, 30, 18, 20, 'rgba(207,227,255,0.35)'); px(c, 117, 40, 16, 10, '#ffd27a'); px(c, 116, 28, 18, 2, '#8a93ab'); px(c, 118, 33, 14, 5, '#f4f1e8'); px(c, 120, 35, 10, 1, '#0a0e1c');
+      for (let i = 0; i < 3; i++) px(c, 119 + i * 5, 38 - (i % 2), 3, 2, '#ffe58a');
+    } else if (scene === 'cat') {
+      stars(20);
+      px(c, 0, 66, 160, 14, '#10162c');
+      px(c, 62, 14, 36, 28, '#2f3a5c'); px(c, 64, 16, 32, 24, '#3a4668');
+      px(c, 70, 18, 20, 6, '#c9a24a'); px(c, 72, 20, 16, 2, '#7a5a1a');
+      px(c, 56, 42, 48, 7, '#3a4668'); px(c, 56, 42, 48, 1, '#5a6684');
+      px(c, 78, 49, 4, 13, '#6c7690'); px(c, 62, 62, 36, 2, '#6c7690'); px(c, 62, 64, 3, 2, '#3a4668'); px(c, 95, 64, 3, 2, '#3a4668'); px(c, 79, 64, 3, 2, '#3a4668');
+      c.save(); c.translate(64, 24); c.scale(3, 3); drawDenCat(c, { x: 4, y: 1 }, true, t); c.restore();
+      c.fillStyle = '#ffd27a'; c.font = '9px monospace'; c.textBaseline = 'middle'; c.fillText('★', 98, 18);
+    } else if (scene === 'paper') {
+      px(c, 0, 0, 160, 80, '#1a2240');
+      px(c, 40, 12, 80, 52, '#0a0e1c'); px(c, 41, 13, 78, 50, '#1e2b55'); px(c, 41, 13, 78, 10, '#ffb547');
+      px(c, 44, 16, 30, 3, '#0a0e1c');
+      px(c, 46, 28, 22, 28, '#cfe3ff');
+      px(c, 53, 33, 8, 2, '#5a6684'); px(c, 59, 35, 2, 4, '#5a6684'); px(c, 56, 39, 4, 2, '#5a6684'); px(c, 56, 41, 2, 4, '#5a6684'); px(c, 56, 48, 2, 2, '#5a6684');
+      for (let i = 0; i < 5; i++) px(c, 74, 30 + i * 6, 38 - (i % 2) * 10, 2, '#5a6684');
+      c.save(); c.translate(118, 56); c.rotate(-0.7); px(c, -1, -24, 3, 22, '#ffb547'); px(c, -1, -2, 3, 3, '#f4f1e8'); px(c, 0, 1, 1, 2, '#0a0e1c'); c.restore();
+    }
+  }
+  function renderIntro() {
+    const I = intro, [who, scene, text] = INTRO_CARDS[I.i], last = I.i === INTRO_CARDS.length - 1;
+    card.innerHTML = `<div class="intro">
+      <div class="intro-top"><span class="eyebrow">Welcome aboard</span><button class="link" id="introSkip">Skip intro</button></div>
+      <canvas class="iscene" id="introCv" width="160" height="80" role="img" aria-label="${esc(text)}"></canvas>
+      <div class="radio quote" id="introSay" aria-live="polite"></div>
+      <div class="idots" aria-hidden="true">${INTRO_CARDS.map((_, k) => `<i class="${k === I.i ? 'on' : k < I.i ? 'seen' : ''}"></i>`).join('')}</div>
+      <div class="btns"><button class="btn" id="introNext">${last ? 'Get my license' : 'Next'}</button></div>
+    </div>`;
+    const cv = $('introCv');
+    clearInterval(I.anim);
+    drawIntroScene(cv, scene, performance.now());
+    I.anim = setInterval(() => { const v = $('introCv'); if (v && mode === 'intro') drawIntroScene(v, scene, performance.now()); }, 80);
+    if (I.i === 0) sfx.static();
+    sayInto($('introSay'), who, text);
+    $('introNext').addEventListener('click', introNext);
+    $('introSkip').addEventListener('click', () => endIntro(false));
+    setTimeout(() => { const b = $('introNext'); if (b) b.focus({ preventScroll: true }); }, 0);
+  }
+  function introNext() {
+    if (!intro || mode !== 'intro') return;
+    const box = $('introSay');
+    // first tap finishes the line, the next one moves on
+    if (box && box._typer && box.querySelector('p').textContent.length < INTRO_CARDS[intro.i][2].length) {
+      clearInterval(box._typer); box._typer = 0; box.querySelector('p').textContent = INTRO_CARDS[intro.i][2]; return;
+    }
+    sfx.click();
+    if (intro.i < INTRO_CARDS.length - 1) { intro.i++; renderIntro(); return; }
+    clearInterval(intro.anim);
+    intro.step = 'license'; licenseFrom = 'intro';
+    setMode('license');
+  }
+  // the license step: name, look, then Dottie stamps it
+  function introStamp() {
+    if (!intro) return;
+    const name = $('licName').value.trim();
+    lic.name = name || 'Pilot'; saveLic();
+    if (name && !store.get('ds-p1', '')) { store.set('ds-p1', name); names[0] = name; }
+    paintLicense();
+    const wrap = card.querySelector('.lic-wrap');
+    const st = document.createElement('div'); st.className = 'lic-stamp'; st.innerHTML = '<b>Licensed</b><span>Cadet</span>';
+    wrap.appendChild(st);
+    sfx.thud();
+    intro.stamped = true;
+    sayInto(card.querySelector('.license .radio.quote'), 'F', `Congratulations, Cadet ${lic.name}. Now let’s get you certified. Gus is already on the radio. He sounds nervous.`);
+    const b = $('licStamp'); b.textContent = 'Start certification flight'; b.onclick = () => { intro.step = 'flight'; startTutorial(); setTimeout(() => showToast('Gus on the radio: “Be gentle with her. Please.”', 2800), 600); };
+    b.focus({ preventScroll: true });
+  }
+  // guided tour of the break room
+  const LOUNGE_TOUR = [
+    { hl: [50, 28, 98, 34], who: 'F', say: 'Welcome to the break room, pilot! This is where we live between flights. Mostly on the coffee.', tip: 'This is the crew. Tap anyone to chat. What they say changes as you play.' },
+    { hl: [48, 6, 24, 20], who: 'G', say: 'That’s the bulletin board! Crew notes, your best landing, and the karaoke sign-up sheet. Your name is already on it. Sorry.', tip: 'Tap the bulletin board any time to read the crew’s notes.' },
+    { hl: [156, 62, 24, 18], who: 'F', say: 'Every time you land somewhere new, one of us sends you a postcard. There’s already one from the Moon in that box.', tip: 'Your postcards collect in this box, one for every world.' },
+    { hl: [154, 6, 34, 38], who: 'G', say: 'And behind Biscuit’s poster is my maintenance log. Every dent you make, I write down. With love.', tip: 'Tap the poster to read Gus’s maintenance log.' },
+    { hl: 'cat', who: 'A', say: 'Mrrp. (Apogee is watching you. Tap her. Gently.)', tip: 'Tap Apogee to pet her. She purrs. Usually.' },
+    { hl: null, who: 'W', say: '', tip: 'One more thing: you get your own cabin. Let’s go see it.', last: true }
+  ];
+  function loungeTourStep() {
+    if (!intro || intro.step !== 'lounge' || !lounge) return;
+    const k = Math.min(intro.tour, LOUNGE_TOUR.length - 1), T = LOUNGE_TOUR[k];
+    const s = lounge.cat;
+    lounge.hl = T.hl === 'cat' ? [s.x - 5, s.y - 4, 22, 12] : T.hl;
+    let panel = $('tour');
+    if (!panel) { panel = document.createElement('div'); panel.id = 'tour'; panel.className = 'tour'; $('room').after(panel); }
+    panel.innerHTML = `<span class="tstep">Tour · ${k + 1} of ${LOUNGE_TOUR.length}</span><p>${T.tip}</p>
+      <div class="btns"><button class="btn" id="tourNext">${T.last ? 'See my Pad' : 'Next'}</button><button class="link" id="tourSkip">Skip tour</button></div>`;
+    $('tourNext').addEventListener('click', () => {
+      sfx.click();
+      if (T.last) { intro.step = 'den'; intro.tour = 0; setMode('den'); return; }
+      intro.tour++; loungeTourStep();
+    });
+    $('tourSkip').addEventListener('click', () => endIntro(true));
+    const who = T.who === 'W' && !wrenHome() ? 'F' : T.who;
+    if (T.say) loungeSay(who, T.say);
+    else loungeSay('F', 'One more thing. You get your own cabin! It’s not much yet. Neither was this place.');
+    setTimeout(() => { const b = $('tourNext'); if (b) b.focus({ preventScroll: true }); }, 0);
+  }
+  // guided tour of the Pad, with a housewarming gift from Gus
+  const DEN_GIFTS = [['wallL', 'poster', 'Lander poster'], ['floor', 'fern', 'Potted fern'], ['rug', 'round', 'Orange rug']];
+  function denTourPanel() {
+    if (!intro || intro.step !== 'den' || !denUI) return '';
+    const k = intro.tour;
+    if (k === 0 && intro.gift) return `<div class="tour" id="tour"><span class="tstep">Your Pad · 1 of 3</span><p>Gus brought you a housewarming gift. Pick one:</p>
+      <div class="gifts">${DEN_GIFTS.map(([spot, id, name]) => `<button class="gift" data-gift="${spot}:${id}"><span class="pv" data-gpv="${spot}:${id}"></span><b>${name}</b></button>`).join('')}</div>
+      <div class="btns"><button class="link" id="tourSkip">Skip tour</button></div></div>`;
+    const steps = [
+      null,
+      ['This is your Pad. Tap any spot in the room to decorate it. Free items are yours, and credits from landings buy the rest.', 'Next'],
+      ['Apogee visits all the time, and so does the crew. You’ll be fine. Your first real job is waiting in Missions.', 'Let’s fly']
+    ];
+    const S = steps[Math.max(1, k)];
+    return `<div class="tour" id="tour"><span class="tstep">Your Pad · ${Math.max(1, k) + 1} of 3</span><p>${S[0]}</p>
+      <div class="btns"><button class="btn" id="tourNext">${S[1]}</button><button class="link" id="tourSkip">Skip tour</button></div></div>`;
+  }
+  function denTourWire() {
+    if (!intro || intro.step !== 'den') return;
+    card.querySelectorAll('[data-gpv]').forEach(el => { const [spot, id] = el.dataset.gpv.split(':'); const cv = denPreview(spot, id); cv.className = 'pvc'; el.appendChild(cv); });
+    card.querySelectorAll('[data-gift]').forEach(b => b.addEventListener('click', () => {
+      const [spot, id] = b.dataset.gift.split(':');
+      denLook[spot] = id; saveDen(); sfx.coin();
+      denUI.spot = spot; intro.tour = 1;
+      denUI.pendingSay = ['G', 'Perfect choice. I would’ve picked the same one. Probably. Maybe the rug.'];
+      renderDen(true);
+    }));
+    const n = $('tourNext');
+    if (n) n.addEventListener('click', () => {
+      sfx.click();
+      if (intro.tour >= 2) { endIntro(true); return; }
+      intro.tour = 2; denUI.spot = 'bed';
+      denUI.pendingSay = ['A', 'Mrrp. (Apogee has claimed your bunk. It is her bunk now. You may borrow it.)'];
+      renderDen(true);
+    });
+    const sk = $('tourSkip'); if (sk) sk.addEventListener('click', () => endIntro(true));
   }
 
   // ---- Postcards: the first landing on each world earns one from the crew ----
@@ -5896,7 +6179,7 @@ kbd {
     if (mode === 'runSpare') { levelFuel = run.siteFuel; spawn(spawnPlan); lander.fuelMax = run.maxFuel; fly({ ...lastRun, label: 'Last try', tint: col.reg }); return; }
     if (mode === 'brief') { startMission(null); return; }
     if (mode === 'tutFail') { startTutorial(); return; }
-    if (mode === 'tutDone') { openSetup('solo'); return; }
+    if (mode === 'tutDone') { if (intro) { intro.step = 'lounge'; intro.tour = 0; setMode('lounge'); return; } openSetup('solo'); return; }
     if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
     if (mode === 'setup' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
@@ -6781,7 +7064,8 @@ kbd {
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
     if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
     if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
-    if (mode === 'license') { if (e.code === 'Escape') setMode(licenseFrom); return; }
+    if (mode === 'intro') { if (e.code === 'Escape') endIntro(false); return; }
+    if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
@@ -6868,7 +7152,7 @@ kbd {
   resize();
   genTerrain();
   spawn();
-  setMode('title');
+  if (isBrandNew() && !/^#race=/.test(location.hash)) startIntro(); else setMode('title');
   checkRaceLink();
   addEventListener('hashchange', checkRaceLink);
   requestAnimationFrame(frame);
