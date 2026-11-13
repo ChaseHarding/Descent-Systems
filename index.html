@@ -199,6 +199,22 @@ kbd {
 .detail .bar i { display: block; height: 100%; background: var(--flame); }
 .detail .btns { justify-content: flex-start; }
 .detail .btn { padding: 8px 14px; font-size: 12px; }
+.fleet { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ship { position: relative; min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px; text-align: left; cursor: pointer; background: var(--panel); color: var(--regolith); border: 1px solid var(--space-2); border-radius: 8px; font-family: var(--f-mono); }
+.ship.sel { border-color: var(--flame); }
+.ship.locked { opacity: 0.8; }
+.ship canvas { width: 100%; aspect-ratio: 2 / 1; display: block; }
+.ship b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; }
+.ship .by { font-size: 11px; color: var(--regolith-dim); }
+.ship .st { font-size: 11px; color: var(--regolith-dim); }
+.ship .st.fly { color: var(--ok); }
+.ship .bars { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; align-items: center; font-size: 10px; color: var(--regolith-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.ship .bars span { display: flex; gap: 2px; }
+.ship .bars i { flex: 1; height: 4px; border-radius: 1px; background: var(--space-2); }
+.ship .bars i.on { background: var(--flame); }
+.unlockbar { width: 100%; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--panel); border: 1px dashed var(--flame); border-radius: 8px; font-size: 12px; text-align: left; }
+.unlockbar .btn { padding: 8px 14px; font-size: 12px; }
+@media (max-width: 560px) { .fleet { gap: 6px; } .ship { padding: 7px; } .ship .bars { display: none; } .ship b { font-size: 12px; } }
 .tabs.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .shop { display: flex; flex-direction: column; gap: 8px; }
 .upg { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; }
@@ -719,6 +735,10 @@ kbd {
       fill: '#e8b830', stroke: '#2a2a33', legs: '#2a2a33', detail: '#2a2a33', swatch: 'linear-gradient(90deg, #e8b830, #2a2a33)' },
     { id: 'gus', name: 'Gus Special', price: 0, unlock: 'loaded', blurb: 'Engineering green with ginger trim. Signed by Gus on the inside of the hatch.',
       fill: '#3d6b63', stroke: '#9fe0b8', legs: '#c46a2c', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #3d6b63, #c46a2c)' },
+    { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
+      fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
+    { id: 'lark', name: 'Surveyor Olive', price: 0, unlock: 'ship:lark', blurb: 'Wren’s original survey colors: olive and cream. Comes with the Lark.',
+      fill: '#6b6b3a', stroke: '#e6d3b0', legs: '#e6d3b0', detail: '#ff9ad5', swatch: 'linear-gradient(90deg, #6b6b3a, #e6d3b0)' },
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
       fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' }
   ];
@@ -779,6 +799,8 @@ kbd {
       colors: ['#ffb547', '#ff6b5e'], swatch: 'linear-gradient(90deg, #ffb547, #ff6b5e)' },
     { id: 'shooting', name: 'Shooting Star', price: 0, unlock: 'dodger', blurb: 'A white star on midnight purple. Make a wish.', style: 'star',
       colors: ['#2a1a4a', '#fff4e0'], swatch: 'radial-gradient(circle, #fff4e0 25%, #2a1a4a 30%)' },
+    { id: 'fleet', name: 'The Fleet', price: 0, unlock: 'fleet', blurb: 'Three stripes for three landers.', style: 'stripes',
+      colors: ['#f2f4f8', '#c0392b', '#6b6b3a'], swatch: 'linear-gradient(180deg, #f2f4f8 33%, #c0392b 33% 66%, #6b6b3a 66%)' },
     { id: 'racing', name: 'Rex’s Racing Flag', price: 0, unlock: 'beatrex', blurb: 'Rex handed it over himself. Through gritted teeth.', style: 'checker',
       colors: ['#1a1a22', '#ffd27a'], swatch: 'repeating-conic-gradient(#1a1a22 0 25%, #ffd27a 0 50%) 0 0 / 10px 10px' }
   ];
@@ -819,22 +841,63 @@ kbd {
   const upgActive = () => upgOn && !daily && !match && !tut && !run;
   const upgLevel = id => upgActive() ? upg[id] : 0;
   const perk = id => run ? run.perks[id] || 0 : 0;
-  function safeVy() { return SAFE_VY + STRUT_BONUS[upgLevel('struts')] + 0.3 * perk('struts'); }
+  function safeVy() { return SAFE_VY + STRUT_BONUS[upgLevel('struts')] + 0.3 * perk('struts') + ship().legs; }
   function safeVx() { return SAFE_VX + 0.4 * perk('feet'); }
   function safeAng() { return SAFE_ANG + 4 * perk('steady'); }
-  const burnMul = () => (1 - 0.08 * upgLevel('thrust')) * (1 - 0.1 * perk('engine'));
+  const burnMul = () => (1 - 0.08 * upgLevel('thrust')) * (1 - 0.1 * perk('engine')) * ship().burn;
   const tankMul = () => 1 + 0.1 * upgLevel('tank');
   let hangarSel = { kind: 'hull', id: 'standard' };
+  // ---- The fleet: three landers that fly differently. Each one keeps its own paint, flame and flag. ----
+  const LANDERS = [
+    { id: 'biscuit', name: 'Biscuit', by: 'Gus’s all-rounder', thrust: 1, rot: 1, burn: 1, tank: 1, legs: 0, wind: 1, bars: [3, 3, 3, 3],
+      blurb: 'The lander that started it all. Balanced, forgiving and slightly dented.',
+      gus: 'Good old Biscuit. Reliable, cheerful, slightly dented. She’s family.' },
+    { id: 'apex', name: 'Apex Vector', by: 'Rex’s racer', thrust: 1.22, rot: 1.45, burn: 1.4, tank: 0.85, legs: -0.2, wind: 1.15, bars: [5, 5, 2, 2],
+      price: 6000, story: 'mayday', storyText: 'Rescue Rex in Mayday and he’ll give it to you',
+      blurb: 'Fast, twitchy and thirsty. A strong engine, quick turns, a small tank and stiff legs.',
+      gus: 'Rex’s Apex Vector. It’s fast, it’s twitchy, and it drinks fuel like Dottie drinks coffee.', look: { hull: 'vector', flame: 'standard', flag: 'pennant' } },
+    { id: 'lark', name: 'Lark', by: 'Wren’s old surveyor', thrust: 0.88, rot: 0.7, burn: 0.85, tank: 1.45, legs: 0.4, wind: 0.6, bars: [2, 1, 5, 5],
+      price: 6000, story: 'last-light', storyText: 'Bring Wren home in Last Light and she’ll hand you the keys',
+      blurb: 'Slow, heavy and steady. A huge tank, soft legs, and wind barely moves it.',
+      gus: 'Wren’s old Lark! Slow, heavy, steady as a rock, with a tank the size of a swimming pool.', look: { hull: 'lark', flame: 'standard', flag: 'pennant' } }
+  ];
+  let fleetOwned;
+  try { fleetOwned = new Set(JSON.parse(store.get('ds-fleet', '["biscuit"]'))); } catch (e) { fleetOwned = new Set(['biscuit']); }
+  fleetOwned.add('biscuit');
+  let looks;
+  try { looks = JSON.parse(store.get('ds-looks', '{}')) || {}; } catch (e) { looks = {}; }
+  let curLander = store.get('ds-lander', 'biscuit');
+  const shipUnlocked = l => fleetOwned.has(l.id) || (l.story && (missionStars[l.story] || 0) > 0);
+  function syncFleet() {
+    for (const l of LANDERS) if (shipUnlocked(l) && l.look) owned.add('hull:' + l.look.hull);
+    if (!looks[curLander]) looks[curLander] = { ...equip };
+    if (!LANDERS.some(l => l.id === curLander && shipUnlocked(l))) curLander = 'biscuit';
+    if (LANDERS.every(shipUnlocked)) award('fleet');
+  }
+  const landerById = id => LANDERS.find(l => l.id === id) || LANDERS[0];
+  // the daily challenge always flies Biscuit, so every pilot is on the same lander
+  const ship = () => daily ? LANDERS[0] : landerById(curLander);
+  function flyLander(id) {
+    looks[curLander] = { ...equip };
+    curLander = id;
+    const l = landerById(id);
+    Object.assign(equip, looks[id] || l.look || { hull: 'standard', flame: 'standard', flag: 'pennant' });
+    looks[id] = { ...equip };
+    saveCosmetics();
+  }
   function saveCosmetics() {
+    if (typeof looks !== 'undefined') { looks[curLander] = { ...equip }; store.set('ds-looks', JSON.stringify(looks)); store.set('ds-lander', curLander); store.set('ds-fleet', JSON.stringify([...fleetOwned])); }
     store.set('ds-credits', credits);
     store.set('ds-owned', JSON.stringify([...owned]));
     store.set('ds-hull', equip.hull);
     store.set('ds-flame', equip.flame);
     store.set('ds-flag', equip.flag);
   }
+  let hangarLander = null;   // the lander being looked at in the hangar
   const skin = () => {
     const src = trying || equip;
-    return { hull: findItem('hull', src.hull), flame: findItem('flame', src.flame), flag: findItem('flag', src.flag) };
+    const model = (mode === 'hangar' && hangarLander) || ship().id;
+    return { hull: findItem('hull', src.hull), flame: findItem('flame', src.flame), flag: findItem('flag', src.flag), model };
   };
   function flameColors(f, t, hue = 0) {
     if (f.rainbow) {
@@ -898,6 +961,7 @@ kbd {
     { id: 'loaded', name: 'Fully loaded', desc: 'Max out every upgrade in Gus’s workshop.', reward: 'hull:gus' },
     { id: 'longhaul', name: 'Long haul', desc: 'Clear 10 sites in a single endless run.', reward: 'flag:infinity' },
     { id: 'dodger', name: 'Dodgeball', desc: 'Land on a pad in the middle of a meteor shower.', reward: 'flag:shooting' },
+    { id: 'fleet', name: 'Full fleet', desc: 'Unlock all three landers.', reward: 'flag:fleet' },
     { id: 'crewfav', name: 'Crew favorite', desc: 'Earn every side-mission star.', reward: 'flag:crew', prog: () => [sideStars(), SIDES.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
@@ -1865,6 +1929,7 @@ kbd {
     if (d.id === 'long-way-round') award('surveyor');
     if (d.id === 'ice-cream' && mission.melt < 50) award('brainfreeze');
     if (d.id === 'skipping-stones') award('skipper');
+    if ((d.id === 'mayday' || d.id === 'last-light') && prev === 0) { syncFleet(); setTimeout(() => showToast(`New lander unlocked: the ${d.id === 'mayday' ? 'Apex Vector' : 'Lark'}! It’s in the hangar.`, 3200), 1200); }
     if (d.id === 'swing-shift' && mission.deliverV != null && mission.deliverV < 0.8) award('crane');
     if (d.id === 'hopscotch' && t < d.rexTime) award('beatrex');
     checkProgress();
@@ -2476,7 +2541,7 @@ kbd {
     lander = {
       x: spawnPlan.x, y: spawnPlan.y ?? H - 12,
       vx: spawnPlan.vx, vy: spawnPlan.vy ?? 0, a: 0,
-      fuel: levelFuel * tankMul(), fuelMax: levelFuel * tankMul(), firing: false,
+      fuel: levelFuel * tankMul() * (run ? 1 : ship().tank), fuelMax: levelFuel * tankMul() * (run ? 1 : ship().tank), firing: false,
       grounded: false, cargo: false, crew: false
     };
     particles = [];
@@ -2498,16 +2563,16 @@ kbd {
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
       if (rot && L.fuel > 0 && !L.grounded) {
-        const na = L.a + rot * ROT_RATE * rotMul() * (perk('gyro') ? 1.3 : 1) * dt;
+        const na = L.a + rot * ROT_RATE * rotMul() * ship().rot * (perk('gyro') ? 1.3 : 1) * dt;
         L.a = fullSpin ? Math.atan2(Math.sin(na), Math.cos(na))          // wrap to ±180°
                        : Math.max(-Math.PI / 2, Math.min(Math.PI / 2, na));
         if (!perk('gyro')) L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
       L.firing = keys.thrust && L.fuel > 0;
-      let ax = windNow - world.drag * L.vx;
+      let ax = windNow * ship().wind - world.drag * L.vx;
       let ay = -world.g - world.drag * L.vy;
       if (L.firing) {
-        const T = world.thrust * thrustMul();
+        const T = world.thrust * thrustMul() * ship().thrust;
         ax += Math.sin(L.a) * T;
         ay += Math.cos(L.a) * T;
         L.fuel = Math.max(0, L.fuel - BURN * burnMul() * dt);
@@ -2735,7 +2800,8 @@ kbd {
   }
   function startRun() {
     match = null; daily = null; mission = null; tut = null; ghost = null; rng = Math.random;
-    run = { site: 1, score: 0, fuel: 100, maxFuel: 100, perks: {}, lives: 0, taken: [] };
+    const t0 = Math.round(100 * ship().tank);
+    run = { site: 1, score: 0, fuel: t0, maxFuel: t0, perks: {}, lives: 0, taken: [] };
     score = 0; lives = 1;
     runSite();
   }
@@ -2843,6 +2909,8 @@ kbd {
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
+      syncFleet();
+      hangarLander = curLander;
       hangarSel = { kind: 'hull', id: equip.hull };
       hangarLine0 = null; hangarTab = null;
       renderHangar();
@@ -3881,6 +3949,9 @@ kbd {
     'flame:sodium': 'Sodium Orange. Very construction-site. I’m putting on a hard hat.',
     'flag:infinity': 'The Infinity flag. For the pilot who doesn’t know when to stop. Respectfully.',
     'flag:shooting': 'The Shooting Star flag. Earned the hard way: by not getting hit by one.',
+    'hull:vector': 'Vector Red. Rex says it makes it go faster. It does not. Don’t tell him.',
+    'hull:lark': 'Surveyor Olive. Wren’s colors. She got a little misty when she saw it.',
+    'flag:fleet': 'The Fleet flag! Biscuit, the Vector and the Lark. A whole family.',
     'flag:nautical': 'The Nautical flag. Ahoy, Captain Pilot.',
     'hull:gus': 'The Gus Special! My colors! On Biscuit! I need to sit down.',
     'hull:apex': 'Rex’s paint job. Don’t tell him it looks good. He’ll never stop talking.',
@@ -3956,6 +4027,7 @@ kbd {
     let action;
     if (eq) action = `<button class="btn" disabled>Equipped</button>`;
     else if (own) action = `<button class="btn" id="act">Equip</button>`;
+    else if (it.unlock && it.unlock.startsWith('ship:')) action = `<button class="btn" disabled>Comes with the ${landerById(it.unlock.slice(5)).name}</button>`;
     else if (it.unlock) action = `<button class="btn" disabled>Earn the ${ACH.find(a => a.id === it.unlock).name} badge</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more</button>`;
@@ -3969,7 +4041,9 @@ kbd {
     const total = look.reduce((n, r) => n + r.cost, 0), anyLocked = look.some(r => r.locked);
     const same = look.every(r => equip[r.k] === r.x.id);
     let lookBtn;
-    if (anyLocked) lookBtn = `<button class="btn" disabled>Includes a locked reward</button>`;
+    const shipLocked = hangarLander !== curLander;
+    if (shipLocked) { lookBtn = `<button class="btn" disabled>Unlock the ${landerById(hangarLander).name} to fly it</button>`; action = action.replace(/id="act"/, 'disabled'); }
+    else if (anyLocked) lookBtn = `<button class="btn" disabled>Includes a locked reward</button>`;
     else if (same) lookBtn = `<button class="btn" disabled>This is your current look</button>`;
     else if (!total) lookBtn = `<button class="btn" id="lookAct">Equip this look</button>`;
     else if (credits >= total) lookBtn = `<button class="btn" id="lookAct">Buy &amp; equip · ${fmt(total)} cr</button>`;
@@ -3978,7 +4052,7 @@ kbd {
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
-      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? 'Locked · badge' : `${fmt(x.price)} cr`;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : 'Locked · badge') : `${fmt(x.price)} cr`;
       return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
         <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
     };
@@ -3987,6 +4061,21 @@ kbd {
     card.classList.add('wide');
     card.innerHTML = `<div class="hangar">
       <div class="top"><h1 class="good">Hangar</h1><p class="balance">${fmt(credits)} credits</p></div>
+      <div class="fleet" role="group" aria-label="Your landers">${LANDERS.map(l => {
+        const un = shipUnlocked(l), fl = l.id === curLander;
+        const bar = (label, n) => `${label}<span>${[1, 2, 3, 4, 5].map(k => `<i${k <= n ? ' class="on"' : ''}></i>`).join('')}</span>`;
+        return `<button class="ship${l.id === hangarLander ? ' sel' : ''}${un ? '' : ' locked'}" data-ship="${l.id}" aria-pressed="${l.id === hangarLander}">
+          <canvas data-shipcv="${l.id}" aria-hidden="true"></canvas>
+          <b>${l.name}</b><span class="by">${l.by}</span>
+          <span class="bars">${bar('Power', l.bars[0])}${bar('Agility', l.bars[1])}${bar('Fuel', l.bars[2])}${bar('Toughness', l.bars[3])}</span>
+          <span class="st${fl ? ' fly' : ''}">${fl ? 'Flying' : un ? 'Tap to fly' : 'Locked'}</span>
+        </button>`;
+      }).join('')}</div>
+      ${hangarLander !== curLander ? (() => {
+        const l = landerById(hangarLander);
+        return `<div class="unlockbar"><span><b>${l.name}</b> · ${l.blurb} ${l.storyText}, or buy it now.</span>
+          ${credits >= l.price ? `<button class="btn" id="buyShip">Buy · ${fmt(l.price)} cr</button>` : `<button class="btn" disabled>${fmt(l.price)} cr · need ${fmt(l.price - credits)} more</button>`}</div>`;
+      })() : ''}
       <div class="bay">
         <div class="col">
           <canvas class="garage" id="preview" aria-label="Biscuit in the hangar, wearing the look you're trying on"></canvas>
@@ -4015,6 +4104,37 @@ kbd {
       <button class="btn ghost" id="back">Main menu</button>
     </div>`;
     paintFaces(card);
+    // little portraits of each lander, in its own look
+    card.querySelectorAll('canvas[data-shipcv]').forEach(cv => {
+      const id = cv.dataset.shipcv, w = cv.clientWidth || 120, h = cv.clientHeight || 60;
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+      const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const lk = (id === hangarLander && trying) ? trying : looks[id] || landerById(id).look || equip;
+      const sk = { hull: findItem('hull', lk.hull), flame: findItem('flame', lk.flame), flag: findItem('flag', lk.flag), model: id };
+      const s = h / 11;
+      c.save(); c.translate(w / 2, h * 0.5); c.scale(s, s); paintLander(c, { firing: false, model: id }, sk, 0, 1.4 / s); c.restore();
+    });
+    card.querySelectorAll('[data-ship]').forEach(b => b.addEventListener('click', () => {
+      const l = landerById(b.dataset.ship);
+      hangarLander = l.id;
+      if (shipUnlocked(l)) {
+        if (l.id !== curLander) { flyLander(l.id); sfx.click(); showToast(`Now flying the ${l.name}`); }
+      }
+      trying = { ...(looks[l.id] || l.look || equip) };
+      hangarSel = { kind: hangarSel.kind, id: trying[hangarSel.kind] || equip[hangarSel.kind] };
+      hangarLine0 = shipUnlocked(l) ? l.gus : `${l.gus} ${l.storyText}.`;
+      renderHangar(`[data-ship="${l.id}"]`);
+    }));
+    const bs = $('buyShip');
+    if (bs) bs.addEventListener('click', () => {
+      const l = landerById(hangarLander);
+      if (credits < l.price) return;
+      credits -= l.price; fleetOwned.add(l.id);
+      syncFleet(); flyLander(l.id); checkProgress();
+      sfx.coin(); showToast(`The ${l.name} is yours`);
+      hangarLine0 = `She’s all yours! ${l.gus}`;
+      renderHangar(`[data-ship="${l.id}"]`);
+    });
     card.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.tab;
       hangarTab = k;
@@ -4091,9 +4211,11 @@ kbd {
       hangarLine0 = 'Back to the usual. Comfortable. I get it.';
       renderHangar(`[data-tab="${hangarSel.kind}"]`);
     });
-    $('back').addEventListener('click', () => { trying = null; setMode('title'); });
+    $('back').addEventListener('click', () => { trying = null; hangarLander = null; setMode('title'); });
     if (!focus && hangarLine0) setTimeout(() => gusSay(hangarLine0), 0);
     else if (hangarLine0 && /^\.item|^#back|^\[data|^#upg/.test(focus)) setTimeout(() => gusSay(hangarLine0), 0);
+    // the hangar's look buttons should not touch another lander's paint
+
     const f = focus && card.querySelector(focus);
     if (f) f.focus({ preventScroll: true });
   }
@@ -4510,26 +4632,67 @@ kbd {
     }
     c.fillStyle = fill;
     c.strokeStyle = hull.stroke;
-    // ascent stage
-    c.beginPath();
-    c.moveTo(-1.8, -0.5); c.lineTo(-2.2, -2.6); c.lineTo(-1, -3.8); c.lineTo(1, -3.8);
-    c.lineTo(2.2, -2.6); c.lineTo(1.8, -0.5); c.closePath();
-    c.fill(); c.stroke();
-    // window
-    c.strokeStyle = hull.detail;
-    c.beginPath(); c.moveTo(-0.9, -2.9); c.lineTo(0, -3.3); c.lineTo(0.9, -2.9); c.stroke();
-    // descent stage
-    c.strokeStyle = hull.stroke;
-    c.fillRect(-2.6, -0.5, 5.2, 1.5); c.strokeRect(-2.6, -0.5, 5.2, 1.5);
-    // nozzle + legs
-    c.strokeStyle = hull.legs;
-    c.beginPath(); c.moveTo(-0.6, 1); c.lineTo(-0.9, 1.4); c.lineTo(0.9, 1.4); c.lineTo(0.6, 1); c.stroke();
-    for (const s of [-1, 1]) {
+    const model = L.model || sk.model || 'biscuit';
+    if (model === 'apex') {
+      // Apex Vector: a pointed racing cabin, tail fins, a thin deck and swept legs
       c.beginPath();
-      c.moveTo(s * 2.2, 0.8); c.lineTo(s * 3.4, 3);
-      c.moveTo(s * 1.4, 1); c.lineTo(s * 3.4, 3);
-      c.moveTo(s * 2.8, 3); c.lineTo(s * 4, 3);
-      c.stroke();
+      c.moveTo(-1.6, -0.5); c.lineTo(-1.3, -2.7); c.lineTo(0, -4.6); c.lineTo(1.3, -2.7); c.lineTo(1.6, -0.5); c.closePath();
+      c.fill(); c.stroke();
+      for (const s of [-1, 1]) { c.beginPath(); c.moveTo(s * 1.5, -1.6); c.lineTo(s * 2.7, -0.4); c.lineTo(s * 1.6, -0.5); c.closePath(); c.fill(); c.stroke(); }
+      c.strokeStyle = hull.detail;
+      c.beginPath(); c.moveTo(-0.6, -3.1); c.lineTo(0, -3.8); c.lineTo(0.6, -3.1); c.stroke();
+      c.beginPath(); c.moveTo(0, -2.6); c.lineTo(0, -0.7); c.stroke();
+      c.strokeStyle = hull.stroke;
+      c.fillRect(-2.3, -0.5, 4.6, 1.1); c.strokeRect(-2.3, -0.5, 4.6, 1.1);
+      c.strokeStyle = hull.legs;
+      c.beginPath(); c.moveTo(-0.6, 0.6); c.lineTo(-0.9, 1.3); c.lineTo(0.9, 1.3); c.lineTo(0.6, 0.6); c.stroke();
+      for (const s of [-1, 1]) {
+        c.beginPath();
+        c.moveTo(s * 1.6, 0.6); c.lineTo(s * 3.4, 3);
+        c.moveTo(s * 2.9, 3); c.lineTo(s * 3.9, 3);
+        c.stroke();
+      }
+    } else if (model === 'lark') {
+      // Lark: a boxy cabin with a dish on top, side tanks, a wide deck and sturdy double legs
+      c.beginPath();
+      c.moveTo(-2.3, -0.5); c.lineTo(-2.3, -2.9); c.lineTo(-1.5, -3.5); c.lineTo(1.5, -3.5); c.lineTo(2.3, -2.9); c.lineTo(2.3, -0.5); c.closePath();
+      c.fill(); c.stroke();
+      c.strokeStyle = hull.detail;
+      c.strokeRect(-1.4, -3, 1.1, 0.9); c.strokeRect(0.3, -3, 1.1, 0.9);
+      c.beginPath(); c.moveTo(0, -3.5); c.lineTo(0, -4.2); c.stroke();
+      c.beginPath(); c.arc(0.6, -4.3, 0.55, Math.PI * 0.9, Math.PI * 1.9); c.stroke();
+      c.strokeStyle = hull.stroke;
+      c.fillRect(-2.9, -0.5, 5.8, 1.7); c.strokeRect(-2.9, -0.5, 5.8, 1.7);
+      for (const s of [-1, 1]) { c.beginPath(); c.arc(s * 3.2, 0.3, 0.75, 0, Math.PI * 2); c.fill(); c.stroke(); }
+      c.strokeStyle = hull.legs;
+      c.beginPath(); c.moveTo(-0.7, 1.2); c.lineTo(-1, 1.6); c.lineTo(1, 1.6); c.lineTo(0.7, 1.2); c.stroke();
+      for (const s of [-1, 1]) {
+        c.beginPath();
+        c.moveTo(s * 2.5, 1.2); c.lineTo(s * 3.4, 3);
+        c.moveTo(s * 1.6, 1.2); c.lineTo(s * 3.4, 3);
+        c.moveTo(s * 3.2, 1); c.lineTo(s * 3.6, 3);
+        c.moveTo(s * 2.7, 3); c.lineTo(s * 4.2, 3);
+        c.stroke();
+      }
+    } else {
+      // Biscuit: the classic two-stage lander
+      c.beginPath();
+      c.moveTo(-1.8, -0.5); c.lineTo(-2.2, -2.6); c.lineTo(-1, -3.8); c.lineTo(1, -3.8);
+      c.lineTo(2.2, -2.6); c.lineTo(1.8, -0.5); c.closePath();
+      c.fill(); c.stroke();
+      c.strokeStyle = hull.detail;
+      c.beginPath(); c.moveTo(-0.9, -2.9); c.lineTo(0, -3.3); c.lineTo(0.9, -2.9); c.stroke();
+      c.strokeStyle = hull.stroke;
+      c.fillRect(-2.6, -0.5, 5.2, 1.5); c.strokeRect(-2.6, -0.5, 5.2, 1.5);
+      c.strokeStyle = hull.legs;
+      c.beginPath(); c.moveTo(-0.6, 1); c.lineTo(-0.9, 1.4); c.lineTo(0.9, 1.4); c.lineTo(0.6, 1); c.stroke();
+      for (const s of [-1, 1]) {
+        c.beginPath();
+        c.moveTo(s * 2.2, 0.8); c.lineTo(s * 3.4, 3);
+        c.moveTo(s * 1.4, 1); c.lineTo(s * 3.4, 3);
+        c.moveTo(s * 2.8, 3); c.lineTo(s * 4, 3);
+        c.stroke();
+      }
     }
     if (L.cargo) {
       c.fillStyle = '#b07a35'; c.strokeStyle = '#ffd9a0';
