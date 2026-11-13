@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 43 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
+<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 48 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
 <meta name="theme-color" content="#0a0e1c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e1c'/%3E%3Cpath d='M12 15L11 9l3-3h4l3 3-1 6z' fill='none' stroke='%23c9cfdc' stroke-width='1.6' stroke-linejoin='round'/%3E%3Crect x='10' y='15' width='12' height='4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3Cpath d='M12 19l-4 6M20 19l4 6M6.5 25h3M22.5 25h3' stroke='%23c9cfdc' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M14 20l2 8 2-8z' fill='%23ffb547'/%3E%3C/svg%3E">
 <!-- Share preview (Open Graph + Twitter/X) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Descent Systems">
 <meta property="og:title" content="Descent Systems">
-<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 43 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
+<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 48 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
 <meta property="og:url" content="https://chaseharding.github.io/Descent-Systems/">
-<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=3">
+<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=4">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Biscuit the lander firing her engine above a ×5 landing pad in space, beside the Descent Systems title and its features.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Descent Systems">
-<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 43 missions, 5 landers, your own cabin and ghost races against friends.">
-<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=3">
+<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 48 missions, 5 landers, your own cabin and ghost races against friends.">
+<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=4">
 <!-- Installable app (PWA) -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -879,7 +879,9 @@ kbd {
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
       fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' },
     { id: 'unitzero', name: 'Unit Zero', price: 0, unlock: 'outer', blurb: 'The old Descent Systems colors from a probe nobody built. Gus copied them exactly.',
-      fill: '#16243a', stroke: '#9ad8ff', legs: '#c9cfdc', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #16243a, #9ad8ff)' }
+      fill: '#16243a', stroke: '#9ad8ff', legs: '#c9cfdc', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #16243a, #9ad8ff)' },
+    { id: 'fieldkit', name: 'Field Kit', price: 0, unlock: 'offroad', blurb: 'Dusty khaki with Crumb’s orange stripe. Smells faintly of moon rock.',
+      fill: '#d9cfb4', stroke: '#3a4668', legs: '#3a4668', detail: '#ffb547', swatch: 'linear-gradient(90deg, #d9cfb4, #ffb547)' }
   ];
   const FLAMES = [
     { id: 'standard', name: 'Standard', price: 0, blurb: 'Hypergolic orange.',
@@ -1096,6 +1098,7 @@ kbd {
     { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 stars in the original 12 missions.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
     { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
     { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Beyond Pluto.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2), MISSIONS.length - ACT2] },
+    { id: 'offroad', name: 'Off-roader', desc: 'Finish all five round trips.', reward: 'hull:fieldkit', prog: () => [SIDES.filter(d => d.kind === 'trip' && missionStars[d.id] > 0).length, SIDES.filter(d => d.kind === 'trip').length] },
     { id: 'beatrex', name: 'Beat Rex', desc: 'Finish Hopscotch faster than Rex’s 90 seconds.', reward: 'flag:racing' },
     { id: 'gentle', name: 'Spa treatment', desc: 'Deliver Biscuit’s spa crate without a crack.', reward: 'hull:spa' },
     { id: 'barista', name: 'Barista', desc: 'Finish The Coffee Crisis with 15 seconds to spare.', reward: 'flame:espresso' },
@@ -1788,6 +1791,51 @@ kbd {
         ['G', 'I counted forty meteors! Thirty-nine. I counted one twice.'],
         ['W', 'Thank you, pilot. Whatever we find out there, I’m glad you’re the one flying.']] }
   });
+  Object.assign(STORY, {
+    'rock-collection': {
+      intro: [
+        ['G', 'Big news! Biscuit has a rover now. I built it out of a shopping cart, a cooler and a lot of tape. It lives under her belly.'],
+        ['G', 'Land on LZ and it rolls down the ramp. Drive to three glowing moon rocks, drive back in, then fly up and dock with the mothership.'],
+        ['F', 'Docking is easy. Get close, go slow, and the clamp does the rest. Gus, please tell me the clamp isn’t tape.'],
+        ['G', 'The clamp is… mostly not tape.']],
+      react: [['G', 'Moon rocks! I’m putting them on the break room shelf. That one looks like Dottie.'],
+        ['F', 'It does not look like me.'],
+        ['G', 'Three rocks and a perfect dock! I’m naming the rover Crumb. Biscuit and Crumb. A team.']] },
+    'beacon-repair': {
+      intro: [
+        ['F', 'Two of our landing beacons on Mars went dark. Without them, the next pilot lands by guessing.'],
+        ['F', 'Land, drive Crumb out and stop next to each beacon until it lights up. One sits past a rock step. Use HOP.'],
+        ['G', 'Crumb can hop! Small hops. On Mars it’s more of an enthusiastic wiggle.']],
+      react: [['F', 'Both beacons are blinking again. Good work, pilot.'],
+        ['G', 'You hopped the step! Crumb is so proud. I am also so proud.'],
+        ['F', 'Fast, clean and back on the mothership with fuel to spare. I’m putting this in your file. The good file.']] },
+    'bounce-house': {
+      intro: [
+        ['R', 'Rex Valor here. I left three ice crystals on Pluto. On top of some ledges. For safekeeping.'],
+        ['W', 'He was showing off for a camera and dropped them.'],
+        ['R', 'For SAFEKEEPING. Anyway, the rover hops on Pluto like a kangaroo. Go get them. Please.']],
+      react: [['R', 'My crystals! I mean, the crystals I put there on purpose. Thank you.'],
+        ['G', 'Crumb did a triple bounce! I saw it on the camera! I need to lie down.'],
+        ['R', 'Fine. You out-hopped me. I’m commissioning a statue of the rover.']] },
+    'core-drill': {
+      intro: [
+        ['W', 'I need two ice cores from Europa. If the signal came this way decades ago, the ice might remember it.'],
+        ['W', 'And my old seismometer is down there. Stop beside it until it’s working again.'],
+        ['G', 'Fair warning: the ice is slippery. Crumb takes a while to get going, and a while longer to stop. Like me in the mornings.']],
+      react: [['W', 'Cores secured. Thank you, pilot. These could tell us a lot.'],
+        ['G', 'You didn’t slide into a single crater! Crumb owes you a wax job.'],
+        ['W', 'The seismometer is picking up a faint, steady beat under the ice. Same rhythm as the signal. Interesting.']] },
+    'wheres-apogee': {
+      intro: [
+        ['F', 'Has anyone seen Apogee?'],
+        ['G', 'Funny story. She was asleep in the rover on the last Titan trip. And now the rover is back. And she… isn’t.'],
+        ['F', 'GUS.'],
+        ['A', 'Mrrp. (Somewhere on Titan, a cat is having the time of her life.)'],
+        ['F', 'Land, drive out and find her. She may not want to be found. Then bring her home.']],
+      react: [['A', 'Mrrp. (Apogee would like it noted that she was never lost. She knew exactly where she was.)'],
+        ['F', 'Cat recovered. Gus, you’re checking the rover for passengers from now on. Every time.'],
+        ['G', 'Found her three times without running out of battery! She brought you a pebble. That means she likes you.']] }
+  });
   const EPILOGUE2 = [
     ['F', 'Everyone’s home. Gus has been hugging Biscuit for twenty minutes.'],
     ['R', 'So. Apex Aerospace would like to formally ask to sublet a desk at Descent Systems. Our office has a… sun problem.'],
@@ -1940,7 +1988,49 @@ kbd {
       spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 100, time: 45 },
       shade: [[8, 40], [100, 130], [182, 226]],
       ground: [[0, 40], [20, 36], [44, 40], [68, 48], [92, 44], [116, 50], [140, 46], [164, 40], [186, 36], [218, 36], [232, 40], [240, 42]],
-      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 36 }] }
+      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 36 }] },
+    { id: 'rock-collection', name: 'Rock Collection', side: true, giver: 'G', after: 'supply-run', world: 'moon', kind: 'trip',
+      label: 'Round trip', fuel: 260, credits: 260, battery: 70, task: 'Grab the moon rocks',
+      brief: 'Gus wants three moon rocks for the break room. Land on LZ and the rover rolls out. Drive to each glowing rock, drive back up the ramp, then launch and dock with the mothership.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 100, time: 100 },
+      ground: [[0, 40], [20, 38], [40, 34], [60, 30], [78, 30], [96, 34], [110, 38], [130, 38], [150, 36], [170, 42], [190, 46], [210, 44], [240, 48]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 38 }],
+      items: [{ x: 96, what: 'sample' }, { x: 150, what: 'sample' }, { x: 174, what: 'sample' }],
+      dock: { x: 150, y: 118 } },
+    { id: 'beacon-repair', name: 'Beacon Repair', side: true, giver: 'F', after: 'dust-ledge', world: 'mars', kind: 'trip',
+      label: 'Round trip', fuel: 300, credits: 300, battery: 60, task: 'Fix the beacons (stop beside each one)',
+      brief: 'Two landing beacons on Mars have gone dark. Land on LZ, drive out and stop beside each beacon until it’s fixed. One sits past a rock step: HOP over it. Then drive back in, launch and dock.',
+      spawn: { x: 70, y: 100, vx: 0 }, stars: { fuel: 110, time: 95 },
+      ground: [[0, 30], [18, 32], [40, 30], [60, 34], [80, 40], [100, 40], [124, 40], [125, 41], [146, 41], [166, 46], [190, 50], [214, 48], [240, 52]],
+      pads: [{ id: 'LZ', x1: 84, x2: 100, y: 40 }],
+      items: [{ x: 62, what: 'beacon' }, { x: 140, what: 'beacon' }],
+      dock: { x: 100, y: 120 } },
+    { id: 'bounce-house', name: 'Bounce House', side: true, giver: 'R', after: 'edge-of-the-world', world: 'pluto', kind: 'trip',
+      label: 'Round trip', fuel: 320, credits: 340, battery: 75, task: 'Grab the ice crystals on the ledges',
+      brief: 'Rex dropped three ice crystals on Pluto “for safekeeping”, on top of three ledges. Land, then use the rover’s HOP: on Pluto it bounces sky-high. Bring them back and dock with the mothership.',
+      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 110, time: 125 },
+      ground: [[0, 34], [20, 34], [44, 32], [52, 32], [53, 34.4], [64, 34.4], [65, 32], [84, 30], [104, 30], [122, 30], [140, 32], [154, 32], [155, 34.2], [168, 34.2], [169, 36.4], [180, 36.4], [181, 34], [204, 36], [240, 38]],
+      pads: [{ id: 'LZ', x1: 92, x2: 112, y: 30 }],
+      items: [{ x: 58, what: 'crystal' }, { x: 161, what: 'crystal' }, { x: 175, what: 'crystal' }],
+      dock: { x: 102, y: 112 } },
+    { id: 'core-drill', name: 'Ice Cores', side: true, giver: 'W', after: 'echo', world: 'europa', kind: 'trip',
+      label: 'Round trip', fuel: 300, credits: 320, battery: 70, task: 'Grab the ice cores and fix the seismometer',
+      brief: 'Wren wants two ice cores from Europa, and her old seismometer needs a fix (stop beside it). The ice is slippery: the rover takes a while to get going, and longer to stop.',
+      spawn: { x: 200, y: 100, vx: 0 }, stars: { fuel: 120, time: 100 },
+      ground: [[0, 44], [20, 42], [44, 40], [70, 36], [94, 34], [118, 36], [136, 36], [156, 38], [176, 42], [198, 46], [220, 48], [240, 50]],
+      pads: [{ id: 'LZ', x1: 120, x2: 136, y: 36 }],
+      items: [{ x: 74, what: 'core' }, { x: 100, what: 'beacon', name: 'seismometer' }, { x: 172, what: 'core' }],
+      dock: { x: 128, y: 116 } },
+    { id: 'wheres-apogee', name: 'Where’s Apogee?', side: true, giver: 'A', after: 'methane-canyon', world: 'titan', kind: 'trip',
+      label: 'Round trip', fuel: 300, credits: 320, battery: 90, task: 'Find Apogee', ordered: true,
+      brief: 'Apogee stowed away in the rover on the last Titan trip and hopped out to explore. Land, drive out and find her. She may not want to be found. Then bring her home to the mothership.',
+      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 100, time: 130 },
+      ground: [[0, 46], [16, 44], [36, 40], [56, 38], [76, 40], [96, 40], [116, 40], [136, 44], [156, 48], [176, 46], [196, 42], [218, 40], [240, 42]],
+      pads: [{ id: 'LZ', x1: 98, x2: 114, y: 40 }],
+      items: [{ x: 146, what: 'cat', line: 'Apogee looked at you, then ran off. Of course she did.' },
+              { x: 84, what: 'cat', line: 'There she is! And there she goes. Again.' },
+              { x: 164, what: 'cat', line: 'Got her! Apogee is in the rover, purring like nothing happened.' }],
+      dock: { x: 106, y: 116 } }
   ];
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
@@ -1948,7 +2038,7 @@ kbd {
   const missionLabel = i => i < MISSIONS.length ? `Mission ${i + 1}` : 'Side mission';
   const afterName = d => (MISSIONS.find(m => m.id === d.after) || {}).name;
 
-  const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route', hop: 'Pad hopping', sling: 'Sling load' };
+  const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route', hop: 'Pad hopping', sling: 'Sling load', trip: 'Round trip' };
   const LOAD_TIME = 1.5;
   let missionStars;
   try { missionStars = JSON.parse(store.get('ds-missions', '{}')) || {}; } catch (e) { missionStars = {}; }
@@ -1958,6 +2048,7 @@ kbd {
   const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
   const goalsOf = d => d.goals ? d.goals : d.kind === 'sling' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'deliver', pad: 'DROP' }] : d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
+    : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
     : [{ type: 'land', pad: 'LZ' }];
   const currentGoal = () => mission ? goalsOf(mission.def)[mission.stage] : null;
@@ -1971,6 +2062,13 @@ kbd {
     if (g.type === 'pickup') return g.what === 'cargo' ? 'Land on PICKUP' : 'Land on CREW';
     if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
     if (g.type === 'deliver') return `Lower the ${mission.def.cargoName || 'crate'} gently onto DROP`;
+    if (g.type === 'collect') {
+      const its = mission.items, n = its.filter(i => i.done).length;
+      if (mission.rover && mission.rover.out < 1) return 'Rover rolling out…';
+      return mission.def.ordered ? mission.def.task : `${mission.def.task} (${n} of ${its.length})`;
+    }
+    if (g.type === 'board') return mission.rover && mission.rover.boardT != null ? 'Rover boarding…' : 'Drive back up the ramp into Biscuit';
+    if (g.type === 'dock') return mission.docking != null ? 'Clamp locked. Docking…' : 'Launch and dock with the mothership ↑';
     if (g.type === 'visit') return `Touch down on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})`;
     if (g.type === 'land') return mission.carrying === 'cargo' ? `Deliver the ${mission.def.cargoName || 'crate'} to DROP` : mission.def.goals ? `Land on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})` : `Land on ${g.pad}`;
     return 'Climb to orbit ↑';
@@ -1983,12 +2081,13 @@ kbd {
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
     if (d.comfort) t += ` · Apogee ${Math.round(mission.comfort)}%`;
+    if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · battery ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
   }
   const objectiveWarn = () => {
     const d = mission.def;
-    return (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
+    return (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
   };
   // Per-tick rules for side missions. Returns true if the mission just ended.
   function missionTick(dt) {
@@ -2171,7 +2270,8 @@ kbd {
     const d = ALL[missionSel];
     world = WORLDS.find(w => w.id === d.world);
     match = null; daily = null;
-    mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null, comfort: 100, melt: 0, nagged: [] };
+    mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null, comfort: 100, melt: 0, nagged: [],
+      items: (d.items || []).map(it => ({ ...it, done: false, t: 0 })), rover: null, docking: null, docked: false };
     rng = mulberry32(hashStr('mission:' + d.id));
     buildMissionTerrain(d);
     windDir = rng() < 0.5 ? -1 : 1; windSeed = rrand(0, 100);
@@ -2183,6 +2283,140 @@ kbd {
     rng = Math.random;
     fly(ghostRun || null);
   }
+  // ---- Round trips: Crumb the rover, and the mothership's docking clamp ----
+  // Crumb rolls down a ramp from Biscuit's hatch. LEFT/RIGHT drive, THRUST hops. Slopes steeper than 45° stop it,
+  // so steps and ledges need a hop. Each world drives differently: hop height grows as gravity drops,
+  // Europa's ice has little grip, and Titan's thick air slows everything.
+  const ROVER_V = 5, ROVER_REACH = 1.8, FIX_TIME = 1.5;
+  const hatchOf = L => [L.x + 1.4, L.y + 0.7];
+  const rampFoot = L => { const x = L.x + 5.2; return [x, groundAt(x)]; };
+  const hopV = () => Math.sqrt(2 * world.g * Math.min(8, 2 * Math.sqrt(1.62 / world.g)));
+  const activeItems = () => {
+    const its = mission.items.filter(i => !i.done);
+    return mission.def.ordered ? its.slice(0, 1) : its;
+  };
+  function deployRover() {
+    const [fx, fy] = rampFoot(lander);
+    mission.stage++;
+    mission.rover = { x: fx, y: fy, vx: 0, vy: 0, a: 0, ground: true, out: 0, dir: 1, batt: mission.def.battery, hopHeld: true, boardT: null, spin: 0 };
+    holdCard = null;
+    setTimeout(() => { if (mission && mission.rover) showToast(`Rover out! ${mission.def.task}.`, 2200); }, 400);
+    sfx.click();
+  }
+  function roverStep(dt) {
+    const R = mission.rover, d = mission.def, L = lander;
+    if (R.boardT != null) {
+      R.boardT += dt;
+      if (R.boardT >= 0.8) {
+        mission.rover = null; mission.stage++;
+        showToast('Rover aboard. Launch and dock with the mothership!', 2400); sfx.coin();
+      }
+      return false;
+    }
+    R.out = Math.min(1, R.out + dt * 1.4);
+    R.batt -= dt;
+    if (R.batt <= 0) {
+      failMission('the rover’s battery ran flat', ['G', 'Crumb is asleep. I’ll go get him. Kidding! Nobody is walking anywhere. Retry?']);
+      return true;
+    }
+    const ice = world.id === 'europa', thick = world.drag > 0.3;
+    const want = R.out < 1 ? 0 : (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+    const vmax = ROVER_V * (thick ? 0.7 : 1);
+    if (R.ground) {
+      const grip = ice ? 0.22 : 1;
+      const target = want * vmax;
+      const acc = (want && Math.sign(target) === Math.sign(R.vx || target) ? 5 : 9) * grip;
+      R.vx += Math.sign(target - R.vx) * Math.min(Math.abs(target - R.vx), acc * dt);
+      if (want) R.dir = want;
+      if (keys.thrust && !R.hopHeld && R.out >= 1) {
+        R.vy = hopV(); R.ground = false; sfx.click();
+        spawnDust(R.x, R.y, 4, 0.4);
+      }
+    } else {
+      R.vx += want * 1.2 * dt;
+      R.vy -= world.g * dt;
+      R.vx -= world.drag * R.vx * dt; R.vy -= world.drag * R.vy * dt;
+    }
+    R.hopHeld = keys.thrust;
+    let nx = Math.max(2.5, Math.min(W - 2.5, R.x + R.vx * dt));
+    if (nx === 2.5 || nx === W - 2.5) R.vx = 0;
+    if (R.ground) {
+      const rise = groundAt(nx) - groundAt(R.x), run = Math.abs(nx - R.x);
+      if (run > 1e-6 && rise / run > 1) { nx = R.x; R.vx = 0; }   // too steep: hop it
+      R.x = nx;
+      const gy = groundAt(R.x);
+      if (gy < R.y - 0.25 && Math.abs(R.vx) > 0.5) { R.ground = false; R.vy = 0; }   // off a crest or a step: airborne
+      else R.y = gy;
+    } else {
+      if (groundAt(nx) > R.y + 0.3) { nx = R.x; R.vx *= -0.2; }   // flew into the face of a step
+      R.x = nx; R.y += R.vy * dt;
+      const gy = groundAt(R.x);
+      if (R.y <= gy) {
+        if (R.vy < -2.5) { spawnDust(R.x, gy, 6, 0.6); sfx.thud(); }
+        R.y = gy; R.vy = 0; R.ground = true;
+      }
+    }
+    R.spin += R.vx * dt / 0.45;
+    const sl = Math.atan((groundAt(R.x + 1) - groundAt(R.x - 1)) / 2);
+    R.a += ((R.ground ? sl : R.a * 0.98) - R.a) * Math.min(1, dt * 10);
+    if (R.ground && Math.abs(R.vx) > 1.5 && Math.random() < 0.25) spawnDust(R.x - Math.sign(R.vx) * 1.2, R.y, 1, 0.3);
+    // jobs
+    const g = currentGoal();
+    if (g.type === 'collect') {
+      for (const it of activeItems()) {
+        const near = Math.abs(R.x - it.x) < ROVER_REACH && R.y - groundAt(it.x) < 2.2;
+        if (it.what === 'beacon') {
+          if (near && R.ground && Math.abs(R.vx) < 0.8) it.t += dt;
+          else it.t = Math.max(0, it.t - dt * 2);
+          if (it.t < FIX_TIME) continue;
+        } else if (!near) continue;
+        it.done = true;
+        const left = mission.items.filter(i => !i.done).length;
+        if (it.what === 'cat') sfx.purr(); else sfx.coin();
+        const what = { sample: 'Rock', crystal: 'Crystal', core: 'Ice core', beacon: (it.name ? it.name[0].toUpperCase() + it.name.slice(1) : 'Beacon') + ' fixed' }[it.what];
+        showToast(it.line || (left ? `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${left} to go` : `${what}${it.what === 'beacon' ? '' : ' grabbed'}! Now drive back to Biscuit`), 2200);
+        if (!left) mission.stage++;
+        break;
+      }
+    } else if (g.type === 'board') {
+      const [fx] = rampFoot(L);
+      if (Math.abs(R.x - fx) < 1.6 && R.ground && Math.abs(R.vx) < 3) { R.boardT = 0; R.vx = 0; sfx.click(); }
+    }
+    return false;
+  }
+  // The clamp: inside DOCK_R it holds you up against gravity, damps your drift and draws you to the port.
+  const DOCK_R = 10, SHIP_HW = 21;
+  const dockTarget = () => [mission.def.dock.x, mission.def.dock.y - 4.4];
+  function dockPull(dt) {
+    const L = lander, [tx, ty] = dockTarget();
+    // the mothership's belly is a soft bumper, never a crash
+    if (Math.abs(L.x - tx) < SHIP_HW && L.y > ty + 0.4) { L.y = ty + 0.4; if (L.vy > 0) L.vy *= -0.3; }
+    const dx = tx - L.x, dy = ty - L.y, dist = Math.hypot(dx, dy), sp = Math.hypot(L.vx, L.vy);
+    if (dist > DOCK_R) return false;
+    const k = 1 - dist / DOCK_R;
+    L.vx += (dx * 1.4 - L.vx * 1.6) * k * dt;
+    L.vy += (world.g + dy * 1.4 - L.vy * 1.6) * k * dt;
+    L.a -= L.a * Math.min(1, k * 3 * dt);
+    if (!mission.nagged.includes('dock')) { mission.nagged.push('dock'); showToast('Clamp has you. Ease in…', 1600); sfx.beep(); }
+    if (dist < 1.8 && sp < 3) {
+      mission.docking = 0; mission.dockFrom = [L.x, L.y, L.a];
+      L.firing = false; sfx.thud();
+      return true;
+    }
+    return false;
+  }
+  function dockStep(dt) {
+    const L = lander, [tx, ty] = dockTarget(), [fx, fy, fa] = mission.dockFrom;
+    mission.docking += dt;
+    const t = Math.min(1, mission.docking / 0.9), e = t * t * (3 - 2 * t);
+    L.x = fx + (tx - fx) * e; L.y = fy + (ty - fy) * e; L.a = fa * (1 - e); L.vx = L.vy = 0;
+    if (mission.docking >= 1.4) {
+      mission.docked = true;
+      showToast('Docked! Welcome home, pilot.', 1800);
+      completeMission(null);
+    }
+  }
+
   function plantFlag(pad) {
     const L = lander;
     const side = L.x + 5 <= pad.x2 - 0.5 ? 5 : L.x - 5 >= pad.x1 + 0.5 ? -5 : 5;
@@ -2213,7 +2447,8 @@ kbd {
     }
     onLanded(pad, vy, vx, ang, L.fuel);
     const g = currentGoal();
-    touchdownFx(vy, g.type === 'land' && pad.id === g.pad);
+    touchdownFx(vy, g.type === 'land' && pad.id === g.pad && !g.rover);
+    if (g.type === 'land' && pad.id === g.pad && g.rover) { deployRover(); return; }
     if (g.type === 'land' && pad.id === g.pad) { completeMission(pad); return; }
     if (g.type === 'pickup' && pad.id === g.pad) { mission.loading = true; mission.loadT = 0; }
     else if (g.type === 'visit' && pad.id === g.pad) {
@@ -2904,7 +3139,14 @@ kbd {
     updateMovers();
     windNow = windAt(simT);
     const L = lander;
-    if (mode === 'flying') {
+    if (mode === 'flying' && mission && (mission.rover || mission.docking != null)) {
+      // Biscuit sits still (or rides the clamp) while Crumb drives
+      L.firing = false;
+      flightT += dt;
+      const fi = Math.floor(flightT * 60);
+      while (recording.length <= fi) recording.push([L.x, L.y, L.a, 0]);
+      if (!missionTick(dt)) { if (mission.rover) roverStep(dt); else dockStep(dt); }
+    } else if (mode === 'flying') {
       let rot = 0;
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
@@ -2972,6 +3214,7 @@ kbd {
       }
       const goal = mission && currentGoal();
       if (goal && goal.type === 'exit' && L.y > H + 4) completeMission(null);
+      else if (goal && goal.type === 'dock' && dockPull(dt)) {}
       else checkContact();
     }
     for (const p of particles) {
@@ -3438,7 +3681,13 @@ kbd {
         : d.kind === 'rescue' ? ['Land on CREW and hold still while they board', 'Climb out of the top of the screen to reach orbit']
         : d.kind === 'route' ? [`Fly through survey markers 1 to ${d.rings.length}, in order`, 'Land on LZ']
         : d.kind === 'hop' ? [`Touch down on pads ${d.goals.map(g => g.pad).join(', ').replace(/, (?=[^,]*$)/, ' and ')}, in order`, 'Every touchdown has to be a safe landing']
-        : d.kind === 'canyon' ? ['Land on LZ', 'Don’t touch the rock overhead'] : ['Land on LZ'];
+        : d.kind === 'canyon' ? ['Land on LZ', 'Don’t touch the rock overhead']
+        : d.kind === 'trip' ? ['Land on LZ, and Crumb the rover rolls down the ramp',
+            `${d.task} before the battery runs out (${d.battery} seconds)`,
+            matchMedia('(pointer: coarse)').matches ? '◀ DRIVE and DRIVE ▶ steer the rover, HOP jumps over steps and ledges' : '← and → drive the rover, ↑ hops over steps and ledges',
+            'Drive back up the ramp into Biscuit',
+            'Launch and dock with the mothership above: get close and slow, and the clamp pulls you in']
+        : ['Land on LZ'];
       if (d.sling) steps.push(`The ${what} hangs ${d.sling} m below you and swings when you turn or brake. Don’t drag it into the ground, and set it down slower than ${d.fragile.toFixed(1)} m/s`);
       else if (d.fragile) steps.push(`Fragile: with the crate aboard, touch down slower than ${d.fragile.toFixed(1)} m/s`);
       if (d.timeLimit) steps.push(d.limitText || `Deliver within ${d.timeLimit} seconds, before it goes cold`);
@@ -3782,8 +4031,9 @@ kbd {
       ${completedCount(ACT2) === MISSIONS.length - ACT2 ? '<p class="limits act4">Act 4 is on its way. Unit Zero is still beeping.</p>' : ''}
       <h2 class="sect">Side missions from the crew</h2>
       <div class="mlist">${SIDES.map((d, k) => {
+        const head = k === SIDES.findIndex(x => x.kind === 'trip') ? `</div><h2 class="sect">Round trips</h2><p class="limits">Land, drive Crumb the rover out to do the job, then launch and dock with the mothership.</p><div class="mlist">` : '';
         const i = MISSIONS.length + k, w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-        return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
+        return `${head}<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
           <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
           <span class="mnum">Side · ${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
           <b>${d.name}</b>
@@ -6639,6 +6889,8 @@ kbd {
       tx = W / 2 + (L.x - W / 2) * ease;
       ty = H / 2 + ((L.y + g) / 2 - H / 2) * ease;
     }
+    const R = mission && mission.rover;
+    if (R && (mode === 'flying' || mode === 'paused')) { tz = Math.max(ZOOM_MAX, Math.min(7, Math.max(cw / (base * 55), ch / (base * 80)))); tx = R.x + R.vx * 1.2; ty = R.y + 3; }
     if (mode === 'replay' && replay) { tz = 2.8; tx = L.x; ty = L.y - 1; }
     else if (mode === 'touchdown' && hold && hold.slow) tz = Math.min(ZOOM_MAX * 1.3, tz * 1.3);
     const k = 1 - Math.exp(-dt * 3.5);
@@ -6766,7 +7018,10 @@ kbd {
     const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd' || mode === 'tutDone' || mode === 'touchdown');
     if (sitting && flagPlant) drawFlag(time);
     if ((mode === 'flying' || mode === 'paused') && (upgLevel('radar') || perk('radar')) && lander) drawRadar(time);
+    const trip = mission && mission.def.kind === 'trip' && !MENU_MODES.includes(mode) && mode !== 'replay';
+    if (trip) drawTripBack(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
+    if (trip) drawTripFront(time);
     if (mode === 'replay' && replay) drawLander(replay.L, time);
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
@@ -6782,6 +7037,171 @@ kbd {
       ctx.textAlign = 'right'; ctx.fillStyle = col.reg;
       ctx.fillText(replay.speed < 1 ? 'SLOW MOTION · TAP TO SKIP' : 'TAP TO SKIP', cw - 16, bh / 2 + 5);
     }
+  }
+
+  // ---- Round-trip drawing: the mothership, the jobs on the ground, Crumb and the ramp ----
+  const TRIP_PINK = '#ff9ad5';
+  function inMetres(x, y, fn) {
+    ctx.save(); ctx.translate(sx(x), sy(y)); ctx.scale(scale, scale); fn(); ctx.restore();
+  }
+  function drawMothership(time) {
+    const d = mission.def, { x, y } = d.dock, g = currentGoal(), want = g && g.type === 'dock' && mission.docking == null;
+    if (want) {   // a guide beam under the port
+      const pulse = 0.35 + 0.25 * Math.sin(time / 260);
+      const grd = ctx.createLinearGradient(0, sy(y), 0, sy(y - 26));
+      grd.addColorStop(0, `rgba(255,154,213,${pulse})`); grd.addColorStop(1, 'rgba(255,154,213,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.moveTo(sx(x - 1.6), sy(y)); ctx.lineTo(sx(x + 1.6), sy(y)); ctx.lineTo(sx(x + 7), sy(y - 26)); ctx.lineTo(sx(x - 7), sy(y - 26)); ctx.fill();
+    }
+    inMetres(x, y, () => {
+      const lw = 1.6 / scale;
+      ctx.lineWidth = lw; ctx.lineJoin = 'round';
+      // solar wings
+      for (const s of [-1, 1]) {
+        ctx.fillStyle = '#1d3a6b'; ctx.strokeStyle = '#9ad8ff';
+        ctx.fillRect(s > 0 ? 17 : -31, -6.2, 14, 4); ctx.strokeRect(s > 0 ? 17 : -31, -6.2, 14, 4);
+        ctx.beginPath();
+        for (let k = 1; k < 4; k++) { const xx = (s > 0 ? 17 : -31) + k * 3.5; ctx.moveTo(xx, -6.2); ctx.lineTo(xx, -2.2); }
+        ctx.stroke();
+      }
+      // hull
+      ctx.fillStyle = '#20293f'; ctx.strokeStyle = '#c9cfdc';
+      ctx.beginPath();
+      ctx.moveTo(-17, -1); ctx.lineTo(-19, -4); ctx.lineTo(-16, -8.5); ctx.lineTo(14, -8.5); ctx.lineTo(19, -5.5); ctx.lineTo(17, -1); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffb547'; ctx.fillRect(-16, -5.2, 32, 0.7);
+      ctx.fillStyle = '#9ad8ff';
+      for (let k = 0; k < 8; k++) ctx.fillRect(-13 + k * 3.4, -7.4, 1.4, 1.1);
+      // the port and its clamp
+      const shut = mission.docking != null ? Math.min(1, mission.docking / 0.9) : 0;
+      ctx.fillStyle = '#c9cfdc';
+      ctx.fillRect(-2.6, -1.2, 5.2, 1.2);
+      ctx.strokeStyle = '#c9cfdc'; ctx.lineWidth = 2.4 / scale;
+      for (const s of [-1, 1]) {
+        ctx.beginPath(); ctx.moveTo(s * 2.6, 0); ctx.lineTo(s * (3.2 - shut * 1.0), 1.2 + shut * 0.2); ctx.stroke();
+      }
+      // blinking nav lights
+      const on = Math.floor(time / 600) % 2 === 0;
+      ctx.fillStyle = on ? '#ff6b5e' : '#5a2a2a'; ctx.fillRect(-19.4, -4.4, 0.9, 0.9);
+      ctx.fillStyle = on ? '#58e0a0' : '#1f4a38'; ctx.fillRect(18.6, -6, 0.9, 0.9);
+      ctx.fillStyle = '#c9cfdc'; ctx.font = '700 1.4px ' + C('--f-mono'); ctx.textAlign = 'center';
+      ctx.fillText('DESCENT SYSTEMS', -3, -2.4);
+    });
+    if (mission.docked && mode !== 'flying') drawLander(lander, time);
+  }
+  function drawItem(it, active, time) {
+    const gy = groundAt(it.x);
+    inMetres(it.x, gy, () => {
+      ctx.lineWidth = 1.4 / scale; ctx.lineJoin = 'round';
+      if (it.what === 'beacon') {
+        ctx.strokeStyle = '#c9cfdc';
+        ctx.beginPath(); ctx.moveTo(-0.9, 0); ctx.lineTo(0, -3.2); ctx.lineTo(0.9, 0); ctx.moveTo(-0.5, -1.4); ctx.lineTo(0.5, -1.4); ctx.stroke();
+        const fixedLit = it.done, blink = Math.floor(time / 400) % 2 === 0;
+        ctx.fillStyle = fixedLit ? '#58e0a0' : blink ? '#ff6b5e' : '#4a2626';
+        ctx.beginPath(); ctx.arc(0, -3.5, 0.55, 0, Math.PI * 2); ctx.fill();
+        if (!it.done && it.t > 0) {
+          ctx.strokeStyle = '#58e0a0'; ctx.lineWidth = 2.4 / scale;
+          ctx.beginPath(); ctx.arc(0, -3.5, 1.4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, it.t / FIX_TIME)); ctx.stroke();
+        }
+        return;
+      }
+      if (it.done) return;
+      if (it.what === 'cat') {
+        // Apogee, sitting very still and pretending not to see you
+        const flick = Math.sin(time / 300) * 0.3;
+        ctx.fillStyle = '#ff9a3d'; ctx.strokeStyle = '#fff4e0';
+        ctx.beginPath(); ctx.ellipse(0, -0.7, 0.9, 0.7, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0.7, -1.6, 0.55, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(0.3, -2); ctx.lineTo(0.4, -2.6); ctx.lineTo(0.7, -2.1); ctx.moveTo(0.9, -2.1); ctx.lineTo(1.2, -2.6); ctx.lineTo(1.2, -1.9); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-0.8, -0.6); ctx.quadraticCurveTo(-1.8, -1 + flick, -1.5, -2 + flick); ctx.stroke();
+        ctx.fillStyle = '#1a1a22'; ctx.fillRect(0.75, -1.75, 0.16, 0.16); ctx.fillRect(1.0, -1.75, 0.16, 0.16);
+        return;
+      }
+      const colr = it.what === 'core' ? '#cfeaff' : it.what === 'crystal' ? '#b9a6ff' : '#7fd6ff';
+      ctx.globalAlpha = 0.25 + 0.15 * Math.sin(time / 250);
+      ctx.fillStyle = colr; ctx.beginPath(); ctx.arc(0, -0.8, 1.6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = colr; ctx.strokeStyle = '#ffffff';
+      if (it.what === 'core') { ctx.fillRect(-0.35, -1.8, 0.7, 1.8); ctx.strokeRect(-0.35, -1.8, 0.7, 1.8); }
+      else {
+        ctx.beginPath(); ctx.moveTo(-0.9, 0); ctx.lineTo(-0.5, -1.2); ctx.lineTo(0, -1.8); ctx.lineTo(0.5, -1.1); ctx.lineTo(0.9, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
+    });
+    if (active) {   // a bobbing marker overhead
+      const bob = Math.sin(time / 220) * 0.5;
+      ctx.fillStyle = TRIP_PINK;
+      const X = sx(it.x), Y = sy(gy + 5.2 + bob), r = Math.max(4, scale * 0.9);
+      ctx.beginPath(); ctx.moveTo(X - r, Y - r); ctx.lineTo(X + r, Y - r); ctx.lineTo(X, Y + r * 0.6); ctx.fill();
+    }
+  }
+  function drawRover(R, time) {
+    const L = lander;
+    let x = R.x, y = R.y, a = R.a;
+    const [hx, hy] = hatchOf(L), [fx, fy] = rampFoot(L);
+    const k = R.boardT != null ? 1 - Math.min(1, R.boardT / 0.8) : R.out < 1 ? R.out : null;
+    if (k != null) { const e = k * k * (3 - 2 * k); x = hx + (fx - hx) * e; y = hy + (fy - hy) * e; a = -Math.atan2(hy - fy, fx - hx) * 0.6; }
+    inMetres(x, y, () => {
+      ctx.rotate(-a);
+      if (R.dir < 0) ctx.scale(-1, 1);
+      const lw = 1.4 / scale; ctx.lineWidth = lw; ctx.lineJoin = 'round';
+      ctx.fillStyle = '#e8edf5'; ctx.strokeStyle = '#3a4668';
+      ctx.beginPath(); ctx.moveTo(-1.4, -0.7); ctx.lineTo(-1.4, -1.6); ctx.lineTo(0.8, -1.6); ctx.lineTo(1.4, -1.0); ctx.lineTo(1.4, -0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffb547'; ctx.fillRect(-1.4, -1.05, 2.8, 0.25);
+      ctx.fillStyle = '#7fd6ff'; ctx.fillRect(0.55, -1.45, 0.55, 0.35);
+      // antenna
+      ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(-1, -1.6); ctx.lineTo(-1.1, -2.7); ctx.stroke();
+      ctx.fillStyle = Math.floor(time / 350) % 2 ? '#58e0a0' : '#2a5a44'; ctx.fillRect(-1.3, -2.95, 0.4, 0.4);
+      // Apogee rides along once found
+      if (mission.items.some(i => i.what === 'cat' && i.done)) { ctx.fillStyle = '#ff9a3d'; ctx.beginPath(); ctx.arc(-0.3, -1.9, 0.35, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-0.55, -2.4, 0.15, 0.3); ctx.fillRect(-0.15, -2.4, 0.15, 0.3); }
+      // wheels
+      for (const wx of [-0.9, 0.9]) {
+        ctx.fillStyle = '#2a3045'; ctx.strokeStyle = '#c9cfdc';
+        ctx.beginPath(); ctx.arc(wx, -0.45, 0.45, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(wx, -0.45); ctx.lineTo(wx + Math.cos(R.spin) * 0.4, -0.45 + Math.sin(R.spin) * 0.4); ctx.stroke();
+      }
+    });
+  }
+  // an arrow at the screen edge for anything the rover needs that's out of view
+  function edgeArrow(x, y, label) {
+    const X = sx(x), Y = sy(y), m = 28;
+    if (X > m && X < cw - m && Y > m && Y < ch - m) return;
+    const cx = Math.max(m, Math.min(cw - m, X)), cy = Math.max(m + 40, Math.min(ch - m - 90, Y));
+    const ang = Math.atan2(Y - cy, X - cx);
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.fillStyle = TRIP_PINK; ctx.globalAlpha = 0.9;
+    ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-6, -8); ctx.lineTo(-6, 8); ctx.fill();
+    ctx.rotate(-ang);
+    ctx.font = `700 11px ${C('--f-mono')}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, -Math.cos(ang) * 22, -Math.sin(ang) * 18);
+    ctx.restore();
+  }
+  function drawTripBack(time) {
+    drawMothership(time);
+    const g = currentGoal(), act = g && g.type === 'collect' ? activeItems() : [];
+    for (const it of mission.items) {
+      if (mission.def.ordered && !it.done && !act.includes(it)) continue;   // Apogee is only ever in one place
+      drawItem(it, act.includes(it), time);
+    }
+    if (mission.rover) {   // the ramp
+      const [hx, hy] = hatchOf(lander), [fx, fy] = rampFoot(lander);
+      ctx.strokeStyle = '#c9cfdc'; ctx.lineWidth = Math.max(2, scale * 0.35);
+      ctx.beginPath(); ctx.moveTo(sx(hx), sy(hy)); ctx.lineTo(sx(fx + 0.6), sy(fy)); ctx.stroke();
+    }
+  }
+  function drawTripFront(time) {
+    const R = mission.rover;
+    if (!R) return;
+    drawRover(R, time);
+    if (mode !== 'flying' && mode !== 'paused') return;
+    const g = currentGoal();
+    if (g.type === 'collect') {
+      // one arrow per side: the nearest job that way
+      for (const side of [-1, 1]) {
+        const it = activeItems().filter(i => Math.sign(i.x - R.x) === side).sort((a, b) => Math.abs(a.x - R.x) - Math.abs(b.x - R.x))[0];
+        if (it) edgeArrow(it.x, groundAt(it.x) + 1, `${Math.round(Math.abs(it.x - R.x))} m`);
+      }
+    }
+    if (g.type === 'board') { const [fx, fy] = rampFoot(lander); edgeArrow(fx, fy + 2, `Biscuit ${Math.round(Math.abs(fx - R.x))} m`); }
   }
 
   // Draws the lander in its own coordinates (metres, y pointing down), using the given skin.
@@ -7316,7 +7736,7 @@ kbd {
   const scramble = str => str.replace(/[0-9.]/g, ch => Math.random() < 0.75 ? '▒#%?07'[Math.floor(Math.random() * 6)] : ch);
   const grade = (v, lim) => v <= lim ? 'ok' : v <= lim * 2 ? 'warn' : 'bad';
   // keep the score box clear of the flight readout on narrow screens
-  let hudFitT = 0;
+  let hudFitT = 0, padRover = false;
   function fitHud() {
     const w = document.querySelector('.hud').offsetWidth;
     if (w) stage.style.setProperty('--hudw', w + 'px');
@@ -7388,6 +7808,20 @@ kbd {
         ? `DAILY · ${world.name.toUpperCase()} · SITE ${daily.site}/${DAILY_SITES}`
         : `${world.name.toUpperCase()} · SITE ${level} · LANDERS ${lives}`;
       hud.meta.style.color = daily ? 'var(--flame)' : '';
+    }
+    const rv = !!(mission && mission.rover);
+    if (rv) {
+      const R = mission.rover;
+      hud.alt.textContent = 'rover'; hud.alt.className = '';
+      hud.vx.textContent = `${R.vx >= 0 ? '→' : '←'} ${Math.abs(R.vx).toFixed(1)} m/s`; hud.vx.className = '';
+      hud.vy.textContent = R.ground ? 'on the ground' : `hop ${Math.max(0, R.y - groundAt(R.x)).toFixed(1)} m`; hud.vy.className = 'ok';
+      hud.ang.textContent = `${(R.a * 180 / Math.PI).toFixed(0)}°`; hud.ang.className = '';
+    }
+    if (rv !== padRover) {
+      padRover = rv;
+      $('bl').textContent = rv ? '◀ DRIVE' : '◀ ROT'; $('bl').setAttribute('aria-label', rv ? 'Drive left' : 'Rotate left');
+      $('br').textContent = rv ? 'DRIVE ▶' : 'ROT ▶'; $('br').setAttribute('aria-label', rv ? 'Drive right' : 'Rotate right');
+      $('bt').textContent = rv ? 'HOP' : 'THRUST'; $('bt').setAttribute('aria-label', rv ? 'Hop' : 'Thrust');
     }
     const obj = $('objective');
     if (mission && (mode === 'flying' || mode === 'paused')) { obj.hidden = false; obj.textContent = objectiveText(); obj.classList.toggle('warn', !!objectiveWarn()); }
