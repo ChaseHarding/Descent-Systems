@@ -17,6 +17,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
+- **Three landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, and Wren's slow, steady Lark. Each keeps its own paint, flame and flag
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
@@ -28,7 +29,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **34 badges** to earn, 25 of which unlock exclusive cosmetics
+- **35 badges** to earn, 26 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -113,6 +114,18 @@ The hangar is a garage: Biscuit hovers over the pad in front of a big open door 
 - **Try anything on.** Click an item to see it on Biscuit in the garage.
 - **Your look** adds up the hull, flame and flag you're trying on, shows the total cost, and buys and equips everything in one go (or resets to what you had).
 - **Locked badge rewards** say which badge earns them and how close you are, with a progress bar where there is one.
+
+### The fleet
+
+The top of the hangar shows your three landers. Tap one to fly it. Each lander remembers its own hull, flame and flag, so you can dress them all differently.
+
+| Lander | Who it's from | How it flies | How to get it |
+|---|---|---|---|
+| **Biscuit** | Gus | The all-rounder: balanced in every way | You start with her |
+| **Apex Vector** | Rex | 22% stronger engine, turns 45% faster, but burns 40% more fuel from a 15% smaller tank, with stiffer legs (safe touchdown 0.2 m/s lower) and more wind push | Finish Mayday, or buy it for 6,000 credits |
+| **Lark** | Wren | 12% weaker engine, turns 30% slower, but a 45% bigger tank, 15% thriftier engine, soft legs (safe touchdown 0.4 m/s higher) and only 60% of the wind push | Finish Last Light, or buy it for 6,000 credits |
+
+The Vector comes with its own **Vector Red** paint and the Lark with **Surveyor Olive**. The daily challenge always uses Biscuit, so everyone competes on the same lander. Hot-seat players share whichever lander is selected.
 
 ### Gus's workshop
 
@@ -210,7 +223,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-five badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-six badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -247,6 +260,7 @@ Open **Badges** from the start screen to see your progress. Twenty-five badges u
 | Fully loaded | Max out every upgrade in Gus's workshop | Gus Special hull |
 | Long haul | Clear 10 sites in a single endless run | Infinity flag |
 | Dodgeball | Land on a pad in the middle of a meteor shower | Shooting Star flag |
+| Full fleet | Unlock all three landers | The Fleet flag |
 | Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
