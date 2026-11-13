@@ -17,6 +17,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Auto-zoom** that eases the camera in for the final approach
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
+- **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: twelve optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
@@ -25,7 +26,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Synthesized sound**: engine rumble, thrusters, wind, a low-fuel alarm, touchdowns and crashes, with no audio files
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
-- **31 badges** to earn, 22 of which unlock exclusive cosmetics
+- **32 badges** to earn, 23 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -110,6 +111,19 @@ The hangar is a garage: Biscuit hovers over the pad in front of a big open door 
 - **Your look** adds up the hull, flame and flag you're trying on, shows the total cost, and buys and equips everything in one go (or resets to what you had).
 - **Locked badge rewards** say which badge earns them and how close you are, with a progress bar where there is one.
 
+### Gus's workshop
+
+The fourth tab in the hangar, **Workshop**, sells upgrades that actually change how Biscuit flies:
+
+| Upgrade | Levels | Effect | Prices |
+|---|---|---|---|
+| Bigger tank | 3 | +10% / +20% / +30% fuel at the start of every flight | 800 / 1,800 / 3,500 |
+| Efficient engine | 3 | The main engine burns 8% / 16% / 24% less fuel | 900 / 2,000 / 3,800 |
+| Soft struts | 3 | Safe touchdown speed rises from 2.0 to 2.3 / 2.6 / 3.0 m/s | 1,000 / 2,200 / 4,000 |
+| Landing radar | 1 | A dotted line shows where you'll come down if you cut the engine now, with the touchdown speed: green when it would be a safe landing on a pad | 2,500 |
+
+Upgrades apply in free flight and missions. They're always off in the daily challenge, hot-seat and the tutorial, so those stay fair, and a **Use upgrades** switch turns them off everywhere if you want to fly old-school.
+
 - **Hull finishes:** Mission White, Gold Foil, Mars Rust, Titan Amber, Chrome
 - **Engine flames:** Methane Blue, Boron Green, White-Hot, Rainbow, Pulsing Plasma
 - **Landing flags:** Pennant (free), Tricolor, Lone Star, Checkered, Jolly Roger, Waving Banner. Your flag plants itself beside the lander after every touchdown.
@@ -192,7 +206,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-two badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-three badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -226,6 +240,7 @@ Open **Badges** from the start screen to see your progress. Twenty-two badges un
 | Hitchhiker | Land on a moving rover | Rover Yellow hull |
 | Sea legs | Land on the barge rocking on Earth's ocean | Nautical flag |
 | Crane operator | Set Gus's telescope down slower than 0.8 m/s | Sodium Orange flame |
+| Fully loaded | Max out every upgrade in Gus's workshop | Gus Special hull |
 | Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
@@ -311,7 +326,8 @@ For live reloading while you edit, use the **Live Server** extension in VS Code 
 Most of the tuning lives near the top of the `<script>` block in `index.html`:
 
 - **`WORLDS`**: gravity, engine thrust, drag, wind, colors and terrain roughness for each world. Add an entry here to create a new world.
-- **`SAFE_VY`, `SAFE_VX`, `SAFE_ANG`**: the landing limits.
+- **`SAFE_VY`, `SAFE_VX`, `SAFE_ANG`**: the landing limits (soft struts add to `SAFE_VY`).
+- **`UPGRADES`**: Gus's workshop upgrades, their prices and effects.
 - **`BURN`, `RCS_BURN`**: fuel use for the main engine and rotation.
 - **`HULLS`, `FLAMES`**: hangar items and their prices.
 - **`ZOOM_MAX`, `ZOOM_START`, `ZOOM_FULL`**: how the auto-zoom camera behaves.
