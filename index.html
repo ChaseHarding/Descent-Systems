@@ -199,6 +199,18 @@ kbd {
 .detail .bar i { display: block; height: 100%; background: var(--flame); }
 .detail .btns { justify-content: flex-start; }
 .detail .btn { padding: 8px 14px; font-size: 12px; }
+.tabs.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.shop { display: flex; flex-direction: column; gap: 8px; }
+.upg { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--space-2); border-radius: 8px; }
+.upg .uh { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.upg b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
+.upg .pips { display: flex; gap: 4px; }
+.upg .pips i { width: 14px; height: 6px; border-radius: 2px; background: var(--space-2); }
+.upg .pips i.on { background: var(--ok); }
+.card .upg p { font-size: 12px; color: var(--regolith-dim); }
+.card .upg p.now { color: var(--regolith); }
+.upg .btn { align-self: flex-start; padding: 7px 12px; font-size: 12px; }
+.shop .toggle { padding: 10px 12px; }
 @media (max-width: 720px) {
   .bay { grid-template-columns: minmax(0, 1fr); }
   .garage { aspect-ratio: 16 / 9; }
@@ -652,7 +664,7 @@ kbd {
   const W = 240, H = 150;
   const ROT_RATE = 110 * Math.PI / 180;
   const BURN = 7, RCS_BURN = 0.8;
-  const SAFE_VY = 2.0, SAFE_VX = 1.0, SAFE_ANG = 10;
+  const SAFE_VY = 2.0, SAFE_VX = 1.0, SAFE_ANG = 10;   // SAFE_VY is the base limit; softer struts raise it (see safeVy)
   const FEET = [[-3.4, -3], [3.4, -3]];
   const HULL = [[-2.5, 0.5], [2.5, 0.5], [-1.8, 3.4], [1.8, 3.4], [0, 3.8]];
 
@@ -697,6 +709,8 @@ kbd {
       fill: '#5e5650', stroke: '#d9c6a8', legs: '#d9c6a8', detail: '#ffb547', swatch: 'linear-gradient(90deg, #5e5650, #d9c6a8)' },
     { id: 'rover', name: 'Rover Yellow', price: 0, unlock: 'hitchhiker', blurb: 'Construction-site yellow, like the rovers. Beep beep.',
       fill: '#e8b830', stroke: '#2a2a33', legs: '#2a2a33', detail: '#2a2a33', swatch: 'linear-gradient(90deg, #e8b830, #2a2a33)' },
+    { id: 'gus', name: 'Gus Special', price: 0, unlock: 'loaded', blurb: 'Engineering green with ginger trim. Signed by Gus on the inside of the hatch.',
+      fill: '#3d6b63', stroke: '#9fe0b8', legs: '#c46a2c', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #3d6b63, #c46a2c)' },
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
       fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' }
   ];
@@ -768,6 +782,33 @@ kbd {
     if (!owned.has(kind + ':' + equip[kind]) || !itemsOf(kind).some(i => i.id === equip[kind])) equip[kind] = itemsOf(kind)[0].id;
   }
   let trying = null;                              // items being tried on in the hangar
+  // ---- Gus's workshop: upgrades that change how Biscuit flies ----
+  // They're switched off in the daily challenge, hot-seat and the tutorial, so those stay fair.
+  const UPGRADES = [
+    { id: 'tank', name: 'Bigger tank', prices: [800, 1800, 3500],
+      fx: l => l ? `+${l * 10}% fuel at the start of every flight` : 'Standard tank',
+      gus: 'Bigger tank installed! More fuel, more flying, more of me telling you to be careful.' },
+    { id: 'thrust', name: 'Efficient engine', prices: [900, 2000, 3800],
+      fx: l => l ? `Main engine burns ${l * 8}% less fuel` : 'Standard engine',
+      gus: 'I tuned the injectors. She sips fuel now. Like a fancy little tea party.' },
+    { id: 'struts', name: 'Soft struts', prices: [1000, 2200, 4000],
+      fx: l => `Safe touchdown under ${(SAFE_VY + STRUT_BONUS[l]).toFixed(1)} m/s`,
+      gus: 'New shock absorbers! She lands like a pillow now. A metal pillow.' },
+    { id: 'radar', name: 'Landing radar', prices: [2500],
+      fx: l => l ? 'Shows where you’ll touch down, and how fast' : 'No radar',
+      gus: 'Landing radar online! Dotted line shows where you’re headed. Green means good. Red means me, crying.' }
+  ];
+  const STRUT_BONUS = [0, 0.3, 0.6, 1.0];
+  let upg;
+  try { upg = JSON.parse(store.get('ds-upg', '{}')) || {}; } catch (e) { upg = {}; }
+  for (const u of UPGRADES) upg[u.id] = Math.min(u.prices.length, +upg[u.id] || 0);
+  let upgOn = store.get('ds-upgOn', '1') === '1';
+  const saveUpg = () => { store.set('ds-upg', JSON.stringify(upg)); store.set('ds-upgOn', upgOn ? '1' : '0'); };
+  const upgActive = () => upgOn && !daily && !match && !tut;
+  const upgLevel = id => upgActive() ? upg[id] : 0;
+  function safeVy() { return SAFE_VY + STRUT_BONUS[upgLevel('struts')]; }
+  const burnMul = () => 1 - 0.08 * upgLevel('thrust');
+  const tankMul = () => 1 + 0.1 * upgLevel('tank');
   let hangarSel = { kind: 'hull', id: 'standard' };
   function saveCosmetics() {
     store.set('ds-credits', credits);
@@ -839,6 +880,7 @@ kbd {
     { id: 'hitchhiker', name: 'Hitchhiker', desc: 'Land on a moving rover.', reward: 'hull:rover' },
     { id: 'sealegs', name: 'Sea legs', desc: 'Land on the barge rocking on Earth’s ocean.', reward: 'flag:nautical' },
     { id: 'crane', name: 'Crane operator', desc: 'Deliver Gus’s telescope on a cable, setting it down slower than 0.8 m/s.', reward: 'flame:sodium' },
+    { id: 'loaded', name: 'Fully loaded', desc: 'Max out every upgrade in Gus’s workshop.', reward: 'hull:gus' },
     { id: 'crewfav', name: 'Crew favorite', desc: 'Earn every side-mission star.', reward: 'flag:crew', prog: () => [sideStars(), SIDES.length * 3] }
   ];
   const earned = () => ACH.filter(a => got[a.id]).length;
@@ -2356,7 +2398,7 @@ kbd {
     lander = {
       x: spawnPlan.x, y: spawnPlan.y ?? H - 12,
       vx: spawnPlan.vx, vy: spawnPlan.vy ?? 0, a: 0,
-      fuel: levelFuel, fuelMax: levelFuel, firing: false,
+      fuel: levelFuel * tankMul(), fuelMax: levelFuel * tankMul(), firing: false,
       grounded: false, cargo: false, crew: false
     };
     particles = [];
@@ -2390,7 +2432,7 @@ kbd {
         const T = world.thrust * thrustMul();
         ax += Math.sin(L.a) * T;
         ay += Math.cos(L.a) * T;
-        L.fuel = Math.max(0, L.fuel - BURN * dt);
+        L.fuel = Math.max(0, L.fuel - BURN * burnMul() * dt);
         if (Math.random() < 0.9) emitExhaust();
         const wash = L.y - 3 - groundAt(L.x);
         if (wash < 10 && Math.random() < 0.5) spawnDust(L.x + Math.sin(L.a) * -wash, groundAt(L.x), 1, 1.2 - wash / 10);
@@ -2518,13 +2560,13 @@ kbd {
     const vy = -(L.vy - (pad && pad.vy || 0)), vx = Math.abs(L.vx - (pad && pad.vx || 0));
     const stats = { vy, vx, ang: angDeg };
     // just lifted off a pad and sank back onto it (low gravity makes this easy): settle again instead of crashing
-    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && vy <= SAFE_VY && vx <= SAFE_VX) {
+    if (L.liftAt != null && simT - L.liftAt < 1.2 && pad && !hullHit && !roofHit && !lavaHit && vy <= safeVy() && vx <= SAFE_VX) {
       L.y += pad.y - Math.min(...feet.map(f => f[1]));
       L.vx = L.vy = 0; L.grounded = true;
       return;
     }
 
-    if (!hullHit && !roofHit && !lavaHit && pad && vy <= SAFE_VY && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
+    if (!hullHit && !roofHit && !lavaHit && pad && vy <= safeVy() && vx <= SAFE_VX && angDeg <= SAFE_ANG) {
       if (pad.move && pad.parkT == null) { pad.parkT = simT; updateMovers(); }   // the driver hits the brakes
       if (tut) { tutorialLanded(pad, vy, vx, angDeg); return; }
       if (mission) { missionTouchdown(pad, vy, vx, angDeg); return; }
@@ -2563,7 +2605,7 @@ kbd {
       if (wet) reasons.push('splashed into the ocean');
       if (footHit && !pad && !wet) reasons.push('touched down off a pad');
       const rel = pad && pad.move ? ` relative to the ${pad.kind || 'rover'}` : '';
-      if ((footHit || hullHit) && vy > SAFE_VY) reasons.push(`descending at ${vy.toFixed(1)} m/s${rel} (limit ${SAFE_VY})`);
+      if ((footHit || hullHit) && vy > safeVy()) reasons.push(`descending at ${vy.toFixed(1)} m/s${rel} (limit ${safeVy().toFixed(1)})`);
       if ((footHit || hullHit) && vx > SAFE_VX) reasons.push(`drifting at ${vx.toFixed(1)} m/s${rel} (limit ${SAFE_VX})`);
       if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
       if (!reasons.length) reasons.push('hit the ground at a bad angle');
@@ -2646,11 +2688,11 @@ kbd {
     if (m === 'hangar') {
       trying = { ...equip };
       hangarSel = { kind: 'hull', id: equip.hull };
-      hangarLine0 = null;
+      hangarLine0 = null; hangarTab = null;
       renderHangar();
       return;
     }
-    const limits = `<p class="limits">Safe touchdown: vertical under ${SAFE_VY} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
+    const limits = `<p class="limits">Safe touchdown: vertical under ${safeVy().toFixed(1)} m/s · horizontal under ${SAFE_VX} m/s · tilt under ${SAFE_ANG}°</p>`;
     let html = '';
     if (m === 'title') {
       match = null; ghost = null; daily = null; mission = null; tut = null; rng = Math.random;
@@ -3656,6 +3698,7 @@ kbd {
     'hull:rover': 'Rover Yellow! Beep beep. I’m legally required to say beep beep.',
     'flame:sodium': 'Sodium Orange. Very construction-site. I’m putting on a hard hat.',
     'flag:nautical': 'The Nautical flag. Ahoy, Captain Pilot.',
+    'hull:gus': 'The Gus Special! My colors! On Biscuit! I need to sit down.',
     'hull:apex': 'Rex’s paint job. Don’t tell him it looks good. He’ll never stop talking.',
     'flame:standard': 'The standard flame. Hot, orange, dependable. Like me.',
     'flame:blue': 'Methane Blue. Cool color, very hot fire. Science!',
@@ -3677,7 +3720,7 @@ kbd {
     'flag:racing': 'Rex’s racing flag. He handed it over through gritted teeth. I filmed it.'
   };
   const gusOn = (kind, it) => GUS_SAYS[kind + ':' + it.id] || `${it.name}? Good choice. Biscuit approves.`;
-  let hangarLine0 = null;
+  let hangarLine0 = null, hangarTab = null;
   function gusSay(text) {
     hangarLine0 = text;
     const box = $('gusSay');
@@ -3692,6 +3735,20 @@ kbd {
       drawFace(face, 'G', 'happy', k % 2 === 1, false);
       if (k > 7) { clearInterval(gusSay.t); drawFace(face, 'G', 'happy', false, false); }
     }, 90);
+  }
+  function workshopHtml() {
+    const pips = (n, max) => `<span class="pips" aria-label="Level ${n} of ${max}">${Array.from({ length: max }, (_, i) => `<i${i < n ? ' class="on"' : ''}></i>`).join('')}</span>`;
+    return `<div class="shop" role="tabpanel">
+      ${UPGRADES.map(u => {
+        const lv = upg[u.id], max = u.prices.length, price = u.prices[lv];
+        const btn = price == null ? '<button class="btn" disabled>Maxed out</button>'
+          : credits >= price ? `<button class="btn" data-upg="${u.id}">${lv ? 'Upgrade' : 'Install'} · ${fmt(price)} cr</button>`
+          : `<button class="btn" disabled>${fmt(price)} cr · need ${fmt(price - credits)} more</button>`;
+        return `<div class="upg"><div class="uh"><b>${u.name}</b>${pips(lv, max)}</div>
+          <p class="now">${u.fx(lv)}</p>${price != null ? `<p>Next: ${u.fx(lv + 1)}</p>` : ''}${btn}</div>`;
+      }).join('')}
+      <button class="toggle" id="upgToggle" aria-pressed="${upgOn}"><span><b>Use upgrades</b><small>Always off in the daily challenge and hot-seat, so those stay fair</small></span><i aria-hidden="true"></i></button>
+    </div>`;
   }
   // how the badge that unlocks an item is coming along
   function badgeHint(it) {
@@ -3733,7 +3790,7 @@ kbd {
     else if (!total) lookBtn = `<button class="btn" id="lookAct">Equip this look</button>`;
     else if (credits >= total) lookBtn = `<button class="btn" id="lookAct">Buy &amp; equip · ${fmt(total)} cr</button>`;
     else lookBtn = `<button class="btn" disabled>Need ${fmt(total - credits)} more</button>`;
-    const tab = hangarSel.kind;
+    const tab = hangarTab || hangarSel.kind;
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
@@ -3759,15 +3816,15 @@ kbd {
           </div>
         </div>
         <div class="col">
-          <div class="tabs" role="tablist" aria-label="Cosmetic type">${KINDS.map(([k, label]) =>
-            `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${label} <small>${ownedCount(k)}/${itemsOf(k).length}</small></button>`).join('')}</div>
-          <div class="items" role="tabpanel">${itemsOf(tab).map(x => tile(tab, x)).join('')}</div>
+          <div class="tabs four" role="tablist" aria-label="Hangar sections">${KINDS.map(([k, label]) =>
+            `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${label} <small>${ownedCount(k)}/${itemsOf(k).length}</small></button>`).join('')}<button role="tab" data-tab="workshop" aria-selected="${tab === 'workshop'}">Workshop</button></div>
+          ${tab === 'workshop' ? workshopHtml() : `<div class="items" role="tabpanel">${itemsOf(tab).map(x => tile(tab, x)).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
             <p>${it.blurb}</p>
             ${!own && it.unlock ? badgeHint(it) : ''}
             <div class="btns">${action}</div>
-          </div>
+          </div>`}
         </div>
       </div>
       <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
@@ -3776,9 +3833,28 @@ kbd {
     paintFaces(card);
     card.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.tab;
-      hangarSel = { kind: k, id: trying[k] };
+      hangarTab = k;
+      if (k === 'workshop') hangarLine0 = 'Welcome to my workshop! Everything in here makes Biscuit fly better. Everything in there just makes her pretty.';
+      else hangarSel = { kind: k, id: trying[k] };
       renderHangar(`[data-tab="${k}"]`);
     }));
+    card.querySelectorAll('[data-upg]').forEach(b => b.addEventListener('click', () => {
+      const u = UPGRADES.find(x => x.id === b.dataset.upg), lv = upg[u.id], price = u.prices[lv];
+      if (price == null || credits < price) return;
+      credits -= price; upg[u.id] = lv + 1;
+      saveUpg(); saveCosmetics();
+      sfx.coin(); showToast(`${u.name} · level ${lv + 1}`);
+      hangarLine0 = u.gus;
+      if (UPGRADES.every(x => upg[x.id] >= x.prices.length)) award('loaded');
+      checkProgress();
+      renderHangar(`[data-upg="${u.id}"]`);
+    }));
+    const ut = $('upgToggle');
+    if (ut) ut.addEventListener('click', () => {
+      upgOn = !upgOn; saveUpg();
+      hangarLine0 = upgOn ? 'Upgrades on. Biscuit is feeling very powerful.' : 'Upgrades off. Old-school flying! I respect it.';
+      renderHangar('#upgToggle');
+    });
 
     card.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
       const { kind, id } = b.dataset;
@@ -3833,7 +3909,7 @@ kbd {
     });
     $('back').addEventListener('click', () => { trying = null; setMode('title'); });
     if (!focus && hangarLine0) setTimeout(() => gusSay(hangarLine0), 0);
-    else if (hangarLine0 && /^\.item|^#back|^\[data/.test(focus)) setTimeout(() => gusSay(hangarLine0), 0);
+    else if (hangarLine0 && /^\.item|^#back|^\[data|^#upg/.test(focus)) setTimeout(() => gusSay(hangarLine0), 0);
     const f = focus && card.querySelector(focus);
     if (f) f.focus({ preventScroll: true });
   }
@@ -4200,6 +4276,7 @@ kbd {
     if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
     const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd' || mode === 'tutDone' || mode === 'touchdown');
     if (sitting && flagPlant) drawFlag(time);
+    if ((mode === 'flying' || mode === 'paused') && upgLevel('radar') && lander) drawRadar(time);
     if (mode === 'flying' || mode === 'paused' || sitting) drawLander(lander, time);
     if (mode === 'replay' && replay) drawLander(replay.L, time);
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
@@ -4391,6 +4468,36 @@ kbd {
     ctx.globalAlpha = 1;
   }
   // Venus: clouds hide everything beyond a short radius around the lander; pad beacons show through.
+  // Landing radar: where you'd come down if you let go of the engine now, and how fast
+  function drawRadar(time) {
+    const L = lander;
+    let x = L.x, y = L.y - 3, vx = L.vx, vy = L.vy;
+    const dt = 0.08, pts = [];
+    let hit = null;
+    for (let i = 0; i < 300; i++) {
+      vx += (windNow - world.drag * vx) * dt; vy += (-world.g - world.drag * vy) * dt;
+      x += vx * dt; y += vy * dt;
+      if (x < 0 || x > W) break;
+      const sfc = surfaceAt(x);
+      if (y <= sfc) { hit = { x, y: sfc, vy: -vy, vx: Math.abs(vx) }; break; }
+      if (i % 3 === 0) pts.push([x, y]);
+    }
+    ctx.save();
+    ctx.fillStyle = 'rgba(159, 224, 184, 0.55)';
+    pts.forEach(([px2, py2], k) => { ctx.globalAlpha = 0.65 * (1 - k / (pts.length + 4)); ctx.fillRect(sx(px2) - 1.2, sy(py2) - 1.2, 2.4, 2.4); });
+    ctx.globalAlpha = 1;
+    if (hit) {
+      const pad = pads.find(p => hit.x - 3.4 >= p.x1 && hit.x + 3.4 <= p.x2);
+      const ok = pad && hit.vy <= safeVy() && hit.vx <= SAFE_VX;
+      const c = ok ? '#9fe0b8' : hit.vy <= safeVy() * 2 ? '#ffb547' : '#ff6b5e';
+      const X = sx(hit.x), Y = sy(hit.y), r = Math.max(5, 3.4 * scale);
+      ctx.strokeStyle = c; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(X - r, Y - 4); ctx.lineTo(X - r, Y); ctx.lineTo(X + r, Y); ctx.lineTo(X + r, Y - 4); ctx.stroke();
+      ctx.fillStyle = c; ctx.font = `600 11px ${C('--f-mono')}`; ctx.textAlign = 'center';
+      ctx.fillText(`${hit.vy.toFixed(1)} m/s${pad ? '' : ' · off pad'}`, X, Y - 10);
+    }
+    ctx.restore();
+  }
   // the sea on Earth: deep blue with a moving wave line
   function drawWater(time) {
     for (const w of waters) {
@@ -4623,7 +4730,7 @@ kbd {
     hud.vy.textContent = `${vy >= 0 ? '↓' : '↑'} ${Math.abs(vy).toFixed(1)} m/s`;
     hud.ang.textContent = `${ang.toFixed(0)}°`;
     hud.vx.className = grade(vx, SAFE_VX);
-    hud.vy.className = vy < 0 ? 'ok' : grade(vy, SAFE_VY);
+    hud.vy.className = vy < 0 ? 'ok' : grade(vy, safeVy());
     hud.ang.className = grade(Math.abs(ang), SAFE_ANG);
     hud.windRow.hidden = !world.wind;
     if (world.wind) {
