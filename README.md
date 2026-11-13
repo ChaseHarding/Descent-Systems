@@ -273,7 +273,7 @@ Open **Badges** from the start screen to see your progress. Twenty-six badges un
 
 Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
 
-- Click someone, or use the buttons below the scene, to hear what's on their mind. Their lines change as you play: Dottie keeps a tally of your crashes, Gus comments on your feather landings and paint jobs, and side missions you've finished come up in conversation.
+- Click someone, or use the buttons below the scene, to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
@@ -312,7 +312,7 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 | Left wall | Lander poster (in your current paint), star chart, company pennant, Apogee calendar, solar system map, a signed Rex Valor poster |
 | Window | In orbit over the last world you flew, blinds down, Earth from orbit, Saturn, a nebula |
 | Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign |
-| Shelf (3 spots) | Cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket, gold trophy |
+| Shelf (6 spots) | Your souvenirs (below), plus a cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket and gold trophy |
 | Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
 | Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, an arcade cabinet that only plays Descent Systems |
 | Rug | Orange rug, striped runner, Saturn rug, cat face rug |
@@ -323,13 +323,31 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 
 Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
 
+### Souvenirs
+
+The first time you land on each world, you bring a souvenir home for your shelf, along with that world's postcard. You can't buy them; the shelf picker shows which ones you still need and where to land to get them:
+
+| World | Souvenir |
+|---|---|
+| Pluto | A chunk of the heart-shaped ice plain |
+| Moon | A Moon rock in a glass case (officially "sample 0047") |
+| Europa | An ice shard that sounds like the ocean, or the air vent |
+| Ganymede | A bottle of aurora that glows and sometimes plays polka |
+| Titan | A jar of orange haze. Do not open |
+| Io | A sulfur crystal that smells like a very angry egg |
+| Vesta | A rock chip that floats over a magnet stand |
+| Mercury | SPF 9000 sunscreen |
+| Mars | A vial of red dust that pours like an hourglass |
+| Venus | A sealed jar of cloud |
+| Earth | A seashell from the ocean by the landing barge |
+
 ### Company
 
 The Pad isn't empty for long:
 
 - **Apogee** lets herself in on most visits and naps somewhere: on your bunk, the window bench, the rug, sunk into a beanbag, or flat across your keyboard. Tap her, or press **Pet Apogee**, to wake her up. Buy the **cat bed** and she'll use it most of the time, though she'll pretend she isn't impressed.
 - **The crew drop by.** About half the time someone is already sitting on your window bench when you walk in: Dottie, Gus, Wren once she's home, or Rex once you've rescued him. Press **Invite someone over** to knock on another door.
-- **They notice your decor.** Gus gets excited about the arcade cabinet and the disco ball, Dottie spots the mug she gave you and the red alert lighting, Wren recognizes her star chart, and Rex is delighted to find his own poster on your wall. If someone's visiting when you buy or place something, they react to it on the spot. Tap them, or press **Chat**, for another comment.
+- **They notice your decor.** Gus gets excited about the arcade cabinet and the disco ball, Dottie spots the mug she gave you and the red alert lighting, Wren recognizes her star chart and gets misty over the piece of Pluto, and Rex is delighted to find his own poster on your wall. Souvenirs get comments too. If someone's visiting when you buy or place something, they react to it on the spot. Tap them, or press **Chat**, for another comment.
 
 <p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin with amber light strips, Gus sitting on the window bench under a big rounded window, Apogee asleep on the retro computer keyboard, a new purple cat bed in the corner, and Gus saying he could have built a better cat bed with heating and a small engine" width="640"></p>
 
