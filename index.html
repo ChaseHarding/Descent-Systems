@@ -459,6 +459,12 @@ kbd {
 .arc-pad .thr { color: #7dff9a; border-color: #2e6b45; }
 .arc-pad .thr.held { background: #7dff9a; color: #02160a; }
 .arc-pad button:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.race-score { width: 100%; max-width: 22rem; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.race-score div { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); }
+.race-score span { font-size: 12px; color: var(--regolith-dim); text-transform: uppercase; letter-spacing: 0.08em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.race-score b { font-family: var(--f-display); font-size: 26px; font-variant-numeric: tabular-nums; }
+.race-score .won { border-color: var(--flame); }
+.race-score .won b { color: var(--flame); }
 /* Pilot license */
 .license { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .license #licCv { display: block; width: 100%; aspect-ratio: 600 / 375; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
@@ -2820,6 +2826,7 @@ kbd {
       noteLanding(pad, vy, pts);
       if (match) { endTurn(); return; }
       if (run) { runLanded(pts, pad); return; }
+      if (race && race.active) { race.mine = pts; race.crashed = false; if (pts > race.p) award('ghostbuster'); setMode('raceEnd'); return; }
       score += pts;
       if (daily) {
         daily.results.push(lastResult);
@@ -2855,6 +2862,7 @@ kbd {
       if (match) { endTurn(); return; }
       if (daily) { daily.results.push(lastResult); setMode('dailyEnd'); return; }
       if (run) { runCrashed(); return; }
+      if (race && race.active) { race.mine = 0; race.crashed = true; setMode('raceEnd'); return; }
       lives--;
       setMode(lives > 0 ? 'crashed' : 'over');
     }
@@ -2953,8 +2961,8 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license'];
-  const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite'];
+  const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
@@ -2993,6 +3001,8 @@ kbd {
     if (m === 'den') { renderDen(true); return; }
     if (m === 'arcade') { renderArcade(); return; }
     if (m === 'license') { renderLicense(); return; }
+    if (m === 'raceInvite') { renderRaceInvite(); return; }
+    if (m === 'raceEnd') { renderRaceEnd(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
     if (m === 'log') { renderLog(); return; }
@@ -3011,7 +3021,8 @@ kbd {
     const limits = `<p class="limits">Safe touchdown: vertical under ${safeVy().toFixed(1)} m/s · horizontal under ${safeVx()} m/s · tilt under ${safeAng()}°</p>`;
     let html = '';
     if (m === 'title') {
-      match = null; ghost = null; daily = null; mission = null; tut = null; run = null; rng = Math.random;
+      match = null; ghost = null; daily = null; mission = null; tut = null; run = null; rng = Math.random; siteSeed = null;
+      if (race && race.active) race = null;
       const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
     }
@@ -3085,7 +3096,7 @@ kbd {
         <p>×${r.pad.mult} pad · ${r.base} pts + fuel bonus ${r.fuelBonus}${r.soft ? ' + soft landing 50' : ''}${world.bonus !== 1 ? ` × ${world.bonus} world bonus` : ''} = <b>${r.pts}</b></p>
         <p class="limits">Touchdown at ${r.vy.toFixed(2)} m/s vertical, ${r.vx.toFixed(2)} m/s horizontal, ${r.ang.toFixed(1)}° tilt</p>
         <p class="balance">+${fmt(r.pts)} credits banked · ${fmt(credits)} total</p>
-        <div class="btns"><button class="btn" id="go">Next site</button>${replayBtn()}</div>`;
+        <div class="btns"><button class="btn" id="go">Next site</button>${!daily && !match && siteSeed != null ? '<button class="btn ghost" id="chalBtn">Challenge a friend</button>' : ''}${replayBtn()}</div>`;
     } else if (m === 'runPerk') {
       const r = lastResult;
       html = `<span class="eyebrow">Endless run · site ${run.site} · ${world.name}</span>
@@ -3279,6 +3290,8 @@ kbd {
     }
     card.innerHTML = html;
     paintFaces(card);
+    const chb = $('chalBtn');
+    if (chb) { const R = { w: world.id, l: level, s: siteSeed, n: pilotName(), p: lastResult.pts, frames: lastRun.frames }; chb.addEventListener('click', () => shareRace(R, chb)); }
     const rpb = $('replayBtn');
     if (rpb) rpb.addEventListener('click', startReplay);
     const sh = $('share');
@@ -5093,6 +5106,141 @@ kbd {
     $('back').addEventListener('click', () => setMode(licenseFrom));
   }
 
+  // ---- Ghost links: share a landing as a link, and a friend races your ghost on the same terrain ----
+  // Every free-flight site is built from a seed, so a link only needs the world, the site number, the seed
+  // and your flight path (sampled 15 times a second, delta-encoded and compressed).
+  let siteSeed = null;
+  const newSeed = () => (Math.random() * 4294967296) >>> 0;
+  let race = null;           // a ghost challenge you're flying, or one waiting to be accepted
+  const RACE_STEP = 4, RACE_TINT = '#ff9ad5';
+  const b64u = bytes => { let s = ''; for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  const unb64u = str => { const s = atob(str.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - str.length % 4) % 4)); return Uint8Array.from(s, ch => ch.charCodeAt(0)); };
+  const raceIdx = n => { const idx = []; for (let i = 0; i < n; i += RACE_STEP) idx.push(i); if (idx[idx.length - 1] !== n - 1) idx.push(n - 1); return idx; };
+  function packFrames(fr) {
+    const out = [];
+    const put = v => { v = v < 0 ? -2 * v - 1 : 2 * v; while (v >= 128) { out.push((v & 127) | 128); v = Math.floor(v / 128); } out.push(v); };
+    put(fr.length);
+    let px = 0, py = 0, pa = 0;
+    for (const i of raceIdx(fr.length)) {
+      const [x, y, a, f] = fr[i];
+      const qx = Math.round(x * 10), qy = Math.round(y * 10), qa = Math.round(a * 100) * 2 + (f ? 1 : 0);
+      put(qx - px); put(qy - py); put(qa - pa); px = qx; py = qy; pa = qa;
+    }
+    return new Uint8Array(out);
+  }
+  function unpackFrames(bytes) {
+    let p = 0;
+    const get = () => { let v = 0, m = 1, b; do { if (p >= bytes.length) throw new Error('short'); b = bytes[p++]; v += (b & 127) * m; m *= 128; } while (b & 128); return v % 2 ? -(v + 1) / 2 : v / 2; };
+    const n = get();
+    if (!(n > 0 && n < 60 * 600)) throw new Error('length');
+    const idx = raceIdx(n), S = [];
+    let x = 0, y = 0, a2 = 0;
+    for (let k = 0; k < idx.length; k++) { x += get(); y += get(); a2 += get(); const f = ((a2 % 2) + 2) % 2; S.push([x / 10, y / 10, (a2 - f) / 200, f]); }
+    // fill in the frames between samples
+    const fr = new Array(n);
+    for (let k = 0; k < idx.length; k++) {
+      const i0 = idx[k], i1 = idx[k + 1] ?? i0, A = S[k], B = S[k + 1] || A;
+      let da = B[2] - A[2]; if (da > Math.PI) da -= Math.PI * 2; if (da < -Math.PI) da += Math.PI * 2;
+      for (let i = i0; i <= i1 && i < n; i++) { const t = i1 > i0 ? (i - i0) / (i1 - i0) : 0; fr[i] = [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + da * t, A[3]]; }
+    }
+    return fr;
+  }
+  async function zip(bytes, inflate) {
+    const S = inflate ? window.DecompressionStream : window.CompressionStream;
+    const stream = new Blob([bytes]).stream().pipeThrough(new S('deflate-raw'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  async function raceLink(R) {
+    const meta = b64u(new TextEncoder().encode(JSON.stringify({ v: 1, w: R.w, l: R.l, s: R.s, n: R.n, p: R.p })));
+    let raw = packFrames(R.frames), tag = 'r';
+    if (window.CompressionStream) { try { raw = await zip(raw, false); tag = 'z'; } catch (e) {} }
+    return `${GAME_URL}#race=${meta}.${tag}${b64u(raw)}`;
+  }
+  async function readRaceLink(hash) {
+    const m = /^#race=([A-Za-z0-9_-]+)\.([zr])([A-Za-z0-9_-]+)$/.exec(hash);
+    if (!m) return null;
+    const meta = JSON.parse(new TextDecoder().decode(unb64u(m[1])));
+    if (meta.v !== 1 || !WORLDS.some(w => w.id === meta.w) || !(meta.l >= 1 && meta.l < 100)) throw new Error('meta');
+    let bytes = unb64u(m[3]);
+    if (m[2] === 'z') { if (!window.DecompressionStream) throw new Error('nozip'); bytes = await zip(bytes, true); }
+    return { w: meta.w, l: Math.floor(meta.l), s: meta.s >>> 0, n: String(meta.n || 'A pilot').slice(0, 16), p: Math.max(0, Math.round(+meta.p || 0)), frames: unpackFrames(bytes) };
+  }
+  const pilotName = () => (lic && lic.name && lic.name !== 'Pilot' ? lic.name : store.get('ds-p1', '')) || 'A pilot';
+  async function shareRace(R, btn) {
+    let url;
+    try { url = await raceLink(R); } catch (e) { showToast('Couldn’t make a link for that flight'); return; }
+    const wn = worldName(R.w), text = `I landed on ${wn} for ${fmt(R.p)} points in Descent Systems. Race my ghost and beat it:`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Descent Systems ghost challenge', text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(`${text} ${url}`); showToast('Challenge link copied. Send it to a friend!', 2600); sfx.click(); return; } catch (e) {}
+    // last resort: show the link to copy by hand
+    const box = document.createElement('textarea');
+    box.className = 'share-text'; box.readOnly = true; box.value = `${text} ${url}`;
+    (btn && btn.closest('.btns') || card).after(box);
+    box.focus(); box.select(); showToast('Copy the link below to share');
+  }
+  function startRace() {
+    const R = race; if (!R) return;
+    world = WORLDS.find(w => w.id === R.w) || world; makeBackdrop();
+    match = null; daily = null; mission = null; tut = null; run = null;
+    level = R.l; lives = 1; score = 0; levelFuel = Math.max(45, 100 - (level - 1) * 8);
+    siteSeed = R.s; rng = mulberry32(R.s); genTerrain(); spawn(); rng = Math.random;
+    R.active = true; R.plan = spawnPlan; R.tries = (R.tries || 0) + 1;
+    fly({ frames: R.frames, result: 'landed', label: R.n, tint: RACE_TINT });
+  }
+  function raceAgain() {
+    if (!race) return;
+    lives = 1; score = 0; spawn(race.plan); race.tries++;
+    fly({ frames: race.frames, result: 'landed', label: race.n, tint: RACE_TINT });
+  }
+  function renderRaceInvite() {
+    const R = race;
+    card.innerHTML = `<span class="eyebrow">Ghost challenge</span>
+      <h1 class="good">${esc(R.n)} challenged you</h1>
+      <p>${esc(R.n)} landed on <b>${worldName(R.w)}</b>, site ${R.l}, for <b>${fmt(R.p)}</b> points. You’ll fly the exact same terrain from the same start, with their ghost flying beside you. Beat their score to win.</p>
+      <p class="limits">Points come from the pad multiplier, the fuel you save, and a soft touchdown.</p>
+      <div class="btns"><button class="btn" id="raceGo">Race the ghost</button><button class="btn ghost" id="pick">Not now</button></div>`;
+    $('raceGo').addEventListener('click', startRace);
+    $('pick').addEventListener('click', () => { race = null; setMode('title'); });
+    setTimeout(() => $('raceGo').focus({ preventScroll: true }), 0);
+  }
+  function renderRaceEnd() {
+    const R = race, mine = R.mine || 0, win = mine > R.p, tie = mine === R.p && mine > 0;
+    const line = R.crashed ? ['G', `Good news: ${R.n}’s ghost is fine. Bad news: you aren’t. Want to go again?`]
+      : win ? ['F', `You beat ${R.n} by ${fmt(mine - R.p)} points. I’ll be telling everyone. Mostly ${R.n}.`]
+      : tie ? ['G', 'An exact tie! I didn’t know that was possible. I’m checking the math. Twice.']
+      : ['F', `${R.n} still has you by ${fmt(R.p - mine)} points. Same terrain, same start. You know what to do.`];
+    card.innerHTML = `<span class="eyebrow">Ghost challenge · ${worldName(R.w)}, site ${R.l}</span>
+      <h1 class="${win || tie ? 'good' : 'bad'}">${R.crashed ? 'Crashed out' : win ? 'You beat the ghost!' : tie ? 'Dead heat!' : `${esc(R.n)} wins this one`}</h1>
+      <div class="race-score">
+        <div class="${win ? 'won' : ''}"><span>You</span><b>${fmt(mine)}</b></div>
+        <div class="${!win && !tie ? 'won' : ''}"><span>${esc(R.n)}</span><b>${fmt(R.p)}</b></div>
+      </div>
+      ${radioQuote(line)}
+      <div class="btns"><button class="btn" id="go">Race again</button>${!R.crashed ? '<button class="btn ghost" id="raceBack">Send your ghost back</button>' : ''}${replayBtn()}<button class="btn ghost" id="pick">Main menu</button></div>`;
+    paintFaces(card);
+    $('go').addEventListener('click', raceAgain);
+    const rb = $('raceBack');
+    if (rb) rb.addEventListener('click', () => shareRace({ w: R.w, l: R.l, s: R.s, n: pilotName(), p: mine, frames: lastRun.frames }, rb));
+    $('pick').addEventListener('click', () => { race = null; setMode('title'); });
+    const rp = $('replayBtn'); if (rp) rp.addEventListener('click', startReplay);
+  }
+  // open a challenge link
+  async function checkRaceLink() {
+    if (!/^#race=/.test(location.hash)) return;
+    const hash = location.hash;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    try {
+      const R = await readRaceLink(hash);
+      if (!R) return;
+      race = R;
+      if (MENU_MODES.includes(mode)) setMode('raceInvite');
+    } catch (e) {
+      showToast(e && e.message === 'nozip' ? 'This browser can’t open challenge links. Try updating it.' : 'That challenge link didn’t work. It may have been cut off.', 3200);
+    }
+  }
+
   // ---- Postcards: the first landing on each world earns one from the crew ----
   const POSTCARDS = {
     pluto: ['G', 'Greetings from Pluto! Gravity here is so weak I dropped a wrench and it’s still falling. I’ll check on it Tuesday.'],
@@ -5741,6 +5889,8 @@ kbd {
     if (tut) renderCoach();
   }
   function advance() {
+    if (mode === 'raceEnd') { raceAgain(); return; }
+    if (mode === 'raceInvite') { startRace(); return; }
     if (mode === 'paused') { setMode('flying'); return; }
     if (mode === 'runEnd') { startRun(); return; }
     if (mode === 'runSpare') { levelFuel = run.siteFuel; spawn(spawnPlan); lander.fuelMax = run.maxFuel; fly({ ...lastRun, label: 'Last try', tint: col.reg }); return; }
@@ -5750,16 +5900,16 @@ kbd {
     if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
     if (mode === 'setup' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
-      rng = Math.random;
       level = 1; lives = 3; score = 0; levelFuel = 100;
-      genTerrain(); spawn();
+      siteSeed = newSeed(); rng = mulberry32(siteSeed);
+      genTerrain(); spawn(); rng = Math.random;
       match = playMode === 'hotseat'
         ? { round: 1, step: 0, first: 0, scores: [0, 0], log: [], runs: [], plan: spawnPlan }
         : null;
       fly(null);
     } else if (mode === 'landed') {
       level++; levelFuel = Math.max(45, 100 - (level - 1) * 8);
-      if (daily) { daily.site = level; seedSite(level); }
+      if (daily) { daily.site = level; seedSite(level); } else { siteSeed = newSeed(); rng = mulberry32(siteSeed); }
       genTerrain(); spawn(); rng = Math.random;
       fly(null);
     } else if (mode === 'crashed') {
@@ -5947,7 +6097,7 @@ kbd {
     }
     ctx.globalAlpha = 1;
 
-    if (ghost && showGhost && (mode === 'flying' || mode === 'paused')) drawGhost(time);
+    if (ghost && (showGhost || (race && race.active)) && (mode === 'flying' || mode === 'paused')) drawGhost(time);
     const sitting = lastResult && lastResult.pad && (mode === 'landed' || mode === 'turn' || mode === 'roundEnd' || mode === 'matchEnd' || mode === 'dailyEnd' || mode === 'missionEnd' || mode === 'tutDone' || mode === 'touchdown');
     if (sitting && flagPlant) drawFlag(time);
     if ((mode === 'flying' || mode === 'paused') && (upgLevel('radar') || perk('radar')) && lander) drawRadar(time);
@@ -6614,7 +6764,7 @@ kbd {
     ArrowUp: 'thrust', KeyW: 'thrust'
   };
   // screens where Space/Enter means "continue"; elsewhere they press the focused button as usual
-  const ADVANCES = ['runSpare', 'runEnd', 'setup', 'brief', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'paused', 'tutDone', 'tutFail'];
+  const ADVANCES = ['raceEnd', 'raceInvite', 'runSpare', 'runEnd', 'setup', 'brief', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'paused', 'tutDone', 'tutFail'];
   addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
       if (e.code === 'Enter') e.target.blur();
@@ -6719,6 +6869,8 @@ kbd {
   genTerrain();
   spawn();
   setMode('title');
+  checkRaceLink();
+  addEventListener('hashchange', checkRaceLink);
   requestAnimationFrame(frame);
 })();
 </script>
