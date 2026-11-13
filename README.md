@@ -72,7 +72,7 @@ Brand-new players get a short guided start, about two to three minutes, instead 
 1. **Welcome aboard.** Dottie comes on the radio, and six quick illustrated cards introduce Descent Systems: the supply-closet head office, Biscuit (Gus would like you not to scratch her), the bake sale that paid for her, and Apogee, who technically outranks you.
 2. **Your pilot license.** Type your name and pick your look, then Dottie stamps it **LICENSED · CADET**.
 3. **The certification flight.** This is the tutorial. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing, with a nervous Gus on the radio.
-4. **Meet the crew.** A short guided tour of the break room: the crew, the bulletin board, your first postcard, Gus's maintenance log and Apogee.
+4. **Meet the crew.** A short guided tour of the break room: the crew, the bulletin board, today's crew requests, your first postcard, Gus's maintenance log and Apogee.
 5. **Your Pad.** Gus brings a housewarming gift (pick a lander poster, a fern or a rug) and shows you how decorating works, while Apogee claims your bunk.
 6. Back on the main menu, **Missions** is marked **Start here**.
 
