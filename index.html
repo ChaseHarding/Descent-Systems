@@ -460,6 +460,9 @@ kbd {
 .den-items .pv { display: flex; width: 100%; height: 46px; align-items: center; justify-content: center; background: var(--space); border-radius: 3px; overflow: hidden; }
 .den-items .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
 .den .ok-note { margin: 0; font-size: 13px; color: var(--ok); }
+.den .radio.quote { max-width: none; width: 100%; min-height: 88px; }
+.den .who-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.den .who-row .btn { padding: 8px 14px; font-size: 12px; }
 @media (min-width: 861px) { .den .bay > .col:last-child { min-height: 470px; } }
 /* Bulletin board */
 .board { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
@@ -2306,6 +2309,7 @@ kbd {
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
+      knock() { tone(150, 'triangle', 0, 0.06, 0.35); tone(140, 'triangle', 0.16, 0.06, 0.35); },
       turn() { tone(523, 'triangle', 0, 0.15, 0.2); tone(784, 'triangle', 0.12, 0.25, 0.2); },
       radio() { tone(2525, 'sine', 0, 0.12, 0.05); },
       impact(dist) { const v = Math.max(0.15, 1 - dist / 120); burst(0, 0.6, 0.5 * v, 1600, 90); tone(85, 'sine', 0, 0.45, 0.5 * v, 35); },
@@ -2903,7 +2907,7 @@ kbd {
   const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den') card.classList.remove('wide');
-    if (denUI && m !== 'den') { clearInterval(denUI.anim); denUI = null; }
+    if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -4002,6 +4006,8 @@ kbd {
         } },
       { id: 'beanbag', name: 'Beanbag', price: 400, blurb: 'Once you sit down, you’re not getting up. Plan accordingly.',
         draw(c, x, y) { px(c, x + 4, y + 15, 16, 3, '#ff6b5e'); px(c, x + 2, y + 18, 20, 11, '#ff6b5e'); px(c, x + 7, y + 18, 10, 2, '#d94f43'); px(c, x + 4, y + 20, 2, 4, '#ff8f84'); } },
+      { id: 'catbed', name: 'Cat bed', price: 350, blurb: 'A plush donut bed for Apogee. She’ll use it. Eventually. On her own terms.',
+        draw(c, x, y) { oval(c, x + 12, y + 25, 11, 4, '#7a4a9a'); oval(c, x + 12, y + 24, 8, 2.5, '#d8c4e8'); px(c, x + 3, y + 24, 2, 1, '#9a6aba'); px(c, x + 19, y + 24, 2, 1, '#9a6aba'); } },
       { id: 'fridge', name: 'Mini fridge', price: 600, blurb: 'Snacks, drinks, and one yogurt you are absolutely not allowed to touch.',
         draw(c, x, y) { px(c, x + 3, y + 9, 18, 20, '#e8ebf2'); px(c, x + 3, y + 16, 18, 1, '#9aa3b8'); px(c, x + 18, y + 11, 1, 4, '#9aa3b8'); px(c, x + 18, y + 18, 1, 6, '#9aa3b8'); px(c, x + 6, y + 11, 3, 3, '#ffb547'); px(c, x + 10, y + 20, 3, 3, '#ff9ad5'); px(c, x + 6, y + 23, 2, 2, '#9fe0b8'); } },
       { id: 'guitar', name: 'Acoustic guitar', price: 800, blurb: 'You know three chords. Apogee hates all of them.',
@@ -4078,7 +4084,7 @@ kbd {
   function denStars(c, x, y, w, h, t) {
     for (let i = 0; i < Math.round(w * h / 60); i++) { const tw = reduceMotion ? 1 : 0.5 + 0.5 * Math.sin(t / 600 + i * 1.7); const r1 = Math.sin(i * 12.9898) * 43758.5453, r2 = Math.sin(i * 78.233) * 12543.123; px(c, x + Math.floor((r1 - Math.floor(r1)) * w), y + Math.floor((r2 - Math.floor(r2)) * h), 1, 1, `rgba(220,226,240,${(0.3 + 0.6 * tw).toFixed(2)})`); }
   }
-  function drawDen(cv, look = denLook, sel = null, t = performance.now()) {
+  function drawDen(cv, look = denLook, sel = null, t = performance.now(), scene = null) {
     if (!cv) return;
     const c = cv.getContext('2d'), st = { faces: denFaces() };
     c.imageSmoothingEnabled = false;
@@ -4125,6 +4131,11 @@ kbd {
     px(c, 26, 61, 29, 9, bed.cols[0]); px(c, 26, 61, 29, 2, bed.cols[1]);
     if (bed.pattern === 'stars') for (const [a, b] of [[30, 65], [36, 67], [42, 64], [48, 68], [52, 65]]) px(c, a, b, 1, 1, '#ffe58a');
     px(c, 4, 70, 54, 8, '#f4ead6'); px(c, 4, 70, 54, 1, '#fbf6ec'); px(c, 4, 77, 54, 1, '#c9b897');
+    // whoever dropped by sits on the window bench
+    if (scene && scene.visitor) {
+      const bob = scene.talking === scene.visitor && !reduceMotion && Math.floor(t / 90) % 2 ? -1 : 0;
+      c.drawImage(st.faces[scene.visitor], 84, 33 + bob);
+    }
     // window bench with cushions
     c.fillStyle = '#f4ead6'; rrect(c, 60, 64, 58, 14, 5); c.fill();
     px(c, 62, 64, 54, 1, '#fbf6ec'); px(c, 60, 77, 58, 1, '#c9b897'); px(c, 62, 71, 54, 1, '#dccdb1');
@@ -4136,6 +4147,8 @@ kbd {
     oval(c, 165, 69, 7, 6, '#ff9a3d'); oval(c, 165, 68, 5, 4, '#ffb547'); px(c, 164, 75, 2, 3, '#c9b897'); px(c, 161, 77, 8, 1, '#c9b897');
     it('desk').draw(c, S('desk').x, S('desk').y, t, st);
     it('floor').draw(c, S('floor').x, S('floor').y, t, st);
+    // Apogee, asleep (or awake, if you've just bothered her)
+    if (scene && scene.cat) drawDenCat(c, denCatSpot(scene.cat, look), performance.now() < (scene.catAwake || 0), t);
     // lighting
     if (L.fixture) L.fixture(c, t);
     L.overlay(c, t);
@@ -4185,8 +4198,155 @@ kbd {
   function denLine() { const [have, all] = denCounts(); return `${have}/${all} decorations`; }
   const DEN_SAYS = ['Gus would like it noted that he could have built that.', 'Dottie has approved it. Dottie has filed a form about it.', 'Looks great. Apogee will be by later to judge it.', 'Home sweet cabin.', 'Very you.'];
 
+  // ---- Life in the Pad: Apogee naps here, and the crew drop by ----
+  const DEN_CAT_SPOTS = {
+    bunk: { x: 34, y: 55 }, bench: { x: 68, y: 58 }, rug: { x: 90, y: 84 },
+    beanbag: { x: 129, y: 59 }, catbed: { x: 130, y: 70 }, keyboard: { x: 172, y: 50 }
+  };
+  const denCatOk = (id, look) => id === 'rug' ? look.rug !== 'none' : id === 'beanbag' ? look.floor === 'beanbag' : id === 'catbed' ? look.floor === 'catbed' : id === 'keyboard' ? look.desk === 'computer' : true;
+  // if you moved the furniture she was sleeping on, she relocates to the bunk
+  const denCatSpot = (cat, look) => denCatOk(cat.id, look) ? cat : { id: 'bunk', ...DEN_CAT_SPOTS.bunk };
+  function denPickCat(look) {
+    const opts = ['bunk', 'bench'];
+    if (look.rug !== 'none') opts.push('rug');
+    if (look.floor === 'beanbag') opts.push('beanbag', 'beanbag');
+    if (look.desk === 'computer') opts.push('keyboard');
+    const any = () => opts[Math.floor(Math.random() * opts.length)];
+    let id;
+    if (look.floor === 'catbed') { if (Math.random() < 0.1) return null; id = Math.random() < 0.65 ? 'catbed' : any(); }
+    else { if (Math.random() < 0.3) return null; id = any(); }
+    return { id, ...DEN_CAT_SPOTS[id] };
+  }
+  function drawDenCat(c, s, awake, t) {
+    const o = '#ff9a3d', d = '#c96a1e';
+    px(c, s.x, s.y + 2, 12, 4, o); px(c, s.x + 1, s.y + 1, 10, 1, o);
+    px(c, s.x + 3, s.y + 2, 1, 3, d); px(c, s.x + 6, s.y + 2, 1, 3, d);
+    px(c, s.x + 12, s.y + 4, 3, 2, o); px(c, s.x + 14, s.y + 3, 1, 1, d);
+    px(c, s.x - 3, s.y, 6, 5, o); px(c, s.x - 3, s.y - 2, 1, 2, o); px(c, s.x + 1, s.y - 2, 1, 2, o);
+    if (awake) {
+      px(c, s.x - 2, s.y + 1, 1, 1, '#9fe0b8'); px(c, s.x + 1, s.y + 1, 1, 1, '#9fe0b8');
+      if (!reduceMotion && Math.floor(t / 300) % 2) { px(c, s.x - 6, s.y - 5, 2, 2, '#ff9ad5'); px(c, s.x - 5, s.y - 6, 1, 1, '#ff9ad5'); }
+    } else {
+      px(c, s.x - 2, s.y + 2, 1, 1, '#5a3520'); px(c, s.x + 1, s.y + 2, 1, 1, '#5a3520');
+      if (!reduceMotion) {
+        const ph = (t / 1600) % 1;
+        c.fillStyle = `rgba(201,207,220,${(1 - ph).toFixed(2)})`; c.font = '6px monospace'; c.textBaseline = 'alphabetic';
+        c.fillText('z', s.x + 2 + ph * 4, s.y - 2 - ph * 8);
+      }
+    }
+  }
+  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : []);
+  // what each visitor says about particular things in your cabin
+  const DEN_TALK = {
+    F: {
+      'desk:computer': 'A retro computer. I had one just like it. I used it to file forms about other forms.',
+      'shelf:mug': 'You kept the mug. I meant it as a compliment. Mostly.',
+      'floor:arcade': 'An arcade cabinet in a pilot’s quarters. I’ll allow it. My initials are on the high score table. Don’t look.',
+      'floor:catbed': 'You bought Apogee a bed. She has four beds. She uses none of them. Well. Sometimes this one.',
+      'light:alert': 'Red alert lighting. Very calming. I keep feeling like something is on fire.',
+      'light:disco': 'Is that a disco ball? Gus. GUS.',
+      'light:night': 'Lights down low. I’ll keep it short. Good work out there today, pilot.',
+      'wallR:neon': 'The sign says LAND. Subtle. I like it.',
+      'wallR:photo': 'The crew photo! I look terrible in it. Keep it up anyway.',
+      'wallL:catcal': 'You bought my calendar! Apogee is going to be insufferable about this.',
+      'wallL:rex': 'You have a Rex poster. In your own room. On purpose. I need to sit down.',
+      'shelf:trophy': 'A trophy you bought for yourself. I won’t tell anyone. I’ll tell Gus.',
+      'window:blinds': 'Blinds down? Fair. The view gets old. Said no one, ever.',
+      'wall:graphite': 'Graphite walls. Very mission control. I approve, professionally.',
+      'floorStyle:grate': 'You picked the deck grating? On purpose? You’re going to lose so many screws.'
+    },
+    G: {
+      'floor:arcade': 'The arcade cabinet! Ignore the smell, that’s just the capacitors. Probably.',
+      'shelf:rocket': 'My model rocket! It’s not a toy. Please don’t launch it indoors. Again.',
+      'shelf:globe': 'The snow globe! There’s a tiny Biscuit in there. She looks cold. She’s fine.',
+      'shelf:duck': 'A rubber duck! I talk to mine about engine problems. Great listener. Terrible engineer.',
+      'light:disco': 'The disco ball! Science says it boosts morale by 300%. I am the science.',
+      'light:aurora': 'Aurora strips! Just like Ganymede, minus the polka on the radio.',
+      'floor:telescope': 'A telescope pointed at a window. Bold. Point it at Apogee, she hates that.',
+      'floor:fridge': 'A mini fridge! If there’s a yogurt in there, it isn’t yours. It also isn’t food.',
+      'floor:guitar': 'A guitar! I know one song. It’s about torque.',
+      'floor:beanbag': 'A beanbag! Can I borrow it? I won’t. I just like knowing I could.',
+      'floor:catbed': 'A cat bed! I could’ve built a better one. With heating. And a small engine.',
+      'desk:radio': 'The crew radio! If you hear humming at 3 a.m., that’s me. Sorry.',
+      'desk:model': 'A model of your lander! I sanded the tiny legs myself. Okay, the factory did. I watched.',
+      'window:nebula': 'Is that the nebula? One of those stars winked at me once. I stand by it.',
+      'floorStyle:panels': 'Glowing floor tiles! You basically live on a dance floor now.'
+    },
+    W: {
+      'wallL:starchart': 'My star chart! Two of those constellations are made up. I’ll never tell you which.',
+      'bed:stars': 'Starry bedding. I had the exact same set back when I lived in the supply closet.',
+      'wall:blush': 'Blush walls! I wanted that color for every cabin. Nobody listened. You listened.',
+      'window:last': 'You can see wherever you landed last. I used to fall asleep watching Pluto turn.',
+      'window:earth': 'Earth from up here. All these years and I still stop and stare.',
+      'floor:telescope': 'A telescope! I mapped half the sky from this building, you know.'
+    },
+    R: {
+      'wallL:rex': 'Is that... my poster? You have exquisite taste. Want me to sign the other wall too?',
+      'floor:arcade': 'An arcade cabinet. I hold the high score on every machine in the system. Probably this one too.',
+      'light:disco': 'A disco ball. Finally, a room that understands me.',
+      'shelf:trophy': 'Nice trophy. I have forty. They’re in a room. The room has its own trophy.'
+    }
+  };
+  const DEN_IDLE = {
+    F: ['Nice place. Tidier than Gus’s. That’s a low bar, but you cleared it.', 'Just checking in. Rent is due never. Paperwork is due Friday.', 'I like what you’ve done with it. Don’t tell anyone I said that.'],
+    G: ['Cozy! This place has great vibes. And slightly better wiring than mine.', 'I came to borrow a wrench. I don’t know why I thought you’d have one. Nice cabin, though!', 'Knock knock! Oh, you’re decorating. Can I watch? I’m on break. I’m always on break.'],
+    W: ['This used to be my workshop, you know. It’s much nicer now. Don’t tell the old me.', 'I just came to see how you’re settling in. You’re settling in nicely.'],
+    R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.']
+  };
+  const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.' };
+  const DEN_CAT = {
+    bunk: 'Prrrp. (She has claimed your bunk. It is her bunk now. You may borrow it.)',
+    bench: 'Mrrp. (She’s watching the planet go by. Do not block the view.)',
+    rug: 'Mrow. (She’s lying exactly in the middle of the rug. As designed.)',
+    beanbag: 'Prrr. (She has sunk into the beanbag. She may never be seen again.)',
+    catbed: 'Prrrrrrr. (She’s actually using the cat bed. Take a picture. It won’t happen again.)',
+    keyboard: 'Mrrrp. (She’s asleep on your keyboard. Your inbox now reads “jjjjjjjjjjjjjjjj”.)'
+  };
+  const DEN_ALONE = ['Pilot, your cabin’s looking good. Try not to crash it.', 'Quiet in here. Enjoy it while it lasts. Gus is testing the toaster again.', 'Apogee isn’t in your cabin? Check under the bunk. Actually, don’t. She bites.'];
+  function denTalkFor(who, look) {
+    const spec = Object.entries(DEN_TALK[who] || {}).filter(([k]) => { const [pool, id] = k.split(':'); return DEN_SPOTS.some(x => x.pool === pool && look[x.id] === id); }).map(([, t]) => t);
+    const idle = DEN_IDLE[who];
+    let pool = spec.length && Math.random() < 0.65 ? spec : idle;
+    if (denUI && pool.length > 1) pool = pool.filter(t => t !== denUI.lastLine);
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    if (denUI) denUI.lastLine = line;
+    return line;
+  }
+  function denSay(who, text, animate = true) {
+    if (!denUI) return;
+    denUI.say = [who, text];
+    const box = $('denSay');
+    if (!box) return;
+    clearInterval(denUI.typer);
+    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    const face = box.querySelector('canvas.face'), p = box.querySelector('p');
+    drawFace(face, who, face.dataset.mood, false, false);
+    if (!animate || reduceMotion) { denUI.talking = null; return; }
+    denUI.talking = who;
+    if (who !== 'A') sfx.radio();
+    p.textContent = '';
+    let n = 0, tick = 0;
+    denUI.typer = setInterval(() => {
+      n += 2; tick++;
+      p.textContent = text.slice(0, n);
+      if (tick % 3 === 0) drawFace(face, who, face.dataset.mood, (tick / 3) % 2 === 1, false);
+      if (n >= text.length) { clearInterval(denUI.typer); drawFace(face, who, face.dataset.mood, false, false); if (denUI) denUI.talking = null; }
+    }, 24);
+  }
+  let denThumbScene = null;
+
   function renderDen(keepSpot) {
-    if (!denUI) denUI = { spot: 'wallL', trying: null, anim: 0, note: '' };
+    let fresh = false;
+    if (!denUI) {
+      denUI = { spot: 'wallL', trying: null, anim: 0, typer: 0, note: '', cat: denPickCat(denLook), catAwake: 0, visitor: null, talking: null, lastLine: '' };
+      const guests = denGuests();
+      if (Math.random() < 0.55) denUI.visitor = guests[Math.floor(Math.random() * guests.length)];
+      denUI.say = denUI.visitor ? [denUI.visitor, denTalkFor(denUI.visitor, denLook)]
+        : denUI.cat ? ['A', 'Mrrp. (Apogee let herself in again. Nobody knows how. The door was locked.)']
+        : ['F', DEN_ALONE[Math.floor(Math.random() * DEN_ALONE.length)]];
+      fresh = true;
+    }
+    if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
     if (!keepSpot) denUI.trying = null;
     card.classList.add('wide');
     const spot = denUI.spot, s = denSpot(spot), pool = s.pool, list = DEN_ITEMS[pool];
@@ -4206,6 +4366,12 @@ kbd {
       <div class="bay">
         <div class="col">
           <canvas class="room" id="denCv" width="${RW}" height="${RH}" role="img" aria-label="Your cabin: a bunk, a desk, a shelf, a window and whatever you've decorated it with"></canvas>
+          <div class="radio quote" id="denSay" aria-live="polite"></div>
+          <div class="who-row">
+            ${denUI.cat ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
+            ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
+            <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
+          </div>
           <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}</button>`).join('')}</div>
         </div>
         <div class="col">
@@ -4225,10 +4391,27 @@ kbd {
     const look = () => denUI.trying ? { ...denLook, [spot]: denUI.trying } : denLook;
     const cv = $('denCv');
     clearInterval(denUI.anim);
-    drawDen(cv, look(), spot);
-    denUI.anim = setInterval(() => drawDen($('denCv'), look(), denUI && denUI.spot), 100);
+    drawDen(cv, look(), spot, undefined, denUI);
+    denUI.anim = setInterval(() => { if (denUI) drawDen($('denCv'), look(), denUI.spot, undefined, denUI); }, 100);
+    denSay(denUI.say[0], denUI.say[1], fresh);
     const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
-    cv.addEventListener('click', e => pick(denHit(e)));
+    const pet = () => { const at = denCatSpot(denUI.cat, look()); denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', DEN_CAT[at.id]); };
+    const chat = () => denSay(denUI.visitor, denTalkFor(denUI.visitor, look()));
+    cv.addEventListener('click', e => {
+      const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
+      if (denUI.cat) { const at = denCatSpot(denUI.cat, look()); if (x >= at.x - 5 && x <= at.x + 16 && y >= at.y - 6 && y <= at.y + 8) { pet(); return; } }
+      if (denUI.visitor && x >= 88 && x <= 112 && y >= 33 && y <= 56) { chat(); return; }
+      pick(denHit(e));
+    });
+    const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
+    const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
+    $('denInvite').addEventListener('click', () => {
+      const guests = denGuests().filter(g => g !== denUI.visitor);
+      const who = guests[Math.floor(Math.random() * guests.length)];
+      denUI.visitor = who; sfx.knock();
+      denUI.pendingSay = [who, denTalkFor(who, look())];
+      renderDen(true);
+    });
     card.querySelectorAll('[data-spot]').forEach(b => b.addEventListener('click', () => pick(b.dataset.spot)));
     card.querySelectorAll('[data-den]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.den;
@@ -4241,7 +4424,9 @@ kbd {
       // an item can only sit in one shelf spot at a time
       if (id !== 'none') for (const o of DEN_SPOTS) if (o.id !== spot && o.pool === pool && denLook[o.id] === id) denLook[o.id] = 'none';
       denLook[spot] = id; denUI.trying = null; saveDen(); sfx.click();
-      if (id !== 'none') denUI.note = DEN_SAYS[Math.floor(Math.random() * DEN_SAYS.length)];
+      if (id !== 'none' && denUI.visitor) denUI.pendingSay = [denUI.visitor, (DEN_TALK[denUI.visitor] || {})[`${pool}:${id}`] || DEN_NICE[denUI.visitor]];
+      else if (id === 'catbed' && denUI.cat) denUI.pendingSay = ['A', 'Mrrp. (She sniffs the new bed. Then she sits next to it instead. Give her time.)'];
+      else if (id !== 'none') denUI.note = DEN_SAYS[Math.floor(Math.random() * DEN_SAYS.length)];
       renderDen(true);
       const t2 = card.querySelector(`[data-den="${id}"]`); if (t2) t2.focus({ preventScroll: true });
     }
@@ -5764,7 +5949,8 @@ kbd {
       drawPreview(now, $('hangarThumb'));
       if (!thumbRoom) thumbRoom = { faces: crewFaces(), cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null };
       drawRoom($('roomThumb'), thumbRoom);
-      drawDen($('denThumb'));
+      if (!denThumbScene) denThumbScene = { cat: denPickCat(denLook), catAwake: 0 };
+      drawDen($('denThumb'), denLook, null, now, denThumbScene);
     }
     updateHud();
     requestAnimationFrame(frame);
