@@ -366,6 +366,37 @@ kbd {
 .note .tally { font-family: var(--f-mono); font-size: 13px; letter-spacing: 0.08em; word-break: break-all; }
 .note canvas { display: block; width: 64px; height: 64px; margin: 4px auto 6px; image-rendering: pixelated; }
 .note .star { position: absolute; top: 8px; right: 10px; color: #e0a000; font-size: 22px; }
+/* Postcards */
+.album { width: 100%; max-width: 44rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.cards { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 14px; }
+.pc { position: relative; aspect-ratio: 3 / 2; perspective: 900px; border: 0; padding: 0; background: none; cursor: pointer; font: inherit; color: inherit; }
+.pc:disabled { cursor: default; }
+.pc .in { position: absolute; inset: 0; transition: transform 0.5s; transform-style: preserve-3d; }
+.pc.flip .in { transform: rotateY(180deg); }
+.pc .side { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 4px; overflow: hidden; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); }
+.pc .front canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.pc .front .greet { position: absolute; left: 8px; top: 6px; text-align: left; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6); }
+.pc .front .greet span { display: block; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+.pc .front .greet b { display: block; font-family: var(--f-display); font-size: 26px; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase; }
+.pc .back { transform: rotateY(180deg); background: #f4f1e8; color: #2a2a33; display: grid; grid-template-columns: 1fr 1px 34%; gap: 8px; padding: 10px; box-sizing: border-box; text-align: left; }
+.pc .back .msg { font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive; font-size: 17px; line-height: 1.15; overflow: hidden; }
+.pc .back .rule { background: rgba(42, 42, 51, 0.3); }
+.pc .back .addr { display: flex; flex-direction: column; justify-content: space-between; font-family: var(--f-mono); font-size: 9px; line-height: 1.5; }
+.pc .back .stamp { align-self: flex-end; width: 38px; height: 46px; border: 2px dashed #8a8f9c; display: grid; place-items: center; background: #fff; }
+.pc .back .stamp i { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset -4px -3px 0 rgba(0, 0, 0, 0.3); }
+.pc .new { position: absolute; top: -6px; right: -6px; z-index: 2; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-weight: 700; font-size: 11px; letter-spacing: 0.1em; }
+.pc.locked .side { background: repeating-linear-gradient(135deg, var(--space-2) 0 10px, var(--space) 10px 20px); border: 1px dashed var(--regolith-dim); box-shadow: none; display: grid; place-items: center; color: var(--regolith-dim); font-size: 12px; }
+/* Maintenance log */
+.mlog { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.clip { position: relative; width: 100%; box-sizing: border-box; padding: 34px 18px 18px; border-radius: 8px; background: #6b4a30; }
+.clip::before { content: ""; position: absolute; top: -8px; left: 50%; width: 90px; height: 26px; margin-left: -45px; border-radius: 6px; background: linear-gradient(#c9cfdc, #8a8f9c); box-shadow: 0 3px 4px rgba(0, 0, 0, 0.4); }
+.paper { background: #f4f1e8; color: #2a2a33; border-radius: 2px; padding: 14px 16px; text-align: left; max-height: min(58vh, 34rem); overflow-y: auto;
+  background-image: repeating-linear-gradient(transparent 0 25px, rgba(80, 120, 200, 0.22) 25px 26px); }
+.paper h3 { margin: 0 0 10px; font-family: var(--f-display); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #2a2a33; }
+.paper .entry { padding: 6px 0 10px; border-bottom: 1px dashed rgba(42, 42, 51, 0.3); }
+.paper .meta { font-family: var(--f-mono); font-size: 11px; color: #6a6070; }
+.card .paper p { margin: 2px 0 0; font-family: "Caveat", "Segoe Print", "Bradley Hand", cursive; font-size: 19px; line-height: 1.25; color: #2a2a33; text-align: left; }
+.paper .meta b { color: #c0392b; }
 /* Settings */
 .settings { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .toggle {
@@ -1353,7 +1384,11 @@ kbd {
 
   function onLanded(pad, vy, vx, ang, fuel) {
     stats.landings++;
-    if (!stats.worlds.includes(world.id)) stats.worlds.push(world.id);
+    if (!stats.worlds.includes(world.id)) {
+      stats.worlds.push(world.id);
+      if (POSTCARDS[world.id]) setTimeout(() => showToast(`New postcard from ${SIGN[POSTCARDS[world.id][0]]}! It’s in the break room.`, 2600), 900);
+    }
+    if (vy > 1.4) logRepair({ hard: true, vy, world: world.name });
     if (!match && !daily && !mission) stats.bestSite = Math.max(stats.bestSite, level);
     saveStats();
     award('first');
@@ -1878,6 +1913,7 @@ kbd {
       if ((footHit || hullHit) && angDeg > SAFE_ANG) reasons.push(`tilted ${angDeg.toFixed(0)}° (limit ${SAFE_ANG}°)`);
       if (!reasons.length) reasons.push('hit the ground at a bad angle');
       crashCount++; store.set('ds-crashes', String(crashCount)); store.set('ds-lastCrash', String(Date.now()));
+      if (!tut) logRepair({ world: world.name, pad: !hullHit && pad, roof: roofHit, lava: lavaHit, vy, vx, ang: angDeg, fuel: L.fuel });
       explode();
       addShake(14);
       holdCard = { dur: 1000, slow: false };
@@ -1912,7 +1948,7 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log'];
   const AFTER_FLIGHT = ['landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
@@ -1946,6 +1982,8 @@ kbd {
     if (m === 'badges') { renderBadges(); return; }
     if (m === 'lounge') { renderLounge(); return; }
     if (m === 'board') { renderBoard(); return; }
+    if (m === 'album') { renderAlbum(); return; }
+    if (m === 'log') { renderLog(); return; }
     if (m === 'settings') { renderSettings(); return; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
@@ -2490,6 +2528,7 @@ kbd {
       add(lands >= 25, `${fmt(lands)} landings. Our last pilot managed nine, and one of those was a bounce.`);
       add(credits >= 5000, `You’ve got ${fmt(credits)} credits banked. Gus has a wish list. Don’t make eye contact.`);
       add(equip.hull !== 'standard', `Biscuit looks good in ${hull.name}. I would never say that to her face.`);
+      add(stats.worlds.length >= 3, `We’ve sent you ${stats.worlds.length} postcards. Gus insists on writing his in all caps. I insist on correcting them.`);
       add(ms('coffee-crisis'), 'The Mars office coffee machine works again. They named it after you. It still makes the whale noise.');
       add(ms('stowaway'), 'Apogee hasn’t gone near the launch pad since Titan. She has, however, gone near my keyboard. Constantly.');
       add(seen('valles-run') && !wrenHome(), 'I still have Wren’s old flight logs in my desk. I read one whenever the coffee runs out.');
@@ -2499,6 +2538,7 @@ kbd {
       L.push('One bang from the hangar: normal. Two bangs: also normal. Three bangs: run.');
       L.push('My yogurt isn’t a snack, it’s a culture. Literally. Please stop labeling it “mystery”.');
       L.push('I fixed the toaster! It now toasts in four directions at once. Stand back when you use it.');
+      add(repairs.length > 0, 'I keep a maintenance log now. It’s mostly about you. Affectionately.');
       add(crashes > 0, `Biscuit’s been rebuilt ${plural(crashes, 'time')}. I keep every bent bolt in a jar. The jar is a bucket now.`);
       add(!!got.feather, 'That feather landing! I felt it in my soul. And on my seismograph, barely.');
       add(ms('spa-day'), 'Biscuit loved her spa day. I can tell, because she only leaked a little bit yesterday.');
@@ -2601,7 +2641,10 @@ kbd {
     px(c, 11, 49, 7, 7, '#9fb4d8'); px(c, 12, 52, 5, 4, '#5a3520');
     if (!reduceMotion) for (let k = 0; k < 3; k++) { const ph = ((t / 700) + k / 3) % 1; px(c, 13 + Math.round(Math.sin(ph * 6 + k) * 1.5), 47 - Math.round(ph * 8), 1, 1, `rgba(201,207,220,${0.6 * (1 - ph)})`); }
     // cardboard box in the corner (Apogee's, technically)
+    const nCards = WORLDS.filter(w => stats.worlds.includes(w.id)).length;
+    for (let i = 0; i < Math.min(nCards, 5); i++) px(c, 158 + i * 4, 66 - (i % 2), 5, 5, ['#f4f1e8', '#ffe58a', '#cfe3ff', '#ffc6e4', '#c9f0d8'][i]);
     px(c, 156, 70, 22, 10, '#8a6a42'); px(c, 156, 70, 22, 2, '#a5835a'); px(c, 166, 72, 2, 8, '#6e5232');
+    if (newCards()) { px(c, 176, 61, 4, 4, '#ff6b5e'); }
     // Wren's photo on the wall until she's home
     if (!home) {
       px(c, 128, 10, 20, 20, '#c9a24a'); px(c, 129, 11, 18, 18, '#2a1424');
@@ -2643,6 +2686,8 @@ kbd {
     for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= CREW_X[who] + 6 && x <= CREW_X[who] + 26 && y >= 30 && y <= 60) return who;
     if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
     if (x >= 48 && x <= 72 && y >= 6 && y <= 26) return 'B';
+    if (x >= 154 && x <= 188 && y >= 6 && y <= 44) return 'L';
+    if (x >= 156 && x <= 180 && y >= 64 && y <= 80) return 'C';
     return null;
   }
   function renderLounge() {
@@ -2667,13 +2712,17 @@ kbd {
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
         <button class="btn" id="boardBtn">Bulletin board</button>
+        <button class="btn" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
+        <button class="btn" id="logBookBtn">Maintenance log</button>
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
     card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => loungeTalk(b.dataset.talk)));
-    $('room').addEventListener('click', e => { const who = roomHit(e); if (who === 'B') setMode('board'); else if (who) loungeTalk(who); });
+    $('room').addEventListener('click', e => { const who = roomHit(e); if (who === 'B') setMode('board'); else if (who === 'L') setMode('log'); else if (who === 'C') setMode('album'); else if (who) loungeTalk(who); });
     $('back').addEventListener('click', () => setMode('title'));
     $('boardBtn').addEventListener('click', () => setMode('board'));
+    $('albumBtn').addEventListener('click', () => setMode('album'));
+    $('logBookBtn').addEventListener('click', () => setMode('log'));
     drawRoom();
     lounge.anim = setInterval(drawRoom, 100);
     // someone says hello when you walk in
@@ -2682,6 +2731,132 @@ kbd {
     const first = present[Math.floor(Math.random() * present.length)];
     loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+
+  // ---- Postcards: the first landing on each world earns one from the crew ----
+  const POSTCARDS = {
+    pluto: ['G', 'Greetings from Pluto! Gravity here is so weak I dropped a wrench and it’s still falling. I’ll check on it Tuesday.'],
+    moon: ['F', 'The Moon. Grey, quiet, no coffee. Wish you were here, mostly so you could bring coffee.'],
+    europa: ['G', 'Europa has geysers! One launched my sandwich into orbit. If you see a sandwich up there, it’s mine.'],
+    titan: ['F', 'Titan’s air is so thick you could swim in it. Gus tried. We have asked him not to.'],
+    io: ['G', 'Io is ON FIRE. Not a metaphor. Everything orange here is hot, and everything here is orange.'],
+    mars: ['F', 'Mars: red, dusty, windy. Like the office, minus the yogurt. Found sand in my headset. Found sand in my soul.'],
+    earth: ['G', 'Earth! Big gravity, big sky, big birds. A seagull tried to land on Biscuit. Wrong pad, buddy.'],
+    venus: ['A', '(One paw print, slightly singed. Dottie’s translation: “Too hot. Too loud. Where is my box.”)']
+  };
+  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee' };
+  let cardsSeen;
+  try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
+  const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
+  // the picture side: that world's sky and ground, whatever hangs in its sky, and Biscuit on a pad
+  const SKY_BODY = { pluto: ['#c9b8a8', 6, 'Charon'], moon: ['#3f86c9', 9, 'Earth'], europa: ['#d9a874', 18, 'Jupiter'], titan: ['#e8d29a', 13, 'Saturn'],
+    io: ['#d9a874', 22, 'Jupiter'], mars: ['#f4e7c8', 4, 'Sun'], earth: ['#fff2c0', 6, 'Sun'], venus: ['#fff2c0', 9, 'Sun'] };
+  function drawPostcard(cv, w) {
+    const c = cv.getContext('2d'), Wd = 150, Ht = 100;
+    c.imageSmoothingEnabled = false;
+    px(c, 0, 0, Wd, 50, w.sky[0]); px(c, 0, 50, Wd, 50, w.sky[1]);
+    for (let y = 40; y < 60; y += 2) px(c, 0, y, Wd, 1, y % 4 ? w.sky[1] : w.sky[0]);
+    let seed = w.id.length * 97;
+    const r = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let i = 0; i < 40 * (w.stars || 0); i++) px(c, Math.floor(r() * Wd), Math.floor(r() * 60), 1, 1, '#c9cfdc');
+    const [bc, br] = SKY_BODY[w.id];
+    c.fillStyle = bc; c.beginPath(); c.arc(112, 26, br, 0, Math.PI * 2); c.fill();
+    if (w.id === 'titan') { c.strokeStyle = '#c9b07a'; c.lineWidth = 2; c.beginPath(); c.ellipse(112, 26, br + 9, 3, -0.25, 0, Math.PI * 2); c.stroke(); }
+    if (w.id === 'europa' || w.id === 'io') { px(c, 112 - br, 22, br * 2, 2, 'rgba(160,90,50,0.6)'); px(c, 112 - br + 3, 31, br * 2 - 6, 2, 'rgba(160,90,50,0.5)'); }
+    if (br > 6 && w.id !== 'venus' && w.id !== 'earth' && w.id !== 'mars') { c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(112 + br * 0.45, 26 + br * 0.25, br, 0, Math.PI * 2); c.fill(); }
+    // ground
+    const pts = [[0, 76], [18, 70], [34, 74], [52, 66], [70, 72], [84, 80], [118, 80], [130, 70], [150, 74]];
+    c.fillStyle = w.ground; c.beginPath(); c.moveTo(0, Ht); pts.forEach(([x, y]) => c.lineTo(x, y)); c.lineTo(Wd, Ht); c.closePath(); c.fill();
+    c.strokeStyle = w.rim; c.lineWidth = 1; c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y + 0.5) : c.moveTo(x, y + 0.5)); c.stroke();
+    px(c, 88, 79, 26, 2, '#ffb547');
+    if (w.id === 'io') { px(c, 40, 62, 3, 6, '#ff6b5e'); px(c, 38, 58, 7, 4, 'rgba(255,107,94,0.6)'); }
+    if (w.id === 'europa') { px(c, 26, 54, 2, 18, 'rgba(201,225,240,0.8)'); px(c, 23, 52, 8, 4, 'rgba(201,225,240,0.6)'); }
+    // Biscuit
+    const hull = findItem('hull', equip.hull);
+    px(c, 97, 66, 8, 6, hull.fill); outline(c, 97, 66, 8, 6, hull.stroke);
+    px(c, 95, 72, 12, 2, hull.fill); outline(c, 95, 72, 12, 2, hull.stroke);
+    px(c, 95, 74, 1, 5, hull.legs); px(c, 106, 74, 1, 5, hull.legs); px(c, 93, 78, 3, 1, hull.legs); px(c, 106, 78, 3, 1, hull.legs);
+    if (w.fog) { c.fillStyle = `rgba(${w.fog}, 0.45)`; c.fillRect(0, 0, Wd, Ht); }
+    c.fillStyle = 'rgba(0,0,0,0.12)'; for (let y = 1; y < Ht; y += 2) c.fillRect(0, y, Wd, 1);
+  }
+  function renderAlbum() {
+    const fresh = stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id));
+    card.innerHTML = `<div class="album">
+      <h1 class="good">Postcards</h1>
+      <p class="sub">${WORLDS.filter(w => stats.worlds.includes(w.id)).length} of ${WORLDS.length} collected. Land on a world for the first time to get its card. Tap a card to turn it over.</p>
+      <div class="cards">${WORLDS.map(w => {
+        if (!stats.worlds.includes(w.id)) return `<button class="pc locked" disabled><div class="in"><div class="side front">Land on ${w.name}</div></div></button>`;
+        const [who, text] = POSTCARDS[w.id];
+        return `<button class="pc" data-id="${w.id}" aria-label="Postcard from ${w.name}, from ${SIGN[who]}. Tap to turn over.">
+          ${fresh.includes(w.id) ? '<span class="new">New</span>' : ''}
+          <div class="in">
+            <div class="side front"><canvas width="150" height="100" data-world="${w.id}"></canvas><div class="greet"><span>Greetings from</span><b>${w.name}</b></div></div>
+            <div class="side back">
+              <div class="msg">${esc(text)}<br>— ${SIGN[who]}</div><i class="rule"></i>
+              <div class="addr"><span class="stamp"><i style="background:${w.orb}"></i></span><span>To: The Pilot<br>c/o Biscuit<br>Descent Systems</span></div>
+            </div>
+          </div></button>`;
+      }).join('')}</div>
+      <div class="btns">
+        <button class="btn" id="toLounge">Back to the break room</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>
+    </div>`;
+    card.querySelectorAll('canvas[data-world]').forEach(cv => drawPostcard(cv, WORLDS.find(w => w.id === cv.dataset.world)));
+    card.querySelectorAll('.pc[data-id]').forEach(b => b.addEventListener('click', () => {
+      b.classList.toggle('flip');
+      const n = b.querySelector('.new'); if (n) n.remove();
+      if (!cardsSeen.includes(b.dataset.id)) { cardsSeen.push(b.dataset.id); store.set('ds-cards-seen', JSON.stringify(cardsSeen)); }
+    }));
+    $('toLounge').addEventListener('click', () => setMode('lounge'));
+    $('back').addEventListener('click', () => setMode('title'));
+    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
+  }
+
+  // ---- Biscuit's maintenance log: Gus writes up every crash and hard landing ----
+  let repairs;
+  try { repairs = JSON.parse(store.get('ds-log', '[]')) || []; } catch (e) { repairs = []; }
+  const DENTS = ['Kevin', 'Moonpie', 'Little Steve', 'Gerald', 'Crumpet', 'Big Steve', 'Doris', 'The Big One', 'Pancake', 'Sir Reginald'];
+  const PARTS = ['two landing struts', 'one left foot', 'a lot of tape', 'a new antenna', 'the good wrench', 'paint (Biscuit picked)', 'three bolts and a prayer', 'a whole new leg', 'one window, slightly used', 'emergency cookies'];
+  function logRepair(e) {
+    const n = (+store.get('ds-repairs', '0') || 0) + (e.hard ? 0 : 1);
+    store.set('ds-repairs', String(n));
+    const pick = a => a[(n * 7 + a.length) % a.length];
+    let text;
+    if (e.hard) text = `Hard landing on ${e.world}, ${e.vy.toFixed(1)} m/s. Within limits. My heart was not.`;
+    else if (e.lava) text = `Flew through an eruption on Io. Biscuit’s paint is now officially “toasted”. Smells like burnt marshmallow.`;
+    else if (e.roof) text = `Hit the rock overhead. Antenna now points straight down. Biscuit can hear the ground really well now.`;
+    else if (!e.pad) text = `Missed the pad and landed on a rock instead. The rock is fine. Named the new dent ${pick(DENTS)}.`;
+    else if (e.ang > 10) text = `Came down tilted ${Math.round(e.ang)}°. Left leg bent again. I’ve started naming the dents. This one is ${pick(DENTS)}.`;
+    else if (e.vy > 2) text = `Touched down at ${e.vy.toFixed(1)} m/s on ${e.world}. Struts compressed to roughly the thickness of a cracker. Biscuit says nothing, which is how I know she’s upset.`;
+    else text = `Skidded sideways at ${e.vx.toFixed(1)} m/s across ${e.world}. Scraped the paint off one whole side. Ordered more paint. Ordered more patience.`;
+    if (!e.hard && e.fuel <= 0) text += ' Also, the tank was empty. She was running on hope.';
+    repairs.unshift({ n, t: Date.now(), world: e.world, hard: !!e.hard, text, parts: e.hard ? 'nothing, just a hug' : pick(PARTS) });
+    repairs = repairs.slice(0, 40);
+    store.set('ds-log', JSON.stringify(repairs));
+  }
+  function renderLog() {
+    const total = +store.get('ds-repairs', '0') || 0;
+    const day = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    card.innerHTML = `<div class="mlog">
+      <h1 class="good">Maintenance log</h1>
+      <div class="clip"><div class="paper">
+        <h3>Biscuit · Repairs: ${fmt(total)}</h3>
+        ${repairs.length ? repairs.map(r => `<div class="entry">
+          <span class="meta">${r.hard ? 'Check-up' : `<b>Repair #${r.n}</b>`} · ${day(r.t)} · ${r.world}</span>
+          <p>${esc(r.text)}</p>
+          <span class="meta">Parts used: ${esc(r.parts)} · Status: flying again</span>
+        </div>`).join('') : '<p>No repairs yet. Gus is almost disappointed.</p><p>— G.</p>'}
+        ${total > repairs.length ? `<p class="meta">(Older pages are in a box somewhere. Apogee is sleeping on it.)</p>` : ''}
+      </div></div>
+      <div class="btns">
+        <button class="btn" id="toLounge">Back to the break room</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>
+    </div>`;
+    $('toLounge').addEventListener('click', () => setMode('lounge'));
+    $('back').addEventListener('click', () => setMode('title'));
+    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
   // ---- Bulletin board: notes the crew pins up about you ----
@@ -3487,7 +3662,7 @@ kbd {
       return;
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
-    if (mode === 'board') { if (e.code === 'Escape') setMode('lounge'); return; }
+    if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
