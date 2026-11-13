@@ -20,8 +20,8 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Five landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, Wren's slow, steady Lark, Dottie's Workhorse cargo hauler and Whisker, the twitchy little lander Gus built for Apogee. Each keeps its own paint, flame and flag
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
-- **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
-- **Side missions**: thirteen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
+- **Mission campaign**: 26 hand-built missions in three acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
+- **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
@@ -32,7 +32,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **Crew requests**: three small jobs from the crew every day, like soft landings, ×5 pads, rovers or petting Apogee, each paying credits, with a bonus for finishing all three
-- **35 badges** to earn, 26 of which unlock exclusive cosmetics
+- **36 badges** to earn, 27 of which unlock exclusive cosmetics
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -169,7 +169,7 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the start screen. The campaign has 18 hand-built missions in two acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light.
+Open **Missions** from the start screen. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise.
 
 **Act 1 · The Signal**
 
@@ -199,16 +199,29 @@ Open **Missions** from the start screen. The campaign has 18 hand-built missions
 | 17 | Spare Key | Mercury | Precision |
 | 18 | Sunrise | Mercury | Rescue, against the clock |
 
+**Act 3 · Beyond Pluto**
+
+| # | Mission | World | Type |
+|---|---|---|---|
+| 19 | Big Ear | Pluto | Sling load |
+| 20 | Triangulation | Moon | Pad hopping |
+| 21 | Echo | Europa | Precision, through a geyser field |
+| 22 | Interference | Io | Cargo, between lava eruptions |
+| 23 | Cloud Relay | Venus | Relay route through the clouds |
+| 24 | Old Station | Titan | Canyon |
+| 25 | Rex's Shortcut | Vesta | Rescue |
+| 26 | Unit Zero | Pluto | Canyon (finale) |
+
 - **Precision:** land on the marked pad, LZ.
 - **Cargo:** land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes the lander heavier and slower to turn.
 - **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
 - **Rescue:** land on CREW and hold still while they board, then climb out of the top of the screen to reach orbit.
-- **Pad hopping** (side missions): touch down safely on numbered pads in order.
-- **Sling load** (side missions): the cargo hangs on a cable below the lander and swings with momentum, and its pull tugs the lander around. Don't drag it into the ground, and lower it gently onto DROP. While it's hanging, the altitude readout shows the load's height.
+- **Pad hopping:** touch down safely on numbered pads in order.
+- **Sling load:** the cargo hangs on a cable below the lander and swings with momentum, and its pull tugs the lander around. Don't drag it into the ground, and lower it gently onto DROP. While it's hanging, the altitude readout shows the load's height.
 
 <p align="center"><img src="media/missions.png" alt="The mission select screen: twelve campaign missions with their star ratings, and a row of side missions from the crew, each tile showing the crew member who gave it" width="560"></p>
 
-The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
+The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
 
@@ -233,6 +246,10 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | Hopscotch | Rex | Vesta | Edge of the World | Pad hopping: touch down on pads 1, 2 and 3 in order, and try to beat Rex's 90 seconds |
 | Northern Lights | Dottie | Ganymede | Relay Run | Photo route: fly through three markers up in the aurora, then land |
 | Shadow Hopper | Wren | Mercury | Spare Key | Pad hopping: hop between three pads in the shadows while the sun boils your fuel |
+| Polka Radio | Gus | Moon | Triangulation | Broadcast route: fly through three markers to switch on Gus's all-polka radio station, then land |
+| Geyser Surfing | Rex | Europa | Echo | Pad hopping between erupting geysers, and try to beat Rex's 75 seconds |
+| Catnip Run | Dottie | Titan | Old Station | Fragile cargo: Titan catnip for Apogee. Touch down slower than 1.3 m/s with it aboard |
+| Meteor Watch | Wren | Mercury | Rex's Shortcut | Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
 
@@ -242,7 +259,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-six badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the start screen to see your progress. Twenty-seven badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -265,6 +282,7 @@ Open **Badges** from the start screen to see your progress. Twenty-six badges un
 | Star collector | Earn 24 mission stars | Comet Tail flame |
 | Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
 | Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
+| Signal chaser | Finish Act 3: Beyond Pluto | Unit Zero hull |
 | Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
 | Barista | Finish The Coffee Crisis with 15 seconds to spare | Espresso flame |
