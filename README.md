@@ -17,7 +17,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Wind and air drag** on worlds with an atmosphere, shown on a live wind gauge
 - **Auto-zoom** that eases the camera in for the final approach
 - **Landing replays**: rewatch any touchdown or crash with a close camera and slow motion, plus dust, screen shake and a slow-motion beat on soft landings
-- **Three landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, and Wren's slow, steady Lark. Each keeps its own paint, flame and flag
+- **Five landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, Wren's slow, steady Lark, Dottie's Workhorse cargo hauler and Whisker, the twitchy little lander Gus built for Apogee. Each keeps its own paint, flame and flag
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 18 hand-built missions in two acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
@@ -117,15 +117,17 @@ The hangar is a garage: Biscuit hovers over the pad in front of a big open door 
 
 ### The fleet
 
-The top of the hangar shows your three landers. Tap one to fly it. Each lander remembers its own hull, flame and flag, so you can dress them all differently.
+The top of the hangar shows your five landers. Tap one to fly it. Each lander remembers its own hull, flame and flag, so you can dress them all differently.
 
 | Lander | Who it's from | How it flies | How to get it |
 |---|---|---|---|
 | **Biscuit** | Gus | The all-rounder: balanced in every way | You start with her |
 | **Apex Vector** | Rex | 22% stronger engine, turns 45% faster, but burns 40% more fuel from a 15% smaller tank, with stiffer legs (safe touchdown 0.2 m/s lower) and more wind push | Finish Mayday, or buy it for 6,000 credits |
-| **Lark** | Wren | 12% weaker engine, turns 30% slower, but a 45% bigger tank, 15% thriftier engine, soft legs (safe touchdown 0.4 m/s higher) and only 60% of the wind push | Finish Last Light, or buy it for 6,000 credits |
+| **Lark** | Wren | 12% weaker engine, turns 30% slower, but a 45% bigger tank, 15% thriftier engine, soft legs (safe touchdown 0.4 m/s higher) and only 60% of the wind push | Finish Last Light, or buy it for 3,000 credits |
+| **Workhorse** | Dottie | 5% stronger engine and a 25% bigger tank, but burns 10% more and turns 15% slower. Cargo doesn't weigh it down, sling loads feel 40% lighter, its legs are tougher (safe touchdown 0.2 m/s higher) and wind pushes it 15% less | Finish Heavy Lift, or buy it for 5,000 credits |
+| **Whisker** | Apogee (via Gus) | Turns 60% faster with free side thrusters (no fuel for RCS) and springy legs (safe touchdown 0.6 m/s higher), but an 8% weaker engine, a 20% smaller tank and 30% more wind push | Finish Stowaway, or buy it for 2,000 credits |
 
-The Vector comes with its own **Vector Red** paint and the Lark with **Surveyor Olive**. The daily challenge always uses Biscuit, so everyone competes on the same lander. Hot-seat players share whichever lander is selected.
+The Vector comes with its own **Vector Red** paint, the Lark with **Surveyor Olive**, the Workhorse with **Dottie Navy** and the Whisker with **Tabby**. The daily challenge always uses Biscuit, so everyone competes on the same lander. Hot-seat players share whichever lander is selected.
 
 ### Gus's workshop
 
@@ -260,7 +262,7 @@ Open **Badges** from the start screen to see your progress. Twenty-six badges un
 | Fully loaded | Max out every upgrade in Gus's workshop | Gus Special hull |
 | Long haul | Clear 10 sites in a single endless run | Infinity flag |
 | Dodgeball | Land on a pad in the middle of a meteor shower | Shooting Star flag |
-| Full fleet | Unlock all three landers | The Fleet flag |
+| Full fleet | Unlock every lander | The Fleet flag |
 | Crew favorite | Earn every side-mission star | The Crew flag |
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
