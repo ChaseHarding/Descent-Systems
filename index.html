@@ -460,6 +460,9 @@ kbd {
 .den-items .pv { display: flex; width: 100%; height: 46px; align-items: center; justify-content: center; background: var(--space); border-radius: 3px; overflow: hidden; }
 .den-items .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
 .den .ok-note { margin: 0; font-size: 13px; color: var(--ok); }
+.den .den-items .grp { grid-column: 1 / -1; margin: 4px 0 0; font-family: var(--f-display); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--flame); }
+.den .den-items .item.locked { opacity: 0.55; }
+@media (min-width: 861px) { .den .den-items { max-height: 340px; overflow-y: auto; padding-right: 2px; } }
 .den .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .den .who-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .den .who-row .btn { padding: 8px 14px; font-size: 12px; }
@@ -1976,7 +1979,8 @@ kbd {
     if (!stats.worlds.includes(world.id)) {
       stats.worlds.push(world.id);
       const side = SIDES.find(x => x.afterWorld === world.id);
-      if (POSTCARDS[world.id]) setTimeout(() => showToast(side ? `New postcard from ${SIGN[POSTCARDS[world.id][0]]}, and a new side mission: ${side.name}!` : `New postcard from ${SIGN[POSTCARDS[world.id][0]]}! It’s in the break room.`, 3000), 900);
+      const sv = souvenirOf(world.id);
+      if (POSTCARDS[world.id]) setTimeout(() => showToast(side ? `New postcard from ${SIGN[POSTCARDS[world.id][0]]}, a ${sv.name} for the Pad, and a new side mission: ${side.name}!` : `New postcard from ${SIGN[POSTCARDS[world.id][0]]}, and a ${sv.name} for the Pad!`, 3400), 900);
     }
     if (vy > 1.4) logRepair({ hard: true, vy, world: world.name });
     if (!match && !daily && !mission) stats.bestSite = Math.max(stats.bestSite, level);
@@ -3549,6 +3553,22 @@ kbd {
       add(ms('stowaway'), 'Apogee hasn’t gone near the launch pad since Titan. She has, however, gone near my keyboard. Constantly.');
       add(seen('valles-run') && !wrenHome(), 'I still have Wren’s old flight logs in my desk. I read one whenever the coffee runs out.');
       add(done >= ACT1, 'The investors visited. Both of them. They asked where the bake sale money went. I pointed at you.');
+      L.push('I color-code my spreadsheets by mood. Today is beige.');
+      L.push('Someone keeps leaving the fridge open. The fridge is in space. It’s fine. It’s still annoying.');
+      L.push('I tried meditating. Gus started welding next door. I am now very calm in a very loud way.');
+      L.push('Our insurance company sends a fruit basket every time you land safely. We have so much fruit. Please crash once. Kidding. Mostly.');
+      L.push('If anyone asks, the budget is “healthy”. If anyone asks Gus, the budget is “a jar”.');
+      L.push('I wrote us a mission statement. It says “Land. Please.”');
+      L.push('Rex called again. I put him on hold. The hold music is just me breathing.');
+      L.push('The coffee machine and I have an understanding. I don’t look at it, it doesn’t explode.');
+      L.push('I found a sock in the airlock. Nobody will claim it. It’s been promoted to lost and found mascot.');
+      add(stats.worlds.length >= WORLDS.length, 'You’ve landed on every world in the system. I had to buy a bigger map for the wall. Then a bigger wall.');
+      add(credits >= 20000, `${fmt(credits)} credits in the bank? Are you saving up for something? A boat? A space boat?`);
+      add(curLander !== 'biscuit', `You’re flying the ${landerById(curLander).name} these days. Biscuit pretends not to mind. She minds.`);
+      add(!!runBest(), `I saw your endless run. Site ${runBest() ? runBest().sites : 0}. Gus made a chart. The chart has a chart.`);
+      add(denLook.light === 'disco', 'Your cabin has a disco ball now? I could hear it through two walls. Disco balls don’t make noise. And yet.');
+      add(!!got.fleet, 'Five landers. We started with one lander and a dream. Now we have five landers and a parking problem.');
+      add(denLook.wallL === 'catcal', 'You bought my Apogee calendar. That makes three sold. One to me, one to Gus, and one to you. We’re basically a franchise.');
     } else if (who === 'G') {
       L.push('I’m teaching Biscuit to recognize her own name. Progress is slow, on account of her being a lander.');
       L.push('One bang from the hangar: normal. Two bangs: also normal. Three bangs: run.');
@@ -3568,6 +3588,23 @@ kbd {
       add(ms('sunrise'), 'You came and got me on Mercury. I’ve named a wrench after you. It’s my best wrench.');
       add(wrenHome(), 'Wren’s teaching me to braid hair. I’m practicing on a mop. The mop looks incredible.');
       add(sideStars() === SIDES.length * 3, 'The crew voted you employee of the month. It was unanimous. Apogee abstained.');
+      L.push('Fun fact: Biscuit’s left leg is two millimeters shorter than her right. I’ve never told her. She’d be self-conscious.');
+      L.push('I invented a new wrench. It’s just a regular wrench, but I love it more.');
+      L.push('If you hear beeping in the hangar, that’s fine. If the beeping stops, run.');
+      L.push('I tried teaching Apogee to fetch. She taught me to fetch instead. I’m very good at it now.');
+      L.push('I keep a spare engine under my bed. Just in case. In case of what? Engine emergencies.');
+      L.push('My toolbox has four hundred tools. I use three. The other 397 are emotional support.');
+      L.push('Dottie asked me to “streamline the hangar”. I installed a ramp. Everything slides now. Including me.');
+      L.push('I’m growing a tomato under the heat lamp in the hangar. It’s doing better than I am.');
+      L.push('I named the toaster Kevin. Kevin has been through a lot. Be gentle with Kevin.');
+      add(Object.values(upg).some(v => v > 0), 'How are the upgrades treating you? I tested them myself. Mostly by sitting in the seat and making engine noises.');
+      add(fleetOwned.size >= 3, 'With all these landers, I made a sign-up sheet for who gets washed first. Biscuit always wins. I rig it.');
+      add(!!runBest(), 'Endless run! I love making perks for you. My favorite is the one that hasn’t exploded yet.');
+      add(stats.worlds.includes('io'), 'Since you flew through Io’s eruptions I keep finding sulfur in the air filters. It smells like a very angry egg.');
+      add(stats.worlds.includes('venus'), 'Venus clouds are 96% carbon dioxide and 4% my anxiety while you’re flying through them.');
+      add(stats.worlds.includes('ganymede'), 'Ganymede’s storm scrambled my radio so hard it picked up a cooking show. I made the soufflé. It collapsed. Like my hopes.');
+      add(denLook.floor === 'arcade', 'I put Descent Systems on your arcade cabinet. My high score is still on there. It’s under the name “NOT GUS”.');
+      add(fleetOwned.has('whisker'), 'Apogee has never once sat in the Whisker. I built it to her exact measurements. She sat in the box it came in.');
     } else if (who === 'W') {
       L.push('This room used to be a supply closet. I slept here the whole first year. Gus thinks I’m joking.');
       L.push('Biscuit’s first landing was on Pluto too. I bounced twice. Don’t put that on the website.');
@@ -3575,6 +3612,16 @@ kbd {
       L.push('Apogee sat on my lap this morning. Dottie says that’s never happened before. Dottie seems upset.');
       L.push(ms('long-way-round') ? 'You flew my old Venus route. It felt like getting a letter from myself.'
         : 'My survey markers on Venus are still out there. Whenever you’re ready, pilot.');
+      L.push('Back when I started, landers didn’t have autopilot. They didn’t have seats either. You just held on.');
+      L.push('I named Biscuit after the first thing I ate after her first landing. It was a biscuit. I was very hungry.');
+      L.push('Gus reminds me of me at his age. Less hair, though. Mine was everywhere. Mostly in the engine.');
+      L.push('I still wake up at five in the morning to check the weather on Titan. Old habits.');
+      L.push('I’ve flown with a lot of pilots. You’re one of the good ones. Don’t let it go to your head.');
+      L.push('Dottie and I used to race office chairs down the hangar ramp. I won. She disputes it. She is wrong.');
+      L.push('Being stranded taught me two things. Always pack extra fuel, and always pack extra cookies. In that order. Sometimes the other order.');
+      add(stats.worlds.includes('pluto'), 'Every time you land on Pluto, I think about Biscuit’s first bounce there. You’ve gotten much better at that than I ever was.');
+      add(fleetOwned.has('lark'), 'You’re looking after my old Lark. She pulls a little to the left. So do I. We understand each other.');
+      add(denLook.wallL === 'starchart', 'I saw my star chart in your cabin. You know two of those constellations are made up, right? You’ll never guess which.');
     } else if (who === 'A') {
       L.push('Prrrrrrrrrrr.');
       L.push('Mrrp? (She opens one eye, rates you a six out of ten, and goes back to sleep.)');
@@ -3582,6 +3629,14 @@ kbd {
       L.push('Mrrrow. (She rolls onto her back. It is a trap.)');
       add(!!got.whisperer, 'Prrrp. (She remembers the smooth ride on Titan. You may scratch her chin.)');
       add(ms('stowaway') && !got.whisperer, 'Hsss. (She remembers Titan. She remembers everything.)');
+      L.push('Mrrrrp. (She’s staring at a spot on the wall. There is nothing there. Or is there?)');
+      L.push('Prrp. (She headbutts your hand. This is the highest honor available.)');
+      L.push('Mew. (Just one tiny mew. It is devastating.)');
+      L.push('... (She looks at you. She looks at the coffee machine. She looks at you. She wants you to turn it off.)');
+      L.push('Hrrk. (A hairball, right on Dottie’s forms. She did it on purpose.)');
+      L.push('Mrrow? (She pats the table twice. Gus says it means “more snacks”. Gus says that about everything.)');
+      L.push('Prrrrr. (She stretches out to her full length. She is approximately four feet long. How.)');
+      add(denLook.floor === 'catbed', 'Mrrp. (You bought her a cat bed. She’s sleeping on the break room table instead. Out of principle.)');
     }
     return L;
   }
@@ -3781,9 +3836,12 @@ kbd {
     { id: 'wallL', pool: 'wallL', name: 'Left wall', x: 14, y: 10, w: 30, h: 27 },
     { id: 'window', pool: 'window', name: 'Window', x: 62, y: 9, w: 54, h: 40 },
     { id: 'wallR', pool: 'wallR', name: 'Right wall', x: 120, y: 9, w: 30, h: 20 },
-    { id: 'shelf1', pool: 'shelf', name: 'Shelf 1', x: 151, y: 18, w: 15, h: 12 },
-    { id: 'shelf2', pool: 'shelf', name: 'Shelf 2', x: 166, y: 18, w: 15, h: 12 },
-    { id: 'shelf3', pool: 'shelf', name: 'Shelf 3', x: 181, y: 18, w: 15, h: 12 },
+    { id: 'shelf1', pool: 'shelf', name: 'Shelf 1', x: 152, y: 10, w: 15, h: 12 },
+    { id: 'shelf2', pool: 'shelf', name: 'Shelf 2', x: 167, y: 10, w: 15, h: 12 },
+    { id: 'shelf3', pool: 'shelf', name: 'Shelf 3', x: 182, y: 10, w: 15, h: 12 },
+    { id: 'shelf4', pool: 'shelf', name: 'Shelf 4', x: 152, y: 25, w: 15, h: 12 },
+    { id: 'shelf5', pool: 'shelf', name: 'Shelf 5', x: 167, y: 25, w: 15, h: 12 },
+    { id: 'shelf6', pool: 'shelf', name: 'Shelf 6', x: 182, y: 25, w: 15, h: 12 },
     { id: 'desk', pool: 'desk', name: 'Desk', x: 162, y: 43, w: 26, h: 15 },
     { id: 'floor', pool: 'floor', name: 'Corner', x: 123, y: 49, w: 24, h: 29 },
     { id: 'rug', pool: 'rug', name: 'Rug', x: 58, y: 82, w: 74, h: 14 },
@@ -3792,7 +3850,7 @@ kbd {
     { id: 'floorStyle', pool: 'floorStyle', name: 'Flooring', room: true },
     { id: 'light', pool: 'light', name: 'Lights', room: true }
   ];
-  const DEN_DEFAULT = { wallL: 'poster', window: 'last', wallR: 'clock', shelf1: 'cactus', shelf2: 'books', shelf3: 'none', desk: 'lamp', floor: 'fern', rug: 'round', bed: 'crimson', wall: 'ivory', floorStyle: 'plush', light: 'amber' };
+  const DEN_DEFAULT = { wallL: 'poster', window: 'last', wallR: 'clock', shelf1: 'cactus', shelf2: 'books', shelf3: 'none', shelf4: 'none', shelf5: 'none', shelf6: 'none', desk: 'lamp', floor: 'fern', rug: 'round', bed: 'crimson', wall: 'ivory', floorStyle: 'plush', light: 'amber' };
   // the first Pad had wood and a pendant lamp; carry anything saved or bought over to the new cabin
   const DEN_RENAMED = { wall: { panels: 'navy', pinstripe: 'moon', plum: 'blush', wood: 'ivory' }, floorStyle: { carpet: 'plush', boards: 'plush', checker: 'panels' }, light: { lamp: 'amber', string: 'aurora' }, bed: { grey: 'crimson', flame: 'tangerine', pink: 'blush', plaid: 'crimson' } };
   const NOTHING = { id: 'none', name: 'Nothing', price: 0, blurb: 'A bit of breathing room. Very minimalist. Very you.', draw() {} };
@@ -3970,7 +4028,30 @@ kbd {
       { id: 'rocket', name: 'Model rocket', price: 600, blurb: 'Gus built it from leftover parts. It is not a toy. It is mostly not a toy.',
         draw(c, x, y) { px(c, x + 7, y + 1, 3, 9, '#e8ebf2'); px(c, x + 8, y, 1, 1, '#ff6b5e'); px(c, x + 5, y + 7, 2, 3, '#ff6b5e'); px(c, x + 10, y + 7, 2, 3, '#ff6b5e'); px(c, x + 8, y + 3, 1, 1, '#2a6fd6'); px(c, x + 5, y + 10, 7, 2, '#4a5578'); } },
       { id: 'trophy', name: 'Gold trophy', price: 1000, blurb: 'You bought your own trophy. Nobody needs to know.',
-        draw(c, x, y) { px(c, x + 4, y + 1, 8, 5, '#ffd27a'); px(c, x + 2, y + 2, 2, 2, '#ffd27a'); px(c, x + 12, y + 2, 2, 2, '#ffd27a'); px(c, x + 7, y + 6, 2, 3, '#c98a2a'); px(c, x + 5, y + 9, 6, 3, '#c98a2a'); px(c, x + 5, y + 2, 1, 2, '#fff1c7'); } }
+        draw(c, x, y) { px(c, x + 4, y + 1, 8, 5, '#ffd27a'); px(c, x + 2, y + 2, 2, 2, '#ffd27a'); px(c, x + 12, y + 2, 2, 2, '#ffd27a'); px(c, x + 7, y + 6, 2, 3, '#c98a2a'); px(c, x + 5, y + 9, 6, 3, '#c98a2a'); px(c, x + 5, y + 2, 1, 2, '#fff1c7'); } },
+      // souvenirs: you can't buy these, you collect them by landing on each world
+      { id: 's-pluto', world: 'pluto', name: 'Pluto heart ice', price: 0, blurb: 'A chunk of Pluto’s heart-shaped ice plain. Wren has one just like it. Keep it frozen. Or don’t. It’s Pluto, it’ll cope.',
+        draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#4a5578'); px(c, x + 4, y + 3, 3, 3, '#f2d6c9'); px(c, x + 8, y + 3, 3, 3, '#f2d6c9'); px(c, x + 4, y + 5, 7, 3, '#f2d6c9'); px(c, x + 5, y + 8, 5, 1, '#f2d6c9'); px(c, x + 7, y + 9, 1, 1, '#f2d6c9'); px(c, x + 9, y + 5, 2, 3, '#d9b8aa'); px(c, x + 5, y + 4, 1, 1, '#ffffff'); } },
+      { id: 's-moon', world: 'moon', name: 'Moon rock', price: 0, blurb: 'A real Moon rock in a little glass case. Dottie checked: legally, it isn’t a souvenir. It’s “sample 0047”.',
+        draw(c, x, y) { px(c, x + 3, y + 10, 10, 2, '#5a4636'); px(c, x + 5, y + 6, 6, 4, '#9a9a9a'); px(c, x + 6, y + 5, 3, 1, '#b0b0b0'); px(c, x + 8, y + 7, 1, 1, '#6e6e6e'); outline(c, x + 3, y + 2, 10, 8, 'rgba(207,227,255,0.55)'); px(c, x + 4, y + 3, 1, 2, 'rgba(255,255,255,0.6)'); } },
+      { id: 's-europa', world: 'europa', name: 'Europa ice shard', price: 0, blurb: 'A shard of Europa’s ice shell. Hold it to your ear and you’ll hear the ocean. Gus says that’s the air vent.',
+        draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#4a5578'); px(c, x + 6, y + 2, 3, 8, '#cfe9ff'); px(c, x + 5, y + 5, 1, 5, '#a8d4f5'); px(c, x + 9, y + 4, 2, 6, '#a8d4f5'); px(c, x + 7, y + 4, 1, 3, '#7fb4dc'); px(c, x + 6, y + 3, 1, 1, '#ffffff'); } },
+      { id: 's-titan', world: 'titan', name: 'Titan haze jar', price: 0, blurb: 'A jar of Titan’s orange haze. Do not open. Dottie opened one. The office smelled like a gas station for a week.',
+        draw(c, x, y) { px(c, x + 4, y + 3, 8, 9, 'rgba(207,227,255,0.3)'); px(c, x + 5, y + 6, 6, 5, '#e89a3a'); px(c, x + 5, y + 5, 6, 1, '#f0b25a'); px(c, x + 4, y + 2, 8, 1, '#8a93ab'); px(c, x + 5, y + 4, 1, 1, 'rgba(255,255,255,0.6)'); } },
+      { id: 's-io', world: 'io', name: 'Io sulfur crystal', price: 0, blurb: 'A sulfur crystal from Io, grabbed between eruptions. Smells like a very angry egg.',
+        draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#6a5a3a'); px(c, x + 5, y + 4, 2, 6, '#ffe23a'); px(c, x + 7, y + 2, 2, 8, '#f5d000'); px(c, x + 9, y + 5, 2, 5, '#ffe86a'); px(c, x + 7, y + 3, 1, 1, '#fff6b0'); } },
+      { id: 's-mars', world: 'mars', name: 'Mars dust vial', price: 0, blurb: 'Red Martian dust in a vial. Turn it over and it pours like an hourglass. It takes exactly one sol.',
+        draw(c, x, y) { px(c, x + 5, y + 1, 6, 1, '#c9a24a'); px(c, x + 6, y + 2, 4, 9, 'rgba(207,227,255,0.35)'); px(c, x + 6, y + 7, 4, 4, '#c1532c'); px(c, x + 7, y + 6, 2, 1, '#c1532c'); px(c, x + 5, y + 11, 6, 1, '#c9a24a'); } },
+      { id: 's-earth', world: 'earth', name: 'Earth seashell', price: 0, blurb: 'A seashell from the ocean by the landing barge. You can hear Earth in it. It sounds like seagulls arguing.',
+        draw(c, x, y) { px(c, x + 5, y + 5, 6, 1, '#f6d6c0'); px(c, x + 4, y + 6, 8, 5, '#f6d6c0'); px(c, x + 6, y + 6, 1, 5, '#e0b49c'); px(c, x + 8, y + 6, 1, 5, '#e0b49c'); px(c, x + 10, y + 7, 1, 4, '#e0b49c'); px(c, x + 5, y + 11, 6, 1, '#c9a08a'); } },
+      { id: 's-venus', world: 'venus', name: 'Venus cloud jar', price: 0, blurb: 'A bit of Venus cloud in a sealed jar. It’s mostly sulfuric acid. Please don’t shake it.',
+        draw(c, x, y, t) { px(c, x + 4, y + 3, 8, 9, 'rgba(207,227,255,0.3)'); const b = reduceMotion ? 0 : Math.round(Math.sin(t / 700)); px(c, x + 5, y + 6 + b, 6, 3, '#f3e2a0'); px(c, x + 6, y + 5 + b, 3, 1, '#f3e2a0'); px(c, x + 5, y + 9, 6, 2, '#e3cc80'); px(c, x + 4, y + 2, 8, 1, '#8a93ab'); } },
+      { id: 's-mercury', world: 'mercury', name: 'SPF 9000 sunscreen', price: 0, blurb: 'Sunscreen from Mercury. Gus framed his bottle. You get to keep yours on a shelf like a normal person.',
+        draw(c, x, y) { px(c, x + 5, y + 3, 6, 9, '#f4f1e8'); px(c, x + 6, y + 1, 4, 2, '#ff9a3d'); px(c, x + 6, y + 6, 4, 3, '#ffb547'); px(c, x + 7, y + 7, 2, 1, '#ff6b5e'); } },
+      { id: 's-vesta', world: 'vesta', name: 'Floating Vesta rock', price: 0, blurb: 'A chip of Vesta on a magnet stand. It floats. It isn’t magic, it’s magnets. Gus insists it’s also a little magic.',
+        draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 6, y + 9, 4, 1, '#ff6b5e'); const b = reduceMotion ? 0 : Math.round(Math.sin(t / 500)); px(c, x + 5, y + 3 + b, 6, 4, '#6e6a64'); px(c, x + 6, y + 2 + b, 3, 1, '#827d76'); px(c, x + 9, y + 4 + b, 1, 1, '#4e4a44'); } },
+      { id: 's-ganymede', world: 'ganymede', name: 'Ganymede aurora bottle', price: 0, blurb: 'A bottle of Ganymede’s aurora. It glows in the dark and, now and then, plays polka.',
+        draw(c, x, y, t) { px(c, x + 5, y + 3, 6, 9, 'rgba(207,227,255,0.3)'); px(c, x + 7, y + 1, 2, 2, 'rgba(207,227,255,0.5)'); px(c, x + 7, y, 2, 1, '#a5835a'); const h = Math.round(reduceMotion ? 150 : 120 + 80 * Math.sin(t / 900)); px(c, x + 6, y + 5, 4, 6, `hsl(${h},85%,62%)`); px(c, x + 6, y + 5, 4, 1, `hsl(${h + 60},85%,72%)`); } }
     ],
     desk: [
       NOTHING,
@@ -4057,7 +4138,9 @@ kbd {
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); return !!it && (it.price === 0 || owned.has(denKey(pool, id))); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
+  const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
     let saved = {};
     try { saved = JSON.parse(store.get('ds-den', '{}')) || {}; } catch (e) {}
@@ -4117,11 +4200,11 @@ kbd {
     // wall art
     for (const id of ['wallL', 'wallR']) it(id).draw(c, S(id).x, S(id).y, t, st);
     // built-in shelf alcove, backlit
-    c.fillStyle = edge; rrect(c, 148, 8, 50, 26, 8); c.fill();
-    c.fillStyle = seam; rrect(c, 150, 10, 46, 22, 7); c.fill();
-    px(c, 152, 11, 42, 1, strip); c.globalAlpha = 0.18; px(c, 151, 12, 44, 18, strip); c.globalAlpha = 1;
-    px(c, 150, 30, 46, 2, '#f4ead6');
-    for (const id of ['shelf1', 'shelf2', 'shelf3']) it(id).draw(c, S(id).x, S(id).y, t, st);
+    c.fillStyle = edge; rrect(c, 150, 6, 50, 38, 8); c.fill();
+    c.fillStyle = seam; rrect(c, 152, 8, 46, 34, 7); c.fill();
+    px(c, 154, 9, 42, 1, strip); c.globalAlpha = 0.18; px(c, 153, 10, 44, 30, strip); c.globalAlpha = 1;
+    px(c, 152, 22, 46, 2, '#f4ead6'); px(c, 152, 37, 46, 2, '#f4ead6');
+    for (const id of ['shelf1', 'shelf2', 'shelf3', 'shelf4', 'shelf5', 'shelf6']) it(id).draw(c, S(id).x, S(id).y, t, st);
     // capsule bunk nook
     c.fillStyle = edge; rrect(c, 4, 39, 54, 40, 9); c.fill();
     c.fillStyle = seam; rrect(c, 6, 41, 50, 36, 8); c.fill();
@@ -4171,7 +4254,7 @@ kbd {
   function denHit(e) {
     const r = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
-    for (const id of ['desk', 'shelf1', 'shelf2', 'shelf3', 'wallR', 'wallL', 'window', 'floor', 'bed', 'rug']) {
+    for (const id of ['desk', 'shelf1', 'shelf2', 'shelf3', 'shelf4', 'shelf5', 'shelf6', 'wallR', 'wallL', 'window', 'floor', 'bed', 'rug']) {
       const s = denSpot(id);
       if (x >= s.x - 3 && x <= s.x + s.w + 3 && y >= s.y - 3 && y <= s.y + s.h + 3) return id;
     }
@@ -4253,7 +4336,17 @@ kbd {
       'shelf:trophy': 'A trophy you bought for yourself. I won’t tell anyone. I’ll tell Gus.',
       'window:blinds': 'Blinds down? Fair. The view gets old. Said no one, ever.',
       'wall:graphite': 'Graphite walls. Very mission control. I approve, professionally.',
-      'floorStyle:grate': 'You picked the deck grating? On purpose? You’re going to lose so many screws.'
+      'floorStyle:grate': 'You picked the deck grating? On purpose? You’re going to lose so many screws.',
+      'floor:beanbag': 'A beanbag. I sat in one at a conference once. They had to send a rescue team.',
+      'floor:fridge': 'A mini fridge in your cabin. Is that where my missing creamers have been going?',
+      'desk:radio': 'You have the crew radio. So you’re the one who keeps hearing me sing in the office. Wonderful.',
+      'bed:stars': 'Starry bedding. Very cute. I’ll deny saying “very cute” if asked.',
+      'wall:stars': 'Starfield walls. You spend all day in space and then decorate with more space. I respect the commitment.',
+      'light:ice': 'Ice blue lights. It’s like working in a very calm freezer.',
+      'light:rose': 'Rose glow. Wren will love this. I love this. Don’t tell anyone I love this.',
+      'shelf:s-moon': 'Sample 0047! I wondered where that went. Keep it. I’ll fill out a form.',
+      'shelf:s-mercury': 'The sunscreen. Gus framed his and you shelved yours. You two are slowly becoming the same person.',
+      'shelf:s-titan': 'Is that Titan haze? Keep the lid on. I mean it. I still have nightmares.'
     },
     G: {
       'floor:arcade': 'The arcade cabinet! Ignore the smell, that’s just the capacitors. Probably.',
@@ -4270,7 +4363,16 @@ kbd {
       'desk:radio': 'The crew radio! If you hear humming at 3 a.m., that’s me. Sorry.',
       'desk:model': 'A model of your lander! I sanded the tiny legs myself. Okay, the factory did. I watched.',
       'window:nebula': 'Is that the nebula? One of those stars winked at me once. I stand by it.',
-      'floorStyle:panels': 'Glowing floor tiles! You basically live on a dance floor now.'
+      'floorStyle:panels': 'Glowing floor tiles! You basically live on a dance floor now.',
+      'desk:computer': 'A retro computer! Want me to overclock it? It’ll be twice as fast and only slightly on fire.',
+      'light:alert': 'Red alert lights! Every time I walk in here my body tries to fix something.',
+      'wallL:map': 'The solar system map! I put a little sticker on every world you’ve landed on. Don’t check. I ran out of stickers.',
+      'shelf:trophy': 'A trophy! What’s it for? Oh, “being great”. Fair enough.',
+      'wall:navy': 'The old navy walls! Classic. That’s the color of the hangar before I spilled the paint.',
+      'shelf:s-io': 'An Io sulfur crystal! Don’t lick it. I licked mine. Do not lick it.',
+      'shelf:s-vesta': 'The floating Vesta rock! I made that stand. It’s magnets. And a little bit of hope.',
+      'shelf:s-ganymede': 'An aurora bottle! If it starts playing polka, that’s normal. Mine does a waltz on Tuesdays.',
+      'shelf:s-europa': 'Europa ice! Fun fact: it’s older than the dinosaurs. Less fun fact: it’s dripping on your shelf.'
     },
     W: {
       'wallL:starchart': 'My star chart! Two of those constellations are made up. I’ll never tell you which.',
@@ -4278,29 +4380,50 @@ kbd {
       'wall:blush': 'Blush walls! I wanted that color for every cabin. Nobody listened. You listened.',
       'window:last': 'You can see wherever you landed last. I used to fall asleep watching Pluto turn.',
       'window:earth': 'Earth from up here. All these years and I still stop and stare.',
-      'floor:telescope': 'A telescope! I mapped half the sky from this building, you know.'
+      'floor:telescope': 'A telescope! I mapped half the sky from this building, you know.',
+      'wallR:photo': 'The crew photo. Look at us. We look like a family. A slightly sleep-deprived one.',
+      'floor:guitar': 'A guitar! Play me something. Anything but the song about torque. Gus has played it for me nine times.',
+      'light:night': 'I like it dark like this. Just you, the planet, and the hum of the station. That’s how I used to fly.',
+      'shelf:s-pluto': 'A piece of Pluto. That’s where Biscuit and I first touched down. Keep it safe for me.',
+      'shelf:s-venus': 'A Venus cloud jar. I flew through those clouds for weeks mapping that route. I can still taste them.',
+      'shelf:s-earth': 'A seashell from Earth. I haven’t been to a beach in eleven years. Can I hold it for a minute?'
     },
     R: {
       'wallL:rex': 'Is that... my poster? You have exquisite taste. Want me to sign the other wall too?',
       'floor:arcade': 'An arcade cabinet. I hold the high score on every machine in the system. Probably this one too.',
       'light:disco': 'A disco ball. Finally, a room that understands me.',
-      'shelf:trophy': 'Nice trophy. I have forty. They’re in a room. The room has its own trophy.'
+      'shelf:trophy': 'Nice trophy. I have forty. They’re in a room. The room has its own trophy.',
+      'wallR:neon': 'A neon sign that says LAND. I have one that says REX. It’s bigger.',
+      'floor:beanbag': 'A beanbag. I won’t sit in it. I will lean on it. Casually. Like a winner.',
+      'shelf:s-moon': 'A Moon rock. Cute. I have a whole Moon boulder. It’s in the lobby. It has a plaque.',
+      'window:saturn': 'Saturn view. Nice. Apex HQ looks right at Saturn too. Through a bigger window.'
     }
   };
   const DEN_IDLE = {
-    F: ['Nice place. Tidier than Gus’s. That’s a low bar, but you cleared it.', 'Just checking in. Rent is due never. Paperwork is due Friday.', 'I like what you’ve done with it. Don’t tell anyone I said that.'],
-    G: ['Cozy! This place has great vibes. And slightly better wiring than mine.', 'I came to borrow a wrench. I don’t know why I thought you’d have one. Nice cabin, though!', 'Knock knock! Oh, you’re decorating. Can I watch? I’m on break. I’m always on break.'],
-    W: ['This used to be my workshop, you know. It’s much nicer now. Don’t tell the old me.', 'I just came to see how you’re settling in. You’re settling in nicely.'],
-    R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.']
+    F: ['Nice place. Tidier than Gus’s. That’s a low bar, but you cleared it.', 'Just checking in. Rent is due never. Paperwork is due Friday.', 'I like what you’ve done with it. Don’t tell anyone I said that.',
+      'Just making my rounds. Checking smoke alarms, checking pilots. You both look fine.', 'Your cabin is cleaner than my office. I’ll be filing a complaint against myself.',
+      'I came to remind you about the safety briefing. Then I saw the window bench and forgot why I came.', 'Five minutes. I’m taking five minutes. If anyone asks, I’m doing an inspection.',
+      'Gus asked me to tell you he “borrowed” your screwdriver. He did not ask me to tell you he broke it. I’m telling you anyway.', 'The investors want a tour of a pilot’s cabin. I’m showing them yours. Please hide the yogurt.'],
+    G: ['Cozy! This place has great vibes. And slightly better wiring than mine.', 'I came to borrow a wrench. I don’t know why I thought you’d have one. Nice cabin, though!', 'Knock knock! Oh, you’re decorating. Can I watch? I’m on break. I’m always on break.',
+      'I heard a noise in here and came to check. It was me. I was the noise.', 'Can I hide in here for a bit? Dottie’s doing inventory and she keeps counting me.',
+      'Does your window open? Mine doesn’t. I checked with a wrench. Now it really doesn’t.', 'If you ever want a self-cleaning cabin, I can build one. It would also be self-destructing. Small detail.',
+      'I made Biscuit a tiny scarf. She can’t wear it. It’s for emotional warmth.', 'Your air vent makes a whistling noise. I can fix it. Or I can teach it a song. Your call.'],
+    W: ['This used to be my workshop, you know. It’s much nicer now. Don’t tell the old me.', 'I just came to see how you’re settling in. You’re settling in nicely.',
+      'Biscuit’s parked right under your window. She likes knowing you’re close.', 'My first cabin was a cot and a box of bolts. I used the box as a pillow. Treat yourself, pilot.',
+      'Sometimes I come in here just for the view. I hope that’s all right.', 'I brought you tea. It’s from my secret stash. If Dottie asks, there is no secret stash.',
+      'You remind me of me, back when I was starting. Braver, though. And a better parker.'],
+    R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.',
+      'My cabin has a hot tub. And a cold tub. And a medium tub, for when I can’t decide.', 'I’m not visiting. I got lost. Your hallways are confusing. Nice cushions, though.',
+      'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For Mayday. That’s all. This is very awkward. Bye. I’m not leaving yet.']
   };
   const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.' };
   const DEN_CAT = {
-    bunk: 'Prrrp. (She has claimed your bunk. It is her bunk now. You may borrow it.)',
-    bench: 'Mrrp. (She’s watching the planet go by. Do not block the view.)',
-    rug: 'Mrow. (She’s lying exactly in the middle of the rug. As designed.)',
-    beanbag: 'Prrr. (She has sunk into the beanbag. She may never be seen again.)',
-    catbed: 'Prrrrrrr. (She’s actually using the cat bed. Take a picture. It won’t happen again.)',
-    keyboard: 'Mrrrp. (She’s asleep on your keyboard. Your inbox now reads “jjjjjjjjjjjjjjjj”.)'
+    bunk: ['Prrrp. (She has claimed your bunk. It is her bunk now. You may borrow it.)', 'Mrrrow. (She is lying exactly where your head goes. This is not a coincidence.)', 'Prrr. (She kneads your blanket into a nest. Your blanket is a nest now.)'],
+    bench: ['Mrrp. (She’s watching the planet go by. Do not block the view.)', 'Mrow. (She’s counting stars. She’s lost count. She’s starting over, annoyed.)', 'Prrrp. (She’s using a cushion as a pillow and another cushion as a different pillow.)'],
+    rug: ['Mrow. (She’s lying exactly in the middle of the rug. As designed.)', 'Mrrrp. (She rolls onto her back. It’s a trap. It’s always a trap.)', 'Prrr. (She has become one with the rug. You can no longer tell where she ends.)'],
+    beanbag: ['Prrr. (She has sunk into the beanbag. She may never be seen again.)', 'Mrrp. (Only her ears are visible. They swivel toward you. Judgment has been passed.)'],
+    catbed: ['Prrrrrrr. (She’s actually using the cat bed. Take a picture. It won’t happen again.)', 'Mrrrp. (She’s in the cat bed, pretending it was her idea all along.)', 'Prrp. (She has arranged herself in a perfect circle. Ten out of ten. No notes.)'],
+    keyboard: ['Mrrrp. (She’s asleep on your keyboard. Your inbox now reads “jjjjjjjjjjjjjjjj”.)', 'Mrow. (She has sent an email to Dottie. It says “;;;;;;;;”. Dottie replied “agreed”.)', 'Prrr. (The computer is warm. That’s her computer now. You can visit it.)']
   };
   const DEN_ALONE = ['Pilot, your cabin’s looking good. Try not to crash it.', 'Quiet in here. Enjoy it while it lasts. Gus is testing the toaster again.', 'Apogee isn’t in your cabin? Check under the bunk. Actually, don’t. She bites.'];
   function denTalkFor(who, look) {
@@ -4354,10 +4477,12 @@ kbd {
     const it = list.find(x => x.id === shown) || list[0];
     const own = denOwns(pool, it.id), placed = denLook[spot] === it.id;
     const ownedN = list.filter(x => x.id !== 'none' && denOwns(pool, x.id)).length, totalN = list.filter(x => x.id !== 'none').length;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.price ? 'Owned' : 'Free') : `${fmt(x.price)} cr`;
+    const owns = x => denOwns(pool, x.id);
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
+    else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
@@ -4376,7 +4501,7 @@ kbd {
         </div>
         <div class="col">
           <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
-          <div class="items den-items">${list.map(x => `<button class="item${denLook[spot] === x.id ? ' equipped' : denOwns(pool, x.id) ? ' owned' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
+          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => !y.world && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world ? ' locked' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
             <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
@@ -4395,7 +4520,7 @@ kbd {
     denUI.anim = setInterval(() => { if (denUI) drawDen($('denCv'), look(), denUI.spot, undefined, denUI); }, 100);
     denSay(denUI.say[0], denUI.say[1], fresh);
     const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
-    const pet = () => { const at = denCatSpot(denUI.cat, look()); denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', DEN_CAT[at.id]); };
+    const pet = () => { const at = denCatSpot(denUI.cat, look()), opts = DEN_CAT[at.id].filter(t => t !== denUI.lastLine); const line = opts[Math.floor(Math.random() * opts.length)]; denUI.lastLine = line; denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', line); };
     const chat = () => denSay(denUI.visitor, denTalkFor(denUI.visitor, look()));
     cv.addEventListener('click', e => {
       const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
