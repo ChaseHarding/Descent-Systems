@@ -314,7 +314,7 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 | Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign |
 | Shelf (3 spots) | Cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket, gold trophy |
 | Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
-| Corner | Potted fern, beanbag, mini fridge, guitar, telescope, an arcade cabinet that only plays Descent Systems |
+| Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, an arcade cabinet that only plays Descent Systems |
 | Rug | Orange rug, striped runner, Saturn rug, cat face rug |
 | Bedding | Six colors for the bunk and the window-bench cushions: crimson, cloud cream, blush pink, tangerine, starry night and mint |
 | Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead or a twinkling starfield |
@@ -323,7 +323,15 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 
 Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
 
-<p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin with amber light strips, a capsule bunk with red blankets, a window bench with red cushions under a big rounded window looking down on Earth, an Apogee calendar, a neon LAND sign, a backlit shelf with a trophy, snow globe and rubber duck, and a retro computer on a floating desk, with the window view picker beside it" width="640"></p>
+### Company
+
+The Pad isn't empty for long:
+
+- **Apogee** lets herself in on most visits and naps somewhere: on your bunk, the window bench, the rug, sunk into a beanbag, or flat across your keyboard. Tap her, or press **Pet Apogee**, to wake her up. Buy the **cat bed** and she'll use it most of the time, though she'll pretend she isn't impressed.
+- **The crew drop by.** About half the time someone is already sitting on your window bench when you walk in: Dottie, Gus, Wren once she's home, or Rex once you've rescued him. Press **Invite someone over** to knock on another door.
+- **They notice your decor.** Gus gets excited about the arcade cabinet and the disco ball, Dottie spots the mug she gave you and the red alert lighting, Wren recognizes her star chart, and Rex is delighted to find his own poster on your wall. If someone's visiting when you buy or place something, they react to it on the spot. Tap them, or press **Chat**, for another comment.
+
+<p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin with amber light strips, Gus sitting on the window bench under a big rounded window, Apogee asleep on the retro computer keyboard, a new purple cat bed in the corner, and Gus saying he could have built a better cat bed with heating and a small engine" width="640"></p>
 
 ## Endless run
 
