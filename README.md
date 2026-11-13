@@ -59,7 +59,7 @@ The main menu opens on three big cards with live previews:
 - **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
 - **The Pad**: a live view of your cabin, decorated however you left it, with how many decorations you've collected.
 
-Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, **Settings** and **How to play**, which replays the tutorial.
+Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, your **pilot license**, **Settings** and **How to play**, which replays the tutorial.
 
 <p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes" width="560"></p>
 
@@ -269,6 +269,19 @@ Open **Badges** from the start screen to see your progress. Twenty-six badges un
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
 
+## Pilot license
+
+Open **License** from the bottom of the main menu, or tap the framed license on your Pad wall, to see your pilot ID card:
+
+- **Your portrait**, a little pixel pilot you customize: hair style and color, skin tone, flight suit color, and glasses, goggles, a headset or a space helmet. You can also edit the name on the card.
+- **Your rank**, with chevrons and a progress bar: Cadet, Junior Pilot, Pilot, Senior Pilot, Flight Lieutenant, Captain, Commander and Legend. It climbs as you land, finish missions, visit worlds and earn badges.
+- **Career stats**: total landings, worlds visited, your softest touchdown, favorite world and lander (whichever you've landed with most), missions and stars, badges and crashes.
+- Dottie's signature, your issue date and license number, a machine-readable strip along the bottom, and Apogee's paw-print "APPROVED" stamp once you've earned her trust on Titan.
+
+Press **Share card** to get a crisp 1200×750 picture of it. On iPhone, **Share** opens the share sheet, so you can save it or send it to friends to compare.
+
+<p align="center"><img src="media/license.png" alt="The pilot license screen: an orange-and-navy Descent Systems ID card for Ace, a Flight Lieutenant with a pixel portrait in a space helmet, career stats and Apogee's paw stamp, with the hair, skin, suit and accessory options below" width="480"></p>
+
 ## Break room
 
 Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
@@ -441,7 +454,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
