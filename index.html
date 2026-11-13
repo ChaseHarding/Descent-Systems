@@ -381,7 +381,8 @@ kbd {
 .menu { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 
 /* The two places you can visit: big cards with live previews */
-.places { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.places { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .places { grid-template-columns: repeat(2, minmax(0, 1fr)); } #denBtn { grid-column: 1 / -1; } #denBtn .thumb { aspect-ratio: 4 / 1; object-fit: cover; } }
 .place {
   position: relative; min-width: 0; padding: 0; overflow: hidden; cursor: pointer; text-align: left;
   display: flex; flex-direction: column; border: 1px solid var(--space-2); border-radius: 8px;
@@ -444,6 +445,22 @@ kbd {
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; }
 .lounge .radio.quote { max-width: none; min-height: 88px; }
+/* The Pad: your cabin */
+.den { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.den .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); text-wrap: balance; }
+.den .sub .cr { color: var(--flame); margin-left: 6px; white-space: nowrap; }
+.den canvas.room { display: block; width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
+.den .spots { display: flex; flex-wrap: wrap; gap: 5px; }
+.den .spots button { padding: 6px 9px; border: 1px solid var(--space-2); border-radius: 4px; background: var(--panel); color: var(--regolith-dim); font-family: var(--f-mono); font-size: 11px; cursor: pointer; }
+.den .spots button[aria-pressed="true"] { border-color: var(--flame); color: var(--flame); }
+.den .spots button:focus-visible { outline: 2px solid var(--flame); outline-offset: 1px; }
+.den .spothead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.den .spothead b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; }
+.den .spothead span { font-size: 12px; color: var(--regolith-dim); }
+.den-items .pv { display: flex; width: 100%; height: 46px; align-items: center; justify-content: center; background: var(--space); border-radius: 3px; overflow: hidden; }
+.den-items .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
+.den .ok-note { margin: 0; font-size: 13px; color: var(--ok); }
+@media (min-width: 861px) { .den .bay > .col:last-child { min-height: 470px; } }
 /* Bulletin board */
 .board { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .cork {
@@ -2300,7 +2317,7 @@ kbd {
   })();
 
   // Which music plays: tense flight music in the air, the lounge track in the break room, the orbit pads everywhere else
-  const FLIGHT_MUSIC = ['flying', 'paused', 'touchdown', 'replay'], LOUNGE_MUSIC = ['lounge', 'board', 'album', 'log'];
+  const FLIGHT_MUSIC = ['flying', 'paused', 'touchdown', 'replay'], LOUNGE_MUSIC = ['lounge', 'board', 'album', 'log', 'den'];
   const musicMood = () => FLIGHT_MUSIC.includes(mode) ? 'flight' : LOUNGE_MUSIC.includes(mode) ? 'lounge' : 'menu';
   function musicIntensity() {
     if (!lander || !FLIGHT_MUSIC.includes(mode) || mode === 'replay') return 0;
@@ -2882,10 +2899,11 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den'];
   const AFTER_FLIGHT = ['runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
-    if (m !== 'hangar') card.classList.remove('wide');
+    if (m !== 'hangar' && m !== 'den') card.classList.remove('wide');
+    if (denUI && m !== 'den') { clearInterval(denUI.anim); denUI = null; }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -2916,6 +2934,7 @@ kbd {
     overlay.hidden = false;
     if (m === 'badges') { renderBadges(); return; }
     if (m === 'lounge') { renderLounge(); return; }
+    if (m === 'den') { renderDen(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
     if (m === 'log') { renderLog(); return; }
@@ -2951,6 +2970,10 @@ kbd {
           <button class="place" id="loungeBtn" aria-label="Break room">
             <canvas class="thumb pixel" id="roomThumb" width="200" height="100" aria-hidden="true"></canvas>
             <span class="pl"><b>Break room</b><span>${loungeLine()}</span>${newCards() ? '<i class="dot">New</i>' : ''}</span>
+          </button>
+          <button class="place" id="denBtn" aria-label="The Pad, your cabin">
+            <canvas class="thumb pixel" id="denThumb" width="200" height="100" aria-hidden="true"></canvas>
+            <span class="pl"><b>The Pad</b><span>${denLine()}</span></span>
           </button>
         </div>
         <nav class="menu" aria-label="Game modes">
@@ -3238,6 +3261,8 @@ kbd {
     if (sb) sb.addEventListener('click', () => setMode('settings'));
     const lgb = $('loungeBtn');
     if (lgb) lgb.addEventListener('click', () => setMode('lounge'));
+    const dnb = $('denBtn');
+    if (dnb) dnb.addEventListener('click', () => setMode('den'));
     const menuB = $('menuBtn');
     if (menuB) menuB.addEventListener('click', () => setMode('title'));
     const cw2 = $('changeWorld');
@@ -3744,6 +3769,492 @@ kbd {
     const first = present[Math.floor(Math.random() * present.length)];
     loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+
+  // ---- The Pad: your own cabin, decorated your way ----
+  // Each spot in the room holds one thing from a pool; free items are always yours, the rest cost credits.
+  const DEN_SPOTS = [
+    { id: 'wallL', pool: 'wallL', name: 'Left wall', x: 14, y: 10, w: 30, h: 27 },
+    { id: 'window', pool: 'window', name: 'Window', x: 62, y: 9, w: 54, h: 40 },
+    { id: 'wallR', pool: 'wallR', name: 'Right wall', x: 120, y: 9, w: 30, h: 20 },
+    { id: 'shelf1', pool: 'shelf', name: 'Shelf 1', x: 151, y: 18, w: 15, h: 12 },
+    { id: 'shelf2', pool: 'shelf', name: 'Shelf 2', x: 166, y: 18, w: 15, h: 12 },
+    { id: 'shelf3', pool: 'shelf', name: 'Shelf 3', x: 181, y: 18, w: 15, h: 12 },
+    { id: 'desk', pool: 'desk', name: 'Desk', x: 162, y: 43, w: 26, h: 15 },
+    { id: 'floor', pool: 'floor', name: 'Corner', x: 123, y: 49, w: 24, h: 29 },
+    { id: 'rug', pool: 'rug', name: 'Rug', x: 58, y: 82, w: 74, h: 14 },
+    { id: 'bed', pool: 'bed', name: 'Bedding', x: 6, y: 40, w: 52, h: 38 },
+    { id: 'wall', pool: 'wall', name: 'Walls', room: true },
+    { id: 'floorStyle', pool: 'floorStyle', name: 'Flooring', room: true },
+    { id: 'light', pool: 'light', name: 'Lights', room: true }
+  ];
+  const DEN_DEFAULT = { wallL: 'poster', window: 'last', wallR: 'clock', shelf1: 'cactus', shelf2: 'books', shelf3: 'none', desk: 'lamp', floor: 'fern', rug: 'round', bed: 'crimson', wall: 'ivory', floorStyle: 'plush', light: 'amber' };
+  // the first Pad had wood and a pendant lamp; carry anything saved or bought over to the new cabin
+  const DEN_RENAMED = { wall: { panels: 'navy', pinstripe: 'moon', plum: 'blush', wood: 'ivory' }, floorStyle: { carpet: 'plush', boards: 'plush', checker: 'panels' }, light: { lamp: 'amber', string: 'aurora' }, bed: { grey: 'crimson', flame: 'tangerine', pink: 'blush', plaid: 'crimson' } };
+  const NOTHING = { id: 'none', name: 'Nothing', price: 0, blurb: 'A bit of breathing room. Very minimalist. Very you.', draw() {} };
+  const circ = (c, x, y, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); };
+  const oval = (c, x, y, rx, ry, col) => { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); };
+  // a tiny lander in your current paint, for posters and models
+  function miniLander(c, x, y) {
+    const hull = findItem('hull', equip.hull);
+    px(c, x + 2, y, 10, 8, hull.fill); outline(c, x + 2, y, 10, 8, hull.stroke);
+    px(c, x, y + 8, 14, 3, hull.fill); outline(c, x, y + 8, 14, 3, hull.stroke);
+    px(c, x - 1, y + 11, 1, 5, hull.legs); px(c, x + 14, y + 11, 1, 5, hull.legs);
+    px(c, x - 3, y + 16, 4, 1, hull.legs); px(c, x + 13, y + 16, 4, 1, hull.legs);
+  }
+  const DEN_ITEMS = {
+    // walls: a curved capsule, darker toward the edges. base · edge · seam · ceiling
+    wall: [
+      { id: 'ivory', name: 'Ivory hull', price: 0, blurb: 'Warm cream panels, curved like the inside of an egg. A very cozy egg.', cols: ['#eadcc2', '#bba98a', '#dccbac', '#d6c4a4'] },
+      { id: 'moon', name: 'Moon white', price: 300, blurb: 'Cool, clean white. Feels like a very expensive phone.', cols: ['#e3e8ef', '#a9b2c2', '#d2d9e3', '#cdd4df'] },
+      { id: 'blush', name: 'Blush', price: 500, blurb: 'Soft pink panels. Wren says it’s “sunset on Mars”. Gus says it’s “salmon”.', cols: ['#ecc9c3', '#bf958f', '#dfb7b0', '#d9aea7'] },
+      { id: 'graphite', name: 'Graphite', price: 500, blurb: 'Brushed dark metal. Very serious. Very mission control.', cols: ['#4a5266', '#262c3b', '#3d4457', '#353c4e'] },
+      { id: 'navy', name: 'Navy bulkhead', price: 0, blurb: 'The classic Descent Systems navy. Smells faintly of rivets.', cols: ['#1d2647', '#121831', '#232d52', '#161d38'] },
+      { id: 'stars', name: 'Starfield', price: 900, blurb: 'Panels that show the night sky. For pilots who miss the view the second they land.', cols: ['#121838', '#070a1c', '#121838', '#0d122b'], stars: true }
+    ],
+    floorStyle: [
+      { id: 'plush', name: 'Plush carpet', price: 0, blurb: 'Thick, warm and quiet. Your socks will never be cold again.',
+        draw(c) { px(c, 0, 78, RW, 22, '#5e4e42'); for (let i = 0; i < 170; i++) px(c, (i * 37) % RW, 80 + (i * 13) % 20, 1, 1, i % 2 ? '#6c5b4d' : '#53443a'); } },
+      { id: 'gloss', name: 'Gloss floor', price: 400, blurb: 'Polished so well you can see the stars in it.',
+        draw(c) { px(c, 0, 78, RW, 22, '#141a2e'); for (let x = 64; x < 116; x += 6) px(c, x, 81, 3, 17, 'rgba(201,215,255,0.10)'); px(c, 0, 80, RW, 1, 'rgba(255,255,255,0.08)'); for (const [x, y] of [[20, 90], [150, 86], [178, 95], [40, 84]]) px(c, x, y, 1, 1, 'rgba(255,255,255,0.4)'); } },
+      { id: 'panels', name: 'Light panels', price: 500, blurb: 'Glowing white floor tiles. Very spaceship. Hard to sneak around on.',
+        draw(c) { px(c, 0, 78, RW, 22, '#d9dee8'); for (let x = 0; x < RW; x += 20) px(c, x, 78, 1, 22, '#b8c0ce'); px(c, 0, 89, RW, 1, '#b8c0ce'); } },
+      { id: 'rosecarpet', name: 'Rose carpet', price: 300, blurb: 'Soft pink and very fluffy. Apogee has claimed a corner of it.',
+        draw(c) { px(c, 0, 78, RW, 22, '#9a5a66'); for (let i = 0; i < 170; i++) px(c, (i * 37) % RW, 80 + (i * 13) % 20, 1, 1, i % 2 ? '#ab6a76' : '#8a4e5a'); } },
+      { id: 'grate', name: 'Deck grating', price: 0, blurb: 'Clangs when you walk on it. Hides dropped screws forever.',
+        draw(c) { px(c, 0, 78, RW, 22, '#10162c'); for (let x = 6; x < RW; x += 22) px(c, x, 86, 10, 1, '#161e3a'); for (let x = 17; x < RW; x += 22) px(c, x, 94, 10, 1, '#161e3a'); } }
+    ],
+    // lights: the glowing strips along the ceiling, the bunk and under the desk
+    light: [
+      { id: 'amber', name: 'Amber glow', price: 0, blurb: 'Warm amber strips along the ceiling. Like sitting inside a sunset.',
+        strip: () => '#ffb547', overlay(c) { px(c, 0, 0, RW, RH, 'rgba(255,180,90,0.07)'); } },
+      { id: 'night', name: 'Night mode', price: 0, blurb: 'Lights down low. Just the planet in the window and your reading light.',
+        strip: () => '#8a5a22',
+        overlay(c) {
+          px(c, 0, 0, RW, RH, 'rgba(4,6,16,0.58)');
+          c.globalCompositeOperation = 'lighter';
+          glow(c, 89, 30, 50, 'rgba(120,150,255,0.14)'); glow(c, 174, 50, 30, 'rgba(255,200,120,0.16)'); glow(c, 30, 50, 26, 'rgba(255,190,110,0.14)');
+          c.globalCompositeOperation = 'source-over';
+        } },
+      { id: 'ice', name: 'Ice blue', price: 400, blurb: 'Cool blue strips. Feels like flying over Europa.',
+        strip: () => '#8fd3ff', overlay(c) { px(c, 0, 0, RW, RH, 'rgba(120,190,255,0.07)'); } },
+      { id: 'rose', name: 'Rose glow', price: 400, blurb: 'Pink light everywhere. Instantly the coziest room in the solar system.',
+        strip: () => '#ff8fb8', overlay(c) { px(c, 0, 0, RW, RH, 'rgba(255,130,180,0.07)'); } },
+      { id: 'aurora', name: 'Aurora strips', price: 600, blurb: 'Slowly cycles through every color, like Ganymede’s northern lights.',
+        strip: t => `hsl(${Math.round(reduceMotion ? 160 : (t / 40) % 360)},85%,65%)`, overlay() {} },
+      { id: 'alert', name: 'Red alert', price: 400, blurb: 'Pulsing red. For when the vibe is “everything is fine”.',
+        strip: t => { const p = reduceMotion ? 1 : (Math.sin(t / 220) + 1) / 2; return p > 0.5 ? '#ff6b5e' : '#8a2a24'; },
+        overlay(c, t) { const p = reduceMotion ? 0.5 : (Math.sin(t / 220) + 1) / 2; px(c, 0, 0, RW, RH, `rgba(255,50,50,${(0.04 + 0.12 * p).toFixed(3)})`); } },
+      { id: 'disco', name: 'Disco ball', price: 1500, blurb: 'Gus installed it “for science”. The science is dancing.',
+        strip: t => `hsl(${Math.round(reduceMotion ? 280 : (t / 12) % 360)},90%,70%)`,
+        fixture(c) { px(c, 53, 4, 1, 4, '#6c7690'); circ(c, 53.5, 12.5, 4.5, '#c9cfdc'); px(c, 51, 10, 2, 2, '#ffffff'); px(c, 54, 13, 2, 2, '#8a93ab'); px(c, 50, 13, 1, 1, '#8a93ab'); },
+        overlay(c, t) {
+          px(c, 0, 0, RW, RH, 'rgba(110,50,190,0.08)');
+          for (let i = 0; i < 26; i++) {
+            const x = ((i * 47) + (reduceMotion ? 0 : t / 25 * (1 + (i % 3)))) % RW, y = 12 + (i * 23) % 84;
+            px(c, Math.round(x), y, 2, 1, `hsla(${(i * 47) % 360},90%,72%,0.55)`);
+          }
+        } }
+    ],
+    // the view out the big window (54 x 40)
+    window: [
+      { id: 'last', name: 'Last world flown', price: 0, blurb: 'You’re in orbit over wherever you landed last. Don’t ask Gus how that works.',
+        draw(c, x, y, t) {
+          const w = storedWorld();
+          px(c, x, y, 54, 40, '#05070f'); denStars(c, x, y, 54, 30, t);
+          circ(c, x + 27, y + 92, 62, w.orb); circ(c, x + 34, y + 96, 62, 'rgba(0,0,0,0.25)');
+          c.strokeStyle = w.sky[1]; c.globalAlpha = 0.8; c.lineWidth = 1.5; c.beginPath(); c.arc(x + 27, y + 92, 63, Math.PI * 1.15, Math.PI * 1.85); c.stroke(); c.globalAlpha = 1;
+          circ(c, x + 44, y + 9, 3.5, '#8a8f9c'); circ(c, x + 45, y + 10, 3.5, 'rgba(0,0,0,0.4)');
+        } },
+      { id: 'blinds', name: 'Blinds down', price: 0, blurb: 'Do not disturb. Pilot is napping.',
+        draw(c, x, y) { for (let yy = 0; yy < 40; yy += 3) { px(c, x, y + yy, 54, 2, '#e8e0d0'); px(c, x, y + yy + 2, 54, 1, '#b8ab92'); } } },
+      { id: 'earth', name: 'Earth from orbit', price: 400, blurb: 'Home, curving away under you. Call your mom.',
+        draw(c, x, y, t) {
+          px(c, x, y, 54, 40, '#03050c'); denStars(c, x, y, 54, 24, t);
+          circ(c, x + 20, y + 90, 64, '#1f5fc4'); px(c, x + 2, y + 33, 12, 2, '#3fa86b'); px(c, x + 22, y + 30, 9, 3, '#3fa86b');
+          for (const [a, b, w2] of [[6, 30, 10], [30, 35, 14], [16, 37, 9], [40, 33, 8]]) px(c, x + a, y + b, w2, 1, 'rgba(255,255,255,0.75)');
+          c.strokeStyle = '#8fd3ff'; c.lineWidth = 1.5; c.beginPath(); c.arc(x + 20, y + 90, 65, Math.PI * 1.1, Math.PI * 1.9); c.stroke();
+          circ(c, x + 44, y + 9, 4, '#c9cfdc'); circ(c, x + 45.5, y + 10, 4, 'rgba(0,0,0,0.35)');
+        } },
+      { id: 'saturn', name: 'Saturn view', price: 800, blurb: 'Rings and all. The landlord charges extra for this one.',
+        draw(c, x, y, t) {
+          px(c, x, y, 54, 40, '#0a0d1c'); denStars(c, x, y, 54, 40, t);
+          circ(c, x + 27, y + 20, 10, '#e3c27a'); px(c, x + 18, y + 17, 19, 1, '#c9a24a'); px(c, x + 18, y + 23, 19, 1, '#c9a24a'); circ(c, x + 31, y + 22, 10, 'rgba(0,0,0,0.2)');
+          c.strokeStyle = '#d9c79a'; c.lineWidth = 1.5; c.beginPath(); c.ellipse(x + 27, y + 20, 21, 5, -0.25, 0, Math.PI * 2); c.stroke();
+        } },
+      { id: 'nebula', name: 'Nebula', price: 1200, blurb: 'A stellar nursery. Gus swears one of the stars winked at him.',
+        draw(c, x, y, t) {
+          px(c, x, y, 54, 40, '#120a24');
+          for (const [a, b, r, col] of [[12, 12, 14, 'rgba(255,110,190,0.35)'], [34, 24, 16, 'rgba(120,90,255,0.35)'], [42, 9, 10, 'rgba(90,200,255,0.3)'], [18, 30, 11, 'rgba(255,180,90,0.25)']]) circ(c, x + a, y + b, r, col);
+          denStars(c, x, y, 54, 40, t);
+        } }
+    ],
+    wallL: [
+      NOTHING,
+      { id: 'poster', name: 'Lander poster', price: 0, blurb: 'Your lander, in whatever she’s wearing today.',
+        draw(c, x, y) { px(c, x, y, 30, 28, '#ffb547'); px(c, x + 1, y + 1, 28, 26, '#0d1226'); miniLander(c, x + 8, y + 5); px(c, x + 4, y + 23, 22, 1, '#6c7690'); } },
+      { id: 'starchart', name: 'Star chart', price: 0, blurb: 'Hand-drawn by Wren. Two of the constellations are made up.',
+        draw(c, x, y) {
+          px(c, x, y, 30, 28, '#3a4a80'); px(c, x + 1, y + 1, 28, 26, '#1e2b55');
+          const pts = [[5, 6], [11, 9], [16, 5], [22, 11], [25, 20], [17, 22], [8, 19]];
+          c.strokeStyle = 'rgba(207,227,255,0.45)'; c.lineWidth = 1; c.beginPath();
+          pts.forEach(([a, b], i) => i ? c.lineTo(x + a + 0.5, y + b + 0.5) : c.moveTo(x + a + 0.5, y + b + 0.5)); c.stroke();
+          for (const [a, b] of pts) px(c, x + a, y + b, 1, 1, '#ffe58a');
+        } },
+      { id: 'pennant', name: 'Company pennant', price: 200, blurb: 'Descent Systems, est. in a supply closet.',
+        draw(c, x, y) { px(c, x + 1, y + 4, 1, 20, '#c9cfdc'); c.fillStyle = '#ffb547'; c.beginPath(); c.moveTo(x + 2, y + 5); c.lineTo(x + 29, y + 12); c.lineTo(x + 2, y + 19); c.closePath(); c.fill(); px(c, x + 5, y + 11, 12, 1, '#0a0e1c'); px(c, x + 5, y + 13, 8, 1, '#0a0e1c'); } },
+      { id: 'catcal', name: 'Apogee calendar', price: 300, blurb: 'Twelve months of Apogee, unimpressed. Dottie printed it herself.',
+        draw(c, x, y) {
+          px(c, x + 2, y, 26, 28, '#f4f1e8'); px(c, x + 3, y + 1, 24, 11, '#cfe3ff');
+          px(c, x + 9, y + 6, 12, 5, '#ff9a3d'); px(c, x + 6, y + 4, 6, 5, '#ff9a3d'); px(c, x + 6, y + 3, 1, 1, '#ff9a3d'); px(c, x + 11, y + 3, 1, 1, '#ff9a3d'); px(c, x + 21, y + 8, 3, 2, '#ff9a3d');
+          px(c, x + 7, y + 6, 1, 1, '#5a3520'); px(c, x + 10, y + 6, 1, 1, '#5a3520');
+          for (let r = 0; r < 3; r++) for (let k = 0; k < 5; k++) px(c, x + 4 + k * 5, y + 15 + r * 4, 3, 2, '#c9cfdc');
+          px(c, x + 14, y + 19, 3, 2, '#ff6b5e'); px(c, x + 14, y, 2, 1, '#6c7690');
+        } },
+      { id: 'map', name: 'Solar system map', price: 600, blurb: 'Every world you could ever crash on, to scale-ish.',
+        draw(c, x, y) {
+          px(c, x, y + 2, 30, 24, '#c9a24a'); px(c, x + 1, y + 3, 28, 22, '#0b0f22'); px(c, x + 1, y + 10, 3, 8, '#ffd27a');
+          for (const [a, r, col] of [[7, 1, '#b8b2a6'], [10, 1, '#e8c98a'], [13, 1, '#2a6fd6'], [16, 1, '#c1532c'], [20, 2, '#d9a066'], [25, 2, '#e3c27a']]) px(c, x + a, y + 14 - r, r * 2, r * 2, col);
+        } },
+      { id: 'rex', name: 'Signed Rex poster', price: 1500, blurb: 'Rex Valor mailed it to you. Unprompted. It says “To my biggest fan”.',
+        draw(c, x, y, t, st) { px(c, x, y, 30, 28, '#7a1a1a'); px(c, x + 1, y + 1, 28, 26, '#c0392b'); if (st.faces) c.drawImage(st.faces.R, 0, 0, 32, 32, x + 5, y + 1, 20, 20); for (let i = 0; i < 18; i++) px(c, x + 6 + i, y + 23 + Math.round(Math.sin(i * 1.3)), 1, 1, '#ffd27a'); } }
+    ],
+    wallR: [
+      NOTHING,
+      { id: 'clock', name: 'Wall clock', price: 0, blurb: 'Keeps your local time. The only thing in this building that does.',
+        draw(c, x, y) {
+          circ(c, x + 15, y + 10, 9, '#3a4668'); circ(c, x + 15, y + 10, 8, '#e8e0d0');
+          const d = new Date(), h = (d.getHours() % 12 + d.getMinutes() / 60) / 12 * Math.PI * 2, m = d.getMinutes() / 60 * Math.PI * 2;
+          c.strokeStyle = '#0a0e1c'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x + 15, y + 10); c.lineTo(x + 15 + Math.sin(h) * 4, y + 10 - Math.cos(h) * 4); c.stroke();
+          c.lineWidth = 0.8; c.beginPath(); c.moveTo(x + 15, y + 10); c.lineTo(x + 15 + Math.sin(m) * 6.5, y + 10 - Math.cos(m) * 6.5); c.stroke();
+          px(c, x + 15, y + 2, 1, 1, '#ff6b5e');
+        } },
+      { id: 'cert', name: 'Pilot license', price: 0, blurb: 'Framed. Official. Laminated twice, just in case.',
+        draw(c, x, y) { px(c, x + 3, y + 1, 24, 18, '#c9a24a'); px(c, x + 4, y + 2, 22, 16, '#f4f1e8'); px(c, x + 7, y + 5, 16, 1, '#8a8f9c'); px(c, x + 7, y + 8, 12, 1, '#8a8f9c'); px(c, x + 7, y + 11, 14, 1, '#8a8f9c'); circ(c, x + 21, y + 14, 2.5, '#ff6b5e'); } },
+      { id: 'patch', name: 'Mission patch', price: 300, blurb: 'Embroidered by Dottie during a very long meeting.',
+        draw(c, x, y) { circ(c, x + 15, y + 10, 9, '#ffb547'); circ(c, x + 15, y + 10, 8, '#1e2b55'); px(c, x + 13, y + 7, 4, 3, '#e8ebf2'); px(c, x + 12, y + 10, 6, 1, '#e8ebf2'); px(c, x + 12, y + 11, 1, 2, '#e8ebf2'); px(c, x + 17, y + 11, 1, 2, '#e8ebf2'); px(c, x + 15, y + 4, 1, 1, '#ffe58a'); px(c, x + 9, y + 13, 12, 1, '#ff6b5e'); } },
+      { id: 'photo', name: 'Crew photo', price: 500, blurb: 'Everyone blinked except Apogee. Apogee never blinks.',
+        draw(c, x, y, t, st) {
+          px(c, x + 1, y + 2, 28, 16, '#5a4636'); px(c, x + 2, y + 3, 26, 14, '#2a3556');
+          if (st.faces) ['F', 'G', 'W'].forEach((who, i) => c.drawImage(st.faces[who], 0, 0, 32, 32, x + 3 + i * 8, y + 5, 9, 9));
+          px(c, x + 8, y + 14, 4, 2, '#ff9a3d');
+        } },
+      { id: 'neon', name: 'Neon sign', price: 900, blurb: 'It says LAND. It hums. It occasionally says LAN.',
+        draw(c, x, y, t) {
+          px(c, x, y + 3, 30, 14, '#141833');
+          const flick = !reduceMotion && Math.floor(t / 130) % 37 === 0;
+          c.save(); c.shadowColor = '#ff9ad5'; c.shadowBlur = 4; c.fillStyle = '#ff9ad5'; c.font = 'bold 8px monospace'; c.textBaseline = 'alphabetic';
+          c.fillText(flick ? 'LAN' : 'LAND', x + 3, y + 13); c.restore();
+        } }
+    ],
+    shelf: [
+      NOTHING,
+      { id: 'cactus', name: 'Little cactus', price: 0, blurb: 'Named Spike. Thrives on neglect, like the rest of us.',
+        draw(c, x, y) { px(c, x + 5, y + 8, 6, 4, '#c0603a'); px(c, x + 7, y + 1, 2, 7, '#3fa86b'); px(c, x + 5, y + 3, 2, 3, '#3fa86b'); px(c, x + 9, y + 2, 2, 3, '#3fa86b'); px(c, x + 7, y, 2, 1, '#ff9ad5'); } },
+      { id: 'books', name: 'Flight manuals', price: 0, blurb: 'Unread. Well. Skimmed. The pictures were good.',
+        draw(c, x, y) { px(c, x + 2, y + 3, 3, 9, '#ff6b5e'); px(c, x + 5, y + 2, 3, 10, '#2a6fd6'); px(c, x + 8, y + 4, 2, 8, '#ffb547'); px(c, x + 11, y + 5, 3, 7, '#9fe0b8'); px(c, x + 6, y + 5, 1, 1, '#e8ebf2'); } },
+      { id: 'mug', name: 'Okayest pilot mug', price: 100, blurb: '“World’s okayest pilot.” A gift from Dottie. She meant it nicely. Probably.',
+        draw(c, x, y, t) { px(c, x + 4, y + 5, 7, 7, '#f4f1e8'); px(c, x + 11, y + 7, 2, 1, '#f4f1e8'); px(c, x + 12, y + 8, 1, 2, '#f4f1e8'); px(c, x + 11, y + 10, 2, 1, '#f4f1e8'); px(c, x + 5, y + 8, 5, 1, '#ff6b5e');
+          if (!reduceMotion) { const ph = (t / 900) % 1; px(c, x + 7 + Math.round(Math.sin(ph * 6)), y + 4 - Math.round(ph * 4), 1, 1, `rgba(201,207,220,${(0.6 * (1 - ph)).toFixed(2)})`); } } },
+      { id: 'duck', name: 'Rubber duck', price: 150, blurb: 'Your debugging partner. It has heard things.',
+        draw(c, x, y) { px(c, x + 3, y + 7, 9, 5, '#ffd23a'); px(c, x + 8, y + 3, 4, 5, '#ffd23a'); px(c, x + 12, y + 5, 2, 1, '#ff9a3d'); px(c, x + 10, y + 4, 1, 1, '#0a0e1c'); px(c, x + 4, y + 8, 3, 2, '#e6b800'); } },
+      { id: 'globe', name: 'Snow globe', price: 400, blurb: 'A tiny lander in a tiny blizzard. Shake gently.',
+        draw(c, x, y, t) {
+          px(c, x + 3, y + 9, 10, 3, '#5a4636'); circ(c, x + 8, y + 5, 4.5, 'rgba(159,200,255,0.35)'); px(c, x + 7, y + 5, 2, 2, '#c9cfdc');
+          for (let i = 0; i < 4; i++) { const ph = reduceMotion ? i / 4 : ((t / 1400) + i / 4) % 1; px(c, x + 5 + (i * 2) % 6, y + 1 + Math.round(ph * 7), 1, 1, '#ffffff'); }
+        } },
+      { id: 'rocket', name: 'Model rocket', price: 600, blurb: 'Gus built it from leftover parts. It is not a toy. It is mostly not a toy.',
+        draw(c, x, y) { px(c, x + 7, y + 1, 3, 9, '#e8ebf2'); px(c, x + 8, y, 1, 1, '#ff6b5e'); px(c, x + 5, y + 7, 2, 3, '#ff6b5e'); px(c, x + 10, y + 7, 2, 3, '#ff6b5e'); px(c, x + 8, y + 3, 1, 1, '#2a6fd6'); px(c, x + 5, y + 10, 7, 2, '#4a5578'); } },
+      { id: 'trophy', name: 'Gold trophy', price: 1000, blurb: 'You bought your own trophy. Nobody needs to know.',
+        draw(c, x, y) { px(c, x + 4, y + 1, 8, 5, '#ffd27a'); px(c, x + 2, y + 2, 2, 2, '#ffd27a'); px(c, x + 12, y + 2, 2, 2, '#ffd27a'); px(c, x + 7, y + 6, 2, 3, '#c98a2a'); px(c, x + 5, y + 9, 6, 3, '#c98a2a'); px(c, x + 5, y + 2, 1, 2, '#fff1c7'); } }
+    ],
+    desk: [
+      NOTHING,
+      { id: 'lamp', name: 'Desk lamp', price: 0, blurb: 'Bendy, bright, and has never once pointed where you wanted.',
+        draw(c, x, y) {
+          c.fillStyle = 'rgba(255,220,150,0.22)'; c.beginPath(); c.moveTo(x + 11, y + 7); c.lineTo(x + 17, y + 7); c.lineTo(x + 21, y + 15); c.lineTo(x + 7, y + 15); c.closePath(); c.fill();
+          px(c, x + 2, y + 13, 7, 2, '#3a4668'); px(c, x + 5, y + 6, 1, 7, '#6c7690'); px(c, x + 5, y + 5, 7, 1, '#6c7690'); px(c, x + 10, y + 4, 7, 3, '#ffb547'); px(c, x + 12, y + 7, 3, 1, '#fff1c7');
+        } },
+      { id: 'succulents', name: 'Succulents', price: 0, blurb: 'Three little plants. You water them. They forgive you.',
+        draw(c, x, y) { px(c, x + 5, y + 10, 16, 5, '#c9cfdc'); px(c, x + 6, y + 9, 14, 1, '#e8ebf2'); for (const [a, col] of [[8, '#3fa86b'], [12, '#7fc98a'], [16, '#3fa86b']]) { px(c, x + a - 1, y + 6, 3, 3, col); px(c, x + a, y + 5, 1, 1, col); } } },
+      { id: 'computer', name: 'Retro computer', price: 500, blurb: 'Green text, beige plastic, 64 kilobytes of pure potential.',
+        draw(c, x, y, t) {
+          px(c, x + 5, y, 16, 12, '#c9c0a8'); px(c, x + 7, y + 2, 12, 8, '#0b2a1a');
+          px(c, x + 8, y + 3, 7, 1, '#3fe08a'); px(c, x + 8, y + 5, 9, 1, '#3fe08a'); if (reduceMotion || Math.floor(t / 500) % 2) px(c, x + 8, y + 7, 2, 1, '#3fe08a');
+          px(c, x + 3, y + 13, 20, 2, '#a89f88');
+        } },
+      { id: 'radio', name: 'Crew radio', price: 400, blurb: 'Plays whatever the hangar is playing. Mostly Gus humming.',
+        draw(c, x, y, t) {
+          px(c, x + 3, y + 6, 20, 9, '#5a4636'); px(c, x + 5, y + 8, 8, 5, '#3a2c20'); for (let k = 0; k < 3; k++) px(c, x + 6, y + 9 + k * 1.5, 6, 1, '#2a1f16');
+          circ(c, x + 18, y + 10.5, 2.5, '#c9a24a'); px(c, x + 20, y + 1, 1, 5, '#6c7690');
+          if (!reduceMotion) { const ph = (t / 1500) % 1; c.fillStyle = `rgba(159,224,184,${(1 - ph).toFixed(2)})`; c.font = '6px monospace'; c.fillText('♪', x + 9 + ph * 6, y + 5 - ph * 5); }
+        } },
+      { id: 'model', name: 'Lander model', price: 900, blurb: 'A 1:100 scale model of your lander. The paint updates itself somehow.',
+        draw(c, x, y) { px(c, x + 6, y + 13, 14, 2, '#4a5578'); px(c, x + 12, y + 11, 2, 2, '#6c7690'); c.save(); c.translate(x + 6, y - 1); c.scale(0.75, 0.75); miniLander(c, 2, 0); c.restore(); } }
+    ],
+    floor: [
+      NOTHING,
+      { id: 'fern', name: 'Potted fern', price: 0, blurb: 'The only living thing on the base that Gus hasn’t experimented on.',
+        draw(c, x, y) {
+          px(c, x + 7, y + 21, 10, 8, '#c0603a'); px(c, x + 6, y + 20, 12, 2, '#d9774f');
+          for (const [a, b, w2] of [[11, 4, 2], [6, 9, 6], [13, 8, 7], [3, 14, 8], [13, 13, 8], [8, 16, 8]]) px(c, x + a, y + b, w2, 2, '#3fa86b');
+          px(c, x + 11, y + 6, 2, 14, '#2e8a55');
+        } },
+      { id: 'beanbag', name: 'Beanbag', price: 400, blurb: 'Once you sit down, you’re not getting up. Plan accordingly.',
+        draw(c, x, y) { px(c, x + 4, y + 15, 16, 3, '#ff6b5e'); px(c, x + 2, y + 18, 20, 11, '#ff6b5e'); px(c, x + 7, y + 18, 10, 2, '#d94f43'); px(c, x + 4, y + 20, 2, 4, '#ff8f84'); } },
+      { id: 'fridge', name: 'Mini fridge', price: 600, blurb: 'Snacks, drinks, and one yogurt you are absolutely not allowed to touch.',
+        draw(c, x, y) { px(c, x + 3, y + 9, 18, 20, '#e8ebf2'); px(c, x + 3, y + 16, 18, 1, '#9aa3b8'); px(c, x + 18, y + 11, 1, 4, '#9aa3b8'); px(c, x + 18, y + 18, 1, 6, '#9aa3b8'); px(c, x + 6, y + 11, 3, 3, '#ffb547'); px(c, x + 10, y + 20, 3, 3, '#ff9ad5'); px(c, x + 6, y + 23, 2, 2, '#9fe0b8'); } },
+      { id: 'guitar', name: 'Acoustic guitar', price: 800, blurb: 'You know three chords. Apogee hates all of them.',
+        draw(c, x, y) {
+          oval(c, x + 10, y + 23, 6, 5, '#c98a2a'); oval(c, x + 12, y + 16, 4.5, 4, '#c98a2a'); circ(c, x + 11, y + 21, 1.5, '#3a2718');
+          for (let i = 0; i < 12; i++) px(c, x + 13 + Math.round(i * 0.3), y + 12 - i, 2, 1, '#5a3d26'); px(c, x + 15, y, 3, 2, '#3a2718');
+        } },
+      { id: 'telescope', name: 'Telescope', price: 1200, blurb: 'Pointed at the window. Mostly sees the window.',
+        draw(c, x, y) {
+          c.strokeStyle = '#6c7690'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 12, y + 16); c.lineTo(x + 5, y + 29); c.moveTo(x + 12, y + 16); c.lineTo(x + 19, y + 29); c.moveTo(x + 12, y + 16); c.lineTo(x + 12, y + 29); c.stroke();
+          c.save(); c.translate(x + 12, y + 14); c.rotate(-0.55); px(c, -12, -2, 20, 4, '#c9cfdc'); px(c, -13, -3, 3, 6, '#9aa3b8'); px(c, 7, -1, 3, 2, '#3a4668'); c.restore();
+        } },
+      { id: 'arcade', name: 'Arcade cabinet', price: 2000, blurb: 'It only plays Descent Systems. Gus is “fixing” that.',
+        draw(c, x, y, t) {
+          px(c, x + 2, y, 20, 29, '#2a1a4a'); px(c, x + 3, y + 1, 18, 3, '#ff9ad5'); px(c, x + 4, y + 6, 16, 10, '#05070f');
+          for (let i = 0; i < 16; i++) px(c, x + 4 + i, y + 13 + (i % 5 === 2 ? 0 : (i * 7) % 3 === 0 ? -1 : 1), 1, 1, '#c9cfdc');
+          const ph = reduceMotion ? 0.4 : (t / 2600) % 1; px(c, x + 6 + Math.round(ph * 10), y + 7 + Math.round(ph * 4), 2, 2, '#ffb547');
+          px(c, x + 3, y + 17, 18, 3, '#3a2a5a'); px(c, x + 6, y + 15, 1, 2, '#c9cfdc'); px(c, x + 14, y + 18, 2, 1, '#ff6b5e'); px(c, x + 17, y + 18, 2, 1, '#9fe0b8');
+        } }
+    ],
+    rug: [
+      NOTHING,
+      { id: 'round', name: 'Orange rug', price: 0, blurb: 'Round, orange, and suspiciously the same color as the cat.',
+        draw(c, x, y) { oval(c, x + 37, y + 7, 34, 6, '#c9772e'); oval(c, x + 37, y + 7, 26, 4, '#e89a4a'); oval(c, x + 37, y + 7, 16, 2, '#c9772e'); } },
+      { id: 'stripes', name: 'Striped runner', price: 300, blurb: 'Blue, white and red. Very nautical. Very “I own a boat”.',
+        draw(c, x, y) { const cols = ['#2a6fd6', '#f4f1e8', '#ff6b5e']; for (let i = 0; i < 11; i++) px(c, x + 4 + i * 6, y + 3, 6, 9, cols[i % 3]); for (let i = 0; i < 9; i++) { px(c, x + 2, y + 3 + i, 2, 1, '#c9cfdc'); px(c, x + 70, y + 3 + i, 2, 1, '#c9cfdc'); } } },
+      { id: 'saturn', name: 'Saturn rug', price: 700, blurb: 'A planet you can lie down on. Softer than the real one.',
+        draw(c, x, y) { oval(c, x + 37, y + 7, 33, 4, '#c9a24a'); oval(c, x + 37, y + 7, 26, 2, '#0a0e1c'); oval(c, x + 37, y + 7, 13, 6, '#e3c27a'); px(c, x + 26, y + 6, 22, 1, '#c9a24a'); } },
+      { id: 'catrug', name: 'Cat face rug', price: 900, blurb: 'Apogee sleeps on it out of pure professional respect.',
+        draw(c, x, y) {
+          oval(c, x + 37, y + 8, 28, 6, '#ff9a3d');
+          c.fillStyle = '#ff9a3d'; c.beginPath(); c.moveTo(x + 15, y + 6); c.lineTo(x + 19, y - 1); c.lineTo(x + 25, y + 4); c.moveTo(x + 59, y + 6); c.lineTo(x + 55, y - 1); c.lineTo(x + 49, y + 4); c.fill();
+          px(c, x + 28, y + 6, 4, 2, '#0a0e1c'); px(c, x + 42, y + 6, 4, 2, '#0a0e1c'); px(c, x + 36, y + 9, 2, 1, '#ff9ad5');
+        } }
+    ],
+    bed: [
+      { id: 'crimson', name: 'Crimson', price: 0, blurb: 'Deep red blankets and cushions. Classic spaceship lounge.', cols: ['#b8322a', '#e0483d'] },
+      { id: 'cream', name: 'Cloud cream', price: 0, blurb: 'Everything soft and cream-colored. Like sleeping in a marshmallow.', cols: ['#e8ddc8', '#f6efe2'] },
+      { id: 'blush', name: 'Blush pink', price: 300, blurb: 'Soft pink. Wren has the matching pillow.', cols: ['#e07a98', '#ffb3c8'] },
+      { id: 'tangerine', name: 'Tangerine', price: 300, blurb: 'Bright orange. Very retro-future. Very “1970s idea of 2070”.', cols: ['#e8862a', '#ffb547'] },
+      { id: 'stars', name: 'Starry night', price: 500, blurb: 'Navy with little stars. You fall asleep counting them.', cols: ['#1e2b55', '#33457e'], pattern: 'stars' },
+      { id: 'mint', name: 'Mint', price: 500, blurb: 'Fresh mint green. Gus says it makes the room smell like toothpaste. It doesn’t.', cols: ['#4fae8a', '#9fe0b8'] }
+    ]
+  };
+  function glow(c, x, y, r, col) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
+  const denSpot = id => DEN_SPOTS.find(s => s.id === id);
+  const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
+  const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
+  const denKey = (pool, id) => `den:${pool}:${id}`;
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); return !!it && (it.price === 0 || owned.has(denKey(pool, id))); };
+  let denLook = (() => {
+    let saved = {};
+    try { saved = JSON.parse(store.get('ds-den', '{}')) || {}; } catch (e) {}
+    for (const [k, map] of Object.entries(DEN_RENAMED)) if (map[saved[k]]) saved[k] = map[saved[k]];
+    return Object.assign({}, DEN_DEFAULT, saved);
+  })();
+  // anything bought in the old Pad becomes its new equivalent
+  for (const [pool, map] of Object.entries(DEN_RENAMED)) for (const [from, to] of Object.entries(map)) if (owned.has(denKey(pool, from))) owned.add(denKey(pool, to));
+  const saveDen = () => store.set('ds-den', JSON.stringify(denLook));
+  let denUI = null;
+  let denFaceCache = null;
+  function denFaces() {
+    if (denFaceCache) return denFaceCache;
+    denFaceCache = {};
+    for (const who of ['F', 'G', 'W', 'R']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    return denFaceCache;
+  }
+
+  // Draw the whole cabin. `look` maps each spot to an item id; `sel` is the spot to highlight.
+  function rrect(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
+  }
+  function denStars(c, x, y, w, h, t) {
+    for (let i = 0; i < Math.round(w * h / 60); i++) { const tw = reduceMotion ? 1 : 0.5 + 0.5 * Math.sin(t / 600 + i * 1.7); const r1 = Math.sin(i * 12.9898) * 43758.5453, r2 = Math.sin(i * 78.233) * 12543.123; px(c, x + Math.floor((r1 - Math.floor(r1)) * w), y + Math.floor((r2 - Math.floor(r2)) * h), 1, 1, `rgba(220,226,240,${(0.3 + 0.6 * tw).toFixed(2)})`); }
+  }
+  function drawDen(cv, look = denLook, sel = null, t = performance.now()) {
+    if (!cv) return;
+    const c = cv.getContext('2d'), st = { faces: denFaces() };
+    c.imageSmoothingEnabled = false;
+    const it = spot => denItem(spot, look[spot]);
+    const S = id => denSpot(id);
+    const W = it('wall'), [base, edge, seam, ceil] = W.cols, L = it('light'), strip = L.strip(t), bed = it('bed');
+    // curved capsule walls: darker toward the edges
+    const g = c.createLinearGradient(0, 0, RW, 0);
+    g.addColorStop(0, edge); g.addColorStop(0.18, base); g.addColorStop(0.82, base); g.addColorStop(1, edge);
+    c.fillStyle = g; c.fillRect(0, 0, RW, 78);
+    if (W.stars) denStars(c, 0, 8, RW, 70, t);
+    for (const x of [58, 152]) px(c, x, 8, 1, 70, seam);
+    px(c, 0, 52, RW, 1, seam);
+    // ceiling with the light strip and downlights
+    px(c, 0, 0, RW, 7, ceil); px(c, 0, 6, RW, 1, strip);
+    const cg = c.createLinearGradient(0, 7, 0, 22); cg.addColorStop(0, strip); cg.addColorStop(1, 'rgba(0,0,0,0)');
+    c.globalAlpha = 0.28; c.fillStyle = cg; c.fillRect(0, 7, RW, 15); c.globalAlpha = 1;
+    for (let x = 14; x < RW; x += 28) { px(c, x, 2, 3, 2, '#fff6e0'); }
+    // floor and the rug
+    it('floorStyle').draw(c, t);
+    px(c, 0, 77, RW, 2, edge);
+    it('rug').draw(c, S('rug').x, S('rug').y, t, st);
+    // the big rounded window
+    c.fillStyle = '#f4ead6'; rrect(c, 58, 5, 62, 48, 12); c.fill();
+    c.fillStyle = '#b9a98c'; rrect(c, 60, 7, 58, 44, 10); c.fill();
+    c.save(); rrect(c, 62, 9, 54, 40, 9); c.clip();
+    it('window').draw(c, 62, 9, t, st);
+    c.fillStyle = 'rgba(255,255,255,0.07)'; c.beginPath(); c.moveTo(70, 9); c.lineTo(80, 9); c.lineTo(66, 49); c.lineTo(62, 49); c.lineTo(62, 30); c.closePath(); c.fill();
+    c.restore();
+    // wall art
+    for (const id of ['wallL', 'wallR']) it(id).draw(c, S(id).x, S(id).y, t, st);
+    // built-in shelf alcove, backlit
+    c.fillStyle = edge; rrect(c, 148, 8, 50, 26, 8); c.fill();
+    c.fillStyle = seam; rrect(c, 150, 10, 46, 22, 7); c.fill();
+    px(c, 152, 11, 42, 1, strip); c.globalAlpha = 0.18; px(c, 151, 12, 44, 18, strip); c.globalAlpha = 1;
+    px(c, 150, 30, 46, 2, '#f4ead6');
+    for (const id of ['shelf1', 'shelf2', 'shelf3']) it(id).draw(c, S(id).x, S(id).y, t, st);
+    // capsule bunk nook
+    c.fillStyle = edge; rrect(c, 4, 39, 54, 40, 9); c.fill();
+    c.fillStyle = seam; rrect(c, 6, 41, 50, 36, 8); c.fill();
+    px(c, 10, 42, 42, 1, strip); c.globalAlpha = 0.2; px(c, 8, 43, 46, 10, strip); c.globalAlpha = 1;
+    px(c, 50, 46, 3, 2, '#fff1c7'); px(c, 51, 48, 1, 3, '#c9b897');
+    px(c, 7, 64, 48, 6, '#f4ead6'); px(c, 9, 58, 11, 6, '#fbf6ec'); px(c, 21, 59, 9, 5, bed.cols[1]);
+    px(c, 26, 61, 29, 9, bed.cols[0]); px(c, 26, 61, 29, 2, bed.cols[1]);
+    if (bed.pattern === 'stars') for (const [a, b] of [[30, 65], [36, 67], [42, 64], [48, 68], [52, 65]]) px(c, a, b, 1, 1, '#ffe58a');
+    px(c, 4, 70, 54, 8, '#f4ead6'); px(c, 4, 70, 54, 1, '#fbf6ec'); px(c, 4, 77, 54, 1, '#c9b897');
+    // window bench with cushions
+    c.fillStyle = '#f4ead6'; rrect(c, 60, 64, 58, 14, 5); c.fill();
+    px(c, 62, 64, 54, 1, '#fbf6ec'); px(c, 60, 77, 58, 1, '#c9b897'); px(c, 62, 71, 54, 1, '#dccdb1');
+    for (const x of [66, 84, 102]) { c.fillStyle = bed.cols[0]; rrect(c, x, 57, 11, 8, 2); c.fill(); px(c, x + 2, 58, 7, 1, bed.cols[1]); }
+    if (bed.pattern === 'stars') for (const x of [69, 88, 105]) px(c, x, 61, 1, 1, '#ffe58a');
+    // floating desk console with an egg chair
+    px(c, 152, 58, 46, 3, '#f4ead6'); px(c, 152, 58, 46, 1, '#fbf6ec'); px(c, 154, 61, 42, 1, strip);
+    px(c, 180, 61, 16, 12, '#e6d9c0'); px(c, 180, 66, 16, 1, '#c9b897'); px(c, 186, 63, 4, 1, '#c9b897');
+    oval(c, 165, 69, 7, 6, '#ff9a3d'); oval(c, 165, 68, 5, 4, '#ffb547'); px(c, 164, 75, 2, 3, '#c9b897'); px(c, 161, 77, 8, 1, '#c9b897');
+    it('desk').draw(c, S('desk').x, S('desk').y, t, st);
+    it('floor').draw(c, S('floor').x, S('floor').y, t, st);
+    // lighting
+    if (L.fixture) L.fixture(c, t);
+    L.overlay(c, t);
+    // the rounded rim of the cabin
+    c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, RW, RH); rrectPath(c, 1, 1, RW - 2, RH - 2, 10); c.fill('evenodd');
+    c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 1; rrect(c, 1.5, 1.5, RW - 3, RH - 3, 10); c.stroke();
+    // highlight the spot being decorated
+    const s = sel && denSpot(sel);
+    if (s && !s.room && (reduceMotion || Math.floor(t / 400) % 2)) {
+      const x0 = s.x - 2, y0 = s.y - 2, x1 = s.x + s.w + 1, y1 = s.y + s.h + 1, k = '#ff6b5e';
+      for (const [cx, cy, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) { px(c, Math.min(cx, cx + dx * 3), cy, 4, 1, k); px(c, cx, Math.min(cy, cy + dy * 3), 1, 4, k); }
+    }
+  }
+  // adds a rounded rectangle to the current path without starting a new one (for the cut-out rim)
+  function rrectPath(c, x, y, w, h, r) {
+    c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    c.lineTo(x + r, y + h); c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
+  }
+  // which spot did they tap? (furniture first, then whatever wall or floor is behind it)
+  function denHit(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
+    for (const id of ['desk', 'shelf1', 'shelf2', 'shelf3', 'wallR', 'wallL', 'window', 'floor', 'bed', 'rug']) {
+      const s = denSpot(id);
+      if (x >= s.x - 3 && x <= s.x + s.w + 3 && y >= s.y - 3 && y <= s.y + s.h + 3) return id;
+    }
+    if (y < 8) return 'light';
+    if (x >= 60 && x <= 118 && y >= 55 && y <= 78) return 'bed';
+    return y < 78 ? 'wall' : 'floorStyle';
+  }
+  // a little crop of the room with one item tried in its spot, for the item tiles
+  function denPreview(spot, id) {
+    const off = document.createElement('canvas'); off.width = RW; off.height = RH;
+    drawDen(off, { ...denLook, [spot]: id }, null, 1000);
+    const s = denSpot(spot);
+    const box = s.room ? { x: 0, y: 0, w: RW, h: RH } : { x: Math.max(0, s.x - 4), y: Math.max(0, s.y - 4), w: Math.min(RW, s.w + 8), h: Math.min(RH, s.h + 8) };
+    const cv = document.createElement('canvas'); cv.width = box.w; cv.height = box.h;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    c.drawImage(off, box.x, box.y, box.w, box.h, 0, 0, box.w, box.h);
+    return cv;
+  }
+  function denCounts() {
+    let have = 0, all = 0;
+    for (const [pool, list] of Object.entries(DEN_ITEMS)) for (const it of list) { if (it.id === 'none') continue; all++; if (denOwns(pool, it.id)) have++; }
+    return [have, all];
+  }
+  function denLine() { const [have, all] = denCounts(); return `${have}/${all} decorations`; }
+  const DEN_SAYS = ['Gus would like it noted that he could have built that.', 'Dottie has approved it. Dottie has filed a form about it.', 'Looks great. Apogee will be by later to judge it.', 'Home sweet cabin.', 'Very you.'];
+
+  function renderDen(keepSpot) {
+    if (!denUI) denUI = { spot: 'wallL', trying: null, anim: 0, note: '' };
+    if (!keepSpot) denUI.trying = null;
+    card.classList.add('wide');
+    const spot = denUI.spot, s = denSpot(spot), pool = s.pool, list = DEN_ITEMS[pool];
+    const shown = denUI.trying || denLook[spot];
+    const it = list.find(x => x.id === shown) || list[0];
+    const own = denOwns(pool, it.id), placed = denLook[spot] === it.id;
+    const ownedN = list.filter(x => x.id !== 'none' && denOwns(pool, x.id)).length, totalN = list.filter(x => x.id !== 'none').length;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.price ? 'Owned' : 'Free') : `${fmt(x.price)} cr`;
+    let action;
+    if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
+    else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
+    else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
+    else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
+    card.innerHTML = `<div class="den">
+      <h1 class="good">The Pad</h1>
+      <p class="sub">Your cabin. Tap anything in the room to change it. <span class="cr">${fmt(credits)} cr</span></p>
+      <div class="bay">
+        <div class="col">
+          <canvas class="room" id="denCv" width="${RW}" height="${RH}" role="img" aria-label="Your cabin: a bunk, a desk, a shelf, a window and whatever you've decorated it with"></canvas>
+          <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}</button>`).join('')}</div>
+        </div>
+        <div class="col">
+          <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
+          <div class="items den-items">${list.map(x => `<button class="item${denLook[spot] === x.id ? ' equipped' : denOwns(pool, x.id) ? ' owned' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
+            <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
+          <div class="detail">
+            <b>${it.name}</b>
+            <p>${it.blurb}</p>
+            <div class="btns">${action}${denUI.trying ? '<button class="btn ghost" id="denCancel">Put it back</button>' : ''}</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn ghost" id="back">Main menu</button>
+    </div>`;
+    card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
+    const look = () => denUI.trying ? { ...denLook, [spot]: denUI.trying } : denLook;
+    const cv = $('denCv');
+    clearInterval(denUI.anim);
+    drawDen(cv, look(), spot);
+    denUI.anim = setInterval(() => drawDen($('denCv'), look(), denUI && denUI.spot), 100);
+    const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
+    cv.addEventListener('click', e => pick(denHit(e)));
+    card.querySelectorAll('[data-spot]').forEach(b => b.addEventListener('click', () => pick(b.dataset.spot)));
+    card.querySelectorAll('[data-den]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.den;
+      denUI.note = '';
+      if (denOwns(pool, id)) { place(id); return; }
+      denUI.trying = id; sfx.click(); renderDen(true);
+      const t2 = card.querySelector(`[data-den="${id}"]`); if (t2) t2.focus({ preventScroll: true });
+    }));
+    function place(id) {
+      // an item can only sit in one shelf spot at a time
+      if (id !== 'none') for (const o of DEN_SPOTS) if (o.id !== spot && o.pool === pool && denLook[o.id] === id) denLook[o.id] = 'none';
+      denLook[spot] = id; denUI.trying = null; saveDen(); sfx.click();
+      if (id !== 'none') denUI.note = DEN_SAYS[Math.floor(Math.random() * DEN_SAYS.length)];
+      renderDen(true);
+      const t2 = card.querySelector(`[data-den="${id}"]`); if (t2) t2.focus({ preventScroll: true });
+    }
+    const pb = $('denPlace'); if (pb) pb.addEventListener('click', () => place(it.id));
+    const bb = $('denBuy');
+    if (bb) bb.addEventListener('click', () => {
+      if (credits < it.price) return;
+      credits -= it.price; owned.add(denKey(pool, it.id)); saveCosmetics();
+      sfx.coin(); showToast(`${it.name} is yours`);
+      place(it.id);
+    });
+    const cb = $('denCancel'); if (cb) cb.addEventListener('click', () => { denUI.trying = null; sfx.click(); renderDen(true); });
+    $('back').addEventListener('click', () => setMode('title'));
   }
 
   // ---- Postcards: the first landing on each world earns one from the crew ----
@@ -5253,6 +5764,7 @@ kbd {
       drawPreview(now, $('hangarThumb'));
       if (!thumbRoom) thumbRoom = { faces: crewFaces(), cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null };
       drawRoom($('roomThumb'), thumbRoom);
+      drawDen($('denThumb'));
     }
     updateHud();
     requestAnimationFrame(frame);
@@ -5280,7 +5792,7 @@ kbd {
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
     if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
-    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || (mode === 'setup' && e.code === 'Escape')) {
+    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
