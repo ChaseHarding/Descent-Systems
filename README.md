@@ -62,9 +62,22 @@ The main menu opens on three big cards with live previews:
 
 Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**. At the bottom are links to **Badges**, your **pilot license**, **Settings** and **How to play**, which replays the tutorial.
 
-<p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes" width="560"></p>
+<p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes, with Badges, License, Settings and How to play links along the bottom" width="560"></p>
 
-New players are offered the **tutorial** first. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing.
+### First launch
+
+Brand-new players get a short guided start, about two to three minutes, instead of being dropped onto the menu:
+
+1. **Welcome aboard.** Dottie comes on the radio, and six quick illustrated cards introduce Descent Systems: the supply-closet head office, Biscuit (Gus would like you not to scratch her), the bake sale that paid for her, and Apogee, who technically outranks you.
+2. **Your pilot license.** Type your name and pick your look, then Dottie stamps it **LICENSED · CADET**.
+3. **The certification flight.** This is the tutorial. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing, with a nervous Gus on the radio.
+4. **Meet the crew.** A short guided tour of the break room: the crew, the bulletin board, your first postcard, Gus's maintenance log and Apogee.
+5. **Your Pad.** Gus brings a housewarming gift (pick a lander poster, a fern or a rug) and shows you how decorating works, while Apogee claims your bunk.
+6. Back on the main menu, **Missions** is marked **Start here**.
+
+<p align="center"><img src="media/intro.png" alt="The first-launch intro: a pixel-art Biscuit parked on a pad under the stars, with Gus on the radio saying she's their only lander and asking you, please, not to scratch her" width="480"></p>
+
+Every step has a **Skip** button. Players with an existing save never see the intro, and anyone can watch it again from **Settings → Replay intro**. Players who skip it can still start the tutorial from the main menu.
 
 **Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts, sound and music, plus a list of the controls.
 
@@ -151,7 +164,7 @@ Upgrades apply in free flight and missions. They're always off in the daily chal
 
 Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and more) appear in the hangar once you earn them.
 
-<p align="center"><img src="media/hangar.png" alt="The hangar: Biscuit hovering over the pad in a garage with Gus at his workbench, a Your look panel totaling the cost, and a tabbed grid of engine flames" width="640"></p>
+<p align="center"><img src="media/hangar.png" alt="The hangar: the five landers (Biscuit, Apex Vector, Lark, Workhorse and Whisker) in a row at the top, Biscuit hovering over the pad in the garage with Gus at his workbench, a Your look panel, and a tabbed grid of hull paints" width="560"></p>
 
 ## Missions
 
@@ -396,6 +409,8 @@ After any free-flight landing, press **Challenge a friend**. On iPhone that open
 
 When your friend opens the link, the game greets them with "**Ace challenged you**", showing which world and site you flew and the score to beat. They fly the exact same terrain from the exact same start, wind and rovers included, with your ghost flying beside them in pink. At the end, a scorecard shows who won. They can race again as many times as they like, watch the replay, or press **Send your ghost back** to challenge you on the same site with their own run.
 
+<p align="center"><img src="media/ghost-race.png" alt="A ghost race on Mars: the challenger's see-through pink ghost, labeled ACE, flying ahead of your lander toward the pads" width="640"></p>
+
 No server or account is involved. Each free-flight site is built from a random seed, so the link only carries the world, the site number, the seed, your score and your flight path, sampled 15 times a second, delta-encoded and compressed. A typical link is a few hundred characters long. Links always open the game on GitHub Pages.
 
 ## Hot-seat mode
@@ -463,7 +478,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
