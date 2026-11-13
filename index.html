@@ -465,6 +465,28 @@ kbd {
 .race-score b { font-family: var(--f-display); font-size: 26px; font-variant-numeric: tabular-nums; }
 .race-score .won { border-color: var(--flame); }
 .race-score .won b { color: var(--flame); }
+/* Crew requests */
+.reqs { width: 100%; max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.reqs .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); }
+.reqs .radio.req { position: relative; max-width: none; width: 100%; box-sizing: border-box; text-align: left; }
+.req .said { min-width: 0; flex: 1; padding-right: 18px; }
+.req.done { border-color: var(--ok); }
+.req.done p { color: var(--regolith-dim); }
+.rbar { height: 6px; margin-top: 8px; border-radius: 3px; background: var(--space-2); overflow: hidden; }
+.rbar i { display: block; height: 100%; background: var(--flame); }
+.req.done .rbar i { background: var(--ok); }
+.rmeta { display: block; margin-top: 4px; font-size: 12px; color: var(--regolith-dim); }
+.req.done .rmeta { color: var(--ok); }
+.rdone { position: absolute; top: 10px; right: 12px; color: var(--ok); font-size: 20px; }
+.reqstrip { position: relative; width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); color: var(--regolith); font-family: var(--f-mono); text-align: left; cursor: pointer; }
+.reqstrip:hover { border-color: var(--flame); }
+.reqstrip:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.reqstrip .rfaces { display: flex; flex: none; }
+.reqstrip .rfaces canvas { width: 30px; height: 30px; border-radius: 4px; image-rendering: pixelated; margin-right: -6px; border: 2px solid var(--space); }
+.reqstrip .rt { display: flex; flex-direction: column; gap: 2px; min-width: 0; margin-left: 8px; }
+.reqstrip .rt b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+.reqstrip .rt span { font-size: 12px; color: var(--regolith-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reqstrip .dot { position: absolute; top: -10px; right: 10px; width: auto; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 11px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 /* First-launch intro and guided tours */
 .intro { width: 100%; max-width: 34rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .intro-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
@@ -2030,6 +2052,7 @@ kbd {
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
     mission.result = { ok: true, stars: starsWon, prev, pay, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked };
+    reqEvent('stars', { n: starsWon });
     sfx.landed(starsWon === 3);
     award('mission1');
     if (d.id === 'spa-day') award('gentle');
@@ -2051,6 +2074,7 @@ kbd {
     stats.softest = stats.softest == null ? vy : Math.min(stats.softest, vy);
     stats.byWorld[world.id] = (stats.byWorld[world.id] || 0) + 1;
     stats.byLander[ship().id] = (stats.byLander[ship().id] || 0) + 1;
+    if (!tut) reqEvent('land', { vy, ang, pad, world: world.id, fuelFrac: lander.fuelMax ? lander.fuel / lander.fuelMax : 0, solo: !match && !daily && !mission && !run && !race, level });
     if (!stats.worlds.includes(world.id)) {
       stats.worlds.push(world.id);
       const side = SIDES.find(x => x.afterWorld === world.id);
@@ -2859,6 +2883,7 @@ kbd {
       if (daily) {
         daily.results.push(lastResult);
         if (daily.site >= DAILY_SITES) award('perfect');
+        if (daily.site >= DAILY_SITES) reqEvent('daily');
         setMode(daily.site >= DAILY_SITES ? 'dailyEnd' : 'landed');
         return;
       }
@@ -2989,7 +3014,7 @@ kbd {
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3033,6 +3058,7 @@ kbd {
     if (m === 'license') { renderLicense(); return; }
     if (m === 'raceInvite') { renderRaceInvite(); return; }
     if (m === 'intro') { renderIntro(); return; }
+    if (m === 'requests') { renderRequests(); return; }
     if (m === 'raceEnd') { renderRaceEnd(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
@@ -3084,6 +3110,7 @@ kbd {
           <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
           <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
         </nav>
+        <button class="reqstrip" id="reqBtn">${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === st.items.length ? 'All done today. Nice work!' : `${d} of ${st.items.length} done · new in ${untilReset()}`}</span></span>${d < st.items.length ? `<i class="dot">${st.items.length - d} open</i>` : ''}`; })()}</button>
         <div class="subnav">
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
           <button class="link" id="licenseBtn">License<span>${rankOf().name}</span></button>
@@ -3130,6 +3157,7 @@ kbd {
         <p class="balance">+${fmt(r.pts)} credits banked · ${fmt(credits)} total</p>
         <div class="btns"><button class="btn" id="go">Next site</button>${!daily && !match && siteSeed != null ? '<button class="btn ghost" id="chalBtn">Challenge a friend</button>' : ''}${replayBtn()}</div>`;
     } else if (m === 'runPerk') {
+      reqEvent('run', { site: run.site });
       const r = lastResult;
       html = `<span class="eyebrow">Endless run · site ${run.site} · ${world.name}</span>
         <h1 class="good">Site ${run.site} cleared</h1>
@@ -3357,6 +3385,8 @@ kbd {
     });
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('hangar'));
+    const rqb = $('reqBtn');
+    if (rqb) { paintFaces(rqb); rqb.addEventListener('click', () => { reqFrom = 'title'; setMode('requests'); }); }
     const lcb = $('licenseBtn');
     if (lcb) lcb.addEventListener('click', () => { licenseFrom = 'title'; setMode('license'); });
     const bb = $('badgesBtn');
@@ -3660,6 +3690,8 @@ kbd {
       add(seen('valles-run') && !wrenHome(), 'I still have Wren’s old flight logs in my desk. I read one whenever the coffee runs out.');
       add(done >= ACT1, 'The investors visited. Both of them. They asked where the bake sale money went. I pointed at you.');
       L.push('I color-code my spreadsheets by mood. Today is beige.');
+      add(reqDoneCount() < 3, 'The crew requests are on the board. They pay real credits. Well. Real-ish credits.');
+      add(reqDoneCount() === 3, 'All three requests done today? I’ve put a gold star on your file. It’s a sticker. I bought a sheet of them.');
       L.push('Someone keeps leaving the fridge open. The fridge is in space. It’s fine. It’s still annoying.');
       L.push('I tried meditating. Gus started welding next door. I am now very calm in a very loud way.');
       L.push('Our insurance company sends a fruit basket every time you land safely. We have so much fruit. Please crash once. Kidding. Mostly.');
@@ -3763,7 +3795,7 @@ kbd {
     let i = Math.floor(Math.random() * L.length);
     if (L.length > 1 && i === last) i = (i + 1) % L.length;
     lounge.last[who] = i;
-    if (who === 'A') { lounge.catAwake = performance.now() + 4000; sfx.purr(); }
+    if (who === 'A') { lounge.catAwake = performance.now() + 4000; sfx.purr(); reqEvent('pet'); }
     loungeSay(who, L[i]);
   }
   function loungeSay(who, text) {
@@ -3923,6 +3955,7 @@ kbd {
         <button class="btn" id="boardBtn">Bulletin board</button>
         <button class="btn" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
         <button class="btn" id="logBookBtn">Maintenance log</button>
+        <button class="btn" id="reqBtn2">Crew requests${reqDoneCount() < 3 ? ` · ${3 - reqDoneCount()} open` : ''}</button>
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
@@ -3932,6 +3965,7 @@ kbd {
     $('boardBtn').addEventListener('click', () => setMode('board'));
     $('albumBtn').addEventListener('click', () => setMode('album'));
     $('logBookBtn').addEventListener('click', () => setMode('log'));
+    $('reqBtn2').addEventListener('click', () => { reqFrom = 'lounge'; setMode('requests'); });
     drawRoom();
     lounge.anim = setInterval(drawRoom, 100);
     // someone says hello when you walk in
@@ -4694,7 +4728,7 @@ kbd {
     denUI.anim = setInterval(() => { if (denUI) drawDen($('denCv'), look(), denUI.spot, undefined, denUI); }, 100);
     denSay(denUI.say[0], denUI.say[1], fresh);
     const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
-    const pet = () => { const at = denCatSpot(denUI.cat, look()), opts = DEN_CAT[at.id].filter(t => t !== denUI.lastLine); const line = opts[Math.floor(Math.random() * opts.length)]; denUI.lastLine = line; denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', line); };
+    const pet = () => { const at = denCatSpot(denUI.cat, look()), opts = DEN_CAT[at.id].filter(t => t !== denUI.lastLine); const line = opts[Math.floor(Math.random() * opts.length)]; denUI.lastLine = line; denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', line); reqEvent('pet'); };
     const chat = () => denSay(denUI.visitor, denTalkFor(denUI.visitor, look()));
     cv.addEventListener('click', e => {
       const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
@@ -4828,6 +4862,7 @@ kbd {
     if (alt < 42) A.zoom = true; else if (alt > 62) A.zoom = false;
   }
   function arcOver() {
+    reqEvent('arcade', { score: arc.score });
     arc.st = 'over';
     const list = arcScores();
     arc.qualifies = arc.score > 0 && (list.length < 5 || arc.score > list[Math.min(4, list.length - 1)].s);
@@ -5229,6 +5264,7 @@ kbd {
   }
   const pilotName = () => (lic && lic.name && lic.name !== 'Pilot' ? lic.name : store.get('ds-p1', '')) || 'A pilot';
   async function shareRace(R, btn) {
+    reqEvent('share');
     let url;
     try { url = await raceLink(R); } catch (e) { showToast('Couldn’t make a link for that flight'); return; }
     const wn = worldName(R.w), text = `I landed on ${wn} for ${fmt(R.p)} points in Descent Systems. Race my ghost and beat it:`;
@@ -5522,6 +5558,107 @@ kbd {
       renderDen(true);
     });
     const sk = $('tourSkip'); if (sk) sk.addEventListener('click', () => endIntro(true));
+  }
+
+  // ---- Crew requests: three small jobs from the crew every day, the same for every pilot ----
+  const REQ_BONUS = 250;
+  const REQ_TYPES = {
+    soft: { who: 'G', n: 2, pay: 300, text: () => 'Land twice under 0.5 m/s. Biscuit’s knees will thank you. So will mine.' },
+    world: { who: 'F', n: 2, pay: 250, text: p => `Land on ${worldName(p.w)} twice. Our ${worldName(p.w)} clients keep calling, and I’ve run out of excuses.` },
+    pad5: { who: 'F', n: 2, pay: 350, text: () => 'Land on a ×5 pad twice. Big multipliers make the investors smile. Both of them.' },
+    fuel: { who: 'W', n: 1, pay: 300, text: () => 'Land with at least half your fuel left. In my day we called that “flying on a budget”.',
+      alt: ['G', 'Land with at least half your fuel left. Fuel is expensive. I’ve seen the receipts. I cried.'] },
+    tilt: { who: 'G', n: 2, pay: 250, text: () => 'Land perfectly level, under 2° of tilt, twice. I’ll know if you lean.' },
+    rover: { who: 'G', n: 1, pay: 350, text: () => 'Land on a moving rover or the barge. The drivers say hi. They also say please hurry.' },
+    site: { who: 'F', n: 1, pay: 350, text: () => 'Reach site 3 in a single free flight. One lander, three landings, no excuses.' },
+    stars: { who: 'F', n: 3, pay: 300, text: () => 'Earn 3 stars in missions. Any missions. Old ones count. I just need numbers for my report.' },
+    daily: { who: 'F', n: 1, pay: 300, text: () => 'Finish all three sites of today’s daily challenge. Everyone else is doing it. Don’t let everyone else win.' },
+    run: { who: 'G', n: 1, pay: 350, text: () => 'Reach site 4 in an endless run. I’ve got a new perk I want to see in action. It probably won’t explode.' },
+    share: { who: 'F', n: 1, pay: 200, text: () => 'Send someone a ghost challenge after a free-flight landing. I want to know who’s faster. For science. And gossip.' },
+    pet: { who: 'A', n: 3, pay: 150, text: () => 'Mrrp. (Pet Apogee three times today, in the break room or your Pad. She has it in her calendar.)' },
+    arcade: { who: 'G', n: 1, pay: 300, text: () => 'Score 600 or more in Descent Systems Classic. NOT GUS believes in you. NOT GUS is not me.', needs: () => owned.has(denKey('floor', 'arcade')) }
+  };
+  let reqFrom = 'title';
+  // Wren's requests go to Gus until she's home
+  const reqWho = it => { const T = REQ_TYPES[it.type]; return T.who === 'W' && !wrenHome() && T.alt ? T.alt[0] : T.who; };
+  const reqText = it => { const T = REQ_TYPES[it.type]; return T.who === 'W' && !wrenHome() && T.alt ? T.alt[1] : T.text(it); };
+  function reqToday() {
+    const date = todayKey();
+    let st = null;
+    try { st = JSON.parse(store.get('ds-req', 'null')); } catch (e) {}
+    if (st && st.date === date && Array.isArray(st.items)) return st;
+    // a fresh set, picked from today's date so friends get the same jobs
+    const r = mulberry32(hashStr('req:' + date));
+    const pool = Object.keys(REQ_TYPES).filter(k => !REQ_TYPES[k].needs || REQ_TYPES[k].needs());
+    const items = [];
+    while (items.length < 3 && pool.length) {
+      const k = pool.splice(Math.floor(r() * pool.length), 1)[0];
+      const it = { type: k, prog: 0, done: false };
+      if (k === 'world') it.w = WORLDS[Math.floor(r() * WORLDS.length)].id;
+      items.push(it);
+    }
+    st = { date, items, bonus: false };
+    store.set('ds-req', JSON.stringify(st));
+    return st;
+  }
+  const reqDoneCount = () => reqToday().items.filter(i => i.done).length;
+  function reqEvent(type, d = {}) {
+    const st = reqToday();
+    let changed = false, delay = 2200;
+    for (const it of st.items) {
+      if (it.done) continue;
+      const T = REQ_TYPES[it.type];
+      let add = 0;
+      if (type === 'land') {
+        if (it.type === 'soft' && d.vy < 0.5) add = 1;
+        if (it.type === 'world' && d.world === it.w) add = 1;
+        if (it.type === 'pad5' && d.pad && d.pad.mult === 5) add = 1;
+        if (it.type === 'fuel' && d.fuelFrac >= 0.5) add = 1;
+        if (it.type === 'tilt' && d.ang < 2) add = 1;
+        if (it.type === 'rover' && d.pad && d.pad.move) add = 1;
+        if (it.type === 'site' && d.solo && d.level >= 3) add = 1;
+      }
+      if (type === 'stars' && it.type === 'stars') add = d.n || 0;
+      if (type === 'daily' && it.type === 'daily') add = 1;
+      if (type === 'run' && it.type === 'run' && d.site >= 4) add = 1;
+      if (type === 'share' && it.type === 'share') add = 1;
+      if (type === 'pet' && it.type === 'pet') add = 1;
+      if (type === 'arcade' && it.type === 'arcade' && d.score >= 600) add = 1;
+      if (!add) continue;
+      it.prog = Math.min(T.n, it.prog + add); changed = true;
+      if (it.prog >= T.n) {
+        it.done = true;
+        credits += T.pay;
+        const who = SIGN[reqWho(it)];
+        setTimeout(() => { showToast(`${who}’s request done! +${fmt(T.pay)} credits`, 2600); sfx.coin(); }, delay);
+        delay += 2800;
+      }
+    }
+    if (changed && !st.bonus && st.items.every(i => i.done)) {
+      st.bonus = true; credits += REQ_BONUS;
+      setTimeout(() => { showToast(`All three requests done! Dottie added a ${fmt(REQ_BONUS)} credit bonus`, 3000); sfx.coin(); }, delay);
+    }
+    if (changed) { store.set('ds-req', JSON.stringify(st)); saveCosmetics(); }
+  }
+  function renderRequests() {
+    const st = reqToday(), done = st.items.filter(i => i.done).length;
+    card.innerHTML = `<div class="reqs">
+      <h1 class="good">Crew requests</h1>
+      <p class="sub">${done} of ${st.items.length} done · new requests in ${untilReset()}</p>
+      ${st.items.map(it => {
+        const T = REQ_TYPES[it.type], text = reqText(it), who = reqWho(it);
+        return `<div class="radio req${it.done ? ' done' : ''}">${faceTag(who, text)}
+          <div class="said"><span class="who" style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</span><p>${esc(text)}</p>
+            <div class="rbar" role="progressbar" aria-valuemin="0" aria-valuemax="${T.n}" aria-valuenow="${it.prog}"><i style="width:${Math.round(100 * it.prog / T.n)}%"></i></div>
+            <span class="rmeta">${it.done ? `Done · +${fmt(T.pay)} credits paid` : `${it.prog} of ${T.n} · pays ${fmt(T.pay)} credits`}</span></div>
+          ${it.done ? '<b class="rdone" aria-label="Done">✓</b>' : ''}</div>`;
+      }).join('')}
+      <p class="limits">${st.bonus ? `All done for today, and the ${fmt(REQ_BONUS)} credit bonus is yours. The crew is very proud. Gus made a banner.` : `Finish all three for a ${fmt(REQ_BONUS)} credit bonus from Dottie. Everyone gets the same requests each day, so you can compare with friends.`}</p>
+      <div class="btns"><button class="btn ghost" id="back">${reqFrom === 'lounge' ? 'Back to the break room' : 'Main menu'}</button></div>
+    </div>`;
+    paintFaces(card);
+    $('back').addEventListener('click', () => setMode(reqFrom));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
   // ---- Postcards: the first landing on each world earns one from the crew ----
@@ -7065,6 +7202,7 @@ kbd {
     if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
     if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
     if (mode === 'intro') { if (e.code === 'Escape') endIntro(false); return; }
+    if (mode === 'requests') { if (e.code === 'Escape') setMode(reqFrom); return; }
     if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
