@@ -314,7 +314,7 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 | Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign |
 | Shelf (6 spots) | Your souvenirs (below), plus a cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket and gold trophy |
 | Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
-| Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, an arcade cabinet that only plays Descent Systems |
+| Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, or a working arcade cabinet (see below) |
 | Rug | Orange rug, striped runner, Saturn rug, cat face rug |
 | Bedding | Six colors for the bunk and the window-bench cushions: crimson, cloud cream, blush pink, tangerine, starry night and mint |
 | Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead or a twinkling starfield |
@@ -322,6 +322,17 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 | Lights | The color of the glowing strips: amber, ice blue, rose, color-cycling aurora, pulsing red alert, a disco ball, or night mode with just the window and your reading light |
 
 Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
+
+### The arcade cabinet
+
+Put the **arcade cabinet** (2,000 cr) in your Pad's corner, then tap it, or press **Play the arcade**, to play **Descent Systems Classic**: a tiny green vector-graphics lander game in the style of the 1979 arcade machines, on a glowing CRT screen with scanlines.
+
+- Turn with ◀ ▶ (or ← →) and hold **Thrust** (or ↑ / Space). On phones, the three big buttons under the screen support holding thrust while you turn.
+- Each round drops you in from the top left, drifting sideways, over new jagged terrain with three pads: 2×, 3× and a narrow 5×. The view zooms in as you get close to the ground.
+- A perfect landing scores 100 × the pad's multiplier and refills a little fuel. A hard landing scores 30 ×. Crashing costs 150 fuel, and the game ends when the tank runs dry.
+- It keeps a top-five high score table. The crew are already on it, and Gus's 2,400 sits at the top under the name "NOT GUS". Beat it and he'll mention it in the break room.
+
+<p align="center"><img src="media/arcade.png" alt="Descent Systems Classic on the arcade cabinet: a green vector lander hovering over jagged terrain above a 2× pad, with score, fuel, altitude and speed readouts, and pink Thrust and turn buttons under the screen" width="420"></p>
 
 ### Photo mode
 
@@ -430,7 +441,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
