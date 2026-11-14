@@ -444,7 +444,7 @@ kbd {
 .link:hover { color: var(--flame); }
 .mode:focus-visible, .link:focus-visible, .newbie:focus-visible, .toggle:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 /* Break room */
-.lounge { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.lounge { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .lounge canvas.room.walkroom { aspect-ratio: 8 / 5; touch-action: none; cursor: pointer; }
 .gpanel { border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); padding: 12px 14px; display: grid; gap: 8px; text-align: left; }
 .gpanel h3 { margin: 0; font-family: var(--f-display); font-size: 15px; letter-spacing: 0.05em; color: var(--flame); }
@@ -572,6 +572,27 @@ kbd {
 .rooms { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .rooms .mode b { font-size: 16px; }
 .mode.here { border-style: dashed; opacity: 0.7; }
+.mtabs.menutabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 420px) { .menutabs .mtab b { font-size: 11px; letter-spacing: 0.03em; } }
+.mtab .tdot { display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: var(--flame); vertical-align: middle; }
+.menubody { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.crewlist { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+.crow { position: relative; display: flex; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; min-width: 0; }
+.crow canvas.face { width: 44px; height: 44px; flex: none; }
+.crow .cinfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.crow .cinfo b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.04em; }
+.crow small { font-size: 11px; color: var(--regolith-dim); }
+.crow .ctoday { display: flex; gap: 10px; font-size: 11px; color: var(--regolith-dim); }
+.crow .ctoday .ok { color: #9fe0b8; }
+.crow .dot { position: absolute; top: -9px; right: 8px; width: auto; height: auto; white-space: nowrap; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-style: normal; }
+.todaylist { width: 100%; display: grid; gap: 10px; }
+.tcard { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; }
+.tcard .btn { padding: 8px 14px; font-size: 12px; }
+.treq { display: flex; gap: 8px; align-items: center; width: 100%; }
+.treq canvas.face { width: 28px; height: 28px; flex: none; }
+.treq p { flex: 1; font-size: 12px; min-width: 0; }
+.treq small { font-family: var(--f-mono); font-size: 11px; color: var(--flame); }
+.treq.done p, .treq.done small { color: var(--regolith-dim); }
 .mode .dot { position: absolute; top: -10px; right: 10px; width: auto; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 11px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 /* Pilot license */
 .license { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
@@ -3790,12 +3811,13 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage'];
-  let shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
+  let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
+    if (SHIP_ROOMS.includes(m)) card.classList.add('wide');
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
     if (intro && m !== 'intro') clearInterval(intro.anim);
     if (m === 'missions') store.set('ds-nudge', '');
@@ -3823,6 +3845,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     mode = m;
     if (SHIP_ROOMS.includes(m)) lastRoom = m;
+    if (SHIP_ROOMS.includes(m) || m === 'flights' || m === 'flying') menuReturn = false;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
     $('pad').classList.toggle('off', MENU_MODES.includes(m));
     $('coach').hidden = !(tut && (m === 'flying' || m === 'paused'));
@@ -3869,7 +3892,9 @@ details.act > .limits { margin: 0 0 8px; }
       if (race && race.active) race = null;
       const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
-      walkEnter = null; setMode(lastRoom); return;
+      walkEnter = null;
+      if (menuReturn) { menuReturn = false; setMode('shipmenu'); } else setMode(lastRoom);
+      return;
     }
     if (m === 'title') {
       const isNew = !store.get('ds-tut', '');
@@ -3908,23 +3933,59 @@ details.act > .limits { margin: 0 0 8px; }
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'shipmenu') {
       const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar' };
+      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar' }[lastRoom];
       const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length };
-      html = `<h1 class="good">Ship menu</h1>
-        <p class="tagline">You’re in ${ROOM_NAMES[lastRoom] === 'Hangar' ? 'the hangar' : ROOM_NAMES[lastRoom].replace(/^The /, 'the ')}.</p>
-        <span class="eyebrow">Go to</span>
-        <nav class="rooms" aria-label="Rooms on the ship">${SHIP_ROOMS.concat([]).sort((a, b) => ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'].indexOf(a) - ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'].indexOf(b)).map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: gardenReady() ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', hall: 'Every door on deck one' }[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
-        <span class="eyebrow">Ship’s business</span>
-        <div class="subnav">
-          <button class="link" id="flightsBtn">Flight deck</button>
-          <button class="link" id="friendsBtn2">Friends ♥</button>
-          <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
-          <button class="link" id="licenseBtn">License<span>${rankOf().name}</span></button>
-          <button class="link" id="settingsBtn">Settings</button>
-          <button class="link" id="howBtn">How to play</button>
-          ${installLink()}
-        </div>
-        ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}
-        <div class="btns"><button class="btn ghost" id="shipBack">Back to ${ROOM_NAMES[lastRoom] === 'Hangar' ? 'the hangar' : ROOM_NAMES[lastRoom].replace(/^The /, 'the ')}</button></div>`;
+      const met = ROM_WHO.filter(w => romMet[w]()), crewNew = met.some(w => sceneReady(w));
+      const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
+      const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
+      const cardsGot = stats.worlds.filter(id => POSTCARDS[id]).length, cardsAll = Object.keys(POSTCARDS).length;
+      const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
+      let body = '';
+      if (menuTab === 'ship') {
+        const order = ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'];
+        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', hall: 'Every door on deck one' };
+        body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
+          <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
+      } else if (menuTab === 'crew') {
+        const today = todayKey();
+        body = `<div class="crewlist">${met.map(who => {
+          const h = heartsOf(who), cap = heartCap(who);
+          const row = Array.from({ length: 10 }, (_, k) => `<i class="hrt${k < h ? ' on' : ''}${k >= cap ? ' lock' : ''}" aria-hidden="true">♥</i>`).join('');
+          return `<div class="crow">${faceTag(who, SIGN[who])}
+            <div class="cinfo"><b style="color:${SPEAKERS[who].color}">${SIGN[who]}</b><small>${statusOf(who)}</small>
+              <span class="hrow" role="img" aria-label="${h} of 10 hearts">${row}</span>
+              <span class="ctoday"><span class="${bond.talk[who] === today ? 'ok' : ''}">${bond.talk[who] === today ? '✓ chatted' : '· say hi'}</span><span class="${bond.gift[who] === today ? 'ok' : ''}">${bond.gift[who] === today ? '✓ gift given' : '· gift ready'}</span></span></div>
+            ${sceneReady(who) ? '<i class="dot">Hang out ♥</i>' : ''}</div>`;
+        }).join('')}</div>
+          <p class="limits">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on: reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat every day, bring gifts and do their jobs to grow closer.'}${(garden.basket && basketCount()) ? ` You have ${basketCount()} homegrown ${basketCount() === 1 ? 'gift' : 'gifts'} in your basket.` : ''}</p>
+          <div class="btns"><button class="btn" id="friendsBtn2" data-menuret>Gifts and hangouts</button></div>`;
+      } else if (menuTab === 'today') {
+        body = `<div class="todaylist">
+          <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
+            ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
+            <button class="btn ghost" id="reqBtn" data-menuret>Open crew requests</button></div>
+          <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
+            <button class="btn ghost" data-room="garden">Go to the garden</button></div>
+          <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
+            <button class="btn ghost" id="flightsBtn">Open the flight deck</button></div>
+        </div>`;
+      } else {
+        body = `<nav class="rooms" aria-label="Journal">
+          <button class="mode" id="albumBtn2" data-menuret><b>Postcards</b><span>${cardsGot} of ${cardsAll} collected</span>${newCards() ? `<i class="dot">${newCards()} new</i>` : ''}</button>
+          <button class="mode" id="boardBtn2" data-menuret><b>Bulletin board</b><span>Notes from the crew</span></button>
+          <button class="mode" id="logBtn2" data-menuret><b>Maintenance log</b><span>Gus’s notes on your flying</span></button>
+          <button class="mode" id="badgesBtn" data-menuret><b>Badges</b><span>${earned()} of ${ACH.length} earned</span></button>
+          <button class="mode" id="licenseBtn" data-menuret><b>License</b><span>${rankOf().name}</span></button>
+          <button class="mode" id="settingsBtn" data-menuret><b>Settings</b><span>Sound, controls, romance</span></button>
+        </nav>
+        <div class="subnav"><button class="link" id="howBtn">How to play</button>${installLink()}</div>
+        ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
+      }
+      html = `<h1 class="good">Menu</h1>
+        <p class="tagline">You’re in ${here} · ${fmt(credits)} credits</p>
+        <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
+        <div class="menubody">${body}</div>
+        <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
     } else if (m === 'flights') {
       html = `<span class="eyebrow">Nav console</span>
         <h1 class="good">Flight deck</h1>
@@ -4249,6 +4310,9 @@ details.act > .limits { margin: 0 0 8px; }
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
       if (again) again.focus({ preventScroll: true });
     }));
+    card.querySelectorAll('[data-menuret]').forEach(b => b.addEventListener('click', () => { menuReturn = true; }, { capture: true }));
+    card.querySelectorAll('[data-mtab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.mtab === menuTab) return; menuTab = b.dataset.mtab; sfx.click(); setMode('shipmenu'); const t2 = card.querySelector(`[data-mtab="${menuTab}"]`); if (t2) t2.focus({ preventScroll: true }); }));
+    for (const [id, to] of [['albumBtn2', 'album'], ['boardBtn2', 'board'], ['logBtn2', 'log']]) { const b2 = $(id); if (b2) b2.addEventListener('click', () => { sfx.click(); setMode(to); }); }
     card.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => { sfx.click(); walkEnter = null; setMode(b.dataset.room); }));
     const sbk = $('shipBack');
     if (sbk) sbk.addEventListener('click', () => { sfx.click(); if (m === 'flights' && flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); });
@@ -4256,7 +4320,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (flb) flb.addEventListener('click', () => { sfx.click(); flightsFrom = null; setMode('flights'); });
     const frb = $('friendsBtn2');
     if (frb) frb.addEventListener('click', () => { sfx.click(); friendsFrom = 'menu'; setMode('friends'); });
-    const firstFocus = m === 'title' || m === 'flights' || m === 'shipmenu' ? card.querySelector('.newbie, .mode:not(.here)') : go;
+    const firstFocus = m === 'shipmenu' ? card.querySelector('.mtab.on') : m === 'title' || m === 'flights' ? card.querySelector('.newbie, .mode:not(.here)') : go;
     if (firstFocus) setTimeout(() => firstFocus.focus({ preventScroll: true }), 0);
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -4292,7 +4356,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="btns">
         <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
         <button class="btn ghost" id="introBtn">Replay intro</button>
-        <button class="btn ghost" id="back">Back to the ship</button>
+        <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the ship'}</button>
       </div>`;
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
@@ -4535,7 +4599,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${a.reward ? `<span class="reward">${has ? 'Unlocked' : 'Reward'}: ${rewardName(a.reward)}</span>` : ''}
         </div></div>`;
       }).join('')}</div>
-      <button class="btn ghost" id="back">Back to the ship</button>`;
+      <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the ship'}</button>`;
     $('back').addEventListener('click', () => setMode('title'));
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
@@ -5021,23 +5085,13 @@ details.act > .limits { margin: 0 0 8px; }
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
       <canvas class="room walkroom" id="room" width="${WW}" height="${WH}" tabindex="0" role="application" aria-label="The Descent Systems break room. Tap to walk; tap someone or something to use it. With a keyboard, use the arrow keys to walk and Enter to talk to whoever is nearest."></canvas>
-      <p class="walkhint">Tap to walk · tap someone to chat · doors lead to the hangar and your Pad</p>
+      <p class="walkhint">Tap to walk · tap people and things to use them · doors lead to the hangar, your Pad and the hallway</p>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
-        <button class="btn" id="friendsBtn">Friends ♥${anySceneReady() ? ' · hang out ready' : ''}</button>
-        <button class="btn" id="reqBtn2">Crew requests${reqDoneCount() < 3 ? ` · ${3 - reqDoneCount()} open` : ''}</button>
-        <button class="btn ghost" id="boardBtn">Bulletin board</button>
-        <button class="btn ghost" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
-        <button class="btn ghost" id="logBookBtn">Maintenance log</button>
-        <button class="btn ghost" id="back">☰ Ship menu</button>
+        <button class="btn ghost" id="back">☰ Menu</button>
       </div>
     </div>`;
     $('back').addEventListener('click', () => setMode('shipmenu'));
-    $('boardBtn').addEventListener('click', () => setMode('board'));
-    $('albumBtn').addEventListener('click', () => setMode('album'));
-    $('logBookBtn').addEventListener('click', () => setMode('log'));
-    $('reqBtn2').addEventListener('click', () => { reqFrom = 'lounge'; setMode('requests'); });
-    $('friendsBtn').addEventListener('click', () => { sfx.click(); friendsFrom = 'lounge'; setMode('friends'); });
     startWalk();
     // someone says hello when you walk in
     const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
@@ -5261,6 +5315,16 @@ details.act > .limits { margin: 0 0 8px; }
     return out.slice(1);
   }
 
+  // On phones the rooms zoom in and the camera follows you, so people and furniture are big enough to tap
+  const roomZoomed = () => window.innerWidth < 640;
+  function roomView(W, H) { return roomZoomed() ? { vw: 180, vh: 144, cx: 0, cy: 0 } : { vw: Math.min(W, 256), vh: H, cx: 0, cy: 0 }; }
+  function fitRoomCanvas(cv, v) { cv.width = v.vw * 2; cv.height = v.vh * 2; cv.style.aspectRatio = `${v.vw} / ${v.vh}`; }
+  function camAim(v, x, y, W, H, dt) {
+    const tx = Math.max(0, Math.min(W - v.vw, x - v.vw / 2)), ty = Math.max(0, Math.min(H - v.vh, y - v.vh * 0.68));
+    if (dt == null) { v.cx = tx; v.cy = ty; return; }
+    const k = Math.min(1, dt * 6); v.cx += (tx - v.cx) * k; v.cy += (ty - v.cy) * k;
+  }
+  const camT = (c, v) => c.setTransform(2, 0, 0, 2, -Math.round(v.cx * 2), -Math.round(v.cy * 2));
   let walk = null;
   const CAT_WALK = { counter: [64, 30], table: [100, 66], box: [205, 116], rug: [60, 126], machine: [28, 12] };
   const BLIP_WALK = { shelf: [35, 20], poster: [212, 6], mug: [0, 0], box: [216, 124], floor: [140, 108] };
@@ -5312,9 +5376,10 @@ details.act > .limits { margin: 0 0 8px; }
       npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
       cat: lounge.cat, crumb: crumbHome() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
     };
+    walk.view = roomView(WW, WH); fitRoomCanvas(cv, walk.view); camAim(walk.view, walk.me.x, walk.me.y, WW, WH);
     walk.catPos = () => lounge.cat.id === 'crumb' && walk.crumb ? [walk.crumb.x, walk.crumb.y - 8] : (CAT_WALK[lounge.cat.id] || CAT_WALK.rug);
     walk.blipPos = () => walk.blip.id === 'mug' ? [seatCx('G') - 1, 81] : (BLIP_WALK[walk.blip.id] || BLIP_WALK.floor);
-    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * WW / b.width, (e.clientY - b.top) * WH / b.height]; };
+    const toWorld = e => { const b = cv.getBoundingClientRect(), v = walk.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
       const [x, y] = toWorld(e);
@@ -5390,6 +5455,8 @@ details.act > .limits { margin: 0 0 8px; }
         else if (n.state === 'back') { n.state = 'sit'; n.x = seatCx(n.who); n.y = 72; n.dir = 0; n.timer = 30 + Math.random() * 25; }
       }
     }
+    { const hl = lounge.hl && (lounge.hl === 'cat' ? null : WALK_HL[lounge.hl] || (Array.isArray(lounge.hl) ? lounge.hl : null));
+      camAim(walk.view, hl ? hl[0] + hl[2] / 2 : me.x, hl ? hl[1] + hl[3] + 30 : me.y, WW, WH, dt); }
     // Crumb potters about the floor
     const cr = walk.crumb;
     if (cr) {
@@ -5405,6 +5472,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function walkDraw(t) {
     const c = walk.c, home = wrenHome();
+    camT(c, walk.view);
     c.imageSmoothingEnabled = false;
     // back wall with panels
     px(c, 0, 0, WW, 50, '#1e2848'); for (let x = 0; x < WW; x += 16) px(c, x, 0, 1, 46, '#232e52');
@@ -5480,6 +5548,7 @@ details.act > .limits { margin: 0 0 8px; }
       let r2 = lounge.hl === 'cat' ? (() => { const [cx, cy] = walk.catPos(); return [cx - 3, cy - 4, 20, 14]; })() : WALK_HL[lounge.hl] || lounge.hl;
       if (Array.isArray(r2)) { c.strokeStyle = '#ff6b5e'; c.lineWidth = 1; c.strokeRect(r2[0] - 1.5, r2[1] - 1.5, r2[2] + 3, r2[3] + 3); }
     }
+    c.setTransform(1, 0, 0, 1, 0, 0);
   }
   let walkEnter = null;
   window.addEventListener('keydown', e => {
@@ -6369,7 +6438,7 @@ details.act > .limits { margin: 0 0 8px; }
           </div>
         </div>` : ''}
       </div>
-      <button class="btn ghost" id="back">☰ Ship menu</button>
+      <button class="btn ghost" id="back">☰ Menu</button>
     </div>`;
     card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
     if (editing) markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
@@ -6457,23 +6526,24 @@ details.act > .limits { margin: 0 0 8px; }
   function renderGarage() {
     if (walkEnter) roomBack.garage = walkEnter === 'hall' ? 'hall' : 'lounge';
     syncFleet();
-    card.innerHTML = `<div class="lounge garage">
+    card.innerHTML = `<div class="lounge garageroom">
       <h1 class="good">Hangar</h1>
       <canvas class="room walkroom" id="garCv" width="${GW * 2}" height="${GH * 2}" tabindex="0" role="application" aria-label="The hangar: your lander parked on the pad, your other landers in the bays, Gus's workbench and the big hangar door. Tap to walk; walk up to a lander or the workbench to open the hangar. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
       <p class="walkhint">Tap to walk · walk up to a lander or the workbench to tune it up · the door leads to the ${roomBack.garage === 'hall' ? 'hallway' : 'break room'}</p>
       <div class="radio quote" id="garSay" aria-live="polite"></div>
       <div class="btns">
         <button class="btn" id="garOpen">Open the hangar</button>
-        <button class="btn ghost" id="back">☰ Ship menu</button>
+        <button class="btn ghost" id="back">☰ Menu</button>
       </div>
     </div>`;
     $('garOpen').addEventListener('click', () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); });
     $('back').addEventListener('click', () => setMode('shipmenu'));
     const cv = $('garCv'), from = walkEnter; walkEnter = null;
     if (from) roomBack.garage = from === 'hall' ? 'hall' : 'lounge';
-    gar = { cv, c: cv.getContext('2d'), me: from === 'lounge' || from === 'hall' ? { x: 236, y: 70, dir: 1 } : { x: 128, y: 146, dir: 3 }, target: null, keys: {}, last: performance.now(), raf: 0, tap: null };
+    gar = { cv, view: roomView(GW, GH), c: cv.getContext('2d'), me: from === 'lounge' || from === 'hall' ? { x: 236, y: 70, dir: 1 } : { x: 128, y: 146, dir: 3 }, target: null, keys: {}, last: performance.now(), raf: 0, tap: null };
     Object.assign(gar.me, { goal: null, moving: false });
-    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * GW / b.width, (e.clientY - b.top) * GH / b.height]; };
+    fitRoomCanvas(cv, gar.view); camAim(gar.view, gar.me.x, gar.me.y, GW, GH);
+    const toWorld = e => { const b = cv.getBoundingClientRect(), v = gar.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
       const [x, y] = toWorld(e);
@@ -6537,10 +6607,11 @@ details.act > .limits { margin: 0 0 8px; }
       const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
       me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
     }
+    camAim(gar.view, me.x, me.y, GW, GH, dt);
   }
   function garDraw(t) {
     const c = gar.c;
-    c.setTransform(2, 0, 0, 2, 0, 0);
+    camT(c, gar.view);
     c.imageSmoothingEnabled = false;
     // back wall: riveted panels
     px(c, 0, 0, GW, 56, '#18213d'); for (let x = 0; x < GW; x += 18) px(c, x, 0, 1, 54, '#1d2747');
@@ -6654,7 +6725,7 @@ details.act > .limits { margin: 0 0 8px; }
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
         ${hall || gdn ? '' : '<button class="btn" id="shipMissions">Flight deck</button>'}
-        <button class="btn ghost" id="back">☰ Ship menu</button>
+        <button class="btn ghost" id="back">☰ Menu</button>
       </div>
     </div>`;
     $('back').addEventListener('click', () => setMode('shipmenu'));
@@ -6669,15 +6740,15 @@ details.act > .limits { margin: 0 0 8px; }
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null, cam: 0,
       crumb: crumbHome() && (hall || Math.random() < 0.4) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
-    deck.cam = hall ? Math.max(0, Math.min(HALL_W - VIEW_W, deck.me.x - VIEW_W / 2)) : 0;
-    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * W / b.width + deck.cam, (e.clientY - b.top) * SHIP_H / b.height]; };
+    deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
+    const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
       const [x, y] = toWorld(e), me = deck.me, B = deck.B;
       const hit = shipThings().find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
       deck.target = hit || null; me.sit = false;
       // in the hallway, a tap near the screen's edge keeps you walking that way
-      const reach = hall && !hit ? (x - deck.cam < 28 ? -110 : x - deck.cam > VIEW_W - 28 ? 110 : 0) : 0;
+      const reach = !hit && deck.W > deck.view.vw ? (x - deck.view.cx < 24 ? -100 : x - deck.view.cx > deck.view.vw - 24 ? 100 : 0) : 0;
       me.goal = hit ? hit.go() : [Math.max(B[0], Math.min(B[2], x + reach)), Math.max(B[1], Math.min(B[3], y))];
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
@@ -6796,7 +6867,7 @@ details.act > .limits { margin: 0 0 8px; }
         if (Math.random() < dt * 0.2) { k.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) k.dir *= -1; }
       }
     }
-    if (deck.kind === 'hall') { const want = Math.max(0, Math.min(HALL_W - VIEW_W, me.x - VIEW_W / 2)); deck.cam += (want - deck.cam) * Math.min(1, dt * 6); }
+    camAim(deck.view, me.x, me.y, deck.W, SHIP_H, dt);
   }
   // a little amber plate with a word on it
   function doorPlate(c, cx, y, label, lit) {
@@ -6814,8 +6885,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.tap && t - deck.tap.t < 500) { const k = (t - deck.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(deck.tap.x, deck.tap.y, 3 + k * 4, 1.5 + k * 2, 0, 0, Math.PI * 2); c.stroke(); }
   }
   function hallDraw(t) {
-    const c = deck.c, cam = Math.round(deck.cam * 2) / 2;
-    c.setTransform(2, 0, 0, 2, -cam * 2, 0);
+    const c = deck.c, v = deck.view;
+    camT(c, v);
     c.imageSmoothingEnabled = false;
     // ceiling strip and back wall
     px(c, 0, 0, HALL_W, 60, '#1c2646');
@@ -6865,12 +6936,13 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
     // edge arrows when there's more hallway off-screen
     c.fillStyle = 'rgba(255,181,71,0.7)';
-    if (deck.cam > 2) { c.beginPath(); c.moveTo(6, 240); c.lineTo(16, 230); c.lineTo(16, 250); c.fill(); }
-    if (deck.cam < HALL_W - VIEW_W - 2) { c.beginPath(); c.moveTo(VIEW_W * 2 - 6, 240); c.lineTo(VIEW_W * 2 - 16, 230); c.lineTo(VIEW_W * 2 - 16, 250); c.fill(); }
+    const ay = Math.round(v.vh * 1.5), aw = v.vw * 2;
+    if (v.cx > 2) { c.beginPath(); c.moveTo(6, ay); c.lineTo(16, ay - 10); c.lineTo(16, ay + 10); c.fill(); }
+    if (v.cx < HALL_W - v.vw - 2) { c.beginPath(); c.moveTo(aw - 6, ay); c.lineTo(aw - 16, ay - 10); c.lineTo(aw - 16, ay + 10); c.fill(); }
   }
   function bridgeDraw(t) {
     const c = deck.c, W = 256;
-    c.setTransform(2, 0, 0, 2, 0, 0);
+    camT(c, deck.view);
     c.imageSmoothingEnabled = false;
     // walls
     px(c, 0, 0, W, 96, '#18213d'); for (let x = 0; x < W; x += 20) px(c, x, 58, 1, 30, '#1d2747');
@@ -7045,7 +7117,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function gardenDraw(t) {
     const c = deck.c, W = 256;
-    c.setTransform(2, 0, 0, 2, 0, 0);
+    camT(c, deck.view);
     c.imageSmoothingEnabled = false;
     // back wall: green-tinted panels, a window, hanging vines and grow lamps
     px(c, 0, 0, W, 66, '#173232'); for (let x = 0; x < W; x += 20) px(c, x, 0, 1, 62, '#1b3b3a');
@@ -7641,7 +7713,7 @@ details.act > .limits { margin: 0 0 8px; }
       </div>
       <p class="limits">Your rank goes up as you land, finish missions, visit worlds and earn badges.</p>
       ${licenseFrom === 'intro' ? '<div class="btns"><button class="btn" id="licStamp">Sign and stamp it</button><button class="link" id="introSkip">Skip intro</button></div>'
-        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Back to the ship'}</button></div>`}
+        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>`}
     </div>`;
     paintFaces(card);
     paintLicense();
@@ -8486,7 +8558,7 @@ details.act > .limits { margin: 0 0 8px; }
         </div>`;
       }).join('')}
       <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb, Apogee and Blip are friends of the whole crew and aren’t part of this.</p>
-      <div class="btns"><button class="btn ghost" id="back">${friendsFrom === 'lounge' ? 'Back to the break room' : 'Back to the ship'}</button></div>
+      <div class="btns"><button class="btn ghost" id="back">${friendsFrom === 'lounge' ? 'Back to the break room' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
     paintFaces(card);
     const rerender = () => { renderFriends(); };
@@ -8544,7 +8616,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${it.done ? '<b class="rdone" aria-label="Done">✓</b>' : ''}</div>`;
       }).join('')}
       <p class="limits">${st.bonus ? `All done for today, and the ${fmt(REQ_BONUS)} credit bonus is yours. The crew is very proud. Gus made a banner.` : `Finish all three for a ${fmt(REQ_BONUS)} credit bonus from Dottie. Everyone gets the same requests each day, so you can compare with friends.`}</p>
-      <div class="btns"><button class="btn ghost" id="back">${reqFrom === 'lounge' ? 'Back to the break room' : reqFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button></div>
+      <div class="btns"><button class="btn ghost" id="back">${reqFrom === 'lounge' ? 'Back to the break room' : reqFrom === 'flights' ? 'Back to the flight deck' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
     paintFaces(card);
     $('back').addEventListener('click', () => setMode(reqFrom));
@@ -8622,8 +8694,7 @@ details.act > .limits { margin: 0 0 8px; }
           </div></button>`;
       }).join('')}</div>
       <div class="btns">
-        <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Back to the break room</button>
+        <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the break room'}</button>
       </div>
     </div>`;
     card.querySelectorAll('canvas[data-world]').forEach(cv => drawPostcard(cv, WORLDS.find(w => w.id === cv.dataset.world)));
@@ -8632,9 +8703,8 @@ details.act > .limits { margin: 0 0 8px; }
       const n = b.querySelector('.new'); if (n) n.remove();
       if (!cardsSeen.includes(b.dataset.id)) { cardsSeen.push(b.dataset.id); store.set('ds-cards-seen', JSON.stringify(cardsSeen)); }
     }));
-    $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('lounge'));
-    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
+    $('back').addEventListener('click', () => setMode(menuReturn ? 'title' : 'lounge'));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
   // ---- Biscuit's maintenance log: Gus writes up every crash and hard landing ----
@@ -8674,13 +8744,11 @@ details.act > .limits { margin: 0 0 8px; }
         ${total > repairs.length ? `<p class="meta">(Older pages are in a box somewhere. Apogee is sleeping on it.)</p>` : ''}
       </div></div>
       <div class="btns">
-        <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Back to the break room</button>
+        <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the break room'}</button>
       </div>
     </div>`;
-    $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('lounge'));
-    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
+    $('back').addEventListener('click', () => setMode(menuReturn ? 'title' : 'lounge'));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
   // ---- Bulletin board: notes the crew pins up about you ----
@@ -8740,15 +8808,13 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="cork">${notes.map(n => `<div class="note ${n.cls}" style="--r:${n.r}deg; background:${n.bg};${n.pin ? ` --pin:${n.pin};` : ''}">
         ${n.cat ? '<canvas width="32" height="32" class="catpic" aria-hidden="true"></canvas>' : ''}${n.html}</div>`).join('')}</div>
       <div class="btns">
-        <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Back to the break room</button>
+        <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the break room'}</button>
       </div>
     </div>`;
     const cp = card.querySelector('.catpic');
     if (cp) drawFace(cp, 'A', 'neutral', false, false);
-    $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('lounge'));
-    setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
+    $('back').addEventListener('click', () => setMode(menuReturn ? 'title' : 'lounge'));
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
   // Gus has an opinion about everything you put on Biscuit
@@ -10323,7 +10389,7 @@ details.act > .limits { margin: 0 0 8px; }
       return;
     }
     if (mode === 'brief' && e.code === 'Escape') { setMode('missions'); return; }
-    if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode('lounge'); return; }
+    if (mode === 'board' || mode === 'album' || mode === 'log') { if (e.code === 'Escape') setMode(menuReturn ? 'title' : 'lounge'); return; }
     if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
     if (mode === 'intro') { if (e.code === 'Escape') endIntro(false); return; }
     if (mode === 'requests') { if (e.code === 'Escape') setMode(reqFrom); return; }
