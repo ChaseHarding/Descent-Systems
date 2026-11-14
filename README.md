@@ -59,6 +59,8 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 There's no title menu. The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
 
+**Moving around** feels like one ship: walking through a door fades through black with a soft whoosh, your footsteps change with the floor (metal in the hallway, carpet in the quarters, tile in the garden and galley, wood in the break room), and each room has its own quiet background sound: the Bridge's engine hum, drips in the garden, the galley's sizzle, the hangar's machinery, an airy hush in the dome. **The crew notice you**: when you walk in they turn and wave, hallway wanderers stop to say hi as you pass, and a little **!** bubble floats over anyone you haven't chatted with today. Chat with them and you get a ♥ (first chat of the day) or a … bubble. Sometimes Apogee turns up in the hallway and trots after you for a while before curling up for a nap; tap her for a purr.
+
 **The menu.** Every room has a **☰ Menu** button (or press Escape) that opens a tabbed menu, a bit like pausing in Stardew Valley:
 
 - **Ship:** jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. The flight deck is here too.
@@ -644,6 +646,16 @@ Choose **Daily challenge** on the flight deck. Everyone who plays on the same da
   Mars 🟩🟩🟥 1,240 pts
   ```
 - The world rotates daily through all eleven. The challenge changes at midnight UTC, so friends in different time zones always get the same one.
+
+## Save backup
+
+All your progress (hearts, dates, ship projects, the garden, your wardrobe, everything) is saved in your browser. iPhone Safari can clear that storage for websites you haven't visited in a while, so the game has a backup in **Settings → Save backup**:
+
+- **Copy save code** copies your whole save as one line of text starting with `DSAVE1:`. Paste it into your Notes app, an email to yourself, anywhere safe.
+- **Download save file** saves the same code as a small `.txt` file, on browsers that allow downloads.
+- **Restore**: paste a code into the box (or pick a save file) and press **Restore from code**. It shows whose save it is, the ship day, the credits and the date it was made, and asks you to tap once more before it replaces your current progress.
+
+It's also how you move your save to a new phone or computer.
 
 ## Install it on your phone
 
