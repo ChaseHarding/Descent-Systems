@@ -432,7 +432,7 @@ Tap the corkboard on the break room wall, or open **Bulletin board** in the menu
 
 ## The ship
 
-The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad** and the **crew quarters**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). The observation **dome** stays sealed until you fund its repair on the project board. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
+The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad**, the **crew quarters** and the **galley**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). The observation **dome** stays sealed until you fund its repair on the project board. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
 
 <p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
 
@@ -482,6 +482,22 @@ A corkboard over the bench in the hallway holds Gus and Dottie's **repair projec
 **The observation dome** sits behind the DOME door once it's repaired: a glass dome full of twinkling stars and the world you last flew, over a round platform with a telescope, a curved bench and two plants. Tap the telescope for what it's pointed at, the bench to sit a while (your partner has things to say there), or the sky. The crew sometimes go stargazing here instead of the garden.
 
 <p align="center"><img src="media/dome.png" alt="The observation dome: a starry glass dome with curved ribs and Mars in the corner, over a round platform with a telescope, a wooden bench and two potted plants" width="560"></p>
+
+### Side activities
+
+Three things to do between flights, all paying out in credits or gifts:
+
+**Asteroid mining.** Press **⛏ Asteroid mining** in the hangar, or pick it on the flight deck, to take the little mining pod into the belt. Drag your finger (or use the arrow keys) and the pod follows. Scoop up copper (8 cr), gold (25 cr) and the occasional gem, and dodge the tumbling rocks: three dents and you head home early. Runs last 45 seconds and get busier as they go. Ore sells automatically; gems can be sold for 60 cr each or kept as gifts (Zib, Rex and Lyra love them, and everyone else likes them). You get **3 runs per ship day**; sleeping refuels the pod.
+
+<p align="center"><img src="media/mining.png" alt="Asteroid mining: the white mining pod with its magnet ring among drifting copper and gold ore, two blue gems and dark rocks, with the timer, ore counts and hull lights along the top" width="300"></p>
+
+**Cooking in the galley.** The new GALLEY door at the far end of the hallway leads to a tiled kitchen with a pantry, a stove, a sink and a fridge (Gus's yogurt is in there; don't touch it). Walk up to the stove and pick one of five recipes, each made from two garden crops: **Homemade mocha** (coffee + cacao), **Moon tea cakes** (tea + flowers), **Fern soup** (fern + tea), **Chocolate flower tart** (cacao + flowers) and a **Breakfast plate** (coffee + fern). Then tap **Stir!** three times while the marker is in the green zone, which gets narrower and faster each stir. Three good stirs make two portions, one or two make one, and a miss on all three burns it (Gus eats it anyway). **Meals are the best gifts on the ship**: everyone loves a home-cooked meal, and they give extra hearts on top. Dottie, Gus and Wren sometimes sneak into the galley for a snack.
+
+<p align="center"><img src="media/galley.png" alt="The galley: pantry shelves of jars, hanging pans over a stove, a sink, a tall fridge with magnets, a checkered floor and a little round table" width="560"></p>
+
+**Salvage with Crumb.** Walk up to Crumb's charging dock in the hangar and pick a world you've landed on. Crumb hops a supply drone and is away from the ship (he won't be in any rooms) until you've flown once. When he's back he bounces on his dock until you come and see: 60 to 180 credits of salvage, a one-in-three chance of a gem, either some excellent junk (a rock shaped exactly like Gus) or, rarely, a real find worth another 400 credits. The menu's Today tab tells you where he is, and the Hangar gets a **New** tag when he's home with loot.
+
+Gems and meals go in the same basket as garden crops, so they show up first in the gift list on the Friends ♥ screen, marked 💎 mined or 🍳 homemade.
 
 ### The crew's day
 
@@ -671,7 +687,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png`, `wardrobe.png` and `date-scenes.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png`, `wardrobe.png`, `date-scenes.png`, `mining.png` and `galley.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
