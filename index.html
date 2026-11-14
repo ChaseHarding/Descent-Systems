@@ -3768,7 +3768,7 @@ details.act > .limits { margin: 0 0 8px; }
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3778,6 +3778,7 @@ details.act > .limits { margin: 0 0 8px; }
     closeDenPhoto();
     if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade' && m !== 'license') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
     if (walk && m !== 'lounge') { cancelAnimationFrame(walk.raf); walk = null; }
+    if (gar && m !== 'garage') { cancelAnimationFrame(gar.raf); gar = null; }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -3822,10 +3823,12 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'settings') { renderSettings(); return; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
+    if (m === 'garage') { renderGarage(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       syncFleet();
-      hangarLander = curLander;
+      hangarLander = hangarOpenOn && LANDERS.some(l => l.id === hangarOpenOn && shipUnlocked(l)) ? hangarOpenOn : curLander;
+      hangarOpenOn = null;
       hangarSel = { kind: 'hull', id: equip.hull };
       hangarLine0 = null; hangarTab = null;
       renderHangar();
@@ -4146,7 +4149,7 @@ details.act > .limits { margin: 0 0 8px; }
       });
     });
     const hb = $('hangarBtn');
-    if (hb) hb.addEventListener('click', () => setMode('hangar'));
+    if (hb) hb.addEventListener('click', () => setMode('garage'));
     const rqb = $('reqBtn');
     if (rqb) { paintFaces(rqb); rqb.addEventListener('click', () => { reqFrom = 'title'; setMode('requests'); }); }
     const lcb = $('licenseBtn');
@@ -5211,7 +5214,7 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'poster', rect: [194, 6, 24, 30], stand: [206, 54], face: 3, act: () => setMode('log') });
     L.push({ id: 'box', rect: [198, 120, 28, 26], stand: [212, 152], face: 3, act: () => setMode('album') });
     L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
-    L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); setMode('hangar'); } });
+    L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('garage'); } });
     L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('den'); } });
     return L;
   }
@@ -6352,6 +6355,178 @@ details.act > .limits { margin: 0 0 8px; }
     denTourWire();
     $('back').addEventListener('click', () => setMode('title'));
   }
+
+  // ---- The hangar garage: a room to walk around, with your landers parked in it ----
+  // Walk up to a lander (or Gus's workbench) to open the hangar screen for paint, upgrades and the fleet.
+  const GW = 256, GH = 160, GAR_B = [8, 60, 248, 154];
+  let gar = null, hangarOpenOn = null;
+  // where each lander parks: your current one on the pad, the rest in the side bays
+  function garageSlots() {
+    const others = LANDERS.filter(l => l.id !== curLander);
+    const bays = [[40, 104], [216, 104], [40, 150], [216, 150]];
+    return [{ l: landerById(curLander), x: 128, y: 116, s: 8, main: true }].concat(others.map((l, i) => ({ l, x: bays[i][0], y: bays[i][1], s: 5.4, main: false })));
+  }
+  function garSay(who, text) {
+    const box = $('garSay'); if (!box) return;
+    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    paintFaces(box);
+    if (who === 'K') sfx.beep(); else sfx.radio();
+  }
+  function renderGarage() {
+    syncFleet();
+    card.innerHTML = `<div class="lounge garage">
+      <h1 class="good">Hangar</h1>
+      <canvas class="room walkroom" id="garCv" width="${GW * 2}" height="${GH * 2}" tabindex="0" role="application" aria-label="The hangar: your lander parked on the pad, your other landers in the bays, Gus's workbench and the big hangar door. Tap to walk; walk up to a lander or the workbench to open the hangar. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
+      <p class="walkhint">Tap to walk · walk up to a lander or the workbench to tune it up · the door leads to the break room</p>
+      <div class="radio quote" id="garSay" aria-live="polite"></div>
+      <div class="btns">
+        <button class="btn" id="garOpen">Open the hangar</button>
+        <button class="btn ghost" id="back">Main menu</button>
+      </div>
+    </div>`;
+    $('garOpen').addEventListener('click', () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); });
+    $('back').addEventListener('click', () => setMode('title'));
+    const cv = $('garCv'), from = walkEnter; walkEnter = null;
+    gar = { cv, c: cv.getContext('2d'), me: from === 'lounge' ? { x: 236, y: 70, dir: 1 } : { x: 128, y: 146, dir: 3 }, target: null, keys: {}, last: performance.now(), raf: 0, tap: null };
+    Object.assign(gar.me, { goal: null, moving: false });
+    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * GW / b.width, (e.clientY - b.top) * GH / b.height]; };
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const [x, y] = toWorld(e);
+      const hit = garThings().find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
+      const me = gar.me;
+      gar.target = hit || null;
+      me.goal = hit ? hit.go : [Math.max(GAR_B[0], Math.min(GAR_B[2], x)), Math.max(GAR_B[1], Math.min(GAR_B[3], y))];
+      if (!hit) gar.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
+      if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; garArrive(); }
+    });
+    const loop = () => {
+      if (!gar || mode !== 'garage' || !document.body.contains(cv)) { gar = null; return; }
+      const t = performance.now(), dt = Math.min(0.05, (t - gar.last) / 1000);
+      gar.last = t;
+      garStep(dt);
+      if (!gar) return;
+      garDraw(t);
+      gar.raf = requestAnimationFrame(loop);
+    };
+    gar.raf = requestAnimationFrame(loop);
+    const l = landerById(curLander), hellos = [
+      `That’s ${l.name} on the pad. Walk up to her to tune her up. Or use my workbench. Don’t touch the red button.`,
+      `Welcome to the hangar! ${l.name} is fuelled, polished and only slightly dented.`,
+      `Gus on the intercom. Paint, flames, flags, the whole fleet: walk up to a lander and I’ll open the hangar.`];
+    garSay('G', hellos[Math.floor(Math.random() * hellos.length)]);
+  }
+  function garThings() {
+    const L = [];
+    for (const sl of garageSlots()) {
+      const w = sl.s * 7.6, h = sl.s * 7.4, un = shipUnlocked(sl.l);
+      L.push({ id: sl.l.id, rect: [sl.x - w / 2, sl.y - h, w, h + 4], go: [sl.x + (sl.main ? 0 : sl.x < 128 ? 28 : -28), sl.main ? sl.y + 22 : sl.y + 2], at: { x: sl.x, y: sl.y - 10 },
+        act: () => {
+          if (!un) { garSay('G', `That’s ${sl.l.name}, ${sl.l.by}. ${sl.l.storyText || 'Still under its cover.'}${sl.l.price ? ` Or buy it for ${fmt(sl.l.price)} credits in the hangar.` : ''}`); return; }
+          sfx.click(); hangarOpenOn = sl.l.id; setMode('hangar');
+        } });
+    }
+    L.push({ id: 'bench', rect: [14, 28, 52, 30], go: [40, 66], at: { x: 40, y: 40 }, act: () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); } });
+    if (crumbHome()) L.push({ id: 'crumb', rect: [182, 36, 30, 24], go: [196, 70], at: { x: 196, y: 50 }, act: () => { const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); garSay('K', C[Math.floor(Math.random() * C.length)]); } });
+    L.push({ id: 'door', rect: [226, 12, 24, 44], go: [238, 64], at: { x: 238, y: 40 }, act: () => { sfx.click(); walkEnter = 'hangar'; setMode('lounge'); } });
+    L.push({ id: 'bigdoor', rect: [78, 6, 100, 46], go: [128, 66], at: { x: 128, y: 30 }, act: () => { const w = storedWorld(); garSay('G', `${w ? w.name : 'The Moon'} out there today. Good flying weather. Probably. I’m an engineer, not a weather person.`); } });
+    return L;
+  }
+  function garArrive() {
+    const th = gar.target; gar.target = null;
+    if (!th) return;
+    gar.me.dir = faceToward(gar.me, th.at);
+    th.act();
+  }
+  function garStep(dt) {
+    const me = gar.me, SPEED = 56;
+    const kx = (gar.keys.ArrowRight ? 1 : 0) - (gar.keys.ArrowLeft ? 1 : 0), ky = (gar.keys.ArrowDown ? 1 : 0) - (gar.keys.ArrowUp ? 1 : 0);
+    me.moving = false;
+    if (kx || ky) {
+      me.goal = null; gar.target = null;
+      const n = Math.hypot(kx, ky);
+      me.x = Math.max(GAR_B[0], Math.min(GAR_B[2], me.x + kx / n * SPEED * dt)); me.y = Math.max(GAR_B[1], Math.min(GAR_B[3], me.y + ky / n * SPEED * dt));
+      me.dir = Math.abs(kx) > Math.abs(ky) ? (kx < 0 ? 1 : 2) : (ky < 0 ? 3 : 0); me.moving = true;
+    } else if (me.goal) {
+      const dx = me.goal[0] - me.x, dy = me.goal[1] - me.y, d = Math.hypot(dx, dy);
+      if (d < 1.2) { me.goal = null; garArrive(); return; }
+      const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
+      me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
+    }
+  }
+  function garDraw(t) {
+    const c = gar.c;
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    c.imageSmoothingEnabled = false;
+    // back wall: riveted panels
+    px(c, 0, 0, GW, 56, '#18213d'); for (let x = 0; x < GW; x += 18) px(c, x, 0, 1, 54, '#1d2747');
+    for (let y = 12; y < 54; y += 18) px(c, 0, y, GW, 1, '#1d2747');
+    px(c, 0, 54, GW, 2, '#2a3556');
+    // the big hangar door, rolled up onto the world you last flew
+    const w = storedWorld() || WORLDS[1];
+    const sky = c.createLinearGradient(0, 8, 0, 54); sky.addColorStop(0, w.sky[0]); sky.addColorStop(1, w.sky[1]);
+    c.fillStyle = sky; c.fillRect(80, 8, 96, 46);
+    if (w.stars) for (let i = 0; i < 16; i++) px(c, 82 + (i * 37) % 92, 10 + (i * 13) % 26, 1, 1, i % 3 ? '#8a93ab' : '#ffffff');
+    c.fillStyle = w.orb; c.beginPath(); c.arc(156, 20, 6, 0, Math.PI * 2); c.fill();
+    c.fillStyle = w.ground; c.beginPath(); c.moveTo(80, 54); c.lineTo(80, 46); c.lineTo(104, 42); c.lineTo(126, 47); c.lineTo(150, 41); c.lineTo(176, 45); c.lineTo(176, 54); c.fill();
+    px(c, 78, 4, 100, 5, '#3a4668'); for (let x = 78; x < 178; x += 8) px(c, x, 4, 4, 5, '#ffb547');
+    px(c, 76, 4, 3, 52, '#3a4668'); px(c, 177, 4, 3, 52, '#3a4668');
+    // Gus's workbench, a fuel tank, Crumb's charging dock
+    px(c, 4, 24, 12, 32, '#8a93ab'); px(c, 5, 24, 10, 2, '#c9cfdc'); px(c, 4, 34, 12, 2, '#ff6b5e'); px(c, 7, 40, 6, 4, '#2a3045');
+    px(c, 16, 44, 50, 4, '#7a5c44'); px(c, 16, 48, 50, 8, '#5a4636'); px(c, 18, 48, 2, 8, '#4a3a2c'); px(c, 62, 48, 2, 8, '#4a3a2c');
+    px(c, 18, 28, 46, 14, '#2a3045'); for (const [tx, tc] of [[21, '#c9cfdc'], [27, '#ffb547'], [33, '#c9cfdc'], [40, '#ff6b5e'], [47, '#c9cfdc'], [55, '#7fd6ff']]) px(c, tx, 31, 2, 8, tc);
+    px(c, 22, 40, 10, 4, '#ff6b5e'); px(c, 44, 41, 8, 3, '#3a4668'); px(c, 58, 39, 4, 5, '#ffe58a');
+    px(c, 184, 38, 26, 18, '#26304f'); px(c, 186, 40, 22, 2, '#3a4668'); px(c, 194, 42, 6, 3, Math.floor(t / 600) % 2 ? '#58e0a0' : '#2f7a58');
+    if (crumbHome()) drawCrumbSprite(c, 190, 46, 1, t, false);
+    // the door to the break room
+    px(c, 226, 10, 24, 46, '#2a3556'); px(c, 228, 12, 20, 44, '#0e1428'); px(c, 230, 14, 16, 42, '#1a2442'); px(c, 236, 14, 2, 42, '#121a33'); px(c, 242, 32, 2, 2, '#ffb547');
+    px(c, 230, 2, 16, 7, '#ffb547'); px(c, 231, 3, 14, 5, '#2a1d0a'); px(c, 234, 4, 2, 2, '#ffb547'); px(c, 238, 4, 3, 2, '#ffb547'); px(c, 236, 6, 2, 1, '#ffb547');
+    // concrete floor with bay lines
+    px(c, 0, 56, GW, GH - 56, '#262c3e');
+    for (let y = 64; y < GH; y += 12) px(c, 0, y, GW, 1, '#2b3246');
+    for (let x = 0; x < GW; x += 32) px(c, x, 56, 1, GH - 56, '#2b3246');
+    for (const bx of [72, 184]) for (let y = 62; y < GH; y += 8) px(c, bx, y, 2, 4, '#c9a24a');
+    // the landing pad in the middle
+    c.fillStyle = '#323a52'; c.beginPath(); c.ellipse(128, 112, 40, 14, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#ffb547'; c.lineWidth = 1; c.beginPath(); c.ellipse(128, 112, 36, 12, 0, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = 'rgba(255,181,71,0.5)'; c.beginPath(); c.ellipse(128, 112, 26, 8, 0, 0, Math.PI * 2); c.stroke();
+    // landers and you, back to front
+    const things = [];
+    for (const sl of garageSlots()) things.push([sl.y, () => drawParked(c, sl, t)]);
+    const me = gar.me;
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    if (gar.tap && t - gar.tap.t < 500) { const k = (t - gar.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(gar.tap.x, gar.tap.y, 3 + k * 4, 1.5 + k * 2, 0, 0, Math.PI * 2); c.stroke(); }
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // a lander standing on its legs at (x, y), in its own paint, or under a cover if it's not yours yet
+  function drawParked(c, sl, t) {
+    const { l, x, y, s: k } = sl;
+    c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(x, y, k * 3.8, k * 0.9, 0, 0, Math.PI * 2); c.fill();
+    if (!shipUnlocked(l)) {
+      // a tarp, with a little tag
+      c.fillStyle = '#4a5578'; c.beginPath(); c.moveTo(x - k * 3.6, y); c.quadraticCurveTo(x - k * 3.2, y - k * 5.5, x, y - k * 6.4); c.quadraticCurveTo(x + k * 3.2, y - k * 5.5, x + k * 3.6, y); c.closePath(); c.fill();
+      c.strokeStyle = '#5c6890'; c.lineWidth = 1; c.beginPath(); c.moveTo(x - k * 1.5, y - k * 5.4); c.quadraticCurveTo(x - k * 1, y - k * 2, x - k * 1.6, y); c.moveTo(x + k * 1.2, y - k * 5.6); c.quadraticCurveTo(x + k * 1.8, y - k * 2.5, x + k * 1.4, y); c.stroke();
+      px(c, Math.round(x + k * 1.8), Math.round(y - k * 2.6), 6, 4, '#ffe58a'); px(c, Math.round(x + k * 1.8) + 2, Math.round(y - k * 2.6) + 1, 2, 2, '#5a4636');
+      return;
+    }
+    const lk = looks[l.id] || l.look || equip;
+    const sk = { hull: findItem('hull', lk.hull), flame: findItem('flame', lk.flame), flag: findItem('flag', lk.flag), model: l.id };
+    c.save(); c.translate(x, y - 3 * k); c.scale(k, k);
+    paintLander(c, { firing: false }, sk, t, 1.3 / k);
+    c.restore();
+    if (sl.main) { c.fillStyle = 'rgba(255,181,71,0.85)'; c.font = '600 6px monospace'; c.textAlign = 'center'; c.fillText(l.name.toUpperCase(), x, y + 12); c.textAlign = 'left'; }
+  }
+  window.addEventListener('keydown', e => {
+    if (!gar || mode !== 'garage' || document.activeElement !== gar.cv) return;
+    if (e.key.startsWith('Arrow')) { gar.keys[e.key] = true; e.preventDefault(); }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const me = gar.me, near = garThings().map(t2 => [Math.hypot(t2.go[0] - me.x, t2.go[1] - me.y), t2]).sort((a, b) => a[0] - b[0]);
+      if (near.length && near[0][0] < 26) { gar.target = near[0][1]; garArrive(); }
+    }
+  });
+  window.addEventListener('keyup', e => { if (gar && e.key.startsWith('Arrow')) gar.keys[e.key] = false; });
 
   // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
   const PW = 200, PH = 148, PAD_B = [8, 86, 182, 140], PS = 2;   // the canvas is drawn at 2x; people at 1.5x the room's scale
@@ -8183,7 +8358,7 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
       </div>
       <p class="limits">Every point you score is banked as credits the moment you touch down. Cosmetics don’t change how the lander flies.</p>
-      <button class="btn ghost" id="back">Main menu</button>
+      <button class="btn ghost" id="back">Back to the garage</button>
     </div>`;
     paintFaces(card);
     // little portraits of each lander, in its own look
@@ -8293,7 +8468,7 @@ details.act > .limits { margin: 0 0 8px; }
       hangarLine0 = 'Back to the usual. Comfortable. I get it.';
       renderHangar(`[data-tab="${hangarSel.kind}"]`);
     });
-    $('back').addEventListener('click', () => { trying = null; hangarLander = null; setMode('title'); });
+    $('back').addEventListener('click', () => { trying = null; hangarLander = null; setMode('garage'); });
     if (!focus && hangarLine0) setTimeout(() => gusSay(hangarLine0), 0);
     else if (hangarLine0 && /^\.item|^#back|^\[data|^#upg/.test(focus)) setTimeout(() => gusSay(hangarLine0), 0);
     // the hangar's look buttons should not touch another lander's paint
@@ -9589,7 +9764,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'requests') { if (e.code === 'Escape') setMode(reqFrom); return; }
     if (mode === 'friends') { if (e.code === 'Escape') setMode('lounge'); return; }
     if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
-    if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
+    if (mode === 'hangar') { if (e.code === 'Escape') { trying = null; hangarLander = null; setMode('garage'); } return; }
+    if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
     }
@@ -9598,7 +9774,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (mode === 'paused') { setMode('flying'); e.preventDefault(); return; }
     }
     if ((mode === 'title' || mode === 'over') && e.code === 'KeyB' && !e.repeat) { setMode('badges'); return; }
-    if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('hangar'); return; }
+    if ((mode === 'title' || mode === 'over') && e.code === 'KeyH' && !e.repeat) { setMode('garage'); return; }
     if (mode === 'title' && e.code === 'KeyR' && !e.repeat) { setMode('lounge'); return; }
     if (mode === 'setup' && playMode !== 'daily' && (k === 'left' || k === 'right')) {
       e.preventDefault();
