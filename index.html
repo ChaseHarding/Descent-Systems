@@ -446,7 +446,13 @@ kbd {
 .lounge { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.lounge .who-row .btn { padding: 8px 14px; font-size: 12px; }
+.lounge .who-row .btn { padding: 8px 14px; font-size: 12px; position: relative; }
+.lounge .who-row .btn .dot { position: absolute; top: -9px; right: -6px; width: auto; height: auto; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 10px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
+.lounge .who-row .btn.locked { opacity: 0.5; border-style: dashed; }
+.mtile .mnew { position: absolute; top: -8px; right: 8px; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 10px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
+.ndot { display: inline-block; width: 7px; height: 7px; margin-left: 5px; border-radius: 50%; background: var(--flame); vertical-align: 2px; }
+.item.isnew { position: relative; }
+.item.isnew::after { content: 'New'; position: absolute; top: -8px; right: 8px; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-weight: 700; font-size: 10px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 .lounge .radio.quote { max-width: none; min-height: 88px; }
 /* Descent Systems Classic: the arcade cabinet */
 .arcade { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
@@ -3681,16 +3687,16 @@ details.act > .limits { margin: 0 0 8px; }
           </button>
           <button class="place" id="loungeBtn" aria-label="Break room">
             <canvas class="thumb pixel" id="roomThumb" width="200" height="100" aria-hidden="true"></canvas>
-            <span class="pl"><b>Break room</b><span>${loungeLine()}</span>${newCards() ? '<i class="dot">New</i>' : ''}</span>
+            <span class="pl"><b>Break room</b><span>${loungeLine()}</span>${newCards() || radioNew() || crumbNew() ? '<i class="dot">New</i>' : ''}</span>
           </button>
           <button class="place" id="denBtn" aria-label="The Pad, your cabin">
             <canvas class="thumb pixel" id="denThumb" width="200" height="100" aria-hidden="true"></canvas>
-            <span class="pl"><b>The Pad</b><span>${denLine()}</span></span>
+            <span class="pl"><b>The Pad</b><span>${denLine()}</span>${denNew().length ? '<i class="dot">New</i>' : ''}</span>
           </button>
         </div>
         <nav class="menu" aria-label="Game modes">
           <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
-          <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : ''}<span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
+          <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : newMissions().length ? `<i class="dot">${newMissions().length} new</i>` : ''}<span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
           <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
           <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
           <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
@@ -4161,9 +4167,11 @@ details.act > .limits { margin: 0 0 8px; }
     [ACT1, ACT2, 'Act 2 · New Frontiers', 'Finish Last Light to begin Act 2.'],
     [ACT2, MISSIONS.length, 'Act 3 · Beyond Pluto', 'Finish Sunrise to begin Act 3.']
   ];
+  let freshM = new Set();
+  const newChip = d => freshM.has(d.id) ? '<i class="mnew">New</i>' : '';
   function storyTile(d, i) {
     const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>
+    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>${newChip(d)}
       <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
       <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
       <b>${d.name}</b>
@@ -4173,7 +4181,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function sideTile(d, i) {
     const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-    return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>
+    return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>${newChip(d)}
       <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
       <span class="mnum">${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
       <b>${d.name}</b>
@@ -4185,6 +4193,8 @@ details.act > .limits { margin: 0 0 8px; }
     const sideIdx = kind => SIDES.map((d, k) => MISSIONS.length + k).filter(i => (ALL[i].kind === 'trip') === (kind === 'trip'));
     const starsOf = list => list.reduce((n, i) => n + (missionStars[ALL[i].id] || 0), 0);
     const sides = sideIdx('side'), trips = sideIdx('trip');
+    freshM = new Set(newMissions());
+    const tabNew = id => [...freshM].some(m => tabOf(ALL.findIndex(d => d.id === m)) === id);
     const tabs = [
       ['story', 'Story', totalStars(), MISSIONS.length * 3],
       ['side', 'Side jobs', starsOf(sides), sides.length * 3],
@@ -4213,11 +4223,13 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="mlist">${sorted.map(i => sideTile(ALL[i], i)).join('')}</div>`;
     }
     card.innerHTML = `<h1 class="good">Missions</h1>
-      <div class="mtabs" role="tablist">${tabs.map(([id, name, got, max]) => `<button role="tab" class="mtab${id === missionTab ? ' on' : ''}" data-tab="${id}" aria-selected="${id === missionTab}"><b>${name}</b><span>${got}/${max} ★</span></button>`).join('')}</div>
+      <div class="mtabs" role="tablist">${tabs.map(([id, name, got, max]) => `<button role="tab" class="mtab${id === missionTab ? ' on' : ''}" data-tab="${id}" aria-selected="${id === missionTab}"><b>${name}${id !== missionTab && tabNew(id) ? '<i class="ndot" aria-label="new missions"></i>' : ''}</b><span>${got}/${max} ★</span></button>`).join('')}</div>
       <div class="mbody">${body}</div>
       <p class="limits">Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">Main menu</button>`;
     card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
+    // the ones shown on this tab count as seen now (they keep their chip until you leave)
+    markSeen('ds-seenM', [...freshM].filter(id => tabOf(ALL.findIndex(d => d.id === id)) === missionTab));
     card.querySelectorAll('.mtab').forEach(b => b.addEventListener('click', () => {
       if (b.dataset.tab === missionTab) return;
       missionTab = b.dataset.tab; sfx.click(); renderMissions();
@@ -4298,6 +4310,25 @@ details.act > .limits { margin: 0 0 8px; }
   const wrenHome = () => (missionStars['last-light'] || 0) > 0;
   const crumbHome = () => SIDES.some(d => d.kind === 'trip' && missionStars[d.id] > 0);
   const junoMet = () => crumbHome();
+  // ---- "New" markers: things that unlocked since you last looked ----
+  const seenSet = k => { try { return new Set(JSON.parse(store.get(k, '[]'))); } catch (e) { return new Set(); } };
+  const markSeen = (k, ids) => {
+    const st = seenSet(k); let ch = false;
+    for (const id of ids) if (!st.has(id)) { st.add(id); ch = true; }
+    if (ch) store.set(k, JSON.stringify([...st]));
+  };
+  // missions you can fly now, haven't flown, and haven't seen in the list yet
+  const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => missionOpen(i) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
+  const radioNew = () => (junoMet() || pimMet()) && store.get('ds-radioSeen', '') !== '1';
+  const crumbNew = () => crumbHome() && store.get('ds-crumbSeen', '') !== '1';
+  // Pad items you've earned (souvenirs, Crumb's finds, Pim's drawing) but haven't looked at yet
+  function denNew() {
+    const out = [];
+    for (const [pool, list] of Object.entries(DEN_ITEMS)) for (const it of list) if ((it.world || it.trip) && denOwns(pool, it.id)) out.push(pool + ':' + it.id);
+    if (store.get('ds-seenDen', '') === '') { store.set('ds-seenDen', JSON.stringify(out)); return []; }   // what you had before this update isn't news
+    const seen = seenSet('ds-seenDen');
+    return out.filter(k => !seen.has(k));
+  }
   const pimMet = () => (missionStars['swing-shift'] || 0) > 0 || (missionStars['ride-along'] || 0) > 0;
   // Crumb trundles along the front of the floor, stopping to look around now and then
   function crumbRoam(st, t, lo, hi) {
@@ -4513,6 +4544,12 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'radio') {
       // whoever's calling in: Juno from the mothership, or Pim from the Moon
       const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : []);
+      if (!callers.length) {
+        sfx.click();
+        showToast('Just static for now. Finish Swing Shift, Ride Along or any round trip to tune in.', 3200);
+        return;
+      }
+      store.set('ds-radioSeen', '1');
       who = callers.length > 1 && callers[0] === lounge.lastCaller ? callers[1] : callers[Math.floor(Math.random() * callers.length)];
       lounge.lastCaller = who;
     }
@@ -4521,6 +4558,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (L.length > 1 && i === last) i = (i + 1) % L.length;
     lounge.last[who] = i;
     if (who === 'A') { lounge.catAwake = performance.now() + 4000; sfx.purr(); reqEvent('pet'); }
+    if (who === 'K') store.set('ds-crumbSeen', '1');
     if (who === 'K' && lounge.crumb) { lounge.crumb.beep = performance.now() + 1500; lounge.crumb.pause = performance.now() + 1800; }
     loungeSay(who, L[i]);
   }
@@ -4682,8 +4720,8 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" data-talk="G">Gus</button>
         <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
         <button class="btn ghost" data-talk="A">Pet Apogee</button>
-        ${crumbHome() ? '<button class="btn ghost" data-talk="K">Crumb</button>' : ''}
-        ${junoMet() || pimMet() ? '<button class="btn ghost" data-talk="radio">Radio</button>' : ''}
+        ${crumbHome() ? `<button class="btn ghost" data-talk="K">Crumb${crumbNew() ? '<i class="dot">New</i>' : ''}</button>` : ''}
+        ${junoMet() || pimMet() ? `<button class="btn ghost" data-talk="radio">Radio${radioNew() ? '<i class="dot">New</i>' : ''}</button>` : '<button class="btn ghost locked" data-talk="radio" aria-label="Radio, locked">Radio 🔒</button>'}
       </div>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
@@ -4694,7 +4732,7 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
-    card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => loungeTalk(b.dataset.talk)));
+    card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => { loungeTalk(b.dataset.talk); if (!b.classList.contains('locked')) { const d = b.querySelector('.dot'); if (d) d.remove(); } }));
     $('room').addEventListener('click', e => { const who = roomHit(e); if (who === 'B') setMode('board'); else if (who === 'L') setMode('log'); else if (who === 'C') setMode('album'); else if (who) loungeTalk(who); });
     $('back').addEventListener('click', () => setMode('title'));
     $('boardBtn').addEventListener('click', () => setMode('board'));
@@ -5448,6 +5486,9 @@ details.act > .limits { margin: 0 0 8px; }
     const own = denOwns(pool, it.id), placed = denLook[spot] === it.id;
     const ownedN = list.filter(x => x.id !== 'none' && denOwns(pool, x.id)).length, totalN = list.filter(x => x.id !== 'none').length;
     const owns = x => denOwns(pool, x.id);
+    // new things: chips on the items and dots on the spots, then this spot's count as seen
+    const newIn = new Set(denNew());
+    const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
     const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : `${fmt(x.price)} cr`;
     let action;
@@ -5472,11 +5513,11 @@ details.act > .limits { margin: 0 0 8px; }
             <button class="btn ghost" id="denSnap">Take a photo</button>
             ${denLook.floor === 'arcade' ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
           </div>
-          <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}</button>`).join('')}</div>
+          <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}${x.pool !== pool && spotNew(x.id) ? '<i class="ndot" aria-label="new"></i>' : ''}</button>`).join('')}</div>
         </div>
         <div class="col">
           <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
-          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => !y.world && !y.trip && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip ? ' locked' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
+          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => !y.world && !y.trip && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip ? ' locked' : ''}${newIn.has(pool + ':' + x.id) ? ' isnew' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
             <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
@@ -5488,6 +5529,7 @@ details.act > .limits { margin: 0 0 8px; }
       <button class="btn ghost" id="back">Main menu</button>
     </div>`;
     card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
+    markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
     const look = () => denUI.trying ? { ...denLook, [spot]: denUI.trying } : denLook;
     const cv = $('denCv');
     clearInterval(denUI.anim);
