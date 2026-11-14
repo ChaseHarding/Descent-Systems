@@ -6424,7 +6424,7 @@ details.act > .limits { margin: 0 0 8px; }
       <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
-          <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap the floor to walk; tap furniture to decorate it, or a guest to chat. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
+          <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
@@ -7536,6 +7536,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (pw.crumb) L.push({ id: 'crumb', rect: [pw.crumb.x - 2, pw.crumb.y - 8, 25, 22], go: () => clampP(pw.crumb.x + (pw.me.x < pw.crumb.x ? -10 : 22), pw.crumb.y + 6), at: () => ({ x: pw.crumb.x + 7, y: pw.crumb.y + 8 }), act: () => { pw.crumb.pause = 2.5; pw.acts.crumbTalk(); } });
     if (denUI.cat) { const at = denCatSpot(denUI.cat, look); L.push({ id: 'cat', rect: [at.x - 6, at.y - 7, 23, 16], go: () => clampP(at.x + 5, at.y + 14), at: () => ({ x: at.x + 5, y: at.y }), act: () => pw.acts.pet() }); }
     L.push({ id: 'door', rect: [184, 92, 16, 48], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode(roomBack.den); } });
+    // decorations are only tappable while decorating; otherwise a tap just walks you there (good for posing in photos)
+    if (!denUI.edit) return L;
     // decorations: smallest first, so a shelf wins over the wall behind it
     const spots = DEN_SPOTS.filter(d => !d.room).slice().sort((a, b) => a.w * a.h - b.w * b.h);
     for (const d of spots) L.push({ id: d.id, rect: [d.x, d.y, d.w, d.h], go: () => clampP(d.x + d.w / 2, d.y + d.h + 10), at: () => ({ x: d.x + d.w / 2, y: d.y }), act: () => pw.acts.pick(d.id) });
