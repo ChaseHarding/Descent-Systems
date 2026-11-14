@@ -170,7 +170,7 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the start screen. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
+Open **Missions** from the start screen. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
 
 **Act 1 · The Signal**
 
