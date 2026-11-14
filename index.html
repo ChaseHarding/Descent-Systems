@@ -572,6 +572,13 @@ kbd {
 .rooms { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .rooms .mode b { font-size: 16px; }
 .mode.here { border-style: dashed; opacity: 0.7; }
+.sleepfade { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #05070f; color: #e8edf5; pointer-events: none; animation: sleepfade 3s ease forwards; }
+.sleepfade b { font-family: var(--f-display); font-size: clamp(28px, 7vw, 48px); letter-spacing: 0.08em; text-transform: uppercase; color: var(--flame); }
+.sleepfade span { font-family: var(--f-mono); font-size: 13px; color: var(--regolith-dim); }
+.sleepfade .zz { font-family: var(--f-mono); font-size: 18px; letter-spacing: 0.4em; color: #8a93ab; animation: zz 1.6s ease-in-out infinite; }
+.sleepfade.still { animation: none; opacity: 1; }
+@keyframes sleepfade { 0% { opacity: 0; } 25% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes zz { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(-6px); opacity: 1; } }
 .mtabs.menutabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 420px) { .menutabs .mtab b { font-size: 11px; letter-spacing: 0.03em; } }
 .mtab .tdot { display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: var(--flame); vertical-align: middle; }
@@ -2935,6 +2942,10 @@ details.act > .limits { margin: 0 0 8px; }
   const GAME_URL = 'https://chaseharding.github.io/Descent-Systems/';
   // The daily challenge runs on UTC dates so friends in different time zones get the same one.
   const todayKey = () => new Date().toISOString().slice(0, 10);
+  // The ship keeps its own calendar: a new day starts when you sleep in your bunk (after flying at least once).
+  // Chats, gifts and watering reset each ship day; the daily challenge and crew requests still follow the real date.
+  let shipDay = Math.max(1, +store.get('ds-shipDay', '1') || 1);
+  const shipDayKey = () => 'day' + shipDay;
   const dailyWorld = () => WORLDS[Math.floor(Date.now() / 86400000) % WORLDS.length];
   const storedWorld = () => WORLDS.find(w => w.id === store.get('ds-world', 'moon')) || WORLDS[1];
   function untilReset() {
@@ -3948,7 +3959,7 @@ details.act > .limits { margin: 0 0 8px; }
         body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
-        const today = todayKey();
+        const today = shipDayKey();
         body = `<div class="crewlist">${met.map(who => {
           const h = heartsOf(who), cap = heartCap(who);
           const row = Array.from({ length: 10 }, (_, k) => `<i class="hrt${k < h ? ' on' : ''}${k >= cap ? ' lock' : ''}" aria-hidden="true">♥</i>`).join('');
@@ -3959,7 +3970,7 @@ details.act > .limits { margin: 0 0 8px; }
               <span class="ctoday"><span class="${bond.talk[who] === today ? 'ok' : ''}">${bond.talk[who] === today ? '✓ chatted' : '· say hi'}</span><span class="${bond.gift[who] === today ? 'ok' : ''}">${bond.gift[who] === today ? '✓ gift given' : '· gift ready'}</span></span></div>
             ${sceneReady(who) ? '<i class="dot">Hang out ♥</i>' : ''}</div>`;
         }).join('')}</div>
-          <p class="limits">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on: reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat every day, bring gifts and do their jobs to grow closer.'}${(garden.basket && basketCount()) ? ` You have ${basketCount()} homegrown ${basketCount() === 1 ? 'gift' : 'gifts'} in your basket.` : ''}</p>
+          <p class="limits">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on: reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat and give a gift once a day. Sleep in your bunk in the Pad to start a new day.'}${(garden.basket && basketCount()) ? ` You have ${basketCount()} homegrown ${basketCount() === 1 ? 'gift' : 'gifts'} in your basket.` : ''}</p>
           <div class="btns"><button class="btn" id="friendsBtn2" data-menuret>Gifts and hangouts</button></div>`;
       } else if (menuTab === 'today') {
         body = `<div class="todaylist">
@@ -3984,7 +3995,7 @@ details.act > .limits { margin: 0 0 8px; }
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
       }
       html = `<h1 class="good">Menu</h1>
-        <p class="tagline">You’re in ${here} · ${fmt(credits)} credits</p>
+        <p class="tagline">Day ${shipDay} · You’re in ${here} · ${fmt(credits)} credits</p>
         <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
         <div class="menubody">${body}</div>
         <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
@@ -6420,6 +6431,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${denUI.cat ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
             ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
             <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
+            ${!editing && !(intro && intro.step === 'den') ? '<button class="btn ghost" id="denSleep">🌙 Sleep</button>' : ''}
             <button class="btn ghost" id="denSnap">Take a photo</button>
             ${denLook.floor === 'arcade' ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
             ${intro && intro.step === 'den' ? '' : `<button class="btn${editing ? ' ghost' : ''}" id="denEdit">${editing ? 'Done decorating' : 'Decorate'}</button>`}
@@ -6453,6 +6465,7 @@ details.act > .limits { margin: 0 0 8px; }
       sfx.beep(); store.set('ds-crumbSeen', '1'); denSay('K', L[Math.floor(Math.random() * L.length)]);
     };
     const tapSpot = hit => {
+      if (hit === 'bed' && !denUI.edit && !denUI.trying && !intro) { padSleep(); return; }
       if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
       if (hit === 'wallR' && denLook.wallR === 'cert' && !denUI.trying) { sfx.click(); licenseFrom = 'den'; setMode('license'); return; }
       denUI.edit = true;
@@ -6463,6 +6476,7 @@ details.act > .limits { margin: 0 0 8px; }
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
     $('denSnap').addEventListener('click', denSnap);
+    const slb = $('denSleep'); if (slb) slb.addEventListener('click', () => padSleep());
     const eb = $('denEdit');
     if (eb) eb.addEventListener('click', () => {
       denUI.edit = !denUI.edit; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true);
@@ -7050,7 +7064,7 @@ details.act > .limits { margin: 0 0 8px; }
   function crewPlaces() {
     const met = ROM_WHO.filter(w => romMet[w]());
     if (intro) { const P = {}; met.forEach(w => { P[w] = CREW_HOME[w]; }); return P; }
-    const slot = Math.floor(Date.now() / SLOT_MS) + (window.__crewShift || 0), key = slot + met.join('');
+    const slot = Math.floor(Date.now() / SLOT_MS) + (window.__crewShift || 0) + shipDay * 7919, key = slot + met.join('');
     if (crewCache && crewCache.key === key) return crewCache.P;
     const P = {}, count = {}, cap = { hall: 3, garden: 2, bridge: 3 };
     for (const w of met) {
@@ -7334,7 +7348,7 @@ details.act > .limits { margin: 0 0 8px; }
     return ['G', `Pro tip: ${fans.length > 1 ? fans.slice(0, -1).join(', ') + ' and ' + fans[fans.length - 1] : fans[0]} ${fans.length > 1 ? 'love' : 'loves'} ${sd.name.toLowerCase()}. Just saying. I’m not saying anything.`];
   }
   function gardenWaterAll() {
-    const d = todayKey(); let n = 0;
+    const d = shipDayKey(); let n = 0;
     garden.beds.forEach(b => { if (b && !bedReady(b) && b.wd !== d) { b.wd = d; b.w = (b.w || 0) + 1; n++; } });
     saveGarden();
     if (deck) deck.splash = performance.now();
@@ -7355,7 +7369,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!b) html = `<h3>Planter ${i + 1} · empty</h3><p>What should we grow? You have ${fmt(credits)} credits.</p>${seedBtns(i)}`;
       else if (bedReady(b)) html = `<h3>Planter ${i + 1} · ${s.name} ${s.icon}</h3><p>Ready to pick!</p><div class="btns"><button class="btn" data-harvest="${i}">Harvest</button></div>`;
       else {
-        const g = bedGrowth(b), watered = b.wd === todayKey();
+        const g = bedGrowth(b), watered = b.wd === shipDayKey();
         html = `<h3>Planter ${i + 1} · ${s.name} ${s.icon}</h3>
           <div class="gbar" role="img" aria-label="${g} of ${s.grow} grown"><i style="width:${Math.round(g / s.grow * 100)}%"></i></div>
           <p>${s.grow - g === 1 ? 'One more landing (or a watering) and it’s ready.' : `${s.grow - g} more landings or waterings to go.`} ${watered ? 'Watered today ✓' : 'Thirsty: water it at the tap.'}</p>
@@ -7431,7 +7445,7 @@ details.act > .limits { margin: 0 0 8px; }
       const b = garden.beds[i], s = seedOf(b), sel = gardenSel === i;
       if (by < 100) { px(c, bx + 18, by - 26, 8, 3, '#3a4668'); px(c, bx + 19, by - 23, 6, 2, '#ff9ad5'); }
       px(c, bx, by + 4, 44, 12, '#6e5232'); px(c, bx, by + 4, 44, 2, '#8a6a42'); px(c, bx + 2, by, 40, 5, '#3a2a1c');
-      if (b && b.wd === todayKey()) px(c, bx + 2, by, 40, 5, '#2a2016');
+      if (b && b.wd === shipDayKey()) px(c, bx + 2, by, 40, 5, '#2a2016');
       if (s) { const g = bedGrowth(b), st = bedReady(b) ? 3 : Math.min(2, Math.floor(g / s.grow * 3)); for (let k = 0; k < 4; k++) drawCrop(c, bx + 7 + k * 10, by + 3, s, st, t, k + i); }
       if (b && bedReady(b) && (reduceMotion || Math.floor(t / 450) % 2)) { px(c, bx + 40, by - 10, 3, 3, '#ffe58a'); }
       if (sel) { c.strokeStyle = '#ffb547'; c.lineWidth = 1; c.strokeRect(bx - 1.5, by - 13.5, 47, 31); }
@@ -7440,6 +7454,41 @@ details.act > .limits { margin: 0 0 8px; }
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     shipTapRing(c, t);
     c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+
+  // ---- Sleeping: tap your bunk (or 🌙 Sleep) to end the ship day ----
+  const flightsDone = () => stats.landings + crashCount;
+  const canSleep = () => flightsDone() > (+store.get('ds-sleepAt', '-1'));
+  const MORNING = [
+    ['A', 'Mrrp. (Apogee is sitting on your chest. Breakfast was ten minutes ago, apparently.)'],
+    ['F', 'Morning, pilot. Coffee’s on. Well. Coffee-adjacent. Everyone’s up and about.'],
+    ['G', 'Rise and shine! I made pancakes. They’re mostly pancake-shaped. Come say hi when you’re up!'],
+    ['A', 'Prrrp. (Apogee has been awake since 4. She would like you to know this.)']
+  ];
+  function padSleep() {
+    if (!denUI) return;
+    if (!canSleep()) {
+      sfx.click();
+      const nope = [['F', 'Not yet, pilot. You’re not tired. Go fly something first, then the bunk will feel amazing.'], ['A', 'Mrrp. (Apogee is asleep on your pillow. You haven’t flown since you got up. Go land something first.)']];
+      denSay(...nope[Math.floor(Math.random() * nope.length)]);
+      return;
+    }
+    sfx.click();
+    const next = shipDay + 1;
+    const fade = document.createElement('div');
+    fade.className = 'sleepfade' + (reduceMotion ? ' still' : '');
+    fade.setAttribute('role', 'status');
+    fade.innerHTML = `<div class="zz" aria-hidden="true">z z Z</div><b>Day ${next}</b><span>Everyone’s ready to chat again</span>`;
+    document.body.appendChild(fade);
+    const wake = () => {
+      shipDay = next; store.set('ds-shipDay', String(shipDay)); store.set('ds-sleepAt', String(flightsDone()));
+      crewCache = null;
+      if (denUI) { denUI.visitor = null; denUI.say = MORNING[Math.floor(Math.random() * MORNING.length)]; }
+      if (mode === 'den') renderDen(true);
+    };
+    setTimeout(wake, reduceMotion ? 50 : 1300);
+    setTimeout(() => fade.remove(), reduceMotion ? 1600 : 3000);
   }
 
   // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
@@ -8532,7 +8581,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
   }
   function bondTalk(who) {
-    const d = todayKey();
+    const d = shipDayKey();
     if (!ROM_WHO.includes(who) || bond.talk[who] === d) return;
     bond.talk[who] = d; addHearts(who, 20);
   }
@@ -8807,7 +8856,7 @@ details.act > .limits { margin: 0 0 8px; }
   const statusOf = who => bond.partner === who ? 'Dating ♥' : heartsOf(who) >= 6 ? 'Close friend' : heartsOf(who) >= 3 ? 'Good friend' : 'Friend';
   let friendsUI = { open: null, say: null, confirmBye: null };
   function renderFriends() {
-    const today = todayKey();
+    const today = shipDayKey();
     const met = ROM_WHO.filter(w => romMet[w]());
     const heartRow = who => Array.from({ length: 10 }, (_, k) => {
       const lock = k >= heartCap(who);
@@ -8815,7 +8864,7 @@ details.act > .limits { margin: 0 0 8px; }
     }).join('');
     card.innerHTML = `<div class="friends">
       <h1 class="good">Friends ♥</h1>
-      <p class="sub">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on. Reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat every day, bring gifts and help with their jobs to grow closer. Romance is off (turn it on in Settings).'}</p>
+      <p class="sub">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on. Reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat and bring a gift once a day (sleep in your bunk in the Pad to start a new day), and help with their jobs to grow closer. Romance is off (turn it on in Settings).'}</p>
       ${met.map(who => {
         const scene = sceneReady(who), h = heartsOf(who), open = friendsUI.open === who;
         const talked = bond.talk[who] === today, gifted = bond.gift[who] === today;
@@ -8852,11 +8901,11 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-give]').forEach(b => b.addEventListener('click', () => {
       const [who, gid] = b.dataset.give.split(':'), g = GIFTS.find(x => x.id === gid);
       const home = (garden.basket[gid] || 0) > 0;
-      if (!g || (credits < g.price && !home) || bond.gift[who] === todayKey()) return;
+      if (!g || (credits < g.price && !home) || bond.gift[who] === shipDayKey()) return;
       if (home) { garden.basket[gid]--; if (!garden.basket[gid]) delete garden.basket[gid]; saveGarden(); }
       else { credits -= g.price; saveCosmetics(); }
       const [love, like] = GIFT_TASTE[who], k = love.includes(gid) ? 0 : like.includes(gid) ? 1 : 2;
-      bond.gift[who] = todayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]];
+      bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]];
       sfx.coin(); addHearts(who, [80, 45, 20][k] + (home ? 15 : 0)); if (home) showToast('Homegrown! A little extra ♥', 2200); rerender();
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
