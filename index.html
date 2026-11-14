@@ -463,6 +463,7 @@ kbd {
 .gift.homegrown { border-color: #58e0a0; }
 .gift.homegrown small { color: #9fe0b8; }
 .lounge canvas.walkroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.walkhint { margin: -4px 0 0; font-family: var(--f-mono); font-size: 11px; color: var(--regolith-dim); text-align: center; }
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; position: relative; }
@@ -583,6 +584,7 @@ kbd {
 .crow small { font-size: 11px; color: var(--regolith-dim); }
 .crow .ctoday { display: flex; gap: 10px; font-size: 11px; color: var(--regolith-dim); }
 .crow .ctoday .ok { color: #9fe0b8; }
+.crow .cwhere { color: var(--regolith); }
 .crow .dot { position: absolute; top: -9px; right: 8px; width: auto; height: auto; white-space: nowrap; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; font-style: normal; }
 .todaylist { width: 100%; display: grid; gap: 10px; }
 .tcard { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; padding: 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; }
@@ -3809,10 +3811,10 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage'];
+  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom'];
   let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3871,7 +3873,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom') { renderShipRoom(m); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       syncFleet();
@@ -3931,8 +3933,8 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'shipmenu') {
-      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar' };
-      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar' }[lastRoom];
+      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters' };
+      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
       const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length };
       const met = ROM_WHO.filter(w => romMet[w]()), crewNew = met.some(w => sceneReady(w));
       const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
@@ -3941,8 +3943,8 @@ details.act > .limits { margin: 0 0 8px; }
       const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
       let body = '';
       if (menuTab === 'ship') {
-        const order = ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'];
-        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', hall: 'Every door on deck one' };
+        const order = ['den', 'bridge', 'lounge', 'garden', 'garage', 'quarters', 'hall'];
+        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', quarters: 'Everyone’s rooms', hall: 'Every door on deck one' };
         body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
@@ -3953,6 +3955,7 @@ details.act > .limits { margin: 0 0 8px; }
           return `<div class="crow">${faceTag(who, SIGN[who])}
             <div class="cinfo"><b style="color:${SPEAKERS[who].color}">${SIGN[who]}</b><small>${statusOf(who)}</small>
               <span class="hrow" role="img" aria-label="${h} of 10 hearts">${row}</span>
+              <small class="cwhere">📍 ${placeName(crewAt(who))}${roomOpen(who) ? ' · room open' : ''}</small>
               <span class="ctoday"><span class="${bond.talk[who] === today ? 'ok' : ''}">${bond.talk[who] === today ? '✓ chatted' : '· say hi'}</span><span class="${bond.gift[who] === today ? 'ok' : ''}">${bond.gift[who] === today ? '✓ gift given' : '· gift ready'}</span></span></div>
             ${sceneReady(who) ? '<i class="dot">Hang out ♥</i>' : ''}</div>`;
         }).join('')}</div>
@@ -5092,11 +5095,11 @@ details.act > .limits { margin: 0 0 8px; }
     $('back').addEventListener('click', () => setMode('shipmenu'));
     startWalk();
     // someone says hello when you walk in
-    const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
+    const present = (home ? ['F', 'G', 'W'] : ['F', 'G']).filter(w => crewAt(w) === 'lounge');
     const hellos = { F: 'Pilot. Coffee’s fresh. Well, fresh-ish.', G: 'Oh hey, pilot! Grab a mug. Not that one, that’s a science experiment.', W: 'There’s my favorite pilot. Sit, sit. Biscuit can wait five minutes.' };
     if (intro && intro.step === 'lounge') { loungeTourStep(); return; }
-    const first = present[Math.floor(Math.random() * present.length)];
-    loungeSay(first, hellos[first]);
+    if (!present.length) { loungeSay('A', 'Mrrp. (Nobody’s at the table. Apogee has claimed all three chairs. The crew must be elsewhere on the ship: check the menu’s Crew tab.)'); }
+    else { const first = present[Math.floor(Math.random() * present.length)]; loungeSay(first, hellos[first]); }
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
 
@@ -5318,7 +5321,7 @@ details.act > .limits { margin: 0 0 8px; }
   function roomView(W, H) { return roomZoomed() ? { vw: 180, vh: 144, cx: 0, cy: 0 } : { vw: Math.min(W, 256), vh: H, cx: 0, cy: 0 }; }
   function fitRoomCanvas(cv, v) { cv.width = v.vw * 2; cv.height = v.vh * 2; cv.style.aspectRatio = `${v.vw} / ${v.vh}`; }
   function camAim(v, x, y, W, H, dt) {
-    const tx = Math.max(0, Math.min(W - v.vw, x - v.vw / 2)), ty = Math.max(0, Math.min(H - v.vh, y - v.vh * 0.68));
+    const tx = Math.max(0, Math.min(W - v.vw, x - v.vw / 2)), ty = Math.max(0, Math.min(H - v.vh, y - v.vh * 0.58));
     if (dt == null) { v.cx = tx; v.cy = ty; return; }
     const k = Math.min(1, dt * 6); v.cx += (tx - v.cx) * k; v.cy += (ty - v.cy) * k;
   }
@@ -5345,7 +5348,7 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
     L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('garage'); } });
     L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('den'); } });
-    L.push({ id: 'hall', rect: [106, 146, 44, 14], stand: [128, 152], face: 0, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('hall'); } });
+    L.push({ id: 'hall', rect: [106, 140, 44, 20], stand: [128, 152], face: 0, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('hall'); } });
     return L;
   }
   const WALK_COFFEE = [
@@ -5371,7 +5374,7 @@ details.act > .limits { margin: 0 0 8px; }
     const start = from === 'den' ? [240, 56] : from === 'hangar' ? [16, 56] : from === 'hall' ? [128, 138] : [128, 136];
     walk = {
       cv, c, me: { x: start[0], y: start[1], dir: from && from !== 'hall' ? 0 : 3, path: [], moving: false }, target: null, keys: {}, last: performance.now(), raf: 0,
-      npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
+      npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).filter(w => crewAt(w) === 'lounge').map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
       cat: lounge.cat, crumb: crumbHome() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
     };
     walk.view = roomView(WW, WH); fitRoomCanvas(cv, walk.view); camAim(walk.view, walk.me.x, walk.me.y, WW, WH);
@@ -6691,12 +6694,12 @@ details.act > .limits { margin: 0 0 8px; }
     [210, 'BRIDGE', 'bridge'],
     [294, 'PAD', 'den'],
     [344, 'DOME', null, ['G', 'The observation dome! Best view on the deck. Once I re-seal the glass. It only leaks a little. Into space. Which is the bad direction.']],
-    [394, 'CREW', null, ['F', 'Crew quarters. Everyone’s room is behind there, and everyone’s room is a mess. Get to know us better and maybe we’ll tidy up and let you in.']]
+    [394, 'CREW', 'quarters']
   ];
   const HALL_SAY = [
     ['F', 'Dottie on the intercom. Bridge is straight ahead, break room’s on your left, your Pad’s on your right. Don’t run in the halls. I mean it this time.'],
     ['G', 'Gus here. The hallway lights flicker on Tuesdays. That’s not a bug, that’s the ship saying hi.'],
-    ['F', 'Deck one. Some of these doors are still sealed. Fly enough and we’ll get them open. Probably. Paperwork permitting.'],
+    ['F', 'Deck one. The dome’s still sealed. Gus says soon. Gus always says soon. Paperwork permitting.'],
     ['G', 'If you hear a clanking noise in the walls, that’s just Crumb. Unless Crumb is with you. Then I don’t know what it is.']
   ];
   function shipSay(who, text) {
@@ -6708,18 +6711,22 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipTalk(who) { bondTalk(who); shipSay(who, chatLine(who)); }
   function renderShipRoom(kind) {
-    const hall = kind === 'hall', gdn = kind === 'garden', W = hall ? VIEW_W : 256;
+    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom';
     if (gdn) gardenSel = null;
+    const T = {
+      hall: ['Hallway', 'The ship’s main hallway: doors to the hangar, the garden, the break room, the bridge, your Pad and the crew quarters, and one sealed door. Crew members sometimes wander through. Tap to walk; walk up to a door to go through, or to someone to chat. With a keyboard, arrow keys walk and Enter uses the nearest thing.', 'Tap to walk · walk up to a door to go through it · tap the crew to chat'],
+      garden: ['The Garden', 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips'],
+      bridge: ['The Bridge', 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'],
+      quarters: ['Crew quarters', 'The crew quarters: a carpeted corridor with a bedroom door for each crew member. Doors open once you have 3 hearts with that person; a warm light under a door means someone is home. Tap to walk; walk up to a door to knock or go in. With a keyboard, arrow keys walk and Enter uses the nearest door.', 'Walk up to a door to knock · rooms open at 3 hearts · a light under the door means someone’s home'],
+      bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
+    }[kind];
     card.innerHTML = `<div class="lounge shiproom">
-      <h1 class="good">${hall ? 'Hallway' : gdn ? 'The Garden' : 'The Bridge'}</h1>
-      <canvas class="room walkroom" id="shipCv" width="${W * 2}" height="${SHIP_H * 2}" tabindex="0" role="application" aria-label="${hall
-        ? 'The ship’s main hallway: doors to the hangar, the break room, the bridge and your Pad, and some sealed doors still to open. Tap to walk; walk up to a door to go through. With a keyboard, arrow keys walk and Enter uses the nearest door.'
-        : gdn ? 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'
-        : 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'}"></canvas>
+      <h1 class="good">${T[0]}</h1>
+      <canvas class="room walkroom" id="shipCv" width="512" height="320" tabindex="0" role="application" aria-label="${T[1]}"></canvas>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
-        ${hall || gdn ? '' : '<button class="btn" id="shipMissions">Flight deck</button>'}
+        ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         <button class="btn ghost" id="back">☰ Menu</button>
       </div>
     </div>`;
@@ -6728,13 +6735,18 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = HALL_DOORS.find(x => x[2] === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden' }[from] || 'bridge'));
+      const d = HALL_DOORS.find(x => x[2] === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters' }[from] || 'bridge'));
       start = { x: d ? d[0] : 210, y: 72, dir: 0 };
+    } else if (qtr) {
+      const i = QUARTERS.indexOf(bedroomOwner);
+      start = from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    deck = { kind, cv, c: cv.getContext('2d'), W: hall ? HALL_W : 256, B: hall ? [10, 66, HALL_W - 10, 152] : gdn ? [10, 72, 246, 152] : [14, 98, 242, 152],
-      me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null, cam: 0,
-      crumb: crumbHome() && (hall || Math.random() < 0.4) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : [14, 98, 242, 152],
+      me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
+      crumb: crumbHome() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
+    deck.npcs = buildNpcs(kind);
     deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
@@ -6742,28 +6754,42 @@ details.act > .limits { margin: 0 0 8px; }
       const [x, y] = toWorld(e), me = deck.me, B = deck.B;
       const hit = shipThings().find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
       deck.target = hit || null; me.sit = false;
-      // in the hallway, a tap near the screen's edge keeps you walking that way
+      if (hit && hit.npc) { hit.npc.pause = 6; hit.npc.goal = null; }
+      // in a long room, a tap near the screen's edge keeps you walking that way
       const reach = !hit && deck.W > deck.view.vw ? (x - deck.view.cx < 24 ? -100 : x - deck.view.cx > deck.view.vw - 24 ? 100 : 0) : 0;
       me.goal = hit ? hit.go() : [Math.max(B[0], Math.min(B[2], x + reach)), Math.max(B[1], Math.min(B[3], y))];
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
+    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
       deck.last = t;
       shipStep(dt);
       if (!deck) return;
-      if (hall) hallDraw(t); else if (gdn) gardenDraw(t); else bridgeDraw(t);
+      draw(t);
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
-    if (hall) shipSay(...HALL_SAY[Math.floor(Math.random() * HALL_SAY.length)]);
-    else if (gdn) {
+    if (hall) {
+      const wand = deck.npcs.map(n => n.who);
+      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the hallway. Say hi. Then everybody back to work.`] : HALL_SAY[Math.floor(Math.random() * HALL_SAY.length)]));
+    } else if (gdn) {
       const first = store.get('ds-gardenSeen', '') !== '1'; store.set('ds-gardenSeen', '1');
       shipSay(...(first ? ['G', 'Welcome to the garden! I fixed the sprinklers. Mostly. Plant something, land a few times, and you’ll have homegrown gifts for the crew.']
         : gardenReady() ? ['G', 'Something’s ready to pick! I can smell it from here. Or that’s the compost.'] : gardenTip()));
       renderGardenPanel();
+    } else if (qtr) {
+      const first = store.get('ds-quartersSeen', '') !== '1'; store.set('ds-quartersSeen', '1');
+      const open = QUARTERS.filter(w => romMet[w]() && roomOpen(w));
+      shipSay('F', first ? 'Crew quarters. Everyone’s room is behind one of these doors. Get to 3 hearts with someone and they’ll let you in. A light under the door means they’re home.'
+        : open.length ? `${open.length === 1 ? 'One door is' : `${open.length} doors are`} open to you now. Knock on the rest when you know them better.` : 'All locked for now. 3 hearts with someone and their door opens. Chat, bring gifts, do their jobs.');
+    } else if (bed) {
+      const R = ROOMS[bedroomOwner], home = deck.npcs.some(n => n.owner), guests = deck.npcs.filter(n => n.visit);
+      if (home) shipSay(bedroomOwner, guests.length && bedroomOwner !== 'Z' && Math.random() < 0.5 ? HOST_SAYS[Math.floor(Math.random() * HOST_SAYS.length)](SIGN[guests[0].who]) : R.hello);
+      else shipSay('F', `${SIGN[bedroomOwner]}’s out right now (${placeName(crewAt(bedroomOwner)).toLowerCase()}). You can look around. Don’t touch anything. Especially if it’s Gus’s room.`);
+      store.set('ds-roomSeen-' + bedroomOwner, '1');
     } else {
       const hi = [['F', 'Dottie on the intercom. Welcome to the bridge. The nav console has your missions. The big chair is the captain’s. Today, that’s you. Don’t let it go to your head.'],
         ['G', 'Gus here. Everything on the bridge works. Except the button labelled “DO NOT”. Nobody knows what it does. Let’s keep it that way.']];
@@ -6776,8 +6802,11 @@ details.act > .limits { margin: 0 0 8px; }
   // what you can walk up to: rect to tap, go() where you stand, at() what you face
   function shipThings() {
     const L = [];
+    npcThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
+    if (deck.kind === 'quarters') { quartersThings(L); return L; }
+    if (deck.kind === 'bedroom') { bedroomThings(L); return L; }
     if (deck.kind === 'hall') {
       for (const [x, label, to, sealed] of HALL_DOORS) {
         const w = label === 'BRIDGE' ? 36 : 22;
@@ -6789,14 +6818,12 @@ details.act > .limits { margin: 0 0 8px; }
       return L;
     }
     // the bridge
-    if (rexHome()) L.push({ id: 'R', rect: [4, 102, 20, 30], go: () => [34, 126], at: () => ({ x: 14, y: 126 }), act: () => shipTalk('R') });
-    if (olloMet()) L.push({ id: 'O', rect: [232, 102, 20, 30], go: () => [222, 126], at: () => ({ x: 242, y: 126 }), act: () => shipTalk('O') });
     L.push({ id: 'comms', rect: [18, 62, 56, 26], go: () => [46, 100], at: () => ({ x: 46, y: 80 }), act: () => bridgeComms() });
     L.push({ id: 'nav', rect: [98, 60, 60, 28], go: () => [128, 100], at: () => ({ x: 128, y: 80 }), act: () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); } });
     L.push({ id: 'map', rect: [182, 62, 56, 26], go: () => [210, 100], at: () => ({ x: 210, y: 80 }), act: () => shipSay(...starMapLine()) });
     L.push({ id: 'chair', rect: [114, 104, 28, 30], go: () => [128, 128], at: () => ({ x: 128, y: 100 }), act: () => { deck.me.sit = true; deck.me.dir = 3; shipSay(...chairLine()); } });
     L.push({ id: 'window', rect: [20, 4, 216, 54], go: () => [deck.me.x, 100], at: () => ({ x: deck.me.x, y: 30 }), act: () => shipSay(...bridgeWindowLine()) });
-    L.push({ id: 'door', rect: [104, 148, 48, 12], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'bridge'; setMode('hall'); } });
+    L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'bridge'; setMode('hall'); } });
     return L;
   }
   function bridgeComms() {
@@ -6818,8 +6845,8 @@ details.act > .limits { margin: 0 0 8px; }
   function chairLine() {
     const opts = [['F', 'Captain’s chair. It swivels. Gus added cup holders. Then he added more cup holders. There are eleven cup holders.'],
       ['G', 'Comfy, right? I salvaged that from a luxury cruiser. It still plays smooth jazz if you lean back too far.']];
-    if (olloMet()) opts.push(['O', 'It suits you, pilot. Every ship needs someone in the big chair. I’d know. Mine is mostly moths.']);
-    if (rexHome()) opts.push(['R', 'Hey! I was gonna sit there. For a photo. For the fans. …Fine, you look good in it too.']);
+    if (deckHas('O')) opts.push(['O', 'It suits you, pilot. Every ship needs someone in the big chair. I’d know. Mine is mostly moths.']);
+    if (deckHas('R')) opts.push(['R', 'Hey! I was gonna sit there. For a photo. For the fans. …Fine, you look good in it too.']);
     if (bond.partner && romMet[bond.partner] && romMet[bond.partner]()) opts.push([bond.partner, ROM[bond.partner].date[Math.floor(Math.random() * ROM[bond.partner].date.length)]]);
     return opts[Math.floor(Math.random() * opts.length)];
   }
@@ -6827,7 +6854,7 @@ details.act > .limits { margin: 0 0 8px; }
     const w = storedWorld(), name = w ? w.name : 'the Moon';
     const opts = [['F', `That’s ${name} below us. Looks peaceful from up here. Looks less peaceful at forty metres a second.`],
       ['G', `Best window on the deck. Until we fix the dome. ${name} looks good today.`]];
-    if (rexHome()) opts.push(['R', `${name}, baby! Rex Valor has been there. Rex Valor has been everywhere. Twice.`]);
+    if (deckHas('R')) opts.push(['R', `${name}, baby! Rex Valor has been there. Rex Valor has been everywhere. Twice.`]);
     return opts[Math.floor(Math.random() * opts.length)];
   }
   function shipArrive() {
@@ -6837,6 +6864,7 @@ details.act > .limits { margin: 0 0 8px; }
     th.act();
   }
   function shipStep(dt) {
+    npcStep(dt);
     const me = deck.me, B = deck.B, SPEED = 56;
     const kx = (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
     me.moving = false;
@@ -6874,6 +6902,7 @@ details.act > .limits { margin: 0 0 8px; }
   function shipFloorThings(c, t) {
     const things = [], me = deck.me;
     if (deck.crumb) things.push([deck.crumb.y + 10, () => drawCrumbSprite(c, deck.crumb.x, deck.crumb.y, deck.crumb.dir, t, deck.crumb.moving)]);
+    npcDrawThings(c, t, things);
     return things;
   }
   function shipTapRing(c, t) {
@@ -6931,9 +6960,7 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
     // edge arrows when there's more hallway off-screen
     c.fillStyle = 'rgba(255,181,71,0.7)';
-    const ay = Math.round(v.vh * 1.5), aw = v.vw * 2;
-    if (v.cx > 2) { c.beginPath(); c.moveTo(6, ay); c.lineTo(16, ay - 10); c.lineTo(16, ay + 10); c.fill(); }
-    if (v.cx < HALL_W - v.vw - 2) { c.beginPath(); c.moveTo(aw - 6, ay); c.lineTo(aw - 16, ay - 10); c.lineTo(aw - 16, ay + 10); c.fill(); }
+    hallArrows(c, v, HALL_W);
   }
   function bridgeDraw(t) {
     const c = deck.c, W = 256;
@@ -6988,8 +7015,6 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'HALL', true);
     // people, the chair and Crumb, back to front
     const things = shipFloorThings(c, t), me = deck.me;
-    if (rexHome()) things.push([126, () => drawSprite(c, LOOKS.R, 6, 102, deck.talking === 'R' || deck.me.x > 40 ? 2 : 0, 0, false)]);
-    if (olloMet()) things.push([126, () => drawSprite(c, LOOKS.O, 234, 102, deck.talking === 'O' || deck.me.x < 216 ? 1 : 0, 0, false)]);
     const chair = () => {
       px(c, 116, 110, 24, 16, '#7a2f2a'); px(c, 118, 108, 20, 4, '#9a3c34'); px(c, 117, 112, 22, 1, '#b04a40');
       px(c, 112, 118, 4, 10, '#5a2420'); px(c, 140, 118, 4, 10, '#5a2420');
@@ -7015,6 +7040,267 @@ details.act > .limits { margin: 0 0 8px; }
   });
   window.addEventListener('keyup', e => { if (deck && e.key.startsWith('Arrow')) deck.keys[e.key] = false; });
 
+  // ---- The crew's day: where everyone is, in 15-minute slots of real time ----
+  // Dottie, Gus and Wren mostly sit in the break room, Rex and Ollo hang about the bridge, and the guests
+  // keep to their rooms. Now and then anyone wanders the hallway, pops into the garden or visits a friend.
+  const CREW_HOME = { F: 'lounge', G: 'lounge', W: 'lounge', R: 'bridge', O: 'bridge', J: 'room', Z: 'room', V: 'room', Y: 'room' };
+  const SLOT_MS = 15 * 60 * 1000;
+  let crewCache = null;
+  const srand = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10007) / 10007; };
+  function crewPlaces() {
+    const met = ROM_WHO.filter(w => romMet[w]());
+    if (intro) { const P = {}; met.forEach(w => { P[w] = CREW_HOME[w]; }); return P; }
+    const slot = Math.floor(Date.now() / SLOT_MS) + (window.__crewShift || 0), key = slot + met.join('');
+    if (crewCache && crewCache.key === key) return crewCache.P;
+    const P = {}, count = {}, cap = { hall: 3, garden: 2, bridge: 3 };
+    for (const w of met) {
+      const r = srand(w + slot), h = CREW_HOME[w];
+      let loc = h === 'lounge' ? (r < 0.58 ? 'lounge' : r < 0.74 ? 'room' : r < 0.86 ? 'hall' : r < 0.92 ? 'garden' : 'visit')
+        : h === 'bridge' ? (r < 0.5 ? 'bridge' : r < 0.7 ? 'room' : r < 0.82 ? 'hall' : r < 0.88 ? 'garden' : 'visit')
+        : (r < 0.42 ? 'room' : r < 0.6 ? 'hall' : r < 0.7 ? 'garden' : r < 0.78 ? 'bridge' : 'visit');
+      if (cap[loc] != null && (count[loc] || 0) >= cap[loc]) loc = 'room';
+      count[loc] = (count[loc] || 0) + 1; P[w] = loc;
+    }
+    // visitors call on someone who's home
+    for (const w of met) if (P[w] === 'visit') {
+      const hosts = met.filter(h => h !== w && P[h] === 'room');
+      P[w] = hosts.length ? 'visit:' + hosts[Math.floor(srand(w + 'v' + slot) * hosts.length)] : 'hall';
+    }
+    crewCache = { key, P };
+    return P;
+  }
+  const crewAt = who => crewPlaces()[who] || CREW_HOME[who];
+  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden' }[loc];
+  const roomOpen = who => heartsOf(who) >= 3 || bond.partner === who;
+  const roomBusy = who => crewAt(who) === 'room' || Object.values(crewPlaces()).includes('visit:' + who);
+
+  // ---- People in the ship's walk-around rooms ----
+  function buildNpcs(kind) {
+    const P = crewPlaces(), who = Object.keys(P), L = [];
+    const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
+    if (kind === 'hall') { const mx = deck ? deck.me.x : 200; who.filter(w => P[w] === 'hall').forEach((w, i) => add(w, i === 0 ? Math.max(40, Math.min(HALL_W - 40, mx + (mx > HALL_W / 2 ? -60 : 60))) : 40 + srand(w + i + 'x') * (HALL_W - 80), 92 + (i % 3) * 20, { wander: true })); }
+    else if (kind === 'bridge') {
+      const here = who.filter(w => P[w] === 'bridge'), spare = [[70, 146], [190, 146], [100, 120]];
+      for (const w of here) { const s = w === 'R' ? [24, 128] : w === 'O' ? [232, 128] : spare.shift(); if (s) add(w, s[0], s[1], { baseDir: s[0] < 128 ? 2 : 1 }); }
+    } else if (kind === 'garden') {
+      const spots = [[90, 114], [166, 114], [236, 108]];
+      who.filter(w => P[w] === 'garden').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: 3 }); });
+    } else if (kind === 'bedroom' && P[bedroomOwner] === 'room') {
+      add(bedroomOwner, 132, 116, { owner: true });
+      const spots = [[164, 120], [104, 124]];
+      who.filter(w => P[w] === 'visit:' + bedroomOwner).forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { visit: bedroomOwner, baseDir: spots[i][0] > 132 ? 1 : 2 }); });
+      if (L.length > 1) L[0].baseDir = 2;
+    }
+    return L;
+  }
+  const deckHas = w => !!(deck && deck.npcs && deck.npcs.some(n => n.who === w));
+  const VISIT_SAYS = [h => `Oh, hi! I’m just over at ${h}’s for a bit. Don’t tell Dottie I’m on a break.`, h => `${h} invited me over. Well. I invited myself. ${h} didn’t say no.`,
+    () => 'We were just talking about you. Good things! Mostly good things.', h => `${h} has the best snacks on the ship. Don’t tell the others.`,
+    h => `I came to borrow something from ${h}. I forgot what. Now we’re just chatting.`];
+  const HOST_SAYS = [v => `${v} dropped by. Make yourself at home. Everyone else has.`, v => `It’s a party now, apparently. ${v} brought snacks. Well, ${v} brought a snack.`,
+    v => `${v} and I were just catching up. Pull up a chair. Or the floor. The floor is free.`];
+  const HALL_SAYS = ['Just stretching my legs. The break room chairs are a crime against backs.', 'Oh! Pilot! I was just… walking. In the hallway. As one does.',
+    'Have you seen Apogee? She took my pen. Again.', 'I like the hallway. It’s quiet. Except when Crumb does laps.', 'On my way somewhere. I forgot where. I’ll know it when I get there.'];
+  const GARDEN_SAYS = ['Just checking on the plants. They’re doing better than me today.', 'I like it in here. It smells like actual dirt. Real dirt! In space!',
+    'Somebody’s been watering these. Good work, pilot.', 'Gus says if you hum to the tomatoes they grow faster. We don’t have tomatoes. I hum anyway.'];
+  function npcTalk(n) {
+    n.pause = 4; n.goal = null; n.dir = faceToward(n, deck.me);
+    const w = n.who, pick = A => A[Math.floor(Math.random() * A.length)];
+    bondTalk(w);
+    let line = null;
+    if (w !== 'Z' && w !== 'O') {
+      const guests = deck.npcs.filter(o => o.visit), r = Math.random();
+      if (n.visit && r < 0.6) line = pick(VISIT_SAYS.filter((f, i) => !(i === 0 && w === 'F')))(SIGN[n.visit]);
+      else if (n.owner && guests.length && r < 0.5) line = pick(HOST_SAYS)(SIGN[pick(guests).who]);
+      else if (deck.kind === 'hall' && r < 0.4) line = pick(HALL_SAYS);
+      else if (deck.kind === 'garden' && r < 0.5) line = pick(GARDEN_SAYS);
+    }
+    shipSay(w, line || chatLine(w));
+  }
+  function npcStep(dt) {
+    for (const n of deck.npcs) {
+      n.moving = false;
+      if (n.pause > 0) { n.pause -= dt; if (!n.wander || n.pause > 2.5) { const near = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46; n.dir = near ? faceToward(n, deck.me) : n.baseDir; } continue; }
+      if (!n.wander) { n.dir = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46 ? faceToward(n, deck.me) : n.baseDir; continue; }
+      if (!n.goal) n.goal = [30 + Math.random() * (deck.W - 60), 84 + Math.random() * 56];
+      const dx = n.goal[0] - n.x, dy = n.goal[1] - n.y, d = Math.hypot(dx, dy);
+      if (d < 1.5) { n.goal = null; n.pause = 2 + Math.random() * 4; continue; }
+      const s = Math.min(d, 22 * dt); n.x += dx / d * s; n.y += dy / d * s; n.moving = true;
+      n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0);
+    }
+  }
+  function npcThings(L) {
+    for (const n of deck.npcs) L.push({ npc: n, id: 'npc' + n.who, rect: [n.x - 9, n.y - 26, 18, 28], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => npcTalk(n) });
+  }
+  function npcDrawThings(c, t, things) {
+    for (const n of deck.npcs) things.push([n.y, () => drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t)]);
+  }
+
+  // ---- Crew quarters: a corridor of bedroom doors ----
+  const QUARTERS_W = 460, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y'];
+  const qDoorX = i => 76 + i * 42;
+  let bedroomOwner = 'F';
+  const SNACKS = ['Space crisps. They taste like stars. Stars taste like salt, apparently.', 'A Moonbase Pim pastry. Slightly squashed. Still perfect.',
+    'Freeze-dried ice cream. It’s crunchy. It’s wrong. You love it.', 'Gus’s yogurt?! How did that get in here? Put it back. Put it back right now.', 'Nothing. The machine took your coin and hummed at you. Classic.'];
+  function quartersThings(L) {
+    L.push({ id: 'qhall', rect: [14, 14, 24, 46], go: () => [26, 70], at: () => ({ x: 26, y: 30 }), act: () => { sfx.click(); walkEnter = 'quarters'; setMode('hall'); } });
+    QUARTERS.forEach((w, i) => {
+      const x = qDoorX(i);
+      L.push({ id: 'q' + w, rect: [x - 13, 14, 26, 46], go: () => [x, 70], at: () => ({ x, y: 30 }), act: () => {
+        sfx.click();
+        if (!romMet[w]()) { shipSay('F', 'Empty room. For now. Somebody new might move in one day. I’ve already done the paperwork. Just in case.'); return; }
+        if (!roomOpen(w)) {
+          if (crewAt(w) === 'room') shipSay(w, w === 'Z' ? 'Zib’s room is not ready! Zib is cleaning! Zib is mostly hiding things! Come back when we are better friends!' : 'Who is it? Oh, pilot! Give me a little while. The room’s a mess. Get to know me a bit better first.');
+          else shipSay('F', `${SIGN[w]}’s room. Locked. Friends get a key at 3 hearts. That’s the rule. I made the rule.`);
+          return;
+        }
+        bedroomOwner = w; walkEnter = 'quarters'; setMode('bedroom');
+      } });
+    });
+    L.push({ id: 'snacks', rect: [428, 18, 28, 44], go: () => [442, 72], at: () => ({ x: 442, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
+  }
+  function quartersDraw(t) {
+    const c = deck.c, v = deck.view;
+    camT(c, v);
+    c.imageSmoothingEnabled = false;
+    const W = QUARTERS_W;
+    px(c, 0, 0, W, 60, '#2a2342'); px(c, 0, 0, W, 5, '#1c1730');
+    for (let x = 8; x < W; x += 28) px(c, x, 1, 16, 2, '#ffd9a0');
+    for (let x = 0; x < W; x += 21) px(c, x, 5, 1, 50, '#30284c');
+    px(c, 0, 40, W, 2, '#3a3058'); px(c, 0, 54, W, 2, '#3a3058'); px(c, 0, 56, W, 4, '#1a1530');
+    const P = crewPlaces();
+    // the way back to the hallway
+    px(c, 13, 15, 26, 41, '#3a3058'); px(c, 14, 16, 24, 40, '#0e1428'); px(c, 16, 18, 20, 38, '#1a2442'); px(c, 25, 18, 2, 38, '#121a33'); px(c, 32, 36, 2, 2, '#58e0a0');
+    doorPlate(c, 26, 6, 'HALL', true);
+    QUARTERS.forEach((w, i) => {
+      const x = qDoorX(i), x0 = x - 12, met = romMet[w](), open = met && roomOpen(w);
+      px(c, x0 - 1, 15, 26, 41, '#3a3058'); px(c, x0, 16, 24, 40, '#0e1428');
+      px(c, x0 + 2, 18, 20, 38, met ? '#241e3c' : '#1b1a28');
+      if (met) px(c, x0 + 4, 24, 16, 1, 'rgba(255,255,255,0.08)');
+      // a few people have stuck something on their door
+      if (met && w === 'G') { px(c, x - 5, 27, 2, 7, '#c9cfdc'); px(c, x - 7, 24, 6, 4, '#c9cfdc'); px(c, x - 5, 24, 2, 2, '#241e3c'); }
+      if (met && w === 'R') { c.fillStyle = '#ffd36a'; c.beginPath(); for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? 1.8 : 4.2; c.lineTo(x + Math.cos(a) * rr, 29 + Math.sin(a) * rr); } c.fill(); }
+      if (met && w === 'Z') { px(c, x - 4, 26, 7, 5, '#c8a2ff'); px(c, x - 3, 25, 5, 1, '#e6d4ff'); px(c, x - 3, 31, 1, 3, '#ff9ad5'); px(c, x, 31, 1, 3, '#ff9ad5'); px(c, x + 2, 31, 1, 2, '#ff9ad5'); px(c, x - 2, 27, 1, 1, '#2a1a40'); px(c, x + 1, 27, 1, 1, '#2a1a40'); }
+      px(c, x0 + 17, 36, 2, 2, !met ? '#3a3a4a' : open ? '#58e0a0' : '#ff6b5e');
+      if (met && (P[w] === 'room')) { const a = 0.55 + 0.25 * Math.sin(t / 600 + i); px(c, x0 + 1, 55, 22, 2, `rgba(255,229,138,${a})`); }
+      doorPlate(c, x, 6, met ? SIGN[w].toUpperCase() : 'VACANT', open);
+      px(c, x - 9, 60, 18, 3, '#2a2240');
+    });
+    // the snack machine
+    px(c, 428, 18, 28, 42, '#c44a5a'); px(c, 430, 20, 18, 30, '#14182a');
+    for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) px(c, 432 + k * 5, 22 + r * 9, 3, 5, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]);
+    px(c, 450, 24, 4, 10, '#2a3045'); px(c, 451, 26, 2, 2, Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58'); px(c, 430, 52, 18, 5, '#0b0e1a');
+    // carpet runner
+    px(c, 0, 60, W, SHIP_H - 60, '#221d33');
+    px(c, 0, 98, W, 26, '#5a2a3a'); px(c, 0, 99, W, 1, '#c9a24a'); px(c, 0, 122, W, 1, '#c9a24a');
+    for (let x = 6; x < W; x += 18) px(c, x, 109, 6, 3, '#7a3a4a');
+    for (let y = 74; y < SHIP_H; y += 16) if (y < 98 || y > 124) px(c, 0, y, W, 1, '#27213a');
+    const things = shipFloorThings(c, t), me = deck.me;
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    hallArrows(c, v, W);
+  }
+  function hallArrows(c, v, W) {
+    c.fillStyle = 'rgba(255,181,71,0.7)';
+    const ay = Math.round(v.vh * 1.5), aw = v.vw * 2;
+    if (v.cx > 2) { c.beginPath(); c.moveTo(6, ay); c.lineTo(16, ay - 10); c.lineTo(16, ay + 10); c.fill(); }
+    if (v.cx < W - v.vw - 2) { c.beginPath(); c.moveTo(aw - 6, ay); c.lineTo(aw - 16, ay - 10); c.lineTo(aw - 16, ay + 10); c.fill(); }
+  }
+
+  // ---- Bedrooms: everyone's room, their way ----
+  // props sit in four slots: two on the wall (A, B), a big thing on the floor (C) and a small one by the bed (D)
+  const PROP_SLOT = { A: [166, 10], B: [204, 14], C: [204, 46], D: [80, 62] };
+  const ROOMS = {
+    F: { wall: '#2c3552', bed: '#26355e', rug: '#3a4a7a', hello: 'Welcome to my quarters. Wipe your feet. Both of them.',
+      props: [['A', 'poster', '#ffb547', 'Employee of the Month. Every month. I print them myself. It still counts.'], ['B', 'shelf', ['#ff6b5e', '#ffb547', '#ffe58a', '#7fd6ff', '#ff6b5e'], 'Binders. Colour-coded. Red is urgent, orange is urgent, yellow is also urgent. Blue is Gus.'],
+        ['C', 'cabinet', '#8a93ab', 'Filing cabinets. A to M, N to Z, and one drawer labelled “GUS”. It’s the biggest drawer.'], ['D', 'plant', '#3f8a58', 'A cactus. The only plant on this ship that respects my schedule.']] },
+    G: { wall: '#2a3a38', bed: '#3d6b63', rug: '#5a4636', hello: 'Pilot! Welcome to my lair! Watch your step. And your head. And that cable. And that other cable.',
+      props: [['A', 'poster', '#7fd6ff', 'Biscuit’s engine, exploded view. Not literally. That was one time.'], ['B', 'shelf', ['#c9cfdc', '#ffb547', '#8a93ab', '#c9cfdc', '#ff6b5e'], 'Jars of screws, sorted by mood. That one’s grumpy screws.'],
+        ['C', 'robot', '#9fe0b8', 'My robot! One day it’s going to make coffee. Right now it makes noises. Very proud noises.'], ['D', 'lamp', '#ff6b5e', 'Lava lamp. I find it relaxing. Also I’m still trying to work out how it works.']] },
+    W: { wall: '#3a2c26', bed: '#6b4226', rug: '#7a3a4a', hello: 'Come in, come in. Mind the maps. Some of them are older than Dottie. Don’t tell her I said that.',
+      props: [['A', 'maps', '#ff6b5e', 'My old routes. Every pin is a landing. Every red pin is a story I won’t tell Dottie.'], ['B', 'photo', '#c9a24a', 'The first crew. Before Dottie, before Gus, before the coffee machine, even. We were so young. And so bad at landing.'],
+        ['C', 'books', ['#6b4226', '#ff9ad5', '#c9a24a', '#3d6b63', '#8a6a42'], 'Forty years of flight logs. When I can’t sleep, I read the good landings.'], ['D', 'plant', '#58b878', 'Every pilot needs a plant. They don’t care how you landed.']] },
+    R: { wall: '#3a2050', bed: '#d9a420', rug: '#5a2a6a', hello: 'Welcome to the Valor Suite. Autographs are free today. And tomorrow. Every day, actually.',
+      props: [['A', 'poster', '#d9a420', 'That’s me! Signed. By me. To me. “Rex, you’re the best. Love, Rex.”'], ['B', 'trophy', '#ffd36a', 'Trophies. Fastest descent, best hair, most dramatic landing. Two of those are real categories.'],
+        ['C', 'bench', '#c9cfdc', 'Rex Valor doesn’t skip leg day. Rex Valor doesn’t skip any day. Rex Valor does skip paperwork.'], ['D', 'lamp', '#ffe58a', 'Mood lighting. The mood is “famous”.']] },
+    J: { wall: '#1f3a3a', bed: '#2f5d58', rug: '#2a4a48', hello: 'Oh, hello. Come in. It’s quiet in here. That’s the point.',
+      props: [['A', 'maps', '#7fd6ff', 'Docking schematics. I find them calming. Some people do puzzles.'], ['B', 'shelf', ['#3f8a58', '#58b878', '#3f8a58', '#7fd09a', '#58b878'], 'Ferns. They don’t talk back and they’re always where you left them. Like a good docking clamp.'],
+        ['C', 'teaset', '#d8f0a0', 'Tea? I insist. It’s Moon tea, the good stuff. Sit, the kettle won’t be long.'], ['D', 'plant', '#58b878', 'This one’s my favourite. Don’t tell the others. Plants can hear.']] },
+    Z: { wall: '#3a2a50', bed: '#c8a2ff', rug: '#5a3a7a', hello: 'PILOT! In Zib’s room! Zib has never had a guest! Zib has had one guest! It was Gus! He fixed the tank!',
+      props: [['A', 'photo', '#ff9ad5', 'That is Zib’s mother! She is a cloud! A very proud cloud!'], ['B', 'shelf', ['#c9cfdc', '#ffe58a', '#c9cfdc', '#ffd36a', '#c9cfdc'], 'Zib’s spoon collection! Forty spoons! Zib does not eat with spoons! Zib just likes them!'],
+        ['C', 'tank', '#c8a2ff', 'Zib’s cousins! They are visiting! They are also jelly! Everyone is jelly in here!'], ['D', 'lamp', '#ff9ad5', 'Shiny light! Zib likes shiny things! Zib likes you! You are also shiny!']] },
+    O: { wall: '#1a2240', bed: '#26355e', rug: '#3a3058', hello: 'Welcome, pilot. Do come in. Mind the lamps. Some of them are… emotionally important.',
+      props: [['A', 'maps', '#ffe58a', 'Star charts from home. The stars are in different places there. Well, the same places. We’re in different places.'], ['B', 'shelf', ['#f4f1e8', '#ffc6e4', '#cfe3ff', '#f4f1e8', '#ffe58a'], 'My teacups. Each one is from a world I’ve visited. That one is from a fuel station.'],
+        ['C', 'books', ['#26355e', '#ffe58a', '#5a4030', '#3a3058', '#c9a24a'], 'Poetry, mostly. Moths write a great deal of poetry about lamps. It is an entire genre.'], ['D', 'lamp', '#ffe58a', 'Please don’t turn it off. I’m not saying I’d cry. I’m saying I’d be sad in a dignified way.']] },
+    V: { wall: '#1d2a3a', bed: '#1d3340', rug: '#2a3a50', hello: 'Pilot. Come in. Don’t mind the mess. There is no mess. I just say that.',
+      props: [['A', 'mirror', '#c9e8ff', 'Yes, I check my hair. Diplomacy is ninety percent hair.'], ['B', 'flags', ['#c9e8ff', '#1d3340', '#c98d62'], 'Veyra house banners. The left one is mine. The right one is also mine. Lyra stole the middle one.'],
+        ['C', 'desk', '#c9e8ff', 'Treaty drafts. This one is about fish. They’re always about fish.'], ['D', 'plant', '#3f8a58', 'Lyra gave me this. I’ve kept it alive out of pure spite. It’s thriving.']] },
+    Y: { wall: '#2e1a36', bed: '#3a1f40', rug: '#5a2a50', hello: 'Oh, it’s you. Come in. Strictly off the record, I was hoping you’d stop by.',
+      props: [['A', 'photo', '#c9e8ff', 'Kael and me as kids. He’s the one crying. He’ll tell you it was me.'], ['B', 'shelf', ['#ff9ad5', '#c9e8ff', '#3a1f40', '#ffc6e4', '#ff9ad5'], 'My diaries. Off the record. Strictly, completely off the record.'],
+        ['C', 'desk', '#e0a040', 'Chocolates from every embassy. Purely for diplomatic research.'], ['D', 'plant', '#ff9ad5', 'Flowers from the garden. Somebody keeps leaving them at my door. I wonder who.']] }
+  };
+  const PROP_SIZE = { poster: [26, 30], mirror: [22, 30], photo: [22, 18], maps: [30, 24], shelf: [36, 16], flags: [36, 14], trophy: [36, 16], cabinet: [34, 38], desk: [34, 38], books: [34, 38], tank: [34, 38], robot: [34, 38], bench: [34, 38], teaset: [34, 38], plant: [16, 24], lamp: [16, 24] };
+  function drawProp(c, kind, x, y, col, t) {
+    const cols = Array.isArray(col) ? col : [col], C0 = cols[0];
+    if (kind === 'poster') { px(c, x, y, 26, 30, '#3a2a1c'); px(c, x + 2, y + 2, 22, 26, '#14182a'); c.fillStyle = C0; c.beginPath(); c.arc(x + 13, y + 12, 6, 0, Math.PI * 2); c.fill(); px(c, x + 6, y + 21, 14, 2, C0); px(c, x + 8, y + 24, 10, 1, '#8a93ab'); }
+    else if (kind === 'mirror') { px(c, x, y, 22, 30, '#c9a24a'); px(c, x + 2, y + 2, 18, 26, '#3a5070'); px(c, x + 4, y + 4, 2, 10, C0); px(c, x + 7, y + 4, 1, 6, C0); }
+    else if (kind === 'photo') { px(c, x, y, 22, 18, C0); px(c, x + 2, y + 2, 18, 14, '#f4f1e8'); px(c, x + 6, y + 6, 3, 3, '#c98d62'); px(c, x + 13, y + 6, 3, 3, '#e8b48a'); px(c, x + 5, y + 9, 5, 5, '#3a4668'); px(c, x + 12, y + 9, 5, 5, '#8a4a5a'); }
+    else if (kind === 'maps') { px(c, x, y, 30, 24, '#e8dcb8'); px(c, x + 1, y + 1, 28, 22, '#d8c898'); c.strokeStyle = 'rgba(80,60,40,0.6)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 3, y + 18); c.quadraticCurveTo(x + 14, y + 4, x + 27, y + 12); c.stroke(); for (const [a, b] of [[5, 16], [14, 8], [24, 11], [9, 6]]) px(c, x + a, y + b, 2, 2, C0); }
+    else if (kind === 'shelf') { px(c, x, y + 12, 36, 3, '#7a5c44'); cols.slice(0, 5).forEach((k, i) => px(c, x + 2 + i * 7, y + 3 + (i % 2) * 2, 5, 9 - (i % 2) * 2, k)); }
+    else if (kind === 'flags') { px(c, x, y + 1, 36, 1, '#8a93ab'); for (let i = 0; i < 3; i++) { c.fillStyle = cols[i % cols.length]; c.beginPath(); c.moveTo(x + 2 + i * 12, y + 2); c.lineTo(x + 12 + i * 12, y + 2); c.lineTo(x + 7 + i * 12, y + 13); c.fill(); } }
+    else if (kind === 'trophy') { px(c, x, y + 13, 36, 3, '#7a5c44'); for (let i = 0; i < 3; i++) { const tx = x + 4 + i * 11; px(c, tx, y + 3, 7, 5, C0); px(c, tx + 2, y + 8, 3, 3, C0); px(c, tx + 1, y + 11, 5, 2, '#a5835a'); px(c, tx + 1, y + 4, 1, 2, '#fff4c0'); } }
+    else if (kind === 'cabinet') { px(c, x + 4, y + 2, 26, 36, C0); for (let i = 0; i < 3; i++) { px(c, x + 6, y + 5 + i * 11, 22, 9, '#6a7390'); px(c, x + 14, y + 8 + i * 11, 6, 2, '#c9cfdc'); } }
+    else if (kind === 'desk') { px(c, x, y + 18, 34, 4, '#7a5c44'); px(c, x + 2, y + 22, 3, 16, '#5a4636'); px(c, x + 29, y + 22, 3, 16, '#5a4636'); px(c, x + 4, y + 13, 12, 5, '#f4f1e8'); px(c, x + 5, y + 14, 10, 1, '#8a93ab'); px(c, x + 20, y + 12, 9, 6, C0); px(c, x + 22, y + 4, 2, 9, '#3a4668'); px(c, x + 19, y + 2, 8, 3, '#ffe58a'); }
+    else if (kind === 'books') { px(c, x, y, 34, 38, '#5a4636'); for (let r = 0; r < 3; r++) { px(c, x + 2, y + 2 + r * 12, 30, 10, '#2a2016'); for (let k = 0; k < 6; k++) px(c, x + 3 + k * 5, y + 4 + r * 12 + (k % 3 === 0 ? 1 : 0), 4, 8 - (k % 3 === 0 ? 1 : 0), cols[(k + r) % cols.length]); } }
+    else if (kind === 'tank') { px(c, x + 2, y + 30, 30, 8, '#3a3058'); const g = 0.5 + 0.2 * Math.sin(t / 700); px(c, x + 2, y + 4, 30, 26, `rgba(140,110,220,${g})`); px(c, x + 2, y + 4, 30, 2, '#e6d4ff');
+      for (let i = 0; i < 3; i++) { const bx = x + 7 + i * 9, by = y + 14 + Math.round(Math.sin(t / 500 + i * 2) * 4); px(c, bx, by, 6, 4, C0); px(c, bx + 1, by + 4, 1, 3, '#ff9ad5'); px(c, bx + 4, by + 4, 1, 3, '#ff9ad5'); } }
+    else if (kind === 'robot') { px(c, x + 9, y + 12, 16, 16, '#8a93ab'); px(c, x + 11, y + 4, 12, 9, '#c9cfdc'); px(c, x + 13, y + 7, 3, 3, Math.floor(t / 700) % 3 ? C0 : '#2a3045'); px(c, x + 18, y + 7, 3, 3, C0); px(c, x + 16, y, 2, 4, '#c9cfdc'); px(c, x + 15, y - 1, 4, 2, '#ff6b5e'); px(c, x + 11, y + 28, 4, 10, '#6a7390'); px(c, x + 19, y + 28, 4, 10, '#6a7390'); px(c, x + 4, y + 14, 5, 3, '#6a7390'); px(c, x + 25, y + 14, 5, 3, '#6a7390'); }
+    else if (kind === 'bench') { px(c, x + 4, y + 24, 26, 5, '#3a3058'); px(c, x + 6, y + 29, 3, 9, '#2a2240'); px(c, x + 25, y + 29, 3, 9, '#2a2240'); px(c, x + 2, y + 10, 30, 2, C0); px(c, x, y + 6, 4, 10, '#2a3045'); px(c, x + 30, y + 6, 4, 10, '#2a3045'); px(c, x + 4, y + 12, 2, 12, '#8a93ab'); px(c, x + 28, y + 12, 2, 12, '#8a93ab'); }
+    else if (kind === 'teaset') { c.fillStyle = '#7a5c44'; c.beginPath(); c.ellipse(x + 17, y + 22, 15, 5, 0, 0, Math.PI * 2); c.fill(); px(c, x + 15, y + 26, 4, 12, '#5a4636'); px(c, x + 12, y + 13, 10, 8, '#f4f1e8'); px(c, x + 22, y + 15, 3, 2, '#f4f1e8'); px(c, x + 15, y + 11, 4, 2, '#f4f1e8'); px(c, x + 4, y + 18, 5, 3, C0); px(c, x + 26, y + 18, 5, 3, C0);
+      if (!reduceMotion) for (let i = 0; i < 2; i++) px(c, x + 14 + i * 4, y + 6 - ((t / 300 + i * 3) % 6), 1, 2, 'rgba(255,255,255,0.4)'); }
+    else if (kind === 'plant') { px(c, x + 3, y + 16, 10, 8, '#8a5a3a'); px(c, x + 4, y + 16, 8, 2, '#a5735a'); for (const [a, b] of [[2, 6], [6, 2], [10, 7], [4, 10], [9, 11]]) px(c, x + a, y + b, 3, 6, C0); }
+    else if (kind === 'lamp') { const g = 0.18 + 0.08 * Math.sin(t / 800); c.fillStyle = Array.isArray(col) ? col[0] : col; c.globalAlpha = g; c.beginPath(); c.arc(x + 8, y + 5, 12, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1;
+      px(c, x + 3, y, 10, 7, C0); px(c, x + 7, y + 7, 2, 14, '#3a4668'); px(c, x + 4, y + 21, 8, 3, '#3a4668'); }
+  }
+  const propRect = p => { const [sx, sy] = PROP_SLOT[p[0]], [w, h] = PROP_SIZE[p[1]]; return [sx, sy, w, h]; };
+  function bedroomThings(L) {
+    const R = ROOMS[bedroomOwner];
+    for (const p of R.props) { const [x, y, w, h] = propRect(p); L.push({ id: 'prop' + p[0], rect: [x - 2, y - 2, w + 4, h + 4], go: () => [x + w / 2, Math.max(80, y + h + 8)], at: () => ({ x: x + w / 2, y }), act: () => shipSay(bedroomOwner, p[3]) }); }
+    if (bond.partner === bedroomOwner) L.push({ id: 'usphoto', rect: [30, 10, 24, 20], go: () => [60, 100], at: () => ({ x: 42, y: 20 }), act: () => shipSay(bedroomOwner, bedroomOwner === 'Z' ? 'That is Zib and you! Zib looks at it every day! Twice a day! Three times on Tuesdays!' : 'That’s the two of us. I look at it more often than I’ll admit.') });
+    L.push({ id: 'bed', rect: [14, 40, 58, 52], go: () => [80, 100], at: () => ({ x: 40, y: 70 }), act: () => shipSay(bedroomOwner, bedroomOwner === 'Z' ? 'Zib’s bed! Zib does not sleep! Zib floats near it! It is still a good bed!' : 'Please don’t sit on the bed. I just made it. Well, I made it last week. The principle stands.') });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'bedroom'; setMode('quarters'); } });
+  }
+  function bedroomDraw(t) {
+    const c = deck.c, R = ROOMS[bedroomOwner], W = 256;
+    camT(c, deck.view);
+    c.imageSmoothingEnabled = false;
+    px(c, 0, 0, W, 64, R.wall); for (let x = 0; x < W; x += 24) px(c, x, 0, 1, 60, 'rgba(255,255,255,0.05)');
+    px(c, 0, 58, W, 2, 'rgba(255,255,255,0.12)'); px(c, 0, 60, W, 4, 'rgba(0,0,0,0.35)');
+    // window
+    const w = storedWorld() || WORLDS[1];
+    px(c, 94, 10, 64, 34, 'rgba(255,255,255,0.18)'); px(c, 96, 12, 60, 30, '#050812');
+    for (let i = 0; i < 12; i++) px(c, 98 + (i * 31) % 56, 14 + (i * 11) % 24, 1, 1, i % 3 ? '#7a8a9a' : '#ffffff');
+    c.fillStyle = w.orb; c.beginPath(); c.arc(140, 24, 5, 0, Math.PI * 2); c.fill(); px(c, 125, 12, 2, 30, 'rgba(255,255,255,0.18)');
+    if (bond.partner === bedroomOwner) drawProp(c, 'photo', 30, 10, '#ff9ad5', t);
+    // floor and rug
+    px(c, 0, 64, W, SHIP_H - 64, '#221d2e'); for (let y = 76; y < SHIP_H; y += 12) px(c, 0, y, W, 1, '#272235');
+    c.fillStyle = R.rug; c.beginPath(); c.ellipse(140, 118, 58, 20, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.12)'; c.lineWidth = 1; c.beginPath(); c.ellipse(140, 118, 52, 16, 0, 0, Math.PI * 2); c.stroke();
+    px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'OUT', true);
+    // the bed: headboard against the wall, then the mattress and blanket
+    px(c, 14, 38, 58, 26, R.bed); px(c, 16, 40, 54, 2, 'rgba(255,255,255,0.15)');
+    px(c, 14, 64, 58, 28, '#e8e0d0'); px(c, 18, 66, 22, 8, '#f8f4ec'); px(c, 14, 74, 58, 18, R.bed); px(c, 14, 74, 58, 2, 'rgba(255,255,255,0.2)'); px(c, 14, 92, 58, 4, 'rgba(0,0,0,0.3)');
+    // props, people and you, back to front
+    const things = shipFloorThings(c, t), me = deck.me;
+    for (const p of R.props) { const [x, y, , h] = propRect(p); const wall = p[0] === 'A' || p[0] === 'B'; things.push([wall ? 0 : y + h, () => drawProp(c, p[1], x, y, p[2], t)]); }
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
   // ---- The garden: six planters. Crops grow a little with every landing, and a daily watering helps ----
   const SEEDS = [
     { id: 'tea', name: 'Moon tea', icon: '🍵', cost: 20, grow: 2, leaf: '#58b878', fruit: '#d8f0a0' },
@@ -7037,7 +7323,7 @@ details.act > .limits { margin: 0 0 8px; }
     GARDEN_BEDS.forEach(([x, y], i) => L.push({ id: 'bed' + i, rect: [x - 2, y - 14, 48, 32], go: () => [x + 22, y + 24], at: () => ({ x: x + 22, y }), act: () => { gardenSel = i; sfx.click(); renderGardenPanel(); } }));
     L.push({ id: 'tap', rect: [8, 22, 36, 36], go: () => [26, 74], at: () => ({ x: 26, y: 40 }), act: () => gardenWaterAll() });
     L.push({ id: 'seeds', rect: [212, 18, 36, 40], go: () => [230, 74], at: () => ({ x: 230, y: 40 }), act: () => { gardenSel = 'seeds'; sfx.click(); renderGardenPanel(); shipSay(...gardenTip()); } });
-    L.push({ id: 'door', rect: [104, 148, 48, 12], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'garden'; setMode('hall'); } });
+    L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'garden'; setMode('hall'); } });
   }
   // who loves what, from everyone's real tastes (only the people you've met)
   function gardenTip() {
@@ -10394,7 +10680,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
-    if (mode === 'hall' || mode === 'bridge' || mode === 'garden') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode(SHIP_ROOMS.includes(mode) ? 'shipmenu' : mode === 'setup' && setupFrom === 'flights' ? 'flights' : 'title'); }
       return;
