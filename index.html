@@ -618,6 +618,15 @@ kbd {
 .savebox { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
 .savebox textarea { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; border: 1px solid var(--space-2); background: var(--space); color: var(--regolith); font-family: var(--f-mono); font-size: 11px; resize: vertical; }
 .savebox .btns { justify-content: flex-start; margin: 0; }
+.guide { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.gitem { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; }
+.gitem > i { font-style: normal; font-size: 14px; width: 18px; flex: none; color: var(--flame); text-align: center; }
+.gitem.done > i { color: #58e0a0; }
+.gitem.locked { opacity: 0.6; }
+.gitem b { display: block; font-family: var(--f-display); font-size: 14px; letter-spacing: 0.04em; color: var(--regolith); }
+.gitem small { display: block; font-size: 11px; color: var(--flame); margin: 2px 0 4px; }
+.gitem.locked small { color: var(--regolith-dim); }
+.gitem p { font-size: 12px; color: var(--regolith-dim); }
 .roomfade { position: fixed; inset: 0; z-index: 55; background: #000; pointer-events: none; animation: roomfade 0.5s ease-out forwards; }
 @keyframes roomfade { 0% { opacity: 1; } 100% { opacity: 0; } }
 .sleepfade { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #05070f; color: #e8edf5; pointer-events: none; animation: sleepfade 3s ease forwards; }
@@ -3947,6 +3956,7 @@ details.act > .limits { margin: 0 0 8px; }
     mode = m;
     if (SHIP_ROOMS.includes(m)) lastRoom = m;
     sfx.ambient(SHIP_ROOMS.includes(m) ? m : null);
+    if (SHIP_ROOMS.includes(m)) setTimeout(guideNudge, 0);
     if (SHIP_ROOMS.includes(m) || m === 'flights' || m === 'flying') menuReturn = false;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
     $('pad').classList.toggle('off', MENU_MODES.includes(m));
@@ -4078,8 +4088,11 @@ details.act > .limits { margin: 0 0 8px; }
           <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
             <button class="btn ghost" id="flightsBtn">Open the flight deck</button></div>
         </div>`;
+      } else if (menuTab === 'guide') {
+        body = `${guideHtml()}<div class="btns"><button class="btn ghost" data-mtab="journal">Back to the journal</button></div>`;
       } else {
-        body = `<nav class="rooms" aria-label="Journal">
+        body = `<button class="mode wide" id="guideBtn"><b>Ship guide</b><span>${GUIDE.filter(g => g.tried()).length} of ${GUIDE.length} activities tried · what there is to do and where</span>${GUIDE.some(g => g.open() && !g.tried()) ? '<i class="dot">New</i>' : ''}</button>
+        <nav class="rooms" aria-label="Journal">
           <button class="mode" id="albumBtn2" data-menuret><b>Postcards</b><span>${cardsGot} of ${cardsAll} collected</span>${newCards() ? `<i class="dot">${newCards()} new</i>` : ''}</button>
           <button class="mode" id="boardBtn2" data-menuret><b>Bulletin board</b><span>Notes from the crew</span></button>
           <button class="mode" id="logBtn2" data-menuret><b>Maintenance log</b><span>Gus’s notes on your flying</span></button>
@@ -4093,7 +4106,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
       html = `<h1 class="good">Menu</h1>
         <p class="tagline">Day ${shipDay} · You’re in ${here} · ${fmt(credits)} credits</p>
-        <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
+        <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab || (id === 'journal' && menuTab === 'guide') ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
         <div class="menubody">${body}</div>
         <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
     } else if (m === 'flights') {
@@ -4422,6 +4435,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (again) again.focus({ preventScroll: true });
     }));
     card.querySelectorAll('[data-menuret]').forEach(b => b.addEventListener('click', () => { menuReturn = true; }, { capture: true }));
+    { const gb = $('guideBtn'); if (gb) gb.addEventListener('click', () => { sfx.click(); menuTab = 'guide'; setMode('shipmenu'); }); }
     card.querySelectorAll('[data-mtab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.mtab === menuTab) return; menuTab = b.dataset.mtab; sfx.click(); setMode('shipmenu'); const t2 = card.querySelector(`[data-mtab="${menuTab}"]`); if (t2) t2.focus({ preventScroll: true }); }));
     { const mnb = $('mineBtn'); if (mnb) mnb.addEventListener('click', () => { sfx.click(); mineFrom = 'flights'; setMode('mining'); }); }
     { const wdb = $('wardBtn2'); if (wdb) wdb.addEventListener('click', () => { sfx.click(); wardFrom = 'menu'; setMode('wardrobe'); }); }
@@ -7594,13 +7608,16 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Ship repair projects: fund them a bit at a time on the hallway board ----
   const PROJECTS = [
-    { id: 'lights', name: 'Fix the hallway lights', who: 'G', cost: 400, blurb: 'The hallway lights flicker every Tuesday. And most Wednesdays. Gus has a theory, a ladder and a lot of tape.', what: 'Steady, warm lights all down the hallway.', done: 'Lights fixed! Steady and warm. I kind of miss the flicker. No I don’t.' },
-    { id: 'sprinkler', name: 'Garden sprinklers', who: 'G', cost: 1500, blurb: 'A little sprinkler head on every planter, so the garden waters itself.', what: 'The garden waters itself every new day.', done: 'Sprinklers in! The garden waters itself every morning now. Don’t stand too close at six a.m.' },
-    { id: 'lounge', name: 'Hallway lounge corner', who: 'F', cost: 2000, blurb: 'A couch, a rug and a lamp halfway down the hallway. Somewhere to sit that isn’t the break room. Or my desk.', what: 'A cosy corner in the hallway, near your Pad.', done: 'The lounge corner is done. It has a couch. I have already napped on it. Professionally.' },
-    { id: 'jukebox', name: 'Break room jukebox', who: 'W', cost: 2500, blurb: 'There’s an old jukebox in storage. A new needle, some wiring and a polish, and the break room has music again.', what: 'A working jukebox in the break room.', done: 'Listen to that. Forty years old and it still plays. Just like me.' },
-    { id: 'dome', name: 'Repair the observation dome', who: 'G', cost: 6000, blurb: 'Re-seal the dome glass, re-pressurise it and clean the telescope. Best view on the ship, once it stops leaking into space.', what: 'Opens the observation dome off the hallway.', done: 'The dome is open! Re-sealed, re-pressurised and only slightly smudged. Go and look up!' }
+    { id: 'lights', name: 'Fix the hallway lights', who: 'G', cost: 800, blurb: 'The hallway lights flicker every Tuesday. And most Wednesdays. Gus has a theory, a ladder and a lot of tape.', what: 'Steady, warm lights all down the hallway.', done: 'Lights fixed! Steady and warm. I kind of miss the flicker. No I don’t.' },
+    { id: 'sprinkler', name: 'Garden sprinklers', who: 'G', cost: 3000, blurb: 'A little sprinkler head on every planter, so the garden waters itself.', what: 'The garden waters itself every new day.', done: 'Sprinklers in! The garden waters itself every morning now. Don’t stand too close at six a.m.' },
+    { id: 'lounge', name: 'Hallway lounge corner', who: 'F', cost: 4000, blurb: 'A couch, a rug and a lamp halfway down the hallway. Somewhere to sit that isn’t the break room. Or my desk.', what: 'A cosy corner in the hallway, near your Pad.', done: 'The lounge corner is done. It has a couch. I have already napped on it. Professionally.' },
+    { id: 'jukebox', name: 'Break room jukebox', who: 'W', cost: 5000, blurb: 'There’s an old jukebox in storage. A new needle, some wiring and a polish, and the break room has music again.', what: 'A working jukebox in the break room.', done: 'Listen to that. Forty years old and it still plays. Just like me.' },
+    { id: 'dome', name: 'Repair the observation dome', who: 'G', cost: 12000, blurb: 'Re-seal the dome glass, re-pressurise it and clean the telescope. Best view on the ship, once it stops leaking into space.', what: 'Opens the observation dome off the hallway.', done: 'The dome is open! Re-sealed, re-pressurised and only slightly smudged. Go and look up!' }
   ];
   let projPaid = (() => { try { return JSON.parse(store.get('ds-projects', '{}')) || {}; } catch (e) { return {}; } })();
+  { const OLD = { lights: 400, sprinkler: 1500, lounge: 2000, jukebox: 2500, dome: 6000 }; let bumped = false;
+    for (const pj of PROJECTS) if ((projPaid[pj.id] || 0) >= OLD[pj.id] && projPaid[pj.id] < pj.cost && store.get('ds-projectsV', '') !== '2') { projPaid[pj.id] = pj.cost; bumped = true; }
+    store.set('ds-projectsV', '2'); if (bumped) store.set('ds-projects', JSON.stringify(projPaid)); }
   const projById = id => PROJECTS.find(p => p.id === id);
   const projDone = id => (projPaid[id] || 0) >= projById(id).cost;
   const projWho = p => p.who === 'W' && !wrenHome() ? 'F' : p.who;
@@ -8513,7 +8530,7 @@ details.act > .limits { margin: 0 0 8px; }
       card.innerHTML = `<div class="mining">
         <span class="eyebrow">Hangar side job</span><h1 class="good">Asteroid mining</h1>
         <p class="sub">Take the little mining pod out into the belt. Drag (or use the arrow keys) to fly. Scoop up <b style="color:#e09a4a">copper</b>, <b style="color:#ffd36a">gold</b> and the odd <b style="color:#7fd6ff">gem</b>. Rocks dent the hull: three dents and you head home early.</p>
-        <div class="radio quote">${faceTag('G', 'Gus')}<div class="said"><span class="who" style="color:${SPEAKERS.G.color}">${SPEAKERS.G.name}</span><p>${left ? 'The pod’s fuelled! Copper pays a bit, gold pays more, and gems… Zib goes absolutely wild for gems.' : 'That’s all the pod fuel for today. Get some sleep and I’ll top it up tomorrow.'}</p></div></div>
+        <div class="radio quote">${faceTag('G', 'Gus')}<div class="said"><span class="who" style="color:${SPEAKERS.G.color}">${SPEAKERS.G.name}</span><p>${left ? 'The pod’s fuelled! Copper pays 12 credits a chunk, gold pays 40, and gems… Zib goes absolutely wild for gems.' : 'That’s all the pod fuel for today. Get some sleep and I’ll top it up tomorrow.'}</p></div></div>
         <p class="limits">${left} of ${MINE_PERMITS} runs left today (a new ship day refills them).</p>
         <div class="btns"><button class="btn" id="mineGo"${left ? '' : ' disabled'}>Launch the pod</button><button class="btn ghost" id="back">${mineFrom === 'flights' ? 'Back to the flight deck' : 'Back to the hangar'}</button></div>
       </div>`;
@@ -8523,18 +8540,18 @@ details.act > .limits { margin: 0 0 8px; }
       return;
     }
     if (phase === 'haul') {
-      const cr = haul.copper * 8 + haul.gold * 25;
+      const cr = haul.copper * 12 + haul.gold * 40;
       credits += cr; saveCosmetics();
       card.innerHTML = `<div class="mining">
         <span class="eyebrow">${haul.dents >= 3 ? 'Hull dented, back early' : 'Time’s up'}</span><h1 class="good">Your haul</h1>
         <div class="haul"><div><b style="color:#e09a4a">${haul.copper}</b><span>copper</span></div><div><b style="color:#ffd36a">${haul.gold}</b><span>gold</span></div><div><b style="color:#7fd6ff">${haul.gems}</b><span>${haul.gems === 1 ? 'gem' : 'gems'}</span></div></div>
         <p class="sub">The ore sold for <b class="cr">${fmt(cr)} credits</b>.${haul.gems ? ` What about the ${haul.gems === 1 ? 'gem' : 'gems'}?` : ''}</p>
-        ${haul.gems ? `<div class="btns"><button class="btn" id="gemKeep">Keep as ${haul.gems === 1 ? 'a gift' : 'gifts'} 💎</button><button class="btn ghost" id="gemSell">Sell for ${fmt(haul.gems * 60)} cr</button></div>` : ''}
+        ${haul.gems ? `<div class="btns"><button class="btn" id="gemKeep">Keep as ${haul.gems === 1 ? 'a gift' : 'gifts'} 💎</button><button class="btn ghost" id="gemSell">Sell for ${fmt(haul.gems * 100)} cr</button></div>` : ''}
         <div class="btns" id="mineAfter"${haul.gems ? ' hidden' : ''}><button class="btn" id="mineAgain"${left ? '' : ' disabled'}>${left ? `Go again (${left} left today)` : 'No fuel left today'}</button><button class="btn ghost" id="back">${mineFrom === 'flights' ? 'Back to the flight deck' : 'Back to the hangar'}</button></div>
       </div>`;
       const after = () => { $('mineAfter').hidden = false; card.querySelectorAll('#gemKeep, #gemSell').forEach(b => b.parentElement.remove()); };
       const kb = $('gemKeep'); if (kb) kb.addEventListener('click', () => { garden.basket.gem = (garden.basket.gem || 0) + haul.gems; saveGarden(); sfx.coin(); showToast(`💎 ×${haul.gems} into your basket. ${GEM_FANS.filter(w => romMet[w]()).map(w => SIGN[w]).join(' and ') || 'Someone'} will love ${haul.gems === 1 ? 'it' : 'them'}.`, 3000); after(); });
-      const sb = $('gemSell'); if (sb) sb.addEventListener('click', () => { credits += haul.gems * 60; saveCosmetics(); sfx.coin(); after(); });
+      const sb = $('gemSell'); if (sb) sb.addEventListener('click', () => { credits += haul.gems * 100; saveCosmetics(); sfx.coin(); after(); });
       $('mineAgain').addEventListener('click', () => { if (!minePermits()) return; useMinePermit(); sfx.click(); startMining(); });
       $('back').addEventListener('click', () => setMode(mineFrom === 'flights' ? 'flights' : 'garage'));
     }
@@ -8734,16 +8751,16 @@ details.act > .limits { margin: 0 0 8px; }
   };
   function salvageReveal() {
     const s = salvage(), w = WORLDS.find(x => x.id === s.world) || WORLDS[1], r = Math.random();
-    const cr = 60 + Math.floor(Math.random() * 120), gem = Math.random() < 0.35, rare = r < 0.1;
+    const cr = 100 + Math.floor(Math.random() * 200), gem = Math.random() < 0.35, rare = r < 0.1;
     const junk = SALVAGE_FINDS.junk[Math.floor(Math.random() * SALVAGE_FINDS.junk.length)], rareItem = SALVAGE_FINDS.rare[Math.floor(Math.random() * SALVAGE_FINDS.rare.length)];
-    const total = cr + (rare ? 400 : 0);
+    const total = cr + (rare ? 600 : 0);
     credits += total; saveCosmetics();
     if (gem) { garden.basket.gem = (garden.basket.gem || 0) + 1; saveGarden(); }
     store.set('ds-salvage', JSON.stringify({ ...s, back: true }));
     store.set('ds-crumbSeen', '1');
     sfx.coin();
     showToast(`Crumb is back from ${w.name}: +${fmt(total)} cr${gem ? ' and a 💎' : ''}`, 3200);
-    return `*proud beeping* (Crumb rolls back from ${w.name} and dumps out his scoop: salvage worth ${fmt(cr)} credits${gem ? ', a sparkly space gem' : ''}${rare ? `, and ${rareItem}! Gus says it’s worth another 400 credits` : `, and ${junk}`}.)`;
+    return `*proud beeping* (Crumb rolls back from ${w.name} and dumps out his scoop: salvage worth ${fmt(cr)} credits${gem ? ', a sparkly space gem' : ''}${rare ? `, and ${rareItem}! Gus says it’s worth another 600 credits` : `, and ${junk}`}.)`;
   }
   function crumbDock() {
     if (salvageReady()) { garSay('K', salvageReveal()); renderSalvagePanel(); return; }
@@ -8765,26 +8782,56 @@ details.act > .limits { margin: 0 0 8px; }
     }));
   }
 
+  // ---- The ship guide: everything there is to do, with a heads-up the first time each thing opens ----
+  const GUIDE = [
+    { id: 'sleep', name: 'Sleep to end the day', where: 'Your Pad · 🌙 Sleep', what: 'A new ship day: chat and gift again, the crew move around, the garden can be watered.', open: () => true, tried: () => shipDay > 1, hi: ['F', 'When you’re done for the day, press 🌙 Sleep in your Pad. Everyone resets for a fresh day of chats and gifts.'] },
+    { id: 'friends', name: 'Chat and give gifts', where: 'Anyone you meet · Menu → Crew ♥', what: 'One chat and one gift per person per day grows your hearts.', open: () => true, tried: () => Object.keys(bond.gift || {}).length > 0, hi: ['G', 'Psst! Tap anyone on the ship to chat, and bring them a gift from Menu → Crew ♥. Hearts unlock hangouts and their rooms.'] },
+    { id: 'garden', name: 'Grow crops', where: 'Hallway · GARDEN door', what: 'Plant seeds; they grow with every landing. Harvest them as gifts or cooking ingredients.', open: () => true, tried: () => store.get('ds-gardenSeen', '') === '1', hi: ['G', 'The garden’s open! Plant a few seeds, land a few times, and you’ll have homegrown gifts.'] },
+    { id: 'projects', name: 'Fund ship repairs', where: 'Hallway · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => true, tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
+    { id: 'wardrobe', name: 'Dress your pilot', where: 'Menu → Journal → Wardrobe', what: 'Outfits and hats that show everywhere, from the hallway to your license.', open: () => stats.landings >= 3, tried: () => wardOwned.size > 0, hi: ['F', 'You’ve been wearing the same flight suit for days. The wardrobe is in Menu → Journal. Treat yourself.'] },
+    { id: 'galley', name: 'Cook meals', where: 'Hallway · GALLEY door', what: 'Two crops make a meal. Meals are the best gifts on the ship.', open: () => Object.keys(garden.basket).length > 0 || store.get('ds-galleySeen', '') === '1', tried: () => store.get('ds-galleySeen', '') === '1', hi: ['G', 'You’ve got crops in your basket! Take them to the galley at the end of the hallway and cook something. Meals are the best gifts there are.'] },
+    { id: 'mining', name: 'Mine asteroids', where: 'Hangar · ⛏ Asteroid mining (or the flight deck)', what: 'Three pod runs a day for ore and gems.', open: () => stats.landings >= 2, tried: () => !!store.get('ds-mining', ''), hi: ['G', 'The mining pod’s fuelled! Hop in from the hangar: ore for credits, gems for gifts. Three runs a day.'] },
+    { id: 'salvage', name: 'Send Crumb salvaging', where: 'Hangar · Crumb’s dock', what: 'Crumb digs up credits, gems and oddities while you fly.', open: () => crumbHome() && stats.worlds.length > 0, tried: () => !!salvage(), hi: ['K', '*hopeful beeping* (Crumb is parked by his dock in the hangar with his scoop out. He wants to go salvaging. Walk up to him!)'] },
+    { id: 'quarters', name: 'Visit the crew’s rooms', where: 'Hallway · CREW door', what: 'Rooms open at 3 hearts. A light under the door means they’re home.', open: () => ROM_WHO.some(w => romMet[w]() && roomOpen(w)), tried: () => ROM_WHO.some(w => store.get('ds-roomSeen-' + w, '') === '1'), hi: ['F', 'Somebody likes you enough to let you in. The crew quarters are behind the CREW door. Knock, knock.'] },
+    { id: 'hangout', name: 'Hang out', where: 'Menu → Crew ♥ → Gifts and hangouts', what: 'At 3, 6, 8 and 10 hearts, a little scene with someone.', open: () => ROM_WHO.some(w => romMet[w]() && sceneReady(w)) || bond.seen.length > 0, tried: () => bond.seen.length > 0, hi: ['F', 'Someone wants to hang out with you! Look for the Hang out ♥ tag in Menu → Crew ♥.'] },
+    { id: 'dome', name: 'Stargaze in the dome', where: 'Hallway · DOME door', what: 'The telescope, a bench, and the best view on the ship.', open: () => projDone('dome'), tried: () => store.get('ds-domeSeen', '') === '1', hi: ['G', 'The dome is open! Go and look up. Bring someone special, maybe.'] }
+  ];
+  let guideSaid = (() => { try { return JSON.parse(store.get('ds-guideSaid', '[]')); } catch (e) { return []; } })();
+  // the first time something opens up, one heads-up per room you walk into (never during the intro)
+  let guideLast = 0;
+  function guideNudge() {
+    if (intro || store.get('ds-intro', '') !== 'done' || performance.now() - guideLast < 45000) return;
+    const g = GUIDE.find(x => !guideSaid.includes(x.id) && !x.tried() && x.open());
+    if (!g) return;
+    guideSaid.push(g.id); store.set('ds-guideSaid', JSON.stringify(guideSaid)); guideLast = performance.now();
+    setTimeout(() => crewToast(g.hi[0], g.hi[1], 'New'), 900);
+  }
+  function guideHtml() {
+    const done = GUIDE.filter(g => g.tried()).length;
+    return `<p class="limits">${done} of ${GUIDE.length} tried. Things still locked show what opens them.</p>
+      <div class="guide">${GUIDE.map(g => { const open = g.open(), tried = g.tried(); return `<div class="gitem${tried ? ' done' : ''}${open ? '' : ' locked'}"><i aria-hidden="true">${tried ? '✓' : open ? '•' : '🔒'}</i><div><b>${g.name}</b><small>${open ? g.where : g.id === 'dome' ? 'Fund the dome repair on the project board' : g.id === 'quarters' ? 'Reach 3 hearts with someone' : g.id === 'hangout' ? 'Reach 3 hearts with someone' : g.id === 'salvage' ? 'Finish a round trip to meet Crumb' : g.id === 'galley' ? 'Harvest something in the garden' : 'Land a few more times'}</small><p>${g.what}</p></div></div>`; }).join('')}</div>`;
+  }
+
   // ---- The pilot wardrobe: outfits and hats bought with credits ----
   const OUTFITS = [
-    { id: 'hoodie', name: 'Cozy hoodie', price: 500, top: '#7a5ab8', pants: '#3a3050', shoes: '#2a2238', blurb: 'For long nights on the Bridge.' },
-    { id: 'overalls', name: 'Workshop overalls', price: 450, top: '#3d6b63', pants: '#3d6b63', shoes: '#5a3a24', trim: '#c9cfdc', blurb: 'Gus approved. Several pockets. One has a sandwich in it.' },
-    { id: 'jacket', name: 'Bomber jacket', price: 600, top: '#7a4a2c', pants: '#2a3045', shoes: '#2a1a12', scarf: '#e8dcb8', blurb: 'Fur collar, leather patches, maximum swagger.' },
-    { id: 'sweater', name: 'Holiday sweater', price: 700, top: '#b8322a', pants: '#2a3045', shoes: '#2a1a12', trim: '#f4f1e8', dots: '#f4f1e8', blurb: 'Hand-knitted by Dottie. She will deny it.' },
-    { id: 'moth', name: 'Moth-silk robe', price: 900, top: '#d4b888', pants: '#8a6a42', shoes: '#5a4030', scarf: '#f0e2c0', blurb: 'A gift-shop copy of Ollo’s travelling robe. Very soft.' },
-    { id: 'stars', name: 'Star-print flight suit', price: 1000, top: '#26355e', pants: '#26355e', shoes: '#15151f', dots: '#ffe58a', blurb: 'Covered in tiny constellations. You can find Orion if you squint.' },
-    { id: 'captain', name: 'Captain’s coat', price: 1200, top: '#1d2a4c', pants: '#1d2a4c', shoes: '#15151f', trim: '#ffd36a', blurb: 'Gold trim, sharp shoulders. You look like you own the ship.' },
-    { id: 'tux', name: 'Gala tux', price: 1500, top: '#15151f', pants: '#15151f', shoes: '#0a0a12', trim: '#f4f1e8', blurb: 'For embassy dinners, and for dates in the dome.' }
+    { id: 'hoodie', name: 'Cozy hoodie', price: 900, top: '#7a5ab8', pants: '#3a3050', shoes: '#2a2238', blurb: 'For long nights on the Bridge.' },
+    { id: 'overalls', name: 'Workshop overalls', price: 800, top: '#3d6b63', pants: '#3d6b63', shoes: '#5a3a24', trim: '#c9cfdc', blurb: 'Gus approved. Several pockets. One has a sandwich in it.' },
+    { id: 'jacket', name: 'Bomber jacket', price: 1200, top: '#7a4a2c', pants: '#2a3045', shoes: '#2a1a12', scarf: '#e8dcb8', blurb: 'Fur collar, leather patches, maximum swagger.' },
+    { id: 'sweater', name: 'Holiday sweater', price: 1400, top: '#b8322a', pants: '#2a3045', shoes: '#2a1a12', trim: '#f4f1e8', dots: '#f4f1e8', blurb: 'Hand-knitted by Dottie. She will deny it.' },
+    { id: 'moth', name: 'Moth-silk robe', price: 1800, top: '#d4b888', pants: '#8a6a42', shoes: '#5a4030', scarf: '#f0e2c0', blurb: 'A gift-shop copy of Ollo’s travelling robe. Very soft.' },
+    { id: 'stars', name: 'Star-print flight suit', price: 2000, top: '#26355e', pants: '#26355e', shoes: '#15151f', dots: '#ffe58a', blurb: 'Covered in tiny constellations. You can find Orion if you squint.' },
+    { id: 'captain', name: 'Captain’s coat', price: 2500, top: '#1d2a4c', pants: '#1d2a4c', shoes: '#15151f', trim: '#ffd36a', blurb: 'Gold trim, sharp shoulders. You look like you own the ship.' },
+    { id: 'tux', name: 'Gala tux', price: 3000, top: '#15151f', pants: '#15151f', shoes: '#0a0a12', trim: '#f4f1e8', blurb: 'For embassy dinners, and for dates in the dome.' }
   ];
   const HATS = [
-    { id: 'flower', name: 'Hair flower', price: 200, blurb: 'A star lily from the garden. Probably.' },
-    { id: 'cap', name: 'Ball cap', price: 250, blurb: 'Descent Systems team cap. The team is five people and a cat.' },
-    { id: 'beanie', name: 'Bobble beanie', price: 300, blurb: 'Warm ears, warm heart.' },
-    { id: 'bow', name: 'Big bow', price: 300, blurb: 'It’s a very big bow.' },
-    { id: 'party', name: 'Party hat', price: 350, blurb: 'Every landing is a party if you believe hard enough.' },
-    { id: 'antennae', name: 'Antenna headband', price: 400, blurb: 'Now you and Ollo match. He cried a little.' },
-    { id: 'shades', name: 'Star shades', price: 500, blurb: 'Rex has the same pair. Rex says yours are knockoffs.' },
-    { id: 'crown', name: 'Tiny crown', price: 2000, blurb: 'For the pilot who has everything. Now you have a crown too.' }
+    { id: 'flower', name: 'Hair flower', price: 400, blurb: 'A star lily from the garden. Probably.' },
+    { id: 'cap', name: 'Ball cap', price: 500, blurb: 'Descent Systems team cap. The team is five people and a cat.' },
+    { id: 'beanie', name: 'Bobble beanie', price: 600, blurb: 'Warm ears, warm heart.' },
+    { id: 'bow', name: 'Big bow', price: 600, blurb: 'It’s a very big bow.' },
+    { id: 'party', name: 'Party hat', price: 700, blurb: 'Every landing is a party if you believe hard enough.' },
+    { id: 'antennae', name: 'Antenna headband', price: 800, blurb: 'Now you and Ollo match. He cried a little.' },
+    { id: 'shades', name: 'Star shades', price: 1000, blurb: 'Rex has the same pair. Rex says yours are knockoffs.' },
+    { id: 'crown', name: 'Tiny crown', price: 5000, blurb: 'For the pilot who has everything. Now you have a crown too.' }
   ];
   let wardOwned = (() => { try { return new Set(JSON.parse(store.get('ds-wardrobe', '[]'))); } catch (e) { return new Set(); } })();
   const saveWard = () => store.set('ds-wardrobe', JSON.stringify([...wardOwned]));
