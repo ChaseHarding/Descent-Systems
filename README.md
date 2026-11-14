@@ -353,7 +353,18 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 
 - Once you've met them, a **Radio** button patches in a call from Juno on the mothership or Pim on the Moon, each with their own stack of lines. Both can also visit your Pad when you invite someone over, and they turn up in crew requests: Pim wants you to land on the Moon so she can wave, and Juno wants a docking.
 
-- **You're there too.** Your pilot, exactly as you look on your pilot license, sits at the table with the crew and has their own mug. Change your look on the license and you change at the table. In your Pad you sit on the window bench, and when you invite someone over they sit beside you.
+- **You're there too.** Your pilot, exactly as you look on your pilot license, sits at the table with the crew and has their own mug. Change your look on the license and you change at the table. In your Pad you sit on whatever seat you've picked by the big window, and when you invite someone over they sit beside you.
+
+
+### Friends ♥ (and romance)
+
+The **Friends ♥** button in the break room shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday) and Juno (after your first round trip). Each has 10 hearts.
+
+- **Grow closer** by chatting once a day (here, in the break room, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
+- **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern. Their reaction tells you how you did.
+- **Hang out** at 3 and 6 hearts for a short scene with each of them. Friendship tops out at 8 hearts.
+
+**Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb and Apogee are friends of the whole crew and are never part of romance.
 
 ### Postcards
 
