@@ -57,13 +57,20 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Life on the ship
 
-The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
+There's no title menu. The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
 
-**The ship menu.** Every room has a **☰ Ship menu** button (or press Escape). It lets you jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. Below the rooms are **Flight deck**, **Friends ♥**, **Badges**, your **pilot license**, **Settings**, **How to play** (the tutorial) and **Install app** where your browser supports it.
+**The menu.** Every room has a **☰ Menu** button (or press Escape) that opens a tabbed menu, a bit like pausing in Stardew Valley:
 
-<p align="center"><img src="media/ship-menu.png" alt="The ship menu: six room cards (The Pad marked You are here, The Bridge and Break room with New tags, The Garden, Hangar and Hallway) above links to Flight deck, Friends, Badges, License, Settings and How to play" width="520"></p>
+- **Ship:** jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. The flight deck is here too.
+- **Crew ♥:** everyone you've met, with their face, hearts, friendship status and whether you've chatted and given a gift today. A **Hang out ♥** tag shows when a heart scene is ready. **Gifts and hangouts** opens the full Friends ♥ screen.
+- **Today:** today's three crew requests with progress, what's growing in the garden and what's in your basket, how many new missions are waiting and where today's daily challenge is.
+- **Journal:** your **postcards**, the **bulletin board**, Gus's **maintenance log**, **badges**, your **pilot license** and **settings**, plus **How to play** (the tutorial) and **Install app** where your browser supports it.
 
-**The flight deck.** Walk up to the nav console on the Bridge (or press **Flight deck** under the room, or pick it from the ship menu) to choose how to fly: **Missions**, **Free flight**, **Daily challenge**, **Hot-seat** and **Endless run**, plus a **Crew requests** strip showing who's asking and how many of today's jobs are still open. Screens you open from here come back here.
+A dot on a tab means something new is inside it. Screens you open from the menu come back to the menu, and **Back to** returns you to the room you were in.
+
+<p align="center"><img src="media/menu-crew.png" alt="The Crew tab of the menu: Dottie, Gus, Wren, Rex, Juno and Ollo with their portraits, pink heart rows, friendship status and today's chat and gift status, with Hang out tags on Dottie and Gus" width="360"></p>
+
+**The flight deck.** Walk up to the nav console on the Bridge (or press **Flight deck** under the room, or pick it from the menu) to choose how to fly: **Missions**, **Free flight**, **Daily challenge**, **Hot-seat** and **Endless run**, plus a **Crew requests** strip showing who's asking and how many of today's jobs are still open. Screens you open from here come back here.
 
 <p align="center"><img src="media/flight-deck.png" alt="The flight deck: Missions with an 8 new tag, Free flight, Daily challenge, Hot-seat and Endless run, with a Crew requests strip below" width="520"></p>
 
@@ -80,7 +87,7 @@ Brand-new players get a short guided start, about two to three minutes:
 
 <p align="center"><img src="media/intro.png" alt="The first-launch intro: a pixel-art Biscuit parked on a pad under the stars, with Gus on the radio saying she's their only lander and asking you, please, not to scratch her" width="480"></p>
 
-Every step has a **Skip** button. Players with an existing save never see the intro, and anyone can watch it again from **Settings → Replay intro**. Players who skip it can still start the tutorial from **How to play** in the ship menu.
+Every step has a **Skip** button. Players with an existing save never see the intro, and anyone can watch it again from **Settings → Replay intro**. Players who skip it can still start the tutorial from **How to play** in the menu's Journal tab.
 
 **Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts, sound and music, plus a list of the controls.
 
@@ -293,7 +300,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the ship menu to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the menu's Journal tab to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -339,7 +346,7 @@ Open **Badges** from the ship menu to see your progress. Twenty-eight badges unl
 
 ## Pilot license
 
-Open **License** from the ship menu, or tap the framed license on your Pad wall, to see your pilot ID card:
+Open **License** from the menu's Journal tab, or tap the framed license on your Pad wall, to see your pilot ID card:
 
 - **Your portrait**, a little pixel pilot you customize: hair style and color, skin tone, flight suit color, and glasses, goggles, a headset or a space helmet. You can also edit the name on the card.
 - **Your rank**, with chevrons and a progress bar: Cadet, Junior Pilot, Pilot, Senior Pilot, Flight Lieutenant, Captain, Commander and Legend. It climbs as you land, finish missions, visit worlds and earn badges.
@@ -353,10 +360,10 @@ Press **Share card** to get a crisp 1200×750 picture of it. On iPhone, **Share*
 ## Break room
 
 
-The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar, the **door on the right** goes to your Pad, and the **HALL** exit at the bottom leads out to the ship's hallway. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
+The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. On phones every walkable room is zoomed in and the camera follows you, so people and things are big enough to tap; on wider screens you see the whole room at once. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar, the **door on the right** goes to your Pad, and the **HALL** exit at the bottom leads out to the ship's hallway. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
 Walk into the **break room** to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
 
-- Click someone, or use the buttons below the scene, to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
+- Tap someone to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
@@ -371,7 +378,7 @@ Walk into the **break room** to visit the crew between flights. It's a little pi
 
 ### Friends ♥ (and romance)
 
-The **Friends ♥** button in the break room shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday), Juno (after your first round trip), Zib (after Zib's Market), Captain Ollo (after Moth to a Flame) and Kael and Lyra (after VIP Pickup). Each has 10 hearts.
+The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday), Juno (after your first round trip), Zib (after Zib's Market), Captain Ollo (after Moth to a Flame) and Kael and Lyra (after VIP Pickup). Each has 10 hearts.
 
 - **Grow closer** by chatting once a day (here, in the break room, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
 - **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern, Zib loves anything shiny, Ollo loves a tiny desk lamp, Kael loves hair gel too, and Lyra loves flowers. Their reaction tells you how you did.
@@ -386,11 +393,11 @@ The **Friends ♥** button in the break room shows everyone you've met: Dottie, 
 
 ### Postcards
 
-The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
+The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the menu's Journal tab, or tap the box in the break room corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
 
 ### Maintenance log
 
-Gus writes up every crash and every hard landing in Biscuit's maintenance log. Each entry depends on what went wrong: too fast, tilted, sliding sideways, missing the pad, hitting a canyon roof or flying through an eruption on Io. He also names the dents. Open **Maintenance log** in the break room, or click the Biscuit poster on the wall. It keeps your 40 most recent entries and a running total of repairs.
+Gus writes up every crash and every hard landing in Biscuit's maintenance log. Each entry depends on what went wrong: too fast, tilted, sliding sideways, missing the pad, hitting a canyon roof or flying through an eruption on Io. He also names the dents. Open **Maintenance log** in the menu's Journal tab, or tap the Biscuit poster on the break room wall. It keeps your 40 most recent entries and a running total of repairs.
 
 <p align="center">
   <img src="media/postcards.png" alt="The postcard album: pixel-art postcards from Pluto, the Moon, Europa, Titan, Mars and Earth, with the Io card flipped over to show Gus's note" width="49%">
@@ -399,7 +406,7 @@ Gus writes up every crash and every hard landing in Biscuit's maintenance log. E
 
 ### Bulletin board
 
-Click the corkboard on the break room wall, or the **Bulletin board** button, to read the notes the crew pins up. They keep track of you:
+Tap the corkboard on the break room wall, or open **Bulletin board** in the menu's Journal tab, to read the notes the crew pins up. They keep track of you:
 
 - Dottie's pad notice ("WHO KEEPS LANDING ON THE ×2 PAD") counts which free-flight pads you land on, with tally marks.
 - **Landing of the week** shows your best free-flight landing: the score, the world, the pad and how softly you touched down.
@@ -534,7 +541,7 @@ In solo, retrying after a crash also restarts you from the same spot with a ghos
 
 ## Crew requests
 
-Every day the crew posts three small jobs. Open **Crew requests** from the flight deck or the break room to see them. Each one shows who's asking, a progress bar and what it pays:
+Every day the crew posts three small jobs. Open **Crew requests** from the flight deck or the menu's Today tab to see them. Each one shows who's asking, a progress bar and what it pays:
 
 | From | Request | Pays |
 |---|---|---|
@@ -571,8 +578,8 @@ Choose **Daily challenge** on the flight deck. Everyone who plays on the same da
 
 Descent Systems is an installable web app, so it can live on your home screen and play offline.
 
-- **Android (Chrome):** tap **Install app** in the ship menu, or use the browser menu's **Install app** / **Add to Home screen**.
-- **iPhone/iPad (Safari):** tap **Install app** in the ship menu for a reminder, then tap the **Share** button and choose **Add to Home Screen**.
+- **Android (Chrome):** tap **Install app** in the menu's Journal tab, or use the browser menu's **Install app** / **Add to Home screen**.
+- **iPhone/iPad (Safari):** tap **Install app** in the menu's Journal tab for a reminder, then tap the **Share** button and choose **Add to Home Screen**.
 
 Once installed, it opens full-screen and works without a connection. When you're online, it picks up new versions automatically. On iPhone, the home-screen app keeps its own save data, separate from Safari.
 
@@ -609,7 +616,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `ship-menu.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png` and `garden.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png` and `garden.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
