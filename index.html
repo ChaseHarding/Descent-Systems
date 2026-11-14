@@ -444,6 +444,9 @@ kbd {
 .mode:focus-visible, .link:focus-visible, .newbie:focus-visible, .toggle:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 /* Break room */
 .lounge { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.lounge canvas.room.walkroom { aspect-ratio: 8 / 5; touch-action: none; cursor: pointer; }
+.lounge canvas.walkroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
+.walkhint { margin: -4px 0 0; font-family: var(--f-mono); font-size: 11px; color: var(--regolith-dim); text-align: center; }
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; position: relative; }
@@ -3772,6 +3775,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'missions') store.set('ds-nudge', '');
     closeDenPhoto();
     if (denUI && m !== 'den') { clearInterval(denUI.anim); clearInterval(denUI.typer); if (m !== 'arcade' && m !== 'license') { denThumbScene = { cat: denUI.cat, catAwake: 0 }; denUI = null; } }
+    if (walk && m !== 'lounge') { cancelAnimationFrame(walk.raf); walk = null; }
     if (lounge && m !== 'lounge') { clearInterval(lounge.anim); clearInterval(lounge.typer); clearTimeout(lounge.hello); lounge = null; }
     // let the landing (or the explosion) play out for a moment before the result card covers it
     if (holdCard && AFTER_FLIGHT.includes(m)) {
@@ -4799,7 +4803,7 @@ details.act > .limits { margin: 0 0 8px; }
     }, 24);
   }
   function drawRoom(cv = $('room'), st = lounge) {
-    if (!cv || !st) return;
+    if (!cv || !st || cv.classList.contains('walkroom')) return;
     const lounge = st;
     const c = cv.getContext('2d'), t = performance.now(), home = wrenHome();
     c.imageSmoothingEnabled = false;
@@ -4941,39 +4945,28 @@ details.act > .limits { margin: 0 0 8px; }
     }
     catSpot = crumbHome() && Math.random() < 0.3 ? { id: 'crumb', x: 100, y: 81 } : CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)];
     lounge = { faces, cat: catSpot, catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
-    { const spots = BLIP_SPOTS.filter(b => !(b.id === 'box' && catSpot && catSpot.id === 'box')); lounge.blip = spots[Math.floor(Math.random() * spots.length)]; }
+    { const spots = BLIP_SPOTS.filter(b => !(b.id === 'box' && catSpot && catSpot.id === 'box') && !(b.id === 'shelf' && catSpot && catSpot.id === 'machine')); lounge.blip = spots[Math.floor(Math.random() * spots.length)]; }
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
-      <canvas class="room" id="room" width="${RW}" height="${RH}" role="img" aria-label="The Descent Systems break room: the crew around a table, a coffee machine, a window, and Apogee the cat asleep nearby"></canvas>
-      <div class="who-row" role="group" aria-label="Talk to">
-        <button class="btn ghost" data-talk="F">Dottie</button>
-        <button class="btn ghost" data-talk="G">Gus</button>
-        <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
-        <button class="btn ghost" data-talk="A">Pet Apogee</button>
-        ${blipHome() ? '<button class="btn ghost" data-talk="B">Blip</button>' : ''}
-        ${crumbHome() ? `<button class="btn ghost" data-talk="K">Crumb${crumbNew() ? '<i class="dot">New</i>' : ''}</button>` : ''}
-        ${junoMet() || pimMet() || zibMet() || olloMet() || twinsMet() ? `<button class="btn ghost" data-talk="radio">Radio${radioNew() ? '<i class="dot">New</i>' : ''}</button>` : '<button class="btn ghost locked" data-talk="radio" aria-label="Radio, locked">Radio 🔒</button>'}
-      </div>
+      <canvas class="room walkroom" id="room" width="${WW}" height="${WH}" tabindex="0" role="application" aria-label="The Descent Systems break room. Tap to walk; tap someone or something to use it. With a keyboard, use the arrow keys to walk and Enter to talk to whoever is nearest."></canvas>
+      <p class="walkhint">Tap to walk · tap someone to chat · doors lead to the hangar and your Pad</p>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
-        <button class="btn" id="boardBtn">Bulletin board</button>
-        <button class="btn" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
-        <button class="btn" id="logBookBtn">Maintenance log</button>
-        <button class="btn" id="reqBtn2">Crew requests${reqDoneCount() < 3 ? ` · ${3 - reqDoneCount()} open` : ''}</button>
         <button class="btn" id="friendsBtn">Friends ♥${anySceneReady() ? ' · hang out ready' : ''}</button>
+        <button class="btn" id="reqBtn2">Crew requests${reqDoneCount() < 3 ? ` · ${3 - reqDoneCount()} open` : ''}</button>
+        <button class="btn ghost" id="boardBtn">Bulletin board</button>
+        <button class="btn ghost" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
+        <button class="btn ghost" id="logBookBtn">Maintenance log</button>
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
-    card.querySelectorAll('[data-talk]').forEach(b => b.addEventListener('click', () => { loungeTalk(b.dataset.talk); if (!b.classList.contains('locked')) { const d = b.querySelector('.dot'); if (d) d.remove(); } }));
-    $('room').addEventListener('click', e => { const who = roomHit(e); if (who === 'B') setMode('board'); else if (who === 'L') setMode('log'); else if (who === 'C') setMode('album'); else if (who) loungeTalk(who); });
     $('back').addEventListener('click', () => setMode('title'));
     $('boardBtn').addEventListener('click', () => setMode('board'));
     $('albumBtn').addEventListener('click', () => setMode('album'));
     $('logBookBtn').addEventListener('click', () => setMode('log'));
     $('reqBtn2').addEventListener('click', () => { reqFrom = 'lounge'; setMode('requests'); });
     $('friendsBtn').addEventListener('click', () => { sfx.click(); setMode('friends'); });
-    drawRoom();
-    lounge.anim = setInterval(drawRoom, 100);
+    startWalk();
     // someone says hello when you walk in
     const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
     const hellos = { F: 'Pilot. Coffee’s fresh. Well, fresh-ish.', G: 'Oh hey, pilot! Grab a mug. Not that one, that’s a science experiment.', W: 'There’s my favorite pilot. Sit, sit. Biscuit can wait five minutes.' };
@@ -4982,6 +4975,404 @@ details.act > .limits { margin: 0 0 8px; }
     loungeSay(first, hellos[first]);
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
+
+  // ---- Walkable rooms: small Stardew-style sprites you can walk around ----
+  // The break room is a 256 x 160 pixel room seen from a 3/4 view. Tap the floor to walk there,
+  // tap a person or a thing to walk over and use it. Talking still uses the big portraits.
+  const WW = 256, WH = 160;
+  // what everyone wears in their small sprite
+  const LOOKS = {
+    F: { skin: '#9a5f43', hair: '#2b1d16', style: 'curly', top: '#26355e', pants: '#1e2a4c', shoes: '#15151f', acc: 'glasses', streak: '#8a8f9c' },
+    G: { skin: '#f2c9a2', hair: '#c46a2c', style: 'messy', top: '#3d6b63', pants: '#3d6b63', shoes: '#5a3a24', acc: 'goggles' },
+    W: { skin: '#c99470', hair: '#d7dbe3', style: 'long', top: '#6b4226', pants: '#3a3040', shoes: '#2a1a12', scarf: '#ff9ad5' }
+  };
+  const pilotLook = () => {
+    const suit = (LIC_SUITS.find(x => x[0] === lic.suit) || LIC_SUITS[0])[2];
+    return { skin: LIC_SKINS[lic.skin] || LIC_SKINS[1], hair: LIC_HAIR_COLS[lic.hairCol] || LIC_HAIR_COLS[1], style: lic.hair, top: suit, pants: suit, shoes: '#2a3045', acc: lic.acc, patch: true };
+  };
+  // A 16 x 24 person, feet at (x + 8, y + 24). dir: 0 down, 1 left, 2 right, 3 up. frame 0-3 walks.
+  // seated draws only the top half (a table goes in front).
+  function drawSprite(c, L, x, y, dir, frame, seated) {
+    x = Math.round(x); y = Math.round(y);
+    const P = (a, b, w, h, col) => px(c, x + a, y + b, w, h, col);
+    const step = frame === 1 ? 1 : frame === 3 ? -1 : 0, side = dir === 1 || dir === 2, flip = dir === 2;
+    const X = (a, w) => flip ? 16 - a - w : a;   // mirror for facing right
+    if (!seated) {
+      c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x + 8, y + 24, 6, 2, 0, 0, Math.PI * 2); c.fill();
+      if (!side) {
+        const lUp = step === 1 ? 1 : 0, rUp = step === -1 ? 1 : 0;
+        P(5, 19, 2, 3 - lUp, L.pants); P(9, 19, 2, 3 - rUp, L.pants);
+        P(4, 22 - lUp, 3, 2, L.shoes); P(9, 22 - rUp, 3, 2, L.shoes);
+      } else {
+        const a = step, b = -step;
+        P(X(6 + a, 2), 19, 2, 3, L.pants); P(X(8 + b, 2), 19, 2, 3, L.pants);
+        P(X(5 + a, 3), 22, 3, 2, L.shoes); P(X(8 + b, 3), 22, 3, 2, L.shoes);
+      }
+    }
+    // body and arms
+    P(4, 12, 8, 7, L.top); P(5, 18, 6, 1, L.top);
+    const swing = step;
+    if (!side) {
+      P(3, 13, 1, 4 + (swing > 0 ? 1 : 0), L.top); P(12, 13, 1, 4 + (swing < 0 ? 1 : 0), L.top);
+      P(3, 17 + (swing > 0 ? 1 : 0), 1, 1, L.skin); P(12, 17 + (swing < 0 ? 1 : 0), 1, 1, L.skin);
+      if (L.patch && dir === 0) P(9, 14, 2, 2, '#ffb547');
+    } else {
+      P(X(7 + swing, 2), 13, 2, 4, L.top); P(X(7 + swing, 2), 17, 2, 1, L.skin);
+    }
+    if (L.scarf) { P(4, 12, 8, 2, L.scarf); if (dir === 0) P(7, 14, 2, 2, L.scarf); }
+    // head
+    P(5, 2, 6, 1, L.skin); P(4, 3, 8, 8, L.skin); P(5, 11, 6, 1, L.skin);
+    // face
+    if (dir === 0) { P(5, 7, 1, 2, '#15151f'); P(10, 7, 1, 2, '#15151f'); P(5, 9, 1, 1, 'rgba(255,120,120,0.35)'); P(10, 9, 1, 1, 'rgba(255,120,120,0.35)'); }
+    else if (side) P(X(4, 1), 7, 1, 2, '#15151f');
+    // hair
+    const h = L.hair, H = (a, b, w, hh) => P(side ? X(a, w) : a, b, w, hh, h);
+    const st = L.style;
+    if (st === 'curly') {
+      H(3, 0, 10, 4); H(2, 2, 2, 7); H(12, 2, 2, 7); H(4, 4, 2, 1); H(10, 4, 2, 1);
+      if (dir === 3) H(3, 3, 10, 9);
+      if (side) H(9, 3, 4, 8);
+      if (L.streak) P(side ? X(9, 2) : 9, 0, 2, 3, L.streak);
+    } else if (st === 'messy') {
+      H(4, 1, 8, 3); H(3, 2, 1, 4); H(12, 2, 1, 4); H(5, 0, 1, 1); H(8, 0, 2, 1); H(11, 0, 1, 1);
+      if (dir === 3) H(4, 3, 8, 6);
+      if (side) H(9, 3, 3, 4);
+    } else if (st === 'long') {
+      H(4, 1, 8, 3); H(3, 3, 2, 11); H(11, 3, 2, 11);
+      if (dir === 3) H(4, 3, 8, 11);
+      if (side) H(8, 3, 5, 11);
+    } else if (st === 'bun') {
+      H(4, 1, 8, 3); H(3, 3, 1, 3); H(12, 3, 1, 3); H(6, -1, 4, 2);
+      if (dir === 3) H(4, 3, 8, 6);
+      if (side) H(9, 3, 3, 4);
+    } else if (st === 'buzz') {
+      H(4, 2, 8, 2); if (dir === 3) H(4, 3, 8, 6); if (side) H(9, 3, 3, 3);
+    } else if (st === 'mohawk') {
+      P(7, -2, 2, 6, h); if (dir === 3) P(7, 3, 2, 7, h);
+    } else if (st === 'curly2' || st === 'short' || !st) {
+      H(4, 1, 8, 3); H(3, 2, 1, 4); H(12, 2, 1, 4);
+      if (dir === 3) H(4, 3, 8, 6);
+      if (side) H(9, 3, 3, 4);
+    }
+    // accessories
+    if (L.acc === 'glasses' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#c9cfdc'); else { P(4, 6, 3, 1, '#c9cfdc'); P(9, 6, 3, 1, '#c9cfdc'); P(7, 6, 2, 1, '#c9cfdc'); } }
+    if (L.acc === 'goggles') { P(3, 3, 10, 1, '#5a4636'); if (dir === 0) { P(5, 2, 2, 2, '#7fd6ff'); P(9, 2, 2, 2, '#7fd6ff'); } else if (side) P(X(4, 2), 2, 2, 2, '#7fd6ff'); }
+    if (L.acc === 'headset') { P(3, 4, 1, 5, '#3a4668'); P(12, 4, 1, 5, '#3a4668'); P(4, 2, 8, 1, '#3a4668'); if (dir === 0) P(4, 9, 2, 1, '#3a4668'); }
+    if (L.acc === 'helmet') { c.strokeStyle = 'rgba(232,235,242,0.85)'; c.lineWidth = 1; c.fillStyle = 'rgba(200,225,255,0.18)'; c.beginPath(); c.arc(x + 8, y + 6.5, 6.5, 0, Math.PI * 2); c.fill(); c.stroke(); P(4, 1, 2, 1, 'rgba(255,255,255,0.8)'); }
+  }
+  // Apogee, curled up (or sitting up, awake)
+  function drawCatSprite(c, x, y, awake, t) {
+    x = Math.round(x); y = Math.round(y);
+    const o = '#ff9a3d', d = '#d9772a';
+    c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x + 7, y + 8, 7, 1.5, 0, 0, Math.PI * 2); c.fill();
+    if (!awake) {
+      px(c, x + 1, y + 3, 12, 5, o); px(c, x + 2, y + 2, 9, 1, o); px(c, x + 9, y + 1, 4, 3, o);
+      px(c, x + 9, y, 1, 1, o); px(c, x + 12, y, 1, 1, o); px(c, x + 3, y + 4, 6, 1, d); px(c, x + 1, y + 7, 9, 1, d);
+      px(c, x + 10, y + 2, 1, 1, '#3a2418'); px(c, x + 12, y + 2, 1, 1, '#3a2418');
+      if (!reduceMotion && Math.floor(t / 900) % 2) { c.fillStyle = 'rgba(232,235,242,0.7)'; c.font = '6px monospace'; c.fillText('z', x + 13, y - 1); }
+    } else {
+      px(c, x + 3, y + 2, 7, 6, o); px(c, x + 4, y - 2, 6, 5, o); px(c, x + 4, y - 3, 1, 1, o); px(c, x + 9, y - 3, 1, 1, o);
+      px(c, x + 5, y - 1, 1, 1, '#15151f'); px(c, x + 8, y - 1, 1, 1, '#15151f'); px(c, x + 10, y + 5, 3, 2, d); px(c, x + 12, y + 3, 1, 2, d);
+    }
+  }
+  function drawCrumbSprite(c, x, y, dir, t, moving) {
+    x = Math.round(x); y = Math.round(y);
+    const bob = moving && Math.floor(t / 150) % 2 ? -1 : 0;
+    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x + 7, y + 10, 7, 1.5, 0, 0, Math.PI * 2); c.fill();
+    px(c, x + 1, y + 7, 3, 3, '#2a3045'); px(c, x + 10, y + 7, 3, 3, '#2a3045');
+    px(c, x, y + 2 + bob, 14, 6, '#e8edf5'); px(c, x, y + 1 + bob, 14, 1, '#3a4668'); px(c, x, y + 5 + bob, 14, 1, '#ffb547');
+    px(c, dir > 0 ? x + 10 : x + 1, y + 2 + bob, 3, 2, '#7fd6ff');
+    px(c, dir > 0 ? x + 2 : x + 11, y - 3 + bob, 1, 4, '#c9cfdc'); px(c, dir > 0 ? x + 1 : x + 10, y - 4 + bob, 3, 1, Math.floor(t / 400) % 2 ? '#58e0a0' : '#2f7a58');
+  }
+
+  // the break room's layout: what blocks you, what you can use, where you stand to use it
+  const WR = {
+    seats: { F: 102, G: 130, W: 158 },
+    block: [[0, 0, WW, 50], [24, 0, 82, 62], [94, 74, 186, 104], [198, 120, 226, 146], [228, 106, 246, 132]],
+    bounds: [6, 50, 250, 154]
+  };
+  const seatCx = who => WR.seats[who] + 8;
+  function walkBlocked(x, y) {
+    const [x0, y0, x1, y1] = WR.bounds;
+    if (x < x0 || x > x1 || y < y0 || y > y1) return true;
+    for (const [a, b, c2, d] of WR.block) if (x > a - 3 && x < c2 + 3 && y > b - 2 && y < d + 2) return true;
+    // the crew's chairs behind the table (the walkway behind them stays open)
+    if (walk) for (const n of walk.npcs) if (n.state === 'sit' && Math.abs(x - seatCx(n.who)) < 10 && y > 60 && y < 76) return true;
+    return false;
+  }
+  // A* on an 8 px grid, then pull the string tight
+  function findPath(sx, sy, tx, ty) {
+    const G = 8, cols = Math.ceil(WW / G), rows = Math.ceil(WH / G);
+    const cell = (x, y) => [Math.max(0, Math.min(cols - 1, Math.floor(x / G))), Math.max(0, Math.min(rows - 1, Math.floor(y / G)))];
+    const ok = (cx, cy) => !walkBlocked(cx * G + 4, cy * G + 4);
+    let [ex, ey] = cell(tx, ty);
+    if (!ok(ex, ey)) {   // aim for the nearest open cell instead
+      let best = null, bd = 1e9;
+      for (let cy = 0; cy < rows; cy++) for (let cx = 0; cx < cols; cx++) if (ok(cx, cy)) { const d = (cx - ex) ** 2 + (cy - ey) ** 2; if (d < bd) { bd = d; best = [cx, cy]; } }
+      if (!best) return [];
+      [ex, ey] = best; tx = ex * G + 4; ty = ey * G + 4;
+    }
+    let [bx, by] = cell(sx, sy);
+    if (!ok(bx, by)) { /* standing somewhere odd: step out first */ }
+    const key = (x, y) => y * cols + x, open = [[bx, by]], came = new Map(), gs = new Map([[key(bx, by), 0]]);
+    const hf = (x, y) => Math.hypot(x - ex, y - ey);
+    const fs = new Map([[key(bx, by), hf(bx, by)]]);
+    let found = false, guard = 0;
+    while (open.length && guard++ < 4000) {
+      open.sort((a, b) => fs.get(key(...a)) - fs.get(key(...b)));
+      const [cx, cy] = open.shift();
+      if (cx === ex && cy === ey) { found = true; break; }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const nx = cx + dx, ny = cy + dy;
+        if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || !ok(nx, ny)) continue;
+        if (dx && dy && (!ok(cx + dx, cy) || !ok(cx, cy + dy))) continue;
+        const g = gs.get(key(cx, cy)) + Math.hypot(dx, dy);
+        if (g < (gs.get(key(nx, ny)) ?? 1e9)) {
+          came.set(key(nx, ny), [cx, cy]); gs.set(key(nx, ny), g); fs.set(key(nx, ny), g + hf(nx, ny));
+          if (!open.some(o => o[0] === nx && o[1] === ny)) open.push([nx, ny]);
+        }
+      }
+    }
+    if (!found) return [];
+    const pts = [[tx, ty]];
+    let k = [ex, ey];
+    while (came.has(key(...k))) { k = came.get(key(...k)); pts.unshift([k[0] * G + 4, k[1] * G + 4]); }
+    pts[0] = [sx, sy];
+    const clear = (a, b) => { const n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 2); for (let i = 1; i < n; i++) { const t = i / n; if (walkBlocked(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)) return false; } return true; };
+    const out = [pts[0]];
+    let i = 0;
+    while (i < pts.length - 1) { let j = pts.length - 1; while (j > i + 1 && !clear(pts[i], pts[j])) j--; out.push(pts[j]); i = j; }
+    return out.slice(1);
+  }
+
+  let walk = null;
+  const CAT_WALK = { counter: [64, 30], table: [100, 66], box: [205, 116], rug: [60, 126], machine: [28, 12] };
+  const BLIP_WALK = { shelf: [35, 20], poster: [212, 6], mug: [0, 0], box: [216, 124], floor: [140, 108] };
+  function walkThings() {
+    const home = wrenHome(), L = [];
+    const crew = home ? ['F', 'G', 'W'] : ['F', 'G'];
+    for (const n of walk.npcs) {
+      if (n.state === 'sit') L.push({ id: n.who, rect: [WR.seats[n.who], 52, 16, 22], stand: [seatCx(n.who), 118], face: 3, act: () => loungeTalk(n.who) });
+      else L.push({ id: n.who, rect: [n.x - 8, n.y - 24, 16, 24], stand: null, near: n, act: () => { n.pause = 3.5; n.dir = faceToward(n, walk.me); loungeTalk(n.who); } });
+    }
+    if (!home) L.push({ id: 'P', rect: [174, 10, 14, 16], stand: [181, 54], face: 3, act: () => loungeTalk('P') });
+    if (walk.cat) { const [cx, cy] = walk.catPos(); L.push({ id: 'A', rect: [cx - 2, cy - 4, 18, 13], stand: null, nearPt: [cx + 7, cy + 8], act: () => loungeTalk('A') }); }
+    if (crumbHome() && walk.crumb) L.push({ id: 'K', rect: [walk.crumb.x - 2, walk.crumb.y - 5, 18, 16], stand: null, nearPt: [walk.crumb.x + 7, walk.crumb.y + 10], act: () => { walk.crumb.pause = 2.5; store.set('ds-crumbSeen', '1'); loungeTalk('K'); } });
+    if (blipHome() && walk.blip) { const [bx, by] = walk.blipPos(); L.push({ id: 'B', rect: [bx - 6, by - 10, 12, 12], stand: null, nearPt: [bx, by + 6], act: () => loungeTalk('B') }); }
+    L.push({ id: 'radio', rect: [48, 26, 13, 12], stand: [54, 64], face: 3, act: () => loungeTalk('radio') });
+    L.push({ id: 'coffee', rect: [28, 20, 13, 20], stand: [34, 64], face: 3, act: () => loungeSay(...WALK_COFFEE[Math.floor(Math.random() * WALK_COFFEE.length)]) });
+    L.push({ id: 'board', rect: [54, 6, 24, 16], stand: [68, 64], face: 3, act: () => setMode('board') });
+    L.push({ id: 'poster', rect: [194, 6, 24, 30], stand: [206, 54], face: 3, act: () => setMode('log') });
+    L.push({ id: 'box', rect: [198, 120, 28, 26], stand: [212, 152], face: 3, act: () => setMode('album') });
+    L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
+    L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); setMode('hangar'); } });
+    L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); setMode('den'); } });
+    return L;
+  }
+  const WALK_COFFEE = [
+    ['G', 'That machine is older than me. It makes coffee, and on Tuesdays, soup.'],
+    ['F', 'Help yourself. The mug that says “BOSS” is mine. The one that says “BOSS 2” is also mine.'],
+    ['G', 'Careful, it bites. Not hard. It’s a friendly bite.'],
+    ['F', 'Fresh pot. Well. Fresh this morning. Morning-ish.']
+  ];
+  const windowLine = () => {
+    const w = storedWorld(), name = w ? w.name : 'the Moon';
+    const opts = [['F', `That’s ${name} out there. You were just there. Show-off.`], ['G', `I like watching ${name} go by. It’s like a screensaver, but real.`]];
+    if (wrenHome()) opts.push(['W', `I used to stare out this window for hours. Now I mostly watch you land.`]);
+    return opts[Math.floor(Math.random() * opts.length)];
+  };
+  const faceToward = (a, b) => { const dx = b.x - a.x, dy = b.y - a.y; return Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); };
+  // tour highlights, in room coordinates
+  const WALK_HL = { crew: [96, 50, 80, 26], board: [54, 6, 24, 16], box: [198, 120, 28, 26], poster: [194, 6, 24, 30] };
+
+  function startWalk() {
+    const home = wrenHome();
+    const cv = $('room'), c = cv.getContext('2d');
+    const from = walkEnter; walkEnter = null;
+    const start = from === 'den' ? [240, 56] : from === 'hangar' ? [16, 56] : [128, 146];
+    walk = {
+      cv, c, me: { x: start[0], y: start[1], dir: from ? 0 : 3, path: [], moving: false }, target: null, keys: {}, last: performance.now(), raf: 0,
+      npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
+      cat: lounge.cat, crumb: crumbHome() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
+    };
+    walk.catPos = () => lounge.cat.id === 'crumb' && walk.crumb ? [walk.crumb.x, walk.crumb.y - 8] : (CAT_WALK[lounge.cat.id] || CAT_WALK.rug);
+    walk.blipPos = () => walk.blip.id === 'mug' ? [seatCx('G') - 1, 81] : (BLIP_WALK[walk.blip.id] || BLIP_WALK.floor);
+    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * WW / b.width, (e.clientY - b.top) * WH / b.height]; };
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const [x, y] = toWorld(e);
+      const hit = walkThings().find(t => x >= t.rect[0] && x <= t.rect[0] + t.rect[2] && y >= t.rect[1] && y <= t.rect[1] + t.rect[3]);
+      walkTo(hit || null, x, y);
+    });
+    const loop = () => {
+      if (!walk || mode !== 'lounge' || !document.body.contains(cv)) { walk = null; return; }
+      const t = performance.now(), dt = Math.min(0.05, (t - walk.last) / 1000);
+      walk.last = t;
+      walkStep(dt, t);
+      if (!walk) return;
+      walkDraw(t);
+      walk.raf = requestAnimationFrame(loop);
+    };
+    walk.raf = requestAnimationFrame(loop);
+  }
+  function walkTo(thing, x, y) {
+    const me = walk.me;
+    let goal;
+    if (thing) {
+      goal = thing.stand || (thing.near ? [thing.near.x, thing.near.y + 10] : thing.nearPt);
+      walk.target = thing;
+    } else { goal = [x, y]; walk.target = null; }
+    me.path = findPath(me.x, me.y, goal[0], goal[1]);
+    if (thing && Math.hypot(me.x - goal[0], me.y - goal[1]) < 14) { me.path = []; arrive(); }
+    else if (!me.path.length && thing) arrive();
+    if (!thing) { walk.tap = { x, y, t: performance.now() }; }
+  }
+  function arrive() {
+    const th = walk.target, me = walk.me;
+    walk.target = null;
+    if (!th) return;
+    if (th.face != null) me.dir = th.face;
+    else { const pt = th.near ? th.near : { x: th.nearPt[0], y: th.nearPt[1] }; me.dir = faceToward(me, pt); }
+    th.act();
+  }
+  function walkStep(dt, t) {
+    const me = walk.me, SPEED = 54;
+    // keyboard walking
+    const kx = (walk.keys.ArrowRight ? 1 : 0) - (walk.keys.ArrowLeft ? 1 : 0), ky = (walk.keys.ArrowDown ? 1 : 0) - (walk.keys.ArrowUp ? 1 : 0);
+    me.moving = false;
+    if (kx || ky) {
+      me.path = []; walk.target = null;
+      const n = Math.hypot(kx, ky), nx = me.x + kx / n * SPEED * dt, ny = me.y + ky / n * SPEED * dt;
+      if (!walkBlocked(nx, me.y)) me.x = nx;
+      if (!walkBlocked(me.x, ny)) me.y = ny;
+      me.dir = Math.abs(kx) > Math.abs(ky) ? (kx < 0 ? 1 : 2) : (ky < 0 ? 3 : 0);
+      me.moving = true;
+    } else if (me.path.length) {
+      const [tx, ty] = me.path[0], dx = tx - me.x, dy = ty - me.y, d = Math.hypot(dx, dy);
+      if (d < 1.5) { me.path.shift(); if (!me.path.length) { arrive(); if (!walk) return; } }
+      else {
+        const s = Math.min(d, SPEED * dt);
+        me.x += dx / d * s; me.y += dy / d * s;
+        me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0);
+        me.moving = true;
+      }
+    }
+    // Gus fetches coffee now and then
+    for (const n of walk.npcs) {
+      if (n.pause > 0) { n.pause -= dt; continue; }
+      if (n.state === 'sit') {
+        n.timer -= dt;
+        if (n.timer <= 0 && lounge.talking !== n.who) { n.state = 'go'; n.y = 64; n.path = findPath(n.x, n.y, 34, 66); }
+      } else {
+        if (n.path.length) {
+          const [tx, ty] = n.path[0], dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy);
+          if (d < 1.5) n.path.shift();
+          else { const s2 = Math.min(d, 40 * dt); n.x += dx / d * s2; n.y += dy / d * s2; n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
+        } else if (n.state === 'go') { n.state = 'pour'; n.dir = 3; n.pause = 3; }
+        else if (n.state === 'pour') { n.state = 'back'; n.path = findPath(n.x, n.y, seatCx(n.who), 64); }
+        else if (n.state === 'back') { n.state = 'sit'; n.x = seatCx(n.who); n.y = 72; n.dir = 0; n.timer = 30 + Math.random() * 25; }
+      }
+    }
+    // Crumb potters about the floor
+    const cr = walk.crumb;
+    if (cr) {
+      if (cr.pause > 0) cr.pause -= dt;
+      else {
+        cr.x += cr.dir * 9 * dt; cr.moving = true;
+        if (cr.x < 12) { cr.x = 12; cr.dir = 1; cr.pause = 1; }
+        if (cr.x > 180) { cr.x = 180; cr.dir = -1; cr.pause = 1; }
+        if (Math.random() < dt * 0.2) { cr.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) cr.dir *= -1; }
+      }
+      if (cr.pause > 0) cr.moving = false;
+    }
+  }
+  function walkDraw(t) {
+    const c = walk.c, home = wrenHome();
+    c.imageSmoothingEnabled = false;
+    // back wall with panels
+    px(c, 0, 0, WW, 50, '#1e2848'); for (let x = 0; x < WW; x += 16) px(c, x, 0, 1, 46, '#232e52');
+    px(c, 0, 44, WW, 2, '#2a3556'); px(c, 0, 46, WW, 4, '#141b33');
+    // floor planks
+    px(c, 0, 50, WW, WH - 50, '#151c36');
+    for (let y = 58; y < WH; y += 8) px(c, 0, y, WW, 1, '#18203d');
+    for (let y = 50, k = 0; y < WH; y += 8, k++) for (let x = (k % 2) * 24; x < WW; x += 48) px(c, x, y, 1, 8, '#18203d');
+    // rug under the table
+    c.fillStyle = '#1f2a4f'; rrect(c, 84, 66, 112, 52, 6); c.fill(); c.strokeStyle = '#2b3866'; c.lineWidth = 1; rrect(c, 86.5, 68.5, 107, 47, 5); c.stroke();
+    // doors
+    for (const [dx, label] of [[6, 'HANGAR'], [230, 'PAD']]) {
+      px(c, dx - 1, 11, 22, 36, '#2a3556'); px(c, dx, 12, 20, 34, '#0e1428'); px(c, dx + 2, 14, 16, 32, '#1a2442');
+      px(c, dx + 9, 14, 2, 32, '#121a33'); px(c, dx + 15, 30, 2, 2, '#ffb547');
+      px(c, dx + 3, 2, 14, 8, '#ffb547'); px(c, dx + 4, 3, 12, 6, '#2a1d0a');
+      if (label === 'HANGAR') { px(c, dx + 8, 4, 4, 2, '#ffb547'); px(c, dx + 7, 6, 6, 1, '#ffb547'); px(c, dx + 7, 7, 1, 1, '#ffb547'); px(c, dx + 12, 7, 1, 1, '#ffb547'); }
+      else { px(c, dx + 6, 5, 8, 2, '#ffb547'); px(c, dx + 6, 4, 2, 1, '#ffb547'); px(c, dx + 6, 7, 1, 1, '#ffb547'); px(c, dx + 13, 7, 1, 1, '#ffb547'); }
+    }
+    // window, looking out on whichever world you flew last
+    const w = storedWorld();
+    px(c, 98, 4, 74, 34, '#3a4668'); px(c, 100, 6, 70, 30, '#060914');
+    for (let i = 0; i < 18; i++) { const sx2 = 101 + (i * 37) % 68, sy2 = 7 + (i * 13) % 26; px(c, sx2, sy2, 1, 1, i % 4 ? '#8a93ab' : '#ffffff'); }
+    c.fillStyle = w ? w.orb : '#c9cfdc'; c.beginPath(); c.arc(150, 18, 7, 0, Math.PI * 2); c.fill();
+    px(c, 134, 6, 2, 30, '#3a4668'); px(c, 100, 34, 70, 4, '#2a3556');
+    // corkboard, clipboard-poster, photo
+    px(c, 54, 6, 24, 16, '#8a6a42'); px(c, 55, 7, 22, 14, '#b08a5a');
+    for (const [nx, ny, col] of [[57, 9, '#ffe58a'], [64, 8, '#f4f1e8'], [70, 11, '#ffc6e4'], [59, 15, '#cfe3ff'], [67, 15, '#c9f0d8']]) px(c, nx, ny, 5, 5, col);
+    px(c, 194, 6, 24, 30, '#ffb547'); px(c, 195, 7, 22, 28, '#141b33');
+    c.strokeStyle = '#e8edf5'; c.lineWidth = 1; c.strokeRect(200.5, 13.5, 11, 8); px(c, 199, 22, 14, 1, '#e8edf5'); px(c, 200, 23, 1, 6, '#e8edf5'); px(c, 211, 23, 1, 6, '#e8edf5'); px(c, 198, 30, 16, 1, '#8a93ab');
+    if (!home) { px(c, 174, 10, 14, 16, '#c9a24a'); px(c, 175, 11, 12, 14, '#2a1424'); c.drawImage(lounge.faces.W, 0, 0, 32, 32, 175, 11, 12, 14); }
+    // counter, coffee machine, radio
+    px(c, 24, 38, 58, 6, '#3a4668'); px(c, 24, 38, 58, 1, '#4a5578'); px(c, 24, 44, 58, 16, '#26304f'); px(c, 52, 46, 1, 12, '#1e2848');
+    px(c, 28, 20, 13, 19, '#3a3f52'); px(c, 30, 22, 9, 6, '#14182a'); px(c, 31, 23, 3, 2, Math.floor(t / 500) % 2 ? '#ff6b5e' : '#7a3a3a'); px(c, 31, 32, 7, 6, '#26304f'); px(c, 32, 34, 4, 4, '#e8e0d0');
+    px(c, 48, 30, 13, 8, '#5a4636'); px(c, 49, 31, 6, 6, '#3a2e24'); px(c, 56, 31, 4, 2, '#ffb547'); px(c, 56, 34, 4, 1, '#c9cfdc'); px(c, 59, 24, 1, 6, '#c9cfdc');
+    if (radioNew()) px(c, 61, 22, 3, 3, '#ff6b5e');
+    // the plant and the postcard box
+    px(c, 230, 120, 14, 10, '#8a5a3a'); px(c, 231, 120, 12, 2, '#a5735a');
+    for (const [lx, ly] of [[232, 108], [236, 104], [240, 109], [234, 113], [239, 114]]) px(c, lx, ly, 4, 6, '#3f8a58');
+    px(c, 198, 124, 28, 4, '#a5835a'); px(c, 198, 128, 28, 18, '#8a6a42'); px(c, 211, 128, 2, 18, '#6e5232');
+    for (let i = 0; i < Math.min(newCards() + 3, 5); i++) px(c, 201 + i * 5, 121 - (i % 2), 4, 4, ['#f4f1e8', '#ffe58a', '#cfe3ff', '#ffc6e4', '#c9f0d8'][i]);
+    if (newCards()) px(c, 222, 118, 4, 4, '#ff6b5e');
+    // chairs and whoever's sitting at the table (behind it)
+    for (const who of ['F', 'G', 'W']) {
+      const sx2 = WR.seats[who];
+      px(c, sx2 + 1, 56, 14, 18, '#2a3045'); px(c, sx2 + 2, 57, 12, 2, '#3a4668');
+      const n = walk.npcs.find(k => k.who === who);
+      if (n && n.state === 'sit') { const bob = lounge.talking === who && Math.floor(t / 90) % 2 ? -1 : 0; drawSprite(c, LOOKS[who], sx2, 52 + bob, 0, 0, true); }
+    }
+    if (!home) { px(c, 162, 76, 9, 5, '#e8e0d0'); px(c, 163, 78, 7, 1, '#8a8f9c'); }
+    // the table
+    px(c, 94, 74, 92, 18, '#7a5c44'); px(c, 94, 74, 92, 2, '#8e6d52'); px(c, 94, 92, 92, 5, '#5a4636'); px(c, 98, 97, 3, 8, '#4a3a2c'); px(c, 179, 97, 3, 8, '#4a3a2c');
+    for (const [who, col2] of [['F', '#ffb547'], ['G', '#9fe0b8'], ['W', '#ff9ad5']]) {
+      if (who === 'W' && !home) continue;
+      const n = walk.npcs.find(k => k.who === who), x = seatCx(who) - 3;
+      if (n && (n.state === 'sit' || who !== 'G')) { px(c, x, 79, 4, 4, col2); px(c, x + 4, 80, 1, 2, col2); }
+    }
+    // things on the counter, table and box: Apogee and Blip when they're up there
+    const things = [];
+    if (walk.cat) { const [cx, cy] = walk.catPos(); if (lounge.cat.id !== 'crumb') things.push([cy + 8, () => drawCatSprite(c, cx, cy, performance.now() < lounge.catAwake, t)]); }
+    if (blipHome() && walk.blip) { const [bx, by] = walk.blipPos(); things.push([walk.blip.id === 'floor' ? by : 0, () => blipPx(c, bx, by, t, walk.blip.id === 'mug')]); }
+    // people and rovers on the floor, back to front
+    const me = walk.me, frame = me.moving ? Math.floor(t / 130) % 4 : 0;
+    things.push([me.y, () => drawSprite(c, pilotLook(), me.x - 8, me.y - 24, me.dir, frame, false)]);
+    for (const n of walk.npcs) if (n.state !== 'sit') things.push([n.y, () => drawSprite(c, LOOKS[n.who], n.x - 8, n.y - 24, n.dir, n.path.length ? Math.floor(t / 150) % 4 : 0, false)]);
+    if (walk.crumb) things.push([walk.crumb.y + 10, () => { drawCrumbSprite(c, walk.crumb.x, walk.crumb.y, walk.crumb.dir, t, walk.crumb.moving); if (lounge.cat.id === 'crumb') drawCatSprite(c, walk.crumb.x, walk.crumb.y - 8, performance.now() < lounge.catAwake, t); }]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    // where you tapped
+    if (walk.tap && t - walk.tap.t < 500) { const k = (t - walk.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(walk.tap.x, walk.tap.y, 3 + k * 4, 1.5 + k * 2, 0, 0, Math.PI * 2); c.stroke(); }
+    // the intro tour's blinking highlight
+    if (lounge.hl && (reduceMotion || Math.floor(t / 400) % 2)) {
+      let r2 = lounge.hl === 'cat' ? (() => { const [cx, cy] = walk.catPos(); return [cx - 3, cy - 4, 20, 14]; })() : WALK_HL[lounge.hl] || lounge.hl;
+      if (Array.isArray(r2)) { c.strokeStyle = '#ff6b5e'; c.lineWidth = 1; c.strokeRect(r2[0] - 1.5, r2[1] - 1.5, r2[2] + 3, r2[3] + 3); }
+    }
+  }
+  let walkEnter = null;
+  window.addEventListener('keydown', e => {
+    if (!walk || mode !== 'lounge') return;
+    if (e.key.startsWith('Arrow')) { walk.keys[e.key] = true; e.preventDefault(); }
+    if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === walk.cv) {
+      e.preventDefault();
+      const me = walk.me, ths = walkThings().map(t2 => { const p2 = t2.stand || (t2.near ? [t2.near.x, t2.near.y] : t2.nearPt); return [Math.hypot(p2[0] - me.x, p2[1] - me.y), t2]; }).sort((a, b) => a[0] - b[0]);
+      if (ths.length && ths[0][0] < 26) { walk.target = ths[0][1]; arrive(); }
+    }
+  });
+  window.addEventListener('keyup', e => { if (walk && e.key.startsWith('Arrow')) walk.keys[e.key] = false; });
 
   // ---- The Pad: your own cabin, decorated your way ----
   // Each spot in the room holds one thing from a pool; free items are always yours, the rest cost credits.
@@ -6644,11 +7035,11 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // guided tour of the break room
   const LOUNGE_TOUR = [
-    { hl: [50, 28, 98, 34], who: 'F', say: 'Welcome to the break room, pilot! This is where we live between flights. Mostly on the coffee.', tip: 'This is the crew. Tap anyone to chat. What they say changes as you play.' },
-    { hl: [48, 6, 24, 20], who: 'G', say: 'That’s the bulletin board! Crew notes, your best landing, and the karaoke sign-up sheet. Your name is already on it. Sorry.', tip: 'Tap the bulletin board any time to read the crew’s notes.' },
-    { hl: [48, 6, 24, 20], who: 'F', say: 'Every day the crew pins three requests on that board. Small jobs, real credits. Well. Real-ish. Today’s are already up.', tip: 'Crew requests: three small jobs a day, the same for every pilot. Each pays credits, and finishing all three earns a bonus. Find them on the main menu or with the Crew requests button below.' },
-    { hl: [156, 62, 24, 18], who: 'F', say: 'Every time you land somewhere new, one of us sends you a postcard. There’s already one from the Moon in that box.', tip: 'Your postcards collect in this box, one for every world.' },
-    { hl: [154, 6, 34, 38], who: 'G', say: 'And behind Biscuit’s poster is my maintenance log. Every dent you make, I write down. With love.', tip: 'Tap the poster to read Gus’s maintenance log.' },
+    { hl: 'crew', who: 'F', say: 'Welcome to the break room, pilot! This is where we live between flights. Mostly on the coffee.', tip: 'This is the crew. Tap anyone to chat. What they say changes as you play.' },
+    { hl: 'board', who: 'G', say: 'That’s the bulletin board! Crew notes, your best landing, and the karaoke sign-up sheet. Your name is already on it. Sorry.', tip: 'Tap the bulletin board any time to read the crew’s notes.' },
+    { hl: 'board', who: 'F', say: 'Every day the crew pins three requests on that board. Small jobs, real credits. Well. Real-ish. Today’s are already up.', tip: 'Crew requests: three small jobs a day, the same for every pilot. Each pays credits, and finishing all three earns a bonus. Find them on the main menu or with the Crew requests button below.' },
+    { hl: 'box', who: 'F', say: 'Every time you land somewhere new, one of us sends you a postcard. There’s already one from the Moon in that box.', tip: 'Your postcards collect in this box, one for every world.' },
+    { hl: 'poster', who: 'G', say: 'And behind Biscuit’s poster is my maintenance log. Every dent you make, I write down. With love.', tip: 'Tap the poster to read Gus’s maintenance log.' },
     { hl: 'cat', who: 'A', say: 'Mrrp. (Apogee is watching you. Tap her. Gently.)', tip: 'Tap Apogee to pet her. She purrs. Usually.' },
     { hl: null, who: 'W', say: '', tip: 'One more thing: you get your own cabin. Let’s go see it.', last: true }
   ];
@@ -6656,7 +7047,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (!intro || intro.step !== 'lounge' || !lounge) return;
     const k = Math.min(intro.tour, LOUNGE_TOUR.length - 1), T = LOUNGE_TOUR[k];
     const s = lounge.cat;
-    lounge.hl = T.hl === 'cat' ? [s.x - 5, s.y - 4, 22, 12] : T.hl;
+    lounge.hl = T.hl;
     let panel = $('tour');
     if (!panel) { panel = document.createElement('div'); panel.id = 'tour'; panel.className = 'tour'; $('room').after(panel); }
     panel.innerHTML = `<span class="tstep">Tour · ${k + 1} of ${LOUNGE_TOUR.length}</span><p>${T.tip}</p>
