@@ -24,7 +24,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Round trips**: nine missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
-- **The ship**: the break room, Pad and hangar are joined by a walkable **hallway**, which leads to **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. Sealed doors to a garden, an observation dome and the crew quarters hint at rooms still to come
+- **The ship**: the break room, Pad and hangar are joined by a walkable **hallway**, which leads to **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. A **garden** where you grow homegrown gifts for the crew, and sealed doors to an observation dome and the crew quarters that hint at rooms still to come
 - **The Pad**: your own cozy spaceship cabin to walk around in. Walk up to any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, seating, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
@@ -410,7 +410,7 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 
 ## The ship
 
-The rooms are part of one ship. Walk out of the break room through the **HALL** exit at the bottom and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. Three doors are still sealed: the **garden** (hydroponics), the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
+The rooms are part of one ship. Walk out of the break room through the **HALL** exit at the bottom and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** (see below). Two doors are still sealed: the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
 
 <p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
 
@@ -423,6 +423,16 @@ The rooms are part of one ship. Walk out of the break room through the **HALL** 
 The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once you've flown the Mayday mission, and Captain Ollo stands on the right once you've met. Tap them to chat. The **Missions** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
 
 <p align="center"><img src="media/bridge.png" alt="The Bridge: a wide curved window looking down on Mars, comms, nav and star map consoles, a red captain's chair, Rex Valor on the left and Captain Ollo on the right" width="560"></p>
+
+**The Garden** is behind the GARDEN door, a hydroponics room with six planters under pink grow lamps.
+
+- **Plant:** tap a planter and pick a seed. Moon tea and Tiny ferns cost 20 credits and take 2 landings, Hydroponic flowers and Coffee beans cost 30 and take 3, and Cacao pods cost 40 and take 4.
+- **Grow:** crops grow a little every time you land safely, anywhere in the game. Walk up to the **tap** on the left once a day to water everything for an extra day's growth.
+- **Harvest:** a ripe planter sparkles (and so does the GARDEN door in the hallway). Tap it and press **Harvest** to put the crop in your basket.
+- **Give:** on the **Friends ♥** screen, homegrown gifts show up first in the gift list, marked 🌱. They're free, and they give a little extra ♥ on top of the usual amount. Each crop becomes the matching gift (tea, fern, flowers, coffee beans or chocolate), so everyone's tastes still count.
+- The **seed cabinet** on the right gives Gus's tips on who loves which crop, based on who you've met.
+
+<p align="center"><img src="media/garden.png" alt="The Garden: six wooden planters under pink grow lamps holding moon tea, pink flowers, coffee, ferns and golden cacao, a tap with a green watering can on the left and a seed cabinet on the right" width="560"></p>
 
 ## The Pad
 
