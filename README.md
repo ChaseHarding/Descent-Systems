@@ -24,6 +24,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Round trips**: nine missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
+- **The ship**: the break room, Pad and hangar are joined by a walkable **hallway**, which leads to **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. Sealed doors to a garden, an observation dome and the crew quarters hint at rooms still to come
 - **The Pad**: your own cozy spaceship cabin to walk around in. Walk up to any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, seating, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
@@ -352,7 +353,7 @@ Press **Share card** to get a crisp 1200×750 picture of it. On iPhone, **Share*
 ## Break room
 
 
-The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar and the **door on the right** goes to your Pad. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
+The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar, the **door on the right** goes to your Pad, and the **HALL** exit at the bottom leads out to the ship's hallway. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
 Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
 
 - Click someone, or use the buttons below the scene, to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
@@ -406,6 +407,22 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 - A lost-cat poster for Apogee, a karaoke sign-up sheet (with your name on it if you set one in hot-seat), Gus's yogurt experiment, today's daily challenge and a progress chart. Some notes change once you've finished certain missions.
 
 <p align="center"><img src="media/bulletin-board.png" alt="The bulletin board: sticky notes pinned to cork, including Dottie's complaint about the ×2 pad, a found-cat notice for Apogee, the karaoke sign-up sheet and the landing of the week" width="560"></p>
+
+## The ship
+
+The rooms are part of one ship. Walk out of the break room through the **HALL** exit at the bottom and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. Three doors are still sealed: the **garden** (hydroponics), the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
+
+<p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
+
+**The Bridge** sits behind the big double doors in the middle of the hallway. A huge curved window looks down on the world you flew last, with three consoles in front of it:
+
+- **Nav console** (middle): opens the mission list. Its Back button says **Back to the bridge** and drops you at the console, so you can fly mission after mission from here. A red light means there are new missions.
+- **Comms** (left): takes a call from Juno, Pim, Zib, Ollo or the Veyra twins, whoever you've met, with their face on the screen. It counts as chatting with them for the day, the same as the Radio in the break room.
+- **Star map** (right): a dot for every world, lit once you've landed there.
+
+The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once you've flown the Mayday mission, and Captain Ollo stands on the right once you've met. Tap them to chat. The **Missions** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
+
+<p align="center"><img src="media/bridge.png" alt="The Bridge: a wide curved window looking down on Mars, comms, nav and star map consoles, a red captain's chair, Rex Valor on the left and Captain Ollo on the right" width="560"></p>
 
 ## The Pad
 
