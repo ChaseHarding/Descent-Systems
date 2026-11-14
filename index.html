@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 48 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
+<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 52 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
 <meta name="theme-color" content="#0a0e1c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e1c'/%3E%3Cpath d='M12 15L11 9l3-3h4l3 3-1 6z' fill='none' stroke='%23c9cfdc' stroke-width='1.6' stroke-linejoin='round'/%3E%3Crect x='10' y='15' width='12' height='4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3Cpath d='M12 19l-4 6M20 19l4 6M6.5 25h3M22.5 25h3' stroke='%23c9cfdc' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M14 20l2 8 2-8z' fill='%23ffb547'/%3E%3C/svg%3E">
 <!-- Share preview (Open Graph + Twitter/X) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Descent Systems">
 <meta property="og:title" content="Descent Systems">
-<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 48 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
+<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 52 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
 <meta property="og:url" content="https://chaseharding.github.io/Descent-Systems/">
-<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=4">
+<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Biscuit the lander firing her engine above a ×5 landing pad in space, beside the Descent Systems title and its features.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Descent Systems">
-<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 48 missions, 5 landers, your own cabin and ghost races against friends.">
-<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=4">
+<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 52 missions, 5 landers, your own cabin and ghost races against friends.">
+<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=5">
 <!-- Installable app (PWA) -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1116,7 +1116,7 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 stars in the original 12 missions.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
     { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
     { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Beyond Pluto.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2), MISSIONS.length - ACT2] },
-    { id: 'offroad', name: 'Off-roader', desc: 'Finish all five round trips.', reward: 'hull:fieldkit', prog: () => [SIDES.filter(d => d.kind === 'trip' && missionStars[d.id] > 0).length, SIDES.filter(d => d.kind === 'trip').length] },
+    { id: 'offroad', name: 'Off-roader', desc: 'Finish every round trip.', reward: 'hull:fieldkit', prog: () => [SIDES.filter(d => d.kind === 'trip' && missionStars[d.id] > 0).length, SIDES.filter(d => d.kind === 'trip').length] },
     { id: 'beatrex', name: 'Beat Rex', desc: 'Finish Hopscotch faster than Rex’s 90 seconds.', reward: 'flag:racing' },
     { id: 'gentle', name: 'Spa treatment', desc: 'Deliver Biscuit’s spa crate without a crack.', reward: 'hull:spa' },
     { id: 'barista', name: 'Barista', desc: 'Finish The Coffee Crisis with 15 seconds to spare.', reward: 'flame:espresso' },
@@ -1381,6 +1381,27 @@ details.act > .limits { margin: 0 0 8px; }
     if (!bare) { c.fillStyle = 'rgba(0, 0, 0, 0.16)'; for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1); }
   }
   // Rex Valor, Apex Aerospace: towering black pompadour, aviator sunglasses, gold flight jacket
+  // Juno, dock master on the mothership: hair in a high bun, a headset with a green mic light, a dock-crew uniform
+  FACES.J = { bg: '#0f2a28', skin: '#7a4a32', shade: '#5e3624', mouth: '#3a1c16', brow: '#141018',
+    back(c) { const h = '#141018'; px(c, 12, 0, 8, 4, h); px(c, 13, 1, 2, 1, '#3a3040'); px(c, 8, 4, 16, 6, h); px(c, 7, 7, 1, 6, h); px(c, 24, 7, 1, 6, h); },
+    body(c) { px(c, 4, 26, 24, 6, '#2f5d58'); px(c, 6, 25, 20, 1, '#2f5d58'); px(c, 12, 25, 8, 1, '#5fd3c8'); px(c, 15, 26, 2, 6, '#244a46'); px(c, 20, 28, 3, 2, '#ffd27a'); px(c, 8, 28, 4, 1, '#5fd3c8'); },
+    front(c) { const h = '#141018'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 1, 2, h); px(c, 21, 10, 1, 2, h); },
+    extra(c) {
+      px(c, 8, 6, 16, 1, '#c9cfdc'); px(c, 7, 7, 1, 6, '#c9cfdc');
+      px(c, 6, 12, 3, 5, '#3a4668');
+      px(c, 8, 17, 1, 2, '#c9cfdc'); px(c, 9, 19, 4, 1, '#c9cfdc'); px(c, 13, 19, 1, 1, '#58e0a0');
+      px(c, 23, 17, 1, 1, '#ffd27a');
+    } };
+  // Pim, a kid from Moonbase Pim: two curly hair puffs with pink ties, freckles, a star sticker, a yellow jumpsuit
+  FACES.M = { bg: '#1d2a4a', skin: '#d9a07a', shade: '#b88060', mouth: '#7a3a30', brow: '#3a2418',
+    back(c) { const h = '#3a2418', l = '#5a3a28'; px(c, 9, 5, 14, 6, h); px(c, 3, 5, 6, 6, h); px(c, 4, 4, 4, 1, h); px(c, 4, 11, 4, 1, h); px(c, 23, 5, 6, 6, h); px(c, 24, 4, 4, 1, h); px(c, 24, 11, 4, 1, h); px(c, 4, 6, 2, 2, l); px(c, 25, 6, 2, 2, l); },
+    body(c) { px(c, 7, 26, 18, 6, '#ffcf3a'); px(c, 9, 25, 14, 1, '#ffcf3a'); px(c, 15, 26, 2, 6, '#e0a820'); px(c, 18, 28, 4, 3, '#c9cfdc'); px(c, 19, 29, 2, 1, '#8a93ab'); },
+    front(c) { const h = '#3a2418'; px(c, 10, 8, 12, 2, h); px(c, 11, 10, 3, 1, h); px(c, 18, 10, 2, 1, h); },
+    extra(c) {
+      px(c, 8, 7, 1, 3, '#ff9ad5'); px(c, 23, 7, 1, 3, '#ff9ad5');
+      for (const [x, y] of [[11, 18], [12, 19], [19, 18], [20, 19]]) px(c, x, y, 1, 1, '#b07050');
+      px(c, 21, 20, 1, 1, '#ffe58a'); px(c, 20, 21, 3, 1, '#ffe58a'); px(c, 21, 22, 1, 1, '#ffe58a');
+    } };
   FACES.R = { bg: '#4b3168', skin: '#e8b48a', shade: '#c99068', mouth: '#7a3a30', brow: '#1f1a24',
     back(c) { const h = '#1f1a24'; px(c, 8, 4, 16, 8, h); px(c, 9, 2, 14, 2, h); px(c, 12, 0, 12, 2, h); px(c, 22, 1, 3, 4, h); px(c, 7, 8, 1, 6, h); px(c, 24, 8, 1, 6, h); px(c, 14, 1, 6, 1, '#7a6a96'); px(c, 11, 3, 4, 1, '#5a4a70'); px(c, 18, 2, 4, 1, '#5a4a70'); },
     body(c) { px(c, 4, 26, 24, 6, '#d9a420'); px(c, 6, 25, 20, 1, '#d9a420'); px(c, 10, 25, 4, 3, '#f4f1e8'); px(c, 18, 25, 4, 3, '#f4f1e8'); px(c, 14, 26, 4, 6, '#2a1a3a'); px(c, 21, 28, 3, 1, '#ff6b5e'); px(c, 22, 27, 1, 1, '#ff6b5e'); },
@@ -1442,7 +1463,7 @@ details.act > .limits { margin: 0 0 8px; }
     for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
   }
   // which face each line gets; anything not listed uses the speaker's usual look
-  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy' };
+  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy', J: 'neutral', M: 'happy' };
   const MOODS = [
     ['Morning, pilot', 'happy'], ['Hey hey', 'happy'], ['Huh. Not bad', 'deadpan'], ['…Mayday', 'worried'], ['You came for me', 'happy'], ['Hi, pilot! So, funny', 'worried'], ['Oh. Oh no', 'worried'], ['I’m not scared', 'worried'], ['I’m aboard! I’m alive', 'happy'], ['Pilot. The sunrise line', 'worried'], ['Fine. FINE', 'deadpan'], ['I need a favor', 'neutral'], ['Got them', 'happy'], ['Everyone’s home', 'happy'], ['So. Apex', 'neutral'], ['Welcome aboard, Rex', 'happy'], ['Well, well', 'deadpan'], ['Pilot! I’m throwing', 'happy'], ['It’s soup', 'worried'], ['Okay, science question', 'happy'], ['Science says', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
@@ -1463,7 +1484,9 @@ details.act > .limits { margin: 0 0 8px; }
     W: { name: 'Wren Aldana', color: '#ff9ad5' },
     A: { name: 'Apogee · Cat', color: '#ff9a3d' },
     R: { name: 'Rex Valor · Apex', color: '#ffd27a' },
-    K: { name: 'Crumb · Rover', color: '#9ad8ff' }
+    K: { name: 'Crumb · Rover', color: '#9ad8ff' },
+    J: { name: 'Juno · Dock Master', color: '#5fd3c8' },
+    M: { name: 'Pim · Moonbase Pim', color: '#ffe58a' }
   };
   // intro: lines before the mission. react: one line each for 1, 2 and 3 stars.
   const STORY = {
@@ -1612,6 +1635,7 @@ details.act > .limits { margin: 0 0 8px; }
     'swing-shift': {
       intro: [
         ['G', 'Pilot! I built a telescope for the kids at Moonbase Pim. It’s beautiful. It’s also too big to fit inside Biscuit.'],
+        ['M', 'Hi!! I’m Pim! I’m the kid who asked for the telescope! Please don’t drop it. Okay, bye!! Wait. Hi again. Okay, bye!!'],
         ['F', 'So it’s going on a nine-meter cable under the lander. Like a crane. A flying crane. Run by Gus.'],
         ['G', 'It swings when you turn, so be smooth! Don’t let it hit the ground, and lower it onto DROP gently. Slower than 1.5 m/s!']],
       react: [['G', 'Telescope delivered! A little dusty. The kids say it makes everything look like a crater. It’s the Moon. Everything is a crater.'],
@@ -1620,6 +1644,7 @@ details.act > .limits { margin: 0 0 8px; }
     'ride-along': {
       intro: [
         ['G', 'Pilot! Moonbase Pim’s supply rover has my new wrench aboard. Small problem: the rover can’t stop.'],
+        ['M', 'Hi! I’m Pim! I live at Moonbase Pim! The rover driver is my uncle. He says the brakes are “more of a suggestion”.'],
         ['F', 'Its brakes are “on order.” They’ve been on order for three months. It just drives back and forth, forever, like a sad robot.'],
         ['G', 'Land on the rover’s deck while it’s moving. Match its speed first, then come down. The driver will hit the brakes once you’re aboard!']],
       react: [['G', 'Wrench acquired! The rover driver waved. I think. Rovers don’t have hands.'],
@@ -1833,6 +1858,7 @@ details.act > .limits { margin: 0 0 8px; }
         ['K', '*beep boop!* (Gus: That’s him saying hi. He says hi to everyone. He said hi to the fridge.)'],
         ['G', 'Land on LZ and he rolls down the ramp. Drive to three glowing moon rocks, drive back in, then fly up and dock with the mothership.'],
         ['F', 'Docking is easy. Get close, go slow, and the clamp does the rest. Gus, please tell me the clamp isn’t tape.'],
+        ['J', 'Juno here, dock master on the mothership. The clamp is not tape. I checked. Twice. Come up slow and I’ll bring you in.'],
         ['G', 'The clamp is… mostly not tape.']],
       react: [['G', 'Moon rocks! Crumb wants you to have them for your Pad. That one looks like Dottie.'],
         ['F', 'It does not look like me.'],
@@ -2066,13 +2092,44 @@ details.act > .limits { margin: 0 0 8px; }
       items: [{ x: 146, what: 'cat', line: 'Apogee looked at you, then ran off. Of course she did.' },
               { x: 84, what: 'cat', line: 'There she is! And there she goes. Again.' },
               { x: 164, what: 'cat', line: 'Got her! Apogee is in the rover, purring like nothing happened.' }],
-      dock: { x: 106, y: 116 } }
+      dock: { x: 106, y: 116 } },
+    { id: 'lost-luggage', name: 'Lost Luggage', side: true, giver: 'J', after: 'rock-collection', world: 'vesta', kind: 'trip',
+      label: 'Round trip', fuel: 260, credits: 320, battery: 85, task: 'Find the three suitcases',
+      brief: 'A cargo hatch popped open on the mothership and three suitcases floated down to Vesta. Juno would like them back. Vesta’s spin pushes you away from the middle, so come straight down onto LZ. Crumb floats a long way on every bump here.',
+      spawn: { x: 116, y: 80, vx: 0 }, stars: { fuel: 130, time: 110 },
+      ground: [[0, 40], [20, 38], [44, 36], [66, 38], [88, 40], [110, 40], [130, 40], [150, 42], [172, 40], [194, 38], [216, 40], [240, 42]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 40 }],
+      items: [{ x: 84, what: 'bag' }, { x: 152, what: 'bag' }, { x: 176, what: 'bag' }],
+      dock: { x: 120, y: 116 } },
+    { id: 'relay-dish', name: 'Dish Duty', side: true, giver: 'J', after: 'relay-run', world: 'ganymede', kind: 'trip',
+      label: 'Round trip', fuel: 280, credits: 320, battery: 70, task: 'Fix the two relay dishes (stop beside each one)',
+      brief: 'The mothership talks to the Jupiter moons through two relay dishes on Ganymede, and both are on the blink. Land, let Crumb fix them, then dock. Storms scramble Biscuit’s instruments, not Crumb.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 90, time: 100 },
+      ground: [[0, 44], [24, 42], [48, 38], [72, 36], [96, 38], [116, 38], [132, 38], [150, 42], [172, 46], [196, 44], [220, 40], [240, 42]],
+      pads: [{ id: 'LZ', x1: 116, x2: 132, y: 38 }],
+      items: [{ x: 80, what: 'beacon', name: 'relay dish' }, { x: 164, what: 'beacon', name: 'relay dish' }],
+      dock: { x: 124, y: 116 } },
+    { id: 'lost-balloon', name: 'Captain Floaty', side: true, giver: 'M', after: 'swing-shift', world: 'moon', kind: 'route',
+      label: 'Balloon chase', fuel: 220, credits: 260,
+      brief: 'Pim’s balloon got out through the Moonbase Pim airlock and is drifting off. Balloons shouldn’t float on the Moon. This one is very determined. Fly through the three markers along its path, then land on LZ to hand it back.',
+      spawn: { x: 24, y: 70, vx: 0 }, stars: { fuel: 55, time: 52 },
+      rings: [[70, 64], [124, 84], [178, 102]],
+      ground: [[0, 36], [20, 34], [44, 38], [70, 44], [96, 40], [120, 46], [146, 42], [166, 38], [188, 34], [212, 34], [240, 38]],
+      pads: [{ id: 'LZ', x1: 190, x2: 210, y: 34 }] },
+    { id: 'show-and-tell', name: 'Show and Tell', side: true, giver: 'M', after: 'lost-balloon', world: 'moon', kind: 'trip',
+      label: 'Round trip', fuel: 260, credits: 300, battery: 75, task: 'Collect Pim’s drawings, then park by the classroom window', ordered: true,
+      brief: 'Pim invited Crumb to show and tell. Pim left two drawings by the road as a welcome. Collect them, then park Crumb by the classroom window so everyone can see. Then home to the mothership.',
+      spawn: { x: 200, y: 100, vx: 0 }, stars: { fuel: 90, time: 110 },
+      ground: [[0, 38], [22, 36], [46, 34], [70, 34], [92, 36], [112, 36], [128, 36], [148, 38], [170, 40], [194, 38], [216, 40], [240, 42]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 36 }],
+      items: [{ x: 92, what: 'drawing' }, { x: 64, what: 'drawing' }, { x: 36, what: 'school', name: 'classroom window', line: 'The whole class is waving at Crumb! He’s doing his little spin. Now head home.' }],
+      dock: { x: 120, y: 116 } }
   ];
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
   const missionLabel = i => i < MISSIONS.length ? `Mission ${i + 1}` : 'Side mission';
-  const afterName = d => (MISSIONS.find(m => m.id === d.after) || {}).name;
+  const afterName = d => (ALL.find(m => m.id === d.after) || {}).name;
 
   const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route', hop: 'Pad hopping', sling: 'Sling load', trip: 'Round trip' };
   const LOAD_TIME = 1.5;
@@ -2319,6 +2376,42 @@ details.act > .limits { margin: 0 0 8px; }
     rng = Math.random;
     fly(ghostRun || null);
   }
+  Object.assign(STORY, {
+    'lost-luggage': {
+      intro: [
+        ['J', 'Juno here. Bit embarrassing. A cargo hatch popped open over Vesta, and three suitcases floated out.'],
+        ['F', 'Whose suitcases?'],
+        ['J', 'Mine. Mostly mine. One is the spare clamp parts. One is my plants’ winter coats. Don’t ask about the third one.'],
+        ['G', 'Vesta has almost no gravity, so Crumb will float a long way on every bump. It’s going to be beautiful.']],
+      react: [['J', 'All three, safe and sound. The plants will be warm this winter. Thank you, pilot.'],
+        ['G', 'Crumb did a forty-meter float off one bump! Forty! I measured it on the camera!'],
+        ['J', 'Fine. The third suitcase was snacks. It was all snacks. Here, take a keychain. It’s my lucky one.']] },
+    'relay-dish': {
+      intro: [
+        ['J', 'Pilot, the mothership talks to the Jupiter moons through two relay dishes on Ganymede. Both are on the blink.'],
+        ['G', 'Storms scramble Biscuit’s instruments, but Crumb doesn’t care. Crumb has no instruments. Crumb has vibes.'],
+        ['J', 'Land, let Crumb fix the dishes, and dock. And please don’t let Gus near the dishes. He’ll “improve” them.']],
+      react: [['J', 'Both dishes are humming. I can hear Gus’s polka station from here now. That was not a goal.'],
+        ['G', 'I improved them a tiny bit over the radio. Now they also get the weather.'],
+        ['J', 'Clean work, quick dock. You’re my favorite pilot to bring in. Don’t tell the others. There are no others.']] },
+    'lost-balloon': {
+      intro: [
+        ['M', 'PILOT! EMERGENCY! My balloon got out through the airlock and it’s floating away!'],
+        ['G', 'On the Moon, it really shouldn’t float. It’s a very determined balloon.'],
+        ['M', 'Its name is Captain Floaty. Please save him. Fly through the markers where he went, then land and give him back!'],
+        ['F', 'This is a real mission. I’ve filed it under “real missions”. Go.']],
+      react: [['M', 'CAPTAIN FLOATY! You saved him! I’m tying him to my bed forever!'],
+        ['F', 'Balloon returned, child happy. Paperwork complete. Best paperwork I’ve done all week.'],
+        ['M', 'That was the coolest flying I’ve ever seen! I’m going to be a pilot! I’m going to be YOU!']] },
+    'show-and-tell': {
+      intro: [
+        ['M', 'Today is show and tell, and I said Crumb is my best friend who is a rover. Nobody believes me. Can he come?'],
+        ['K', '*excited beeping* (Gus: That’s a yes. That’s a very loud yes.)'],
+        ['M', 'I left two drawings by the road so he knows the way! Then park by the classroom window so everyone can see him!']],
+      react: [['M', 'Everybody believes me now! Crumb did his little spin! Mr. Okafor clapped!'],
+        ['K', '*proud, slightly embarrassed beeps* (Gus: He’s never been in front of a crowd before.)'],
+        ['M', 'I made you a drawing. It’s you and Biscuit and Crumb. You’re the one with the cool helmet. I put it in your Pad!']] }
+  });
   // ---- Round trips: Crumb the rover, and the mothership's docking clamp ----
   // Crumb rolls down a ramp from Biscuit's hatch. LEFT/RIGHT drive, THRUST hops. Slopes steeper than 45° stop it,
   // so steps and ledges need a hop. Each world drives differently: hop height grows as gravity drops,
@@ -2401,7 +2494,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (g.type === 'collect') {
       for (const it of activeItems()) {
         const near = Math.abs(R.x - it.x) < ROVER_REACH && R.y - groundAt(it.x) < 2.2;
-        if (it.what === 'beacon') {
+        if (it.what === 'beacon' || it.what === 'school') {
           if (near && R.ground && Math.abs(R.vx) < 0.8) it.t += dt;
           else it.t = Math.max(0, it.t - dt * 2);
           if (it.t < FIX_TIME) continue;
@@ -2409,9 +2502,10 @@ details.act > .limits { margin: 0 0 8px; }
         it.done = true;
         const left = mission.items.filter(i => !i.done).length;
         if (it.what === 'cat') sfx.purr(); else sfx.coin();
-        const what = { sample: 'Rock', crystal: 'Crystal', core: 'Ice core', beacon: (it.name ? it.name[0].toUpperCase() + it.name.slice(1) : 'Beacon') + ' fixed' }[it.what];
+        const what = { sample: 'Rock', crystal: 'Crystal', core: 'Ice core', bag: 'Suitcase', drawing: 'Drawing', school: 'Class visited', beacon: (it.name ? it.name[0].toUpperCase() + it.name.slice(1) : 'Beacon') + ' fixed' }[it.what];
         const beep = ['*beep!*', '*boop!*', '*bweep!*', '*beep boop!*'][mission.items.length - left - 1 & 3];
-        showToast(it.line || (left ? `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${beep} ${left} to go` : `${what}${it.what === 'beacon' ? '' : ' grabbed'}! ${beep} Now drive back to Biscuit`), 2200);
+        const verb = it.what === 'beacon' || it.what === 'school' ? '' : ' grabbed';
+        showToast(it.line || (left ? `${what}${verb}! ${beep} ${left} to go` : `${what}${verb}! ${beep} Now drive back to Biscuit`), 2200);
         if (!left) mission.stage++;
         break;
       }
@@ -2434,7 +2528,13 @@ details.act > .limits { margin: 0 0 8px; }
     L.vx += (dx * 1.4 - L.vx * 1.6) * k * dt;
     L.vy += (world.g + dy * 1.4 - L.vy * 1.6) * k * dt;
     L.a -= L.a * Math.min(1, k * 3 * dt);
-    if (!mission.nagged.includes('dock')) { mission.nagged.push('dock'); showToast('Clamp has you. Ease in…', 1600); sfx.beep(); }
+    if (!mission.nagged.includes('dock')) {
+      mission.nagged.push('dock'); sfx.beep();
+      const met = store.get('ds-juno', '') === '1';
+      if (!met) store.set('ds-juno', '1');
+      const lines = ['Clamp’s yours, pilot. Ease in…', 'Got you. Slow and steady. I’ve got the kettle on.', 'Easy does it. The clamp bites, but only a little.', 'Clamp’s live. Don’t rush me, I just polished it.'];
+      showToast(met ? `Juno: ${lines[Math.floor(Math.random() * lines.length)]}` : 'Juno, dock master: Hi! First time? Ease in, the clamp does the rest.', 2000);
+    }
     if (dist < 1.8 && sp < 3) {
       mission.docking = 0; mission.dockFrom = [L.x, L.y, L.a];
       L.firing = false; sfx.thud();
@@ -2449,7 +2549,8 @@ details.act > .limits { margin: 0 0 8px; }
     L.x = fx + (tx - fx) * e; L.y = fy + (ty - fy) * e; L.a = fa * (1 - e); L.vx = L.vy = 0;
     if (mission.docking >= 1.4) {
       mission.docked = true;
-      showToast('Docked! Welcome home, pilot.', 1800);
+      showToast(['Juno: Docked. Welcome home, pilot.', 'Juno: Clamp locked. Nice and gentle. Kettle’s on.', 'Juno: Docked! Crumb, wipe your wheels.'][Math.floor(Math.random() * 3)], 1800);
+      reqEvent('dock');
       completeMission(null);
     }
   }
@@ -4196,6 +4297,8 @@ details.act > .limits { margin: 0 0 8px; }
   ];
   const wrenHome = () => (missionStars['last-light'] || 0) > 0;
   const crumbHome = () => SIDES.some(d => d.kind === 'trip' && missionStars[d.id] > 0);
+  const junoMet = () => crumbHome();
+  const pimMet = () => (missionStars['swing-shift'] || 0) > 0 || (missionStars['ride-along'] || 0) > 0;
   // Crumb trundles along the front of the floor, stopping to look around now and then
   function crumbRoam(st, t, lo, hi) {
     const r = st.crumb || (st.crumb = { x: lo + Math.random() * (hi - lo), dir: Math.random() < 0.5 ? -1 : 1, pause: t + 1200, last: t, beep: 0 });
@@ -4246,6 +4349,8 @@ details.act > .limits { margin: 0 0 8px; }
       L.push('Apogee keeps a strict schedule. Sleep, judge, sleep. You caught her on a sleep shift.');
       add(done === 0, 'First day? Relax. Nobody’s scratched Biscuit yet. Today.');
       add(crumbHome(), 'Crumb follows me to the coffee machine every morning. I didn’t ask for an assistant. I have one now.');
+      add(junoMet(), 'Juno and I trained together. She’s the calmest person I know. I once saw her dock a cargo ship while eating soup.');
+      add(pimMet(), 'Pim sends us a letter every week. This week’s was about rocks. Last week’s was also about rocks. I keep them all.');
       add(crumbHome(), 'Somebody put a sticker on Crumb. It says “World’s Okayest Rover”. No, I don’t know who. Stop looking at me.');
       add(crashes >= 5, `I keep a crash tally on the whiteboard. You’re at ${fmt(crashes)}. I’ve started drawing little flames next to them.`);
       add(crashes === 0 && lands >= 5, `${fmt(lands)} landings and not a single crash. Gus has stopped sleeping in the hangar.`);
@@ -4291,6 +4396,29 @@ details.act > .limits { margin: 0 0 8px; }
       add(ms('wheres-apogee'), '*proud beep* (Ever since Titan, he and Apogee are inseparable. He saves her the sunny spot.)');
       add(ms('core-drill'), '*thoughtful bloop* (He keeps playing back the beat he heard under Europa’s ice. Wren asked him to.)');
       add(ms('beacon-repair'), '*blinks his antenna light* (He learned that from the Mars beacons. He does it whenever anyone looks sad.)');
+    } else if (who === 'J') {
+      L.push('Juno on the mothership. Just checking in. The clamp misses you. I don’t. I’m kidding. Mostly.');
+      L.push('My bridge plants are thriving. I named the fern Dottie. Please don’t tell her. She’d file a form.');
+      L.push('Rule one on my deck: no cats. Apogee has read the rule. Apogee is currently sitting on the rule.');
+      L.push('Docking tip: slow is smooth, and smooth is slow. That’s it. That’s the tip. I put it on a mug.');
+      L.push('Gus asked if the clamp could play music when it locks. I said no. It now plays music when it locks.');
+      L.push('From up here, Biscuit looks like a little silver bug. A brave little silver bug.');
+      L.push('Somebody keeps leaving moon rocks in my airlock. I know it’s Crumb. Crumb knows I know.');
+      add(ms('lost-luggage'), 'Thanks again for the luggage. The plants love their winter coats. The ferns look very fancy.');
+      add(ms('relay-dish'), 'The Ganymede dishes are humming nicely. So am I. Don’t tell anyone.');
+      add(pimMet(), 'Pim sent me a drawing of the mothership. It has a slide. Honestly, it should have a slide.');
+    } else if (who === 'M') {
+      L.push('Hi pilot!! It’s Pim! From Moonbase Pim! I was the first kid born there. Or they named me after the base. Nobody remembers which.');
+      L.push('I drew you and Biscuit. You’re the one with the cool helmet. Biscuit is the one with the legs.');
+      L.push('My teacher says I can’t be a pilot until I can reach the pedals. Landers don’t HAVE pedals. I checked.');
+      L.push('I watched your landing on the big screen in the canteen. Everyone cheered. Even Mr. Okafor, and he never cheers.');
+      L.push('The telescope Gus built is the best thing ever. Last night I saw a crater that looks like a sandwich.');
+      L.push('Is Apogee a real astronaut cat? Can I have her autograph? A paw print is fine.');
+      L.push('Fun fact: on the Moon I can jump six times higher than on Earth. I’ve never been to Earth. I’m just saying.');
+      add(crumbHome(), 'Can Crumb come to show and tell? He can sit on my desk. He can be very quiet. Probably.');
+      add(ms('lost-balloon'), 'Captain Floaty says hi! He lives on my bed now. He doesn’t float anymore. He’s retired.');
+      add(ms('show-and-tell'), 'Everyone at school is talking about Crumb. I am the most famous kid on the Moon right now.');
+      add(junoMet(), 'I sent Juno a drawing of the mothership with a slide on it. She says she’ll “look into it”. That means yes!');
     } else if (who === 'G') {
       L.push('I’m teaching Biscuit to recognize her own name. Progress is slow, on account of her being a lander.');
       L.push('One bang from the hangar: normal. Two bangs: also normal. Three bangs: run.');
@@ -4382,6 +4510,12 @@ details.act > .limits { margin: 0 0 8px; }
   function loungeTalk(who) {
     if (!lounge) return;
     if (who === 'P') { loungeSay(...photoLine()); return; }
+    if (who === 'radio') {
+      // whoever's calling in: Juno from the mothership, or Pim from the Moon
+      const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : []);
+      who = callers.length > 1 && callers[0] === lounge.lastCaller ? callers[1] : callers[Math.floor(Math.random() * callers.length)];
+      lounge.lastCaller = who;
+    }
     const L = loungeLines(who), last = lounge.last[who];
     let i = Math.floor(Math.random() * L.length);
     if (L.length > 1 && i === last) i = (i + 1) % L.length;
@@ -4549,6 +4683,7 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
         <button class="btn ghost" data-talk="A">Pet Apogee</button>
         ${crumbHome() ? '<button class="btn ghost" data-talk="K">Crumb</button>' : ''}
+        ${junoMet() || pimMet() ? '<button class="btn ghost" data-talk="radio">Radio</button>' : ''}
       </div>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
@@ -4726,7 +4861,15 @@ details.act > .limits { margin: 0 0 8px; }
           for (const [a, r, col] of [[7, 1, '#b8b2a6'], [10, 1, '#e8c98a'], [13, 1, '#2a6fd6'], [16, 1, '#c1532c'], [20, 2, '#d9a066'], [25, 2, '#e3c27a']]) px(c, x + a, y + 14 - r, r * 2, r * 2, col);
         } },
       { id: 'rex', name: 'Signed Rex poster', price: 1500, blurb: 'Rex Valor mailed it to you. Unprompted. It says “To my biggest fan”.',
-        draw(c, x, y, t, st) { px(c, x, y, 30, 28, '#7a1a1a'); px(c, x + 1, y + 1, 28, 26, '#c0392b'); if (st.faces) c.drawImage(st.faces.R, 0, 0, 32, 32, x + 5, y + 1, 20, 20); for (let i = 0; i < 18; i++) px(c, x + 6 + i, y + 23 + Math.round(Math.sin(i * 1.3)), 1, 1, '#ffd27a'); } }
+        draw(c, x, y, t, st) { px(c, x, y, 30, 28, '#7a1a1a'); px(c, x + 1, y + 1, 28, 26, '#c0392b'); if (st.faces) c.drawImage(st.faces.R, 0, 0, 32, 32, x + 5, y + 1, 20, 20); for (let i = 0; i < 18; i++) px(c, x + 6 + i, y + 23 + Math.round(Math.sin(i * 1.3)), 1, 1, '#ffd27a'); } },
+      { id: 'pimart', trip: 'show-and-tell', name: 'Pim’s drawing', price: 0, blurb: 'Crayon on paper: you, Biscuit and Crumb, under a very big Moon. You’re the one with the cool helmet. Signed “PIM (age 9)”.',
+        draw(c, x, y) {
+          px(c, x + 2, y + 2, 26, 22, '#f4f1e8'); outline(c, x + 2, y + 2, 26, 22, '#c9cfdc');
+          circ(c, x + 22, y + 8, 4, '#ffe58a'); px(c, x + 3, y + 19, 24, 4, '#c9cfdc');
+          px(c, x + 6, y + 12, 6, 5, '#c9cfdc'); px(c, x + 5, y + 17, 1, 2, '#8a93ab'); px(c, x + 12, y + 17, 1, 2, '#8a93ab'); px(c, x + 8, y + 13, 2, 2, '#7fd6ff');
+          px(c, x + 15, y + 15, 2, 4, '#ff9a3d'); px(c, x + 15, y + 13, 2, 2, '#d9a07a'); px(c, x + 14, y + 12, 4, 1, '#ff6b5e');
+          px(c, x + 19, y + 16, 5, 2, '#e8edf5'); px(c, x + 19, y + 18, 1, 1, '#2a3045'); px(c, x + 23, y + 18, 1, 1, '#2a3045'); px(c, x + 20, y + 14, 1, 2, '#58e0a0');
+        } }
     ],
     wallR: [
       NOTHING,
@@ -4788,6 +4931,8 @@ details.act > .limits { margin: 0 0 8px; }
         draw(c, x, y) { px(c, x + 3, y + 10, 10, 2, '#4a5578'); px(c, x + 4, y + 4, 8, 6, 'rgba(207,227,255,0.35)'); px(c, x + 5, y + 5, 6, 4, '#cfeaff'); px(c, x + 7, y + 5, 1, 4, '#9ad8ff'); px(c, x + 9, y + 5, 1, 4, '#a8c8e8'); px(c, x + 4, y + 3, 8, 1, '#8a93ab'); } },
       { id: 'c-pebble', trip: 'wheres-apogee', name: 'Apogee’s pebble', price: 0, blurb: 'The pebble Apogee brought you back from Titan. In cat, this is a very big deal. Do not move it. She will know.',
         draw(c, x, y) { px(c, x + 3, y + 10, 10, 2, '#a47a4c'); px(c, x + 4, y + 9, 8, 1, '#c99a64'); px(c, x + 6, y + 6, 4, 3, '#b07a4a'); px(c, x + 7, y + 5, 2, 1, '#c08a5a'); px(c, x + 7, y + 6, 1, 1, '#e0b080'); } },
+      { id: 'j-keychain', trip: 'lost-luggage', name: 'Juno’s lucky keychain', price: 0, blurb: 'A tiny brass clamp on a keyring, from Juno’s rescued suitcase. She says it has never once let go of anything.',
+        draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); outline(c, x + 6, y + 2, 4, 4, '#ffd27a'); px(c, x + 6, y + 6, 4, 3, '#c9a24a'); px(c, x + 5, y + 8, 1, 2, '#c9a24a'); px(c, x + 10, y + 8, 1, 2, '#c9a24a'); px(c, x + 7, y + 7, 2, 1, '#5fd3c8'); } },
       { id: 's-pluto', world: 'pluto', name: 'Pluto heart ice', price: 0, blurb: 'A chunk of Pluto’s heart-shaped ice plain. Wren has one just like it. Keep it frozen. Or don’t. It’s Pluto, it’ll cope.',
         draw(c, x, y) { px(c, x + 4, y + 10, 8, 2, '#4a5578'); px(c, x + 4, y + 3, 3, 3, '#f2d6c9'); px(c, x + 8, y + 3, 3, 3, '#f2d6c9'); px(c, x + 4, y + 5, 7, 3, '#f2d6c9'); px(c, x + 5, y + 8, 5, 1, '#f2d6c9'); px(c, x + 7, y + 9, 1, 1, '#f2d6c9'); px(c, x + 9, y + 5, 2, 3, '#d9b8aa'); px(c, x + 5, y + 4, 1, 1, '#ffffff'); } },
       { id: 's-moon', world: 'moon', name: 'Moon rock', price: 0, blurb: 'A real Moon rock in a little glass case. Dottie checked: legally, it isn’t a souvenir. It’s “sample 0047”.',
@@ -4913,7 +5058,7 @@ details.act > .limits { margin: 0 0 8px; }
   function denFaces() {
     if (denFaceCache) return denFaceCache;
     denFaceCache = {};
-    for (const who of ['F', 'G', 'W', 'R']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    for (const who of ['F', 'G', 'W', 'R', 'J', 'M']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
     return denFaceCache;
   }
 
@@ -5078,7 +5223,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : []);
+  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : []);
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -5172,11 +5317,18 @@ details.act > .limits { margin: 0 0 8px; }
       'Biscuit’s parked right under your window. She likes knowing you’re close.', 'My first cabin was a cot and a box of bolts. I used the box as a pillow. Treat yourself, pilot.',
       'Sometimes I come in here just for the view. I hope that’s all right.', 'I brought you tea. It’s from my secret stash. If Dottie asks, there is no secret stash.',
       'You remind me of me, back when I was starting. Braver, though. And a better parker.'],
+    J: ['Came down from the mothership for a cup of tea. Your cabin’s much warmer than my dock office.', 'Your plant needs water. I can tell. I can always tell.',
+      'Nice and tidy. You’d pass a dock inspection. Barely. That sock is pushing it.', 'Crumb gave me a tour. It was mostly of the floor. He was very proud of the floor.',
+      'I don’t usually leave the mothership. Don’t tell the clamp. It gets jealous.'],
+    M: ['Your cabin is SO COOL. Is that your real bed? Can I bounce on it? I’m bouncing on it.', 'My mom said I could visit if I don’t touch anything. I touched one thing. Okay, three things.',
+      'When I’m a pilot my cabin is going to have a slide and a trampoline and a cat. Can I borrow Apogee? Just to practice?',
+      'Crumb said hi to me with a beep! I said hi back with a beep! We’re basically talking now!', 'Is this the window you look at space from? I’m going to look at space from it. Okay. I looked. It’s great.'],
     R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.',
       'My cabin has a hot tub. And a cold tub. And a medium tub, for when I can’t decide.', 'I’m not visiting. I got lost. Your hallways are confusing. Nice cushions, though.',
       'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For Mayday. That’s all. This is very awkward. Bye. I’m not leaving yet.']
   };
-  const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.' };
+  const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.',
+    J: 'Good choice. Tidy, too. I approve, and I don’t approve of much.', M: 'WHOA. That is SO cool. Can I have one? Can I have that one?' };
   const DEN_CAT = {
     bunk: ['Prrrp. (She has claimed your bunk. It is her bunk now. You may borrow it.)', 'Mrrrow. (She is lying exactly where your head goes. This is not a coincidence.)', 'Prrr. (She kneads your blanket into a nest. Your blanket is a nest now.)'],
     bench: ['Mrrp. (She’s watching the planet go by. Do not block the view.)', 'Mrow. (She’s counting stars. She’s lost count. She’s starting over, annoyed.)', 'Prrrp. (She’s using a cushion as a pillow and another cushion as a different pillow.)'],
@@ -6198,6 +6350,8 @@ details.act > .limits { margin: 0 0 8px; }
     run: { who: 'G', n: 1, pay: 350, text: () => 'Reach site 4 in an endless run. I’ve got a new perk I want to see in action. It probably won’t explode.' },
     share: { who: 'F', n: 1, pay: 200, text: () => 'Send someone a ghost challenge after a free-flight landing. I want to know who’s faster. For science. And gossip.' },
     pet: { who: 'A', n: 3, pay: 150, text: () => 'Mrrp. (Pet Apogee three times today, in the break room or your Pad. She has it in her calendar.)' },
+    moon: { who: 'M', n: 2, pay: 250, text: () => 'Land on the Moon twice today! I’ll be at the canteen window waving. SO hard.', needs: () => pimMet() },
+    dock: { who: 'J', n: 1, pay: 300, text: () => 'Dock with the mothership once today. Any round trip will do. The clamp gets lonely.', needs: () => junoMet() },
     arcade: { who: 'G', n: 1, pay: 300, text: () => 'Score 600 or more in Descent Systems Classic. NOT GUS believes in you. NOT GUS is not me.', needs: () => owned.has(denKey('floor', 'arcade')) }
   };
   // what each crew member says when their request is done
@@ -6268,6 +6422,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (type === 'land') {
         if (it.type === 'soft' && d.vy < 0.5) add = 1;
         if (it.type === 'world' && d.world === it.w) add = 1;
+        if (it.type === 'moon' && d.world === 'moon') add = 1;
         if (it.type === 'pad5' && d.pad && d.pad.mult === 5) add = 1;
         if (it.type === 'fuel' && d.fuelFrac >= 0.5) add = 1;
         if (it.type === 'tilt' && d.ang < 2) add = 1;
@@ -6279,6 +6434,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (type === 'run' && it.type === 'run' && d.site >= 4) add = 1;
       if (type === 'share' && it.type === 'share') add = 1;
       if (type === 'pet' && it.type === 'pet') add = 1;
+      if (type === 'dock' && it.type === 'dock') add = 1;
       if (type === 'arcade' && it.type === 'arcade' && d.score >= 600) add = 1;
       if (!add) continue;
       it.prog = Math.min(T.n, it.prog + add); changed = true;
@@ -6330,7 +6486,7 @@ details.act > .limits { margin: 0 0 8px; }
     ganymede: ['F', 'Ganymede has the most beautiful auroras. It also turned my headset into a polka station. Send a new headset.'],
     mercury: ['F', 'Mercury. The Sun is enormous and takes everything personally. Gus packed sunscreen. SPF four thousand.']
   };
-  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb' };
+  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim' };
   let cardsSeen;
   try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
   const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
@@ -7266,7 +7422,34 @@ details.act > .limits { margin: 0 0 8px; }
         }
         return;
       }
+      if (it.what === 'school') {
+        // a little moonbase dome with the classroom window lit up
+        ctx.fillStyle = '#c9cfdc'; ctx.strokeStyle = '#3a4668';
+        ctx.beginPath(); ctx.moveTo(-4, 0); ctx.quadraticCurveTo(-4, -4.5, 0, -4.5); ctx.quadraticCurveTo(4, -4.5, 4, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffe58a'; ctx.fillRect(-2.6, -2.6, 5.2, 1.6);
+        ctx.fillStyle = '#ff9ad5'; for (const hx of [-1.8, -0.2, 1.4]) ctx.fillRect(hx, -2.4, 0.5, 0.6);
+        if (!it.done && it.t > 0) {
+          ctx.strokeStyle = '#58e0a0'; ctx.lineWidth = 2.4 / scale;
+          ctx.beginPath(); ctx.arc(0, -6, 1.2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, it.t / FIX_TIME)); ctx.stroke();
+        }
+        return;
+      }
       if (it.done) return;
+      if (it.what === 'bag') {
+        ctx.fillStyle = '#a0603a'; ctx.strokeStyle = '#ffd27a';
+        ctx.fillRect(-1.1, -1.6, 2.2, 1.6); ctx.strokeRect(-1.1, -1.6, 2.2, 1.6);
+        ctx.strokeRect(-0.4, -2.1, 0.8, 0.5);
+        ctx.fillStyle = '#5fd3c8'; ctx.fillRect(-1.1, -1.0, 2.2, 0.25);
+        return;
+      }
+      if (it.what === 'drawing') {
+        ctx.fillStyle = '#8a93ab'; ctx.fillRect(-0.1, -2.6, 0.2, 2.6);
+        ctx.fillStyle = '#f4f1e8'; ctx.fillRect(-1.2, -3.6, 2.4, 1.8);
+        ctx.fillStyle = '#ff9a3d'; ctx.fillRect(-0.8, -3.2, 0.8, 0.8);
+        ctx.fillStyle = '#58e0a0'; ctx.fillRect(0.2, -2.8, 0.7, 0.6);
+        ctx.fillStyle = '#ff6b5e'; ctx.fillRect(-0.2, -2.3, 0.3, 0.3);
+        return;
+      }
       if (it.what === 'cat') {
         // Apogee, sitting very still and pretending not to see you
         const flick = Math.sin(time / 300) * 0.3;
@@ -7291,7 +7474,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (active) {   // a bobbing marker overhead
       const bob = Math.sin(time / 220) * 0.5;
       ctx.fillStyle = TRIP_PINK;
-      const X = sx(it.x), Y = sy(gy + 5.2 + bob), r = Math.max(4, scale * 0.9);
+      const X = sx(it.x), Y = sy(gy + (it.what === 'school' ? 7.5 : 5.2) + bob), r = Math.max(4, scale * 0.9);
       ctx.beginPath(); ctx.moveTo(X - r, Y - r); ctx.lineTo(X + r, Y - r); ctx.lineTo(X, Y + r * 0.6); ctx.fill();
     }
   }
