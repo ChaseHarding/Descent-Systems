@@ -417,7 +417,7 @@ Tap the corkboard on the break room wall, or open **Bulletin board** in the menu
 
 ## The ship
 
-The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** (see below). Two doors are still sealed: the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
+The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad** and the **crew quarters**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). One door is still sealed: the observation **dome**. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
 
 <p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
 
@@ -440,6 +440,30 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 - The **seed cabinet** on the right gives Gus's tips on who loves which crop, based on who you've met.
 
 <p align="center"><img src="media/garden.png" alt="The Garden: six wooden planters under pink grow lamps holding moon tea, pink flowers, coffee, ferns and golden cacao, a tap with a green watering can on the left and a seed cabinet on the right" width="560"></p>
+
+**Crew quarters** are behind the CREW door: a carpeted corridor with a bedroom door for each crew member and guest (Dottie, Gus, Wren, Rex, Juno, Zib, Ollo, Kael and Lyra). Doors for people you haven't met yet say VACANT.
+
+- **Rooms open at 3 hearts.** A locked door has a red light by the handle instead of a green one. Knock, and whoever's inside tells you to get to know them better first, or Dottie reminds you of the rule (she made the rule).
+- **A warm light under a door** means that person is home. The doors are plain, though a few people have stuck something on theirs: a wrench on Gus's, a gold star on Rex's and a little jelly on Zib's.
+- **Inside**, every room is decorated in its owner's style: Dottie's filing cabinets and Employee of the Month posters, Gus's half-built coffee robot and lava lamp, Wren's pinned flight maps and forty years of logbooks, Rex's poster of himself and trophy shelf, Juno's tea set and ferns, Zib's spoon collection and a tank of jelly cousins, Ollo's moth lamp and teacups, Kael's mirror and treaty drafts, and Lyra's diaries and embassy chocolates. Tap anything and its owner tells you about it.
+- If you're dating someone, a framed photo of the two of you hangs over their bed.
+- If the owner is home you can chat with them there, and sometimes a friend is visiting too. If they're out, Dottie tells you where they went.
+- There's a snack machine at the end of the corridor. Results vary.
+
+<p align="center"><img src="media/quarters.png" alt="The crew quarters corridor: doors labelled Hall, Dottie, Gus, Wren, Rex and Juno, with a wrench sticker on Gus's door and a gold star on Rex's, and a red carpet runner" width="560"></p>
+
+### The crew's day
+
+The crew don't sit in one place any more. Every 15 minutes of real time, everyone picks somewhere to be:
+
+- **Dottie, Gus and Wren** are usually at the break room table. Their chair is empty when they're somewhere else.
+- **Rex and Ollo** usually hang about the Bridge.
+- **Juno, Zib, Kael and Lyra** mostly stay in their rooms.
+- Now and then anyone might **wander the hallway**, pop into the **garden** or **visit a friend** who's at home. Visitors show up in the host's bedroom, and both have something to say about it.
+
+Tap anyone you meet to chat. It counts as your daily chat for hearts, wherever you find them. The **Crew ♥** tab in the menu shows where everyone is right now (📍 In the break room, Wandering the hallway, Visiting Zib…) and whose room is open to you. If you walk into an empty break room, Apogee has taken all three chairs.
+
+<p align="center"><img src="media/visit.png" alt="Zib's room: lilac walls, a jelly tank, a spoon shelf and a photo of Zib's cloud mother, with Zib floating on the rug while Lyra visits" width="560"></p>
 
 ## The Pad
 
@@ -616,7 +640,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png` and `garden.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png` and `visit.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
