@@ -24,7 +24,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Round trips**: eight missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
-- **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, wall finishes, flooring, glowing light strips and the view out the big window
+- **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, seating, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
 - **Ghost replay** that lets you race a see-through copy of your friend's run, or your own last attempt
@@ -392,7 +392,8 @@ Open **The Pad** from the start screen to visit your own cabin, a cozy retro-fut
 | Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
 | Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, or a working arcade cabinet (see below) |
 | Rug | Orange rug, striped runner, Saturn rug, cat face rug |
-| Bedding | Six colors for the bunk and the window-bench cushions: crimson, cloud cream, blush pink, tangerine, starry night and mint |
+| Bedding | Six colors for the bunk and your seat's cushions and fabric: crimson, cloud cream, blush pink, tangerine, starry night and mint |
+| Seating | Where you (and a guest) sit by the big window: the window bench, a comfy couch, a bean bag pair you sink right into, a hammock between two posts, or a hover sofa with a soft glow underneath. Fabric follows your bedding colors |
 | Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead or a twinkling starfield |
 | Flooring | Plush carpet, gloss floor, glowing light panels, rose carpet or deck grating |
 | Lights | The color of the glowing strips: amber, ice blue, rose, color-cycling aurora, pulsing red alert, a disco ball, or night mode with just the window and your reading light |
