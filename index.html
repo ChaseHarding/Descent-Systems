@@ -4308,7 +4308,8 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Break room: the crew between flights ----
   let lounge = null;
   const RW = 200, RH = 100;
-  const CREW_X = { F: 52, G: 86, W: 120 };
+  // seats behind the table: you sit with the crew (Wren's reserved chair stays empty until she's home)
+  const crewSeats = () => wrenHome() ? { F: 46, G: 74, W: 102, P: 130 } : { F: 44, G: 70, P: 96 };
   let catSpot = null;
   const CAT_SPOTS = [
     { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
@@ -4636,14 +4637,19 @@ details.act > .limits { margin: 0 0 8px; }
       c.drawImage(lounge.faces.W, 0, 0, 32, 32, 129, 11, 18, 18);
     }
     // the crew, sitting behind the table
+    const seats = crewSeats();
     for (const who of home ? ['F', 'G', 'W'] : ['F', 'G']) {
       const bob = lounge.talking === who && Math.floor(t / 90) % 2 ? -1 : 0;
-      c.drawImage(lounge.faces[who], CREW_X[who], 30 + bob);
+      c.drawImage(lounge.faces[who], seats[who], 30 + bob);
     }
+    c.drawImage(pilotFace(), seats.P, 30);
     if (!home) { px(c, 124, 42, 22, 3, '#3a4668'); px(c, 126, 45, 3, 15, '#3a4668'); px(c, 141, 45, 3, 15, '#3a4668'); }
     // table, mugs (Wren's always clean), the reserved card
     px(c, 40, 60, 120, 3, '#7a5c44'); px(c, 42, 63, 116, 3, '#5a4636'); px(c, 46, 66, 3, 12, '#4a3a2c'); px(c, 151, 66, 3, 12, '#4a3a2c');
-    for (const [x, col2] of [[62, '#ffb547'], [100, '#9fe0b8'], [134, '#ff9ad5']]) { px(c, x, 55, 5, 5, col2); px(c, x + 5, 56, 2, 3, col2); }
+    for (const [who, col2] of [['F', '#ffb547'], ['G', '#9fe0b8'], ['W', '#ff9ad5'], ['P', '#cfe3ff']]) {
+      if (seats[who] == null) continue;
+      const x = seats[who] + 12; px(c, x, 55, 5, 5, col2); px(c, x + 5, 56, 2, 3, col2);
+    }
     if (!home) { px(c, 122, 54, 9, 6, '#e8e0d0'); px(c, 123, 56, 7, 1, '#8a8f9c'); }
     // Crumb, out and about (and sometimes giving Apogee a ride)
     if (crumbHome()) {
@@ -4680,7 +4686,8 @@ details.act > .limits { margin: 0 0 8px; }
     const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH, s = lounge.cat;
     if (x >= s.x - 5 && x <= s.x + 16 && y >= s.y - 6 && y <= s.y + 8) return 'A';
     if (crumbHome() && crumbHit(lounge.crumb, x, y)) return 'K';
-    for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= CREW_X[who] + 6 && x <= CREW_X[who] + 26 && y >= 30 && y <= 60) return who;
+    const seats = crewSeats();
+    for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= seats[who] + 6 && x <= seats[who] + 26 && y >= 30 && y <= 60) return who;
     if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
     if (x >= 48 && x <= 72 && y >= 6 && y <= 26) return 'B';
     if (x >= 154 && x <= 188 && y >= 6 && y <= 44) return 'L';
@@ -5162,9 +5169,10 @@ details.act > .limits { margin: 0 0 8px; }
     if (bed.pattern === 'stars') for (const [a, b] of [[30, 65], [36, 67], [42, 64], [48, 68], [52, 65]]) px(c, a, b, 1, 1, '#ffe58a');
     px(c, 4, 70, 54, 8, '#f4ead6'); px(c, 4, 70, 54, 1, '#fbf6ec'); px(c, 4, 77, 54, 1, '#c9b897');
     // whoever dropped by sits on the window bench
+    if (scene) c.drawImage(pilotFace(), scene.visitor ? 56 : 70, 33);
     if (scene && scene.visitor) {
       const bob = scene.talking === scene.visitor && !reduceMotion && Math.floor(t / 90) % 2 ? -1 : 0;
-      c.drawImage(st.faces[scene.visitor], 84, 33 + bob);
+      c.drawImage(st.faces[scene.visitor], 86, 33 + bob);
     }
     // window bench with cushions
     c.fillStyle = '#f4ead6'; rrect(c, 60, 64, 58, 14, 5); c.fill();
@@ -5859,11 +5867,11 @@ details.act > .limits { margin: 0 0 8px; }
   }
   const topKey = o => { const e = Object.entries(o || {}); return e.length ? e.sort((a, b) => b[1] - a[1])[0][0] : null; };
   // the portrait: 32 x 32 pixels, drawn crisp at any size
-  function drawPilot(c, x, y, size, L = lic) {
+  function drawPilot(c, x, y, size, L = lic, bare = false) {
     const off = document.createElement('canvas'); off.width = off.height = 32;
     const p = off.getContext('2d'), P = (a, b, w, h, col) => { p.fillStyle = col; p.fillRect(a, b, w, h); };
     const skin = LIC_SKINS[L.skin] || LIC_SKINS[1], hc = LIC_HAIR_COLS[L.hairCol] || LIC_HAIR_COLS[1], suit = (LIC_SUITS.find(s => s[0] === L.suit) || LIC_SUITS[0])[2];
-    const g = p.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#cfe3ff'); g.addColorStop(1, '#9fb8e0'); p.fillStyle = g; p.fillRect(0, 0, 32, 32);
+    if (!bare) { const g = p.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#cfe3ff'); g.addColorStop(1, '#9fb8e0'); p.fillStyle = g; p.fillRect(0, 0, 32, 32); }
     if (L.hair === 'long') P(8, 10, 16, 14, hc);
     // suit with a mission patch, neck, head
     P(4, 25, 24, 7, suit); P(6, 24, 20, 1, suit); P(12, 24, 8, 3, 'rgba(0,0,0,0.18)'); P(20, 27, 3, 3, '#ffb547'); P(21, 28, 1, 1, '#0a0e1c');
@@ -5889,6 +5897,16 @@ details.act > .limits { margin: 0 0 8px; }
       P(9, 6, 3, 1, 'rgba(255,255,255,0.8)'); P(8, 7, 1, 3, 'rgba(255,255,255,0.6)'); P(8, 23, 16, 2, '#e8ebf2'); P(8, 24, 16, 1, '#9aa3b8');
     }
     c.save(); c.imageSmoothingEnabled = false; c.drawImage(off, x, y, size, size); c.restore();
+  }
+  // you, as you look on your license, ready to sit with the crew (redrawn only when the license changes)
+  let pilotFaceKey = '', pilotFaceCv = null;
+  function pilotFace() {
+    const k = JSON.stringify(lic);
+    if (k !== pilotFaceKey || !pilotFaceCv) {
+      pilotFaceKey = k; pilotFaceCv = document.createElement('canvas'); pilotFaceCv.width = pilotFaceCv.height = 32;
+      drawPilot(pilotFaceCv.getContext('2d'), 0, 0, 32, lic, true);
+    }
+    return pilotFaceCv;
   }
   // the whole card, at 600 x 375 logical pixels times k
   function drawLicense(c, k) {
