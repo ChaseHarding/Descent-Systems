@@ -402,6 +402,10 @@ The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met:
 
 **Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb, Apogee and Blip are friends of the whole crew and are never part of romance.
 
+**Hangouts and dates play as little cutscenes.** Each one has its own pixel-art backdrop to match what you're doing: Dottie's office, Gus's workshop, a picnic on the Moon (helmets on), Wren's spot overlooking Saturn, Rex's zero-g disco, a spacewalk on the hull with Juno, the glowing ice under Europa with Zib, Ollo's lantern festival, a candlelit dinner by the observation window, an embassy study and more, over 20 settings in all. The scene opens with a slow push-in and letterbox bars while the two of you walk in from either side and the title card fades up. Then the dialogue plays below the scene, and whoever's talking bobs along. Dates and asking someone out (always in the dome) have hearts drifting up, and every scene ends with a fade, plus a burst of hearts for the romantic ones. Tap the scene or **Next** to skip ahead, or **Skip** to jump to the end.
+
+<p align="center"><img src="media/date-scenes.png" alt="Four date scenes: a Moon picnic in space helmets with Earth overhead, Ollo's lantern festival under floating lanterns, Rex's zero-gravity disco with coloured spotlights, and a spacewalk on the ship's hull with the planets in a row" width="640"></p>
+
 ### Postcards
 
 The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the menu's Journal tab, or tap the box in the break room corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
@@ -667,7 +671,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png` and `wardrobe.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png`, `wardrobe.png` and `date-scenes.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
