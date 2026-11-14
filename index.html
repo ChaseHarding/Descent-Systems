@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Descent Systems</title>
-<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 52 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
+<meta name="description" content="Land anywhere in the solar system. A lander game with 11 worlds, 56 missions, 5 landers, your own cabin to decorate and ghost races against friends. Free to play in your browser.">
 <meta name="theme-color" content="#0a0e1c">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0e1c'/%3E%3Cpath d='M12 15L11 9l3-3h4l3 3-1 6z' fill='none' stroke='%23c9cfdc' stroke-width='1.6' stroke-linejoin='round'/%3E%3Crect x='10' y='15' width='12' height='4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3Cpath d='M12 19l-4 6M20 19l4 6M6.5 25h3M22.5 25h3' stroke='%23c9cfdc' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M14 20l2 8 2-8z' fill='%23ffb547'/%3E%3C/svg%3E">
 <!-- Share preview (Open Graph + Twitter/X) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Descent Systems">
 <meta property="og:title" content="Descent Systems">
-<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 52 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
+<meta property="og:description" content="Land anywhere in the solar system. 11 worlds, 56 missions, 5 landers, your own cabin and ghost races against friends. Free in your browser.">
 <meta property="og:url" content="https://chaseharding.github.io/Descent-Systems/">
-<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=5">
+<meta property="og:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=6">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Biscuit the lander firing her engine above a ×5 landing pad in space, beside the Descent Systems title and its features.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Descent Systems">
-<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 52 missions, 5 landers, your own cabin and ghost races against friends.">
-<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=5">
+<meta name="twitter:description" content="Land anywhere in the solar system. 11 worlds, 56 missions, 5 landers, your own cabin and ghost races against friends.">
+<meta name="twitter:image" content="https://chaseharding.github.io/Descent-Systems/og-image.png?v=6">
 <!-- Installable app (PWA) -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1431,6 +1431,16 @@ details.act > .limits { margin: 0 0 8px; }
       for (const [x, y] of [[11, 18], [12, 19], [19, 18], [20, 19]]) px(c, x, y, 1, 1, '#b07050');
       px(c, 21, 20, 1, 1, '#ffe58a'); px(c, 20, 21, 3, 1, '#ffe58a'); px(c, 21, 22, 1, 1, '#ffe58a');
     } };
+  FACES.V = { bg: '#14223a', skin: '#c98d62', shade: '#a46a43', mouth: '#5a2a24', brow: '#1a1a2e',
+    back(c) { const h = '#20182a', l = '#463a5e'; px(c, 9, 5, 14, 5, h); px(c, 8, 7, 2, 7, h); px(c, 22, 7, 2, 6, h); px(c, 11, 3, 9, 2, h); px(c, 16, 2, 7, 2, h); px(c, 21, 3, 3, 3, h); px(c, 17, 2, 4, 1, l); px(c, 12, 4, 3, 1, l); },
+    body(c) { px(c, 4, 26, 24, 6, '#1d3340'); px(c, 6, 25, 20, 1, '#1d3340'); px(c, 11, 24, 3, 3, '#1d3340'); px(c, 18, 24, 3, 3, '#1d3340'); px(c, 11, 24, 1, 3, '#c9e8ff'); px(c, 20, 24, 1, 3, '#c9e8ff'); px(c, 15, 27, 2, 5, '#c9e8ff'); },
+    front(c) { const h = '#20182a', l = '#463a5e'; px(c, 10, 8, 12, 1, h); px(c, 13, 9, 9, 1, h); px(c, 17, 10, 5, 1, h); px(c, 20, 11, 2, 1, h); px(c, 10, 9, 1, 2, h); px(c, 15, 8, 4, 1, l); },
+    extra(c) { px(c, 13, 16, 1, 1, '#e0f2ff'); px(c, 19, 16, 1, 1, '#e0f2ff'); px(c, 22, 13, 1, 1, '#f4fbff'); px(c, 21, 14, 1, 1, '#c9e8ff'); px(c, 24, 15, 1, 2, '#c9e8ff'); } };
+  FACES.Y = { bg: '#2a1430', skin: '#e8b48c', shade: '#c98d62', mouth: '#a0405a', brow: '#2a1838',
+    back(c) { const h = '#3a2050', l = '#6a3a8a'; px(c, 7, 5, 18, 6, h); px(c, 6, 8, 4, 18, h); px(c, 22, 8, 4, 18, h); px(c, 5, 14, 2, 10, h); px(c, 25, 14, 2, 10, h); px(c, 7, 12, 1, 10, l); px(c, 24, 12, 1, 10, l); px(c, 10, 4, 12, 1, h); },
+    body(c) { px(c, 4, 26, 24, 6, '#3a1f40'); px(c, 6, 25, 20, 1, '#3a1f40'); px(c, 12, 25, 8, 1, '#c9e8ff'); px(c, 15, 26, 2, 2, '#c9e8ff'); px(c, 15, 28, 2, 2, '#ff8fb8'); px(c, 8, 27, 2, 1, '#c9e8ff'); px(c, 22, 27, 2, 1, '#c9e8ff'); },
+    front(c) { const h = '#3a2050'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 5, 1, h); px(c, 10, 11, 2, 2, h); px(c, 21, 10, 1, 3, h); px(c, 13, 6, 5, 1, '#6a3a8a'); },
+    extra(c) { px(c, 13, 16, 1, 1, '#c9e8ff'); px(c, 19, 16, 1, 1, '#c9e8ff'); px(c, 11, 14, 4, 1, '#2a1838'); px(c, 17, 14, 4, 1, '#2a1838'); px(c, 21, 13, 1, 1, '#f4fbff'); px(c, 22, 14, 1, 1, '#c9e8ff'); px(c, 24, 18, 1, 2, '#ffd27a'); } };
   FACES.R = { bg: '#4b3168', skin: '#e8b48a', shade: '#c99068', mouth: '#7a3a30', brow: '#1f1a24',
     back(c) { const h = '#1f1a24'; px(c, 8, 4, 16, 8, h); px(c, 9, 2, 14, 2, h); px(c, 12, 0, 12, 2, h); px(c, 22, 1, 3, 4, h); px(c, 7, 8, 1, 6, h); px(c, 24, 8, 1, 6, h); px(c, 14, 1, 6, 1, '#7a6a96'); px(c, 11, 3, 4, 1, '#5a4a70'); px(c, 18, 2, 4, 1, '#5a4a70'); },
     body(c) { px(c, 4, 26, 24, 6, '#d9a420'); px(c, 6, 25, 20, 1, '#d9a420'); px(c, 10, 25, 4, 3, '#f4f1e8'); px(c, 18, 25, 4, 3, '#f4f1e8'); px(c, 14, 26, 4, 6, '#2a1a3a'); px(c, 21, 28, 3, 1, '#ff6b5e'); px(c, 22, 27, 1, 1, '#ff6b5e'); },
@@ -1442,6 +1452,51 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, 11, 15, 2, 1, '#7fd6ff'); px(c, 18, 15, 2, 1, '#7fd6ff');
       px(c, 15, 22, 2, 1, '#c99068');
     } };
+  const scan = c => { c.fillStyle = 'rgba(0, 0, 0, 0.16)'; for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1); };
+  // Zib: a see-through jellyfish with big eyes, a pink glow inside and wavy tentacles
+  function drawZibFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#1a1236');
+    for (const [x, col] of [[9, '#c8a2ff'], [12, '#ff9ad5'], [15, '#c8a2ff'], [18, '#ff9ad5'], [21, '#c8a2ff']])
+      for (let y = 21; y < 32; y++) px(c, x + ((y >> 1) % 2), y, 2, 1, col);
+    px(c, 10, 6, 12, 1, '#e6d4ff'); px(c, 8, 7, 16, 2, '#d8bfff'); px(c, 7, 9, 18, 10, '#c8a2ff'); px(c, 6, 12, 20, 7, '#c8a2ff');
+    px(c, 6, 19, 20, 2, '#a884e8'); for (let x = 6; x < 26; x += 3) px(c, x, 21, 2, 1, '#a884e8');
+    px(c, 10, 8, 4, 2, '#f4ecff'); c.globalAlpha = 0.6; px(c, 12, 16, 8, 3, '#ff9ad5'); c.globalAlpha = 1;
+    if (blink) { px(c, 10, 13, 4, 1, '#2a1a40'); px(c, 18, 13, 4, 1, '#2a1a40'); }
+    else { px(c, 10, 11, 4, 4, '#2a1a40'); px(c, 18, 11, 4, 4, '#2a1a40'); px(c, 11, 11, 2, 2, '#ffffff'); px(c, 19, 11, 2, 2, '#ffffff'); }
+    if (open) { px(c, 15, 16, 2, 2, '#5a2a6a'); } else px(c, 15, 17, 2, 1, '#5a2a6a');
+    px(c, 26, 5, 2, 2, '#e6d4ff'); px(c, 28, 2, 1, 1, '#e6d4ff');
+    if (!bare) scan(c);
+  }
+  // Captain Ollo: a fuzzy moth with feathery antennae, huge dark eyes, patterned wings and a captain's coat
+  function drawOlloFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#2a2418');
+    for (const sx of [0, 1]) {
+      const X = sx ? 23 : 0;
+      px(c, X, 12, 9, 16, '#b89a6a'); px(c, X + (sx ? 1 : 1), 14, 7, 12, '#d4b888');
+      px(c, X + 3, 17, 3, 3, '#5a4030'); px(c, X + 4, 18, 1, 1, '#f0dca0');
+    }
+    px(c, 6, 26, 20, 6, '#26355e'); px(c, 8, 25, 16, 1, '#26355e'); px(c, 12, 25, 8, 2, '#f0dca0'); px(c, 15, 27, 2, 5, '#c9a24a'); px(c, 20, 28, 2, 2, '#ffd27a');
+    px(c, 10, 8, 12, 16, '#f0e2c0'); px(c, 9, 10, 14, 12, '#f0e2c0'); px(c, 11, 23, 10, 2, '#e4d2a8');
+    for (const [x, y] of [[9, 9], [22, 9], [8, 14], [23, 14], [10, 22], [21, 22], [12, 7], [19, 7]]) px(c, x, y, 1, 1, '#fff6e0');
+    px(c, 12, 7, 1, 1, '#c9b48a'); px(c, 11, 5, 1, 2, '#c9b48a'); px(c, 10, 3, 1, 2, '#c9b48a'); px(c, 9, 1, 1, 2, '#c9b48a');
+    px(c, 19, 7, 1, 1, '#c9b48a'); px(c, 20, 5, 1, 2, '#c9b48a'); px(c, 21, 3, 1, 2, '#c9b48a'); px(c, 22, 1, 1, 2, '#c9b48a');
+    for (const [x, y] of [[9, 4], [12, 4], [8, 2], [11, 2], [20, 4], [23, 4], [21, 2], [24, 2]]) px(c, x, y, 1, 1, '#e4d2a8');
+    if (blink) { px(c, 11, 15, 4, 1, '#15151f'); px(c, 17, 15, 4, 1, '#15151f'); }
+    else { px(c, 11, 12, 4, 5, '#15151f'); px(c, 17, 12, 4, 5, '#15151f'); px(c, 12, 13, 1, 1, '#ffffff'); px(c, 18, 13, 1, 1, '#ffffff'); }
+    if (open) px(c, 15, 19, 2, 2, '#7a5a3a'); else px(c, 14, 20, 4, 1, '#7a5a3a');
+    if (!bare) scan(c);
+  }
+  // Blip: a tiny green blob with one enormous eye and a glowing antenna
+  function drawBlipFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#0f2418');
+    px(c, 15, 4, 2, 8, '#4fd070'); px(c, 14, 2, 4, 3, open ? '#d8ffe0' : '#9affb0');
+    px(c, 10, 12, 12, 2, '#7dff9a'); px(c, 8, 14, 16, 12, '#7dff9a'); px(c, 9, 26, 14, 2, '#4fd070'); px(c, 10, 28, 3, 2, '#4fd070'); px(c, 19, 28, 3, 2, '#4fd070');
+    px(c, 9, 15, 3, 3, '#b0ffc0');
+    if (blink) px(c, 12, 19, 8, 1, '#15151f');
+    else { px(c, 12, 15, 8, 8, '#ffffff'); px(c, 14, 17, 4, 4, '#15151f'); px(c, 14, 17, 1, 1, '#ffffff'); }
+    if (open) px(c, 14, 24, 4, 1, '#2a6a3a');
+    if (!bare) scan(c);
+  }
   // Crumb's portrait: a boxy little rover face, two camera eyes and a speaker grille that lights up when he beeps
   function drawCrumbFace(c, open, blink, bare) {
     if (!bare) px(c, 0, 0, 32, 32, '#16243a');
@@ -1463,6 +1518,9 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'A') { drawCat(c, open, blink, bare); return; }
     if (who === 'K') { drawCrumbFace(c, open, blink, bare); return; }
     if (who === 'P') { drawPilot(c, 0, 0, 32, lic, bare); return; }
+    if (who === 'Z') { drawZibFace(c, open, blink, bare); return; }
+    if (who === 'O') { drawOlloFace(c, open, blink, bare); return; }
+    if (who === 'B') { drawBlipFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -1493,7 +1551,7 @@ details.act > .limits { margin: 0 0 8px; }
     for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
   }
   // which face each line gets; anything not listed uses the speaker's usual look
-  const DEFAULT_MOOD = { P: 'happy', F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy', J: 'neutral', M: 'happy' };
+  const DEFAULT_MOOD = { P: 'happy', F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy', J: 'neutral', M: 'happy', Z: 'happy', O: 'neutral', B: 'happy', V: 'happy', Y: 'neutral' };
   const MOODS = [
     ['Morning, pilot', 'happy'], ['Hey hey', 'happy'], ['Huh. Not bad', 'deadpan'], ['…Mayday', 'worried'], ['You came for me', 'happy'], ['Hi, pilot! So, funny', 'worried'], ['Oh. Oh no', 'worried'], ['I’m not scared', 'worried'], ['I’m aboard! I’m alive', 'happy'], ['Pilot. The sunrise line', 'worried'], ['Fine. FINE', 'deadpan'], ['I need a favor', 'neutral'], ['Got them', 'happy'], ['Everyone’s home', 'happy'], ['So. Apex', 'neutral'], ['Welcome aboard, Rex', 'happy'], ['Well, well', 'deadpan'], ['Pilot! I’m throwing', 'happy'], ['It’s soup', 'worried'], ['Okay, science question', 'happy'], ['Science says', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
@@ -1517,7 +1575,12 @@ details.act > .limits { margin: 0 0 8px; }
     R: { name: 'Rex Valor · Apex', color: '#ffd27a' },
     K: { name: 'Crumb · Rover', color: '#9ad8ff' },
     J: { name: 'Juno · Dock Master', color: '#5fd3c8' },
-    M: { name: 'Pim · Moonbase Pim', color: '#ffe58a' }
+    M: { name: 'Pim · Moonbase Pim', color: '#ffe58a' },
+    Z: { name: 'Zib · Jelly Trader', color: '#c8a2ff' },
+    O: { name: 'Captain Ollo · Moth Pilot', color: '#f0dca0' },
+    B: { name: 'Blip · Stowaway', color: '#7dff9a' },
+    V: { name: 'Kael Veyra · Envoy', color: '#9ad8ff' },
+    Y: { name: 'Lyra Veyra · Envoy', color: '#ff8fb8' }
   };
   // intro: lines before the mission. react: one line each for 1, 2 and 3 stars.
   const STORY = {
@@ -2154,7 +2217,35 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 38], [22, 36], [46, 34], [70, 34], [92, 36], [112, 36], [128, 36], [148, 38], [170, 40], [194, 38], [216, 40], [240, 42]],
       pads: [{ id: 'LZ', x1: 112, x2: 128, y: 36 }],
       items: [{ x: 92, what: 'drawing' }, { x: 64, what: 'drawing' }, { x: 36, what: 'school', name: 'classroom window', line: 'The whole class is waving at Crumb! He’s doing his little spin. Now head home.' }],
-      dock: { x: 120, y: 116 } }
+      dock: { x: 120, y: 116 } },
+    { id: 'zib-market', name: 'Zib’s Market', side: true, giver: 'Z', after: 'relay-run', world: 'ganymede', kind: 'cargo',
+      label: 'Delivery', cargoName: 'ice', fuel: 300, credits: 340, mass: 0.85,
+      brief: 'A floating jellyfish trader named Zib wants a crate of Ganymede ice delivered to its market stall across the valley. Zib says it is “very excited” and “very pink”. Carry it from PICKUP to DROP.',
+      spawn: { x: 180, y: 100, vx: 0 }, stars: { fuel: 45, time: 72 },
+      ground: [[0, 36], [14, 34], [40, 36], [58, 46], [76, 58], [96, 52], [116, 62], [136, 56], [156, 48], [176, 40], [196, 36], [222, 38], [240, 44]],
+      pads: [{ id: 'PICKUP', x1: 198, x2: 214, y: 34 }, { id: 'DROP', x1: 16, x2: 36, y: 32 }] },
+    { id: 'moth-lights', name: 'Moth to a Flame', side: true, giver: 'O', after: 'methane-canyon', world: 'titan', kind: 'route',
+      label: 'Lamp slalom', fuel: 300, credits: 320,
+      brief: 'Captain Ollo, a moth pilot from very far away, has hung three lamps in Titan’s haze and challenges you to fly through them. He finds them very distracting. Fly through all three in order, then land on LZ.',
+      spawn: { x: 20, y: 80, vx: 0 }, rings: [[52, 62], [96, 50], [138, 58]], stars: { fuel: 70, time: 85 },
+      ground: [[0, 40], [20, 36], [40, 42], [60, 30], [80, 24], [100, 30], [120, 24], [140, 28], [156, 36], [176, 36], [196, 42], [220, 40], [240, 44]],
+      pads: [{ id: 'LZ', x1: 158, x2: 174, y: 36 }] },
+    { id: 'blip', name: 'Blip!', side: true, giver: 'K', after: 'beacon-repair', world: 'mars', kind: 'trip',
+      label: 'Round trip', fuel: 300, credits: 300, battery: 70, task: 'Catch the tiny green thing', ordered: true,
+      brief: 'Crumb picked up something small, green and VERY fast near the Mars beacons. Land on LZ, drive out and catch it. It keeps hopping away, and once it hops right over the rock step. Then bring it home to the mothership.',
+      spawn: { x: 70, y: 100, vx: 0 }, stars: { fuel: 110, time: 95 },
+      ground: [[0, 30], [18, 32], [40, 30], [60, 34], [80, 40], [100, 40], [124, 40], [125, 41], [146, 41], [166, 46], [190, 50], [214, 48], [240, 52]],
+      pads: [{ id: 'LZ', x1: 84, x2: 100, y: 40 }],
+      items: [{ x: 62, what: 'blip', line: '*bip!* It hopped away! Follow it!' },
+              { x: 140, what: 'blip', line: '*bip bip!* It went over the rock step. HOP after it!' },
+              { x: 112, what: 'blip', line: '*biiip!* Got it! It climbed onto Crumb and refuses to get off. Now drive back to Biscuit.' }],
+      dock: { x: 100, y: 120 } },
+    { id: 'vip-pickup', name: 'VIP Pickup', side: true, giver: 'F', after: 'mayday', world: 'mars', kind: 'rescue',
+      label: 'Diplomatic rescue', fuel: 170, credits: 400, mass: 0.85,
+      brief: 'Two envoys from the Veyra fleet, an alien convoy passing through the solar system, are stuck on Mars after their shuttle overheated in a dust storm. Land at CREW, let them board, and fly them up to orbit. Best behavior, please. They’re very glamorous.',
+      spawn: { x: 30, vx: 3 }, stars: { fuel: 20, time: 42 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }] }
   ];
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
@@ -2442,6 +2533,41 @@ details.act > .limits { margin: 0 0 8px; }
       react: [['M', 'Everybody believes me now! Crumb did his little spin! Mr. Okafor clapped!'],
         ['K', '*proud, slightly embarrassed beeps* (Gus: He’s never been in front of a crowd before.)'],
         ['M', 'I made you a drawing. It’s you and Biscuit and Crumb. You’re the one with the cool helmet. I put it in your Pad!']] }
+  });
+  Object.assign(STORY, {
+    'zib-market': {
+      intro: [
+        ['G', 'Pilot, we have a new client! It’s… a jellyfish? A jellyfish with a market stall.'],
+        ['Z', 'Hello hello! Zib is Zib! Zib sells shiny things! Zib needs ice! Zib is glowing pink, which means please.'],
+        ['F', 'I’ve confirmed Zib’s credit is real. It pays in very small, very shiny rocks.']],
+      react: [['Z', 'Ice! Zib’s ice! Zib is so happy, Zib is turning gold! Gold means happy AND rich!'],
+        ['G', 'Zib gave me a shiny rock as a tip. I’m putting it on my workbench. Next to my other shiny rock.'],
+        ['Z', 'Perfect delivery! Zib is every color at once! Come visit the market! Zib will save you the shiniest spoon!']] },
+    'moth-lights': {
+      intro: [
+        ['O', 'Good evening, pilot. Captain Ollo, of the long-haul freighter Gentle Lantern. I have heard of your landings.'],
+        ['O', 'I have hung three lamps in the haze. Fly through them in order. I confess I find them… very distracting. Very beautiful.'],
+        ['F', 'He asked if our runway lights are single. I told him they’re in a committed relationship with the runway.']],
+      react: [['O', 'Well flown. You did not fly into a single lamp. I could never say the same.'],
+        ['G', 'Ollo invited me aboard his ship. It is ninety percent lamps. I’ve never been so happy.'],
+        ['O', 'Flawless. On my world we would say you have “steady wings”. It is the highest compliment I know.']] },
+    'blip': {
+      intro: [
+        ['K', '*urgent beeping* (Gus: Crumb says he made a friend. The friend is very small, very green, and keeps running away.)'],
+        ['G', 'A real alien? On Mars? Okay, nobody panic. I’m panicking a little. Go see!'],
+        ['F', 'If it’s a real alien, I need a form. If it’s a frog, I need a different form.']],
+      react: [['B', '*bip!* (Gus: It says “bip”. I think it’s staying. It’s already in my toolbox.)'],
+        ['G', 'It’s not a frog! Dottie, it’s not a frog! It just ate a bolt. Is that bad? It looks happy.'],
+        ['B', '*bip bip biiip!* (Gus: It’s doing a little dance on Crumb’s roof. Blip. Its name is Blip now. It agrees.)']] },
+    'vip-pickup': {
+      intro: [
+        ['F', 'Pilot, diplomatic job. Two envoys from the Veyra fleet are stranded on Mars. Their shuttle overheated in a dust storm.'],
+        ['V', 'Kael Veyra, at your service. My sister and I would love a ride. Preferably one that doesn’t overheat.'],
+        ['Y', 'Lyra Veyra. Ignore my brother, he’s been practicing that line all morning. Please hurry, the dust is in my hair.'],
+        ['G', 'They look so normal! Except the silver eyes. And the glowing freckles. And they’re both very, very good-looking. I’m fine. I’m normal.']],
+      react: [['V', 'Smooth flying. I’ll be telling the whole fleet about you.'],
+        ['Y', 'Three stars? Okay, now I’m impressed. Kael, stop staring.'],
+        ['V', 'I wasn’t staring. I was admiring the landing. …Fine. Both.']] }
   });
   // ---- Round trips: Crumb the rover, and the mothership's docking clamp ----
   // Crumb rolls down a ramp from Biscuit's hatch. LEFT/RIGHT drive, THRUST hops. Slopes steeper than 45° stop it,
@@ -4359,7 +4485,7 @@ details.act > .limits { margin: 0 0 8px; }
   };
   // missions you can fly now, haven't flown, and haven't seen in the list yet
   const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => missionOpen(i) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
-  const radioNew = () => (junoMet() || pimMet()) && store.get('ds-radioSeen', '') !== '1';
+  const radioNew = () => (junoMet() || pimMet() || zibMet() || olloMet() || twinsMet()) && store.get('ds-radioSeen', '') !== '1';
   const crumbNew = () => crumbHome() && store.get('ds-crumbSeen', '') !== '1';
   // Pad items you've earned (souvenirs, Crumb's finds, Pim's drawing) but haven't looked at yet
   function denNew() {
@@ -4370,6 +4496,10 @@ details.act > .limits { margin: 0 0 8px; }
     return out.filter(k => !seen.has(k));
   }
   const pimMet = () => (missionStars['swing-shift'] || 0) > 0 || (missionStars['ride-along'] || 0) > 0;
+  const zibMet = () => (missionStars['zib-market'] || 0) > 0;
+  const olloMet = () => (missionStars['moth-lights'] || 0) > 0;
+  const blipHome = () => (missionStars['blip'] || 0) > 0;
+  const twinsMet = () => (missionStars['vip-pickup'] || 0) > 0;
   // Crumb trundles along the front of the floor, stopping to look around now and then
   function crumbRoam(st, t, lo, hi) {
     const r = st.crumb || (st.crumb = { x: lo + Math.random() * (hi - lo), dir: Math.random() < 0.5 ? -1 : 1, pause: t + 1200, last: t, beep: 0 });
@@ -4404,6 +4534,16 @@ details.act > .limits { margin: 0 0 8px; }
     if (r.bonk && t - r.bonk < 500) { px(c, dir > 0 ? X - 10 : X + 9, Y - 8, 1, 3, '#ffb547'); px(c, dir > 0 ? X - 10 : X + 9, Y - 4, 1, 1, '#ffb547'); }
   }
   const CRUMB_Y = 97;
+  // Blip hides somewhere new each visit: the shelf, the window ledge, a mug, the box, under the table
+  const BLIP_SPOTS = [{ id: 'shelf', x: 30, y: 28 }, { id: 'ledge', x: 132, y: 45 }, { id: 'mug', x: 0, y: 56 }, { id: 'box', x: 166, y: 70 }, { id: 'floor', x: 118, y: 97 }];
+  function blipPx(c, x, y, t, peek) {
+    const hop = !reduceMotion && Math.floor(t / 700) % 5 === 0 ? -1 : 0, X = Math.round(x), Y = Math.round(y) + hop;
+    if (!peek) { px(c, X - 3, Y - 1, 7, 1, '#4fd070'); px(c, X - 4, Y - 6, 9, 5, '#7dff9a'); }
+    else px(c, X - 4, Y - 4, 9, 3, '#7dff9a');
+    const ey = peek ? Y - 4 : Y - 5;
+    px(c, X - 2, ey, 4, 3, '#ffffff'); px(c, X - 1 + (Math.floor(t / 1500) % 2), ey + 1, 2, 2, '#15151f');
+    px(c, X, ey - 4, 1, 3, '#4fd070'); px(c, X - 1, ey - 5, 3, 1, Math.floor(t / 500) % 2 ? '#d8ffe0' : '#9affb0');
+  }
   const crumbHit = (r, x, y) => r && Math.abs(x - r.x) < 9 && y >= CRUMB_Y - 16 && y <= CRUMB_Y + 2;
   const plural = (n, w) => `${fmt(n)} ${w}${n === 1 ? '' : 's'}`;
   // What each person has to say, given how your career is going. Some lines only turn up once you've done something.
@@ -4419,6 +4559,8 @@ details.act > .limits { margin: 0 0 8px; }
       L.push('This coffee machine makes a noise like a dying whale. I’ve grown attached to it.');
       L.push('Apogee keeps a strict schedule. Sleep, judge, sleep. You caught her on a sleep shift.');
       add(done === 0, 'First day? Relax. Nobody’s scratched Biscuit yet. Today.');
+      add(blipHome(), 'There is an alien in my inbox tray. It is small and green and it says “bip”. I have filed it under “bip”.');
+      add(twinsMet(), 'The Veyra twins sent a thank-you card. It shimmers. Gus has been staring at it for an hour.');
       add(crumbHome(), 'Crumb follows me to the coffee machine every morning. I didn’t ask for an assistant. I have one now.');
       add(junoMet(), 'Juno and I trained together. She’s the calmest person I know. I once saw her dock a cargo ship while eating soup.');
       add(pimMet(), 'Pim sends us a letter every week. This week’s was about rocks. Last week’s was also about rocks. I keep them all.');
@@ -4478,6 +4620,39 @@ details.act > .limits { margin: 0 0 8px; }
       add(ms('lost-luggage'), 'Thanks again for the luggage. The plants love their winter coats. The ferns look very fancy.');
       add(ms('relay-dish'), 'The Ganymede dishes are humming nicely. So am I. Don’t tell anyone.');
       add(pimMet(), 'Pim sent me a drawing of the mothership. It has a slide. Honestly, it should have a slide.');
+    } else if (who === 'Z') {
+      L.push('Hello hello! Zib is calling from the market! Zib sold a spoon today! Zib is rich!');
+      L.push('Zib saw your landing on the big market screen! Everyone cheered! One trader fainted! He is fine!');
+      L.push('Zib has a new shiny rock. Zib named it Rocky. Zib is very creative.');
+      L.push('Zib wants to know: do the jellyfish on Earth talk? Zib called one. It did not answer. Rude.');
+      L.push('Zib is glowing gold today. Gold means “good business”! Or maybe “ate too much”.');
+      add(blipHome(), 'Zib met Blip! Blip tried to buy a spoon with a bolt. Zib accepted. Zib is a soft touch.');
+    } else if (who === 'O') {
+      L.push('Good evening, pilot. Captain Ollo, checking in. All lamps aboard are accounted for. Mostly.');
+      L.push('I flew past Saturn today. The rings were lovely. I did not fly into them. I am growing.');
+      L.push('Forgive me, but is your break room lamp available? For viewing. Respectfully.');
+      L.push('Your landings are very precise. On my world we would say you have “steady wings”.');
+      L.push('Gus offered to build me a lamp that never turns off. I had to lie down.');
+      add(junoMet(), 'Juno gave me the best parking spot at the dock. It is next to a very handsome floodlight.');
+    } else if (who === 'V') {
+      L.push('Kael here. Just calling to say the fleet thinks your landings are “unreasonably good”. I agree.');
+      L.push('Lyra says I call too much. I say I call exactly the right amount.');
+      L.push('Human food is incredible. What is a “nacho”? I ate forty.');
+      L.push('Is it true you named the lander Biscuit? That’s adorable. I’m telling everyone.');
+      L.push('Fleet gossip: the ambassador fell asleep in a treaty meeting. I may have bored him on purpose.');
+    } else if (who === 'Y') {
+      L.push('Lyra here. Kael is being dramatic in the background. Ignore him. I always do.');
+      L.push('I spent the morning negotiating fishing rights with a jellyfish. Zib drives a hard bargain.');
+      L.push('Your little rover saluted me. I saluted back. Diplomacy is everywhere.');
+      L.push('Can you recommend a human book? Something with no treaties in it. Please.');
+      L.push('For the record, I don’t laugh at Kael’s jokes. Except the one about the toaster.');
+    } else if (who === 'B') {
+      L.push('*bip!* (It’s sitting in Gus’s mug again. Gus is drinking around it.)');
+      L.push('*bip bip bip!* (Blip found the cookie jar. Blip is now the cookie jar.)');
+      L.push('*bip?* (It’s staring at you with its one big eye. That means “I love you” or “I’m hungry”. Probably both.)');
+      L.push('*biiiip* (It’s asleep. It snores. The snore is also “bip”.)');
+      L.push('*bip!* (Apogee and Blip are having a staring contest. It’s been forty minutes.)');
+      add(crumbHome(), '*bip bip* (Blip rides on Crumb now. Crumb pretends to mind. Crumb does not mind.)');
     } else if (who === 'M') {
       L.push('Hi pilot!! It’s Pim! From Moonbase Pim! I was the first kid born there. Or they named me after the base. Nobody remembers which.');
       L.push('I drew you and Biscuit. You’re the one with the cool helmet. Biscuit is the one with the legs.');
@@ -4583,14 +4758,15 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'P') { loungeSay(...photoLine()); return; }
     if (who === 'radio') {
       // whoever's calling in: Juno from the mothership, or Pim from the Moon
-      const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : []);
+      const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
       if (!callers.length) {
         sfx.click();
         showToast('Just static for now. Finish Swing Shift, Ride Along or any round trip to tune in.', 3200);
         return;
       }
       store.set('ds-radioSeen', '1');
-      who = callers.length > 1 && callers[0] === lounge.lastCaller ? callers[1] : callers[Math.floor(Math.random() * callers.length)];
+      const fresh = callers.filter(c => c !== lounge.lastCaller);
+      who = (fresh.length ? fresh : callers)[Math.floor(Math.random() * (fresh.length || callers.length))];
       lounge.lastCaller = who;
     }
     bondTalk(who);
@@ -4611,7 +4787,7 @@ details.act > .limits { margin: 0 0 8px; }
     const face = box.querySelector('canvas.face'), p = box.querySelector('p');
     drawFace(face, who, face.dataset.mood, false, false);
     lounge.talking = who;
-    if (who === 'K') sfx.beep(); else if (who !== 'A') sfx.radio();
+    if (who === 'K' || who === 'B') sfx.beep(); else if (who !== 'A') sfx.radio();
     if (reduceMotion) { lounge.talking = null; drawRoom(); return; }
     p.textContent = '';
     let n = 0, tick = 0;
@@ -4691,6 +4867,11 @@ details.act > .limits { margin: 0 0 8px; }
       crumbPx(c, cr, CRUMB_Y, t);
       if (lounge.cat.id === 'crumb') { lounge.cat.x = Math.round(cr.x) - 6; lounge.cat.y = CRUMB_Y - 16 + (cr.moving && Math.floor(t / 150) % 2 ? -1 : 0); }
     }
+    // Blip, peeking out from wherever it's hiding today
+    if (blipHome() && lounge.blip) {
+      const b = lounge.blip, bx = b.id === 'mug' ? seats.G + 14 : b.x;
+      blipPx(c, bx, b.y, t, b.id === 'mug');
+    }
     // Apogee, asleep somewhere new each visit (or awake, if you've just bothered her)
     const s = lounge.cat, awake = performance.now() < lounge.catAwake;
     const o = '#ff9a3d', d = '#c96a1e';
@@ -4720,6 +4901,7 @@ details.act > .limits { margin: 0 0 8px; }
     const x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH, s = lounge.cat;
     if (x >= s.x - 5 && x <= s.x + 16 && y >= s.y - 6 && y <= s.y + 8) return 'A';
     if (crumbHome() && crumbHit(lounge.crumb, x, y)) return 'K';
+    if (blipHome() && lounge.blip) { const b = lounge.blip, bx = b.id === 'mug' ? crewSeats().G + 14 : b.x; if (Math.abs(x - bx) < 7 && y >= b.y - 12 && y <= b.y + 2) return 'B'; }
     const seats = crewSeats();
     for (const who of wrenHome() ? ['F', 'G', 'W'] : ['F', 'G']) if (x >= seats[who] + 6 && x <= seats[who] + 26 && y >= 30 && y <= 60) return who;
     if (!wrenHome() && x >= 124 && x <= 150 && y >= 8 && y <= 60) return 'P';
@@ -4759,6 +4941,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     catSpot = crumbHome() && Math.random() < 0.3 ? { id: 'crumb', x: 100, y: 81 } : CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)];
     lounge = { faces, cat: catSpot, catAwake: 0, talking: null, last: {}, typer: 0, anim: 0, hello: 0 };
+    { const spots = BLIP_SPOTS.filter(b => !(b.id === 'box' && catSpot && catSpot.id === 'box')); lounge.blip = spots[Math.floor(Math.random() * spots.length)]; }
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
       <canvas class="room" id="room" width="${RW}" height="${RH}" role="img" aria-label="The Descent Systems break room: the crew around a table, a coffee machine, a window, and Apogee the cat asleep nearby"></canvas>
@@ -4767,8 +4950,9 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" data-talk="G">Gus</button>
         <button class="btn ghost" data-talk="${home ? 'W' : 'P'}">${home ? 'Wren' : 'The photo'}</button>
         <button class="btn ghost" data-talk="A">Pet Apogee</button>
+        ${blipHome() ? '<button class="btn ghost" data-talk="B">Blip</button>' : ''}
         ${crumbHome() ? `<button class="btn ghost" data-talk="K">Crumb${crumbNew() ? '<i class="dot">New</i>' : ''}</button>` : ''}
-        ${junoMet() || pimMet() ? `<button class="btn ghost" data-talk="radio">Radio${radioNew() ? '<i class="dot">New</i>' : ''}</button>` : '<button class="btn ghost locked" data-talk="radio" aria-label="Radio, locked">Radio 🔒</button>'}
+        ${junoMet() || pimMet() || zibMet() || olloMet() || twinsMet() ? `<button class="btn ghost" data-talk="radio">Radio${radioNew() ? '<i class="dot">New</i>' : ''}</button>` : '<button class="btn ghost locked" data-talk="radio" aria-label="Radio, locked">Radio 🔒</button>'}
       </div>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
@@ -5222,7 +5406,7 @@ details.act > .limits { margin: 0 0 8px; }
   function denFaces() {
     if (denFaceCache) return denFaceCache;
     denFaceCache = {};
-    for (const who of ['F', 'G', 'W', 'R', 'J', 'M']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
     return denFaceCache;
   }
 
@@ -5391,7 +5575,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : []);
+  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -5491,12 +5675,21 @@ details.act > .limits { margin: 0 0 8px; }
     M: ['Your cabin is SO COOL. Is that your real bed? Can I bounce on it? I’m bouncing on it.', 'My mom said I could visit if I don’t touch anything. I touched one thing. Okay, three things.',
       'When I’m a pilot my cabin is going to have a slide and a trampoline and a cat. Can I borrow Apogee? Just to practice?',
       'Crumb said hi to me with a beep! I said hi back with a beep! We’re basically talking now!', 'Is this the window you look at space from? I’m going to look at space from it. Okay. I looked. It’s great.'],
+    Z: ['Zib loves your cabin! It is so shiny! Can Zib live in the window? Zib would be very quiet.', 'Zib brought a gift! It is a rock. It is a nice rock.',
+      'Your bed is very soft! Zib is going to float on it. Zib is floating on it.', 'Zib likes your lights. Zib is matching them. Look, Zib is lamp-colored.'],
+    O: ['A lovely cabin. Oh. Oh, is that your lamp? May I look at it? I will only look.', 'I brought tea from my world. It tastes like moonlight. And a little like dust.',
+      'Your window has a magnificent view. If I sit very still, I will not fly toward the stars.', 'Forgive my wings. They take up most of the seat.'],
+    V: ['Nice place. Cozy. Very you. I would add more mirrors.', 'Your cabin smells like coffee and space. My two favorite smells.',
+      'I brought snacks. Human snacks. I don’t know what half of them are. Let’s find out.', 'Lyra wanted to come, but I said it was my turn. We have a schedule.'],
+    Y: ['This is lovely. No banners, no flags, no treaties. Just a cabin. I could get used to this.', 'I brought a pastry. Then I ate it on the way. I’ll bring another.',
+      'Kael said your cabin was beige. It is not beige. It’s warm. He’s a liar.', 'Mind if I take my boots off? Diplomacy is very hard on the feet.'],
     R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.',
       'My cabin has a hot tub. And a cold tub. And a medium tub, for when I can’t decide.', 'I’m not visiting. I got lost. Your hallways are confusing. Nice cushions, though.',
       'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For Mayday. That’s all. This is very awkward. Bye. I’m not leaving yet.']
   };
   const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.',
-    J: 'Good choice. Tidy, too. I approve, and I don’t approve of much.', M: 'WHOA. That is SO cool. Can I have one? Can I have that one?' };
+    J: 'Good choice. Tidy, too. I approve, and I don’t approve of much.', M: 'WHOA. That is SO cool. Can I have one? Can I have that one?',
+    Z: 'Zib loves it! Zib is glowing about it!', O: 'Exquisite. It catches the light beautifully.', V: 'Great pick. You have taste. Almost as much as me.', Y: 'Very elegant. I approve, officially.' };
   const DEN_CAT = {
     bunk: ['Prrrp. (She has claimed your bunk. It is her bunk now. You may borrow it.)', 'Mrrrow. (She is lying exactly where your head goes. This is not a coincidence.)', 'Prrr. (She kneads your blanket into a nest. Your blanket is a nest now.)'],
     bench: ['Mrrp. (She’s watching the planet go by. Do not block the view.)', 'Mrow. (She’s counting stars. She’s lost count. She’s starting over, annoyed.)', 'Prrrp. (She’s using a cushion as a pillow and another cushion as a different pillow.)'],
@@ -6639,8 +6832,9 @@ details.act > .limits { margin: 0 0 8px; }
   // Everyone you've met has 10 hearts. Chatting once a day, a gift once a day, their side jobs and their crew
   // requests all fill them. Friendship tops out at 8 hearts; dating someone opens the last two.
   // Romance is off by default (Settings). Pim, Crumb and Apogee are friends only and never appear here.
-  const HEART = 100, ROM_WHO = ['F', 'G', 'W', 'R', 'J'];
-  const romMet = { F: () => true, G: () => true, W: () => wrenHome(), R: () => (missionStars.mayday || 0) > 0, J: () => junoMet() };
+  const HEART = 100, ROM_WHO = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y'];
+  const romMet = { F: () => true, G: () => true, W: () => wrenHome(), R: () => (missionStars.mayday || 0) > 0, J: () => junoMet(),
+    Z: () => zibMet(), O: () => olloMet(), V: () => twinsMet(), Y: () => twinsMet() };
   let romanceOn = store.get('ds-romance', '0') === '1';
   let hearts = (() => { try { return JSON.parse(store.get('ds-hearts', '{}')) || {}; } catch (e) { return {}; } })();
   let bond = (() => { let b = {}; try { b = JSON.parse(store.get('ds-bond', '{}')) || {}; } catch (e) {} return { talk: {}, gift: {}, seen: [], partner: null, ...b }; })();
@@ -6684,7 +6878,8 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'gel', name: 'Premium hair gel', icon: '✨', price: 120 },
     { id: 'tools', name: 'Shiny wrench set', icon: '🔧', price: 150 },
     { id: 'tapes', name: 'Vintage radio tapes', icon: '📼', price: 150 },
-    { id: 'stars', name: 'Star chart print', icon: '🗺️', price: 150 }
+    { id: 'stars', name: 'Star chart print', icon: '🗺️', price: 150 },
+    { id: 'lamp', name: 'Tiny desk lamp', icon: '💡', price: 140 }
   ];
   // love, like; anything else is fine
   const GIFT_TASTE = {
@@ -6692,14 +6887,22 @@ details.act > .limits { margin: 0 0 8px; }
     G: [['tools', 'choc'], ['coffee', 'tapes', 'pastry']],
     W: [['tapes', 'tea'], ['stars', 'flowers', 'plant']],
     R: [['gel', 'flowers'], ['choc', 'coffee', 'stars']],
-    J: [['plant', 'tea'], ['flowers', 'pastry', 'stars']]
+    J: [['plant', 'tea'], ['flowers', 'pastry', 'stars']],
+    Z: [['tools', 'stars'], ['flowers', 'choc', 'lamp']],
+    O: [['lamp', 'tea'], ['flowers', 'stars', 'tapes']],
+    V: [['gel', 'stars'], ['coffee', 'choc', 'tapes']],
+    Y: [['flowers', 'choc'], ['tea', 'pastry', 'gel']]
   };
   const GIFT_SAYS = {
     F: ['Oh. Oh, this is exactly the right one. It’s going in my desk. The secret drawer.', 'Very thoughtful. Noted in your file. The good file.', 'Thank you. I’ll find a place for it. Probably.'],
     G: ['NO WAY. This is the best gift anyone’s ever given me! I’m going to cry and then build something!', 'Ooh, nice! Thank you! Can I take it apart? I’m going to take it apart.', 'Aw, thanks! I’ll find a use for it. I always find a use.'],
     W: ['You remembered. Nobody remembers. Thank you, truly.', 'How lovely. Thank you, dear.', 'That’s kind of you. Thank you.'],
     R: ['Finally, someone who gets me. This is perfect. I’m perfect. We’re both perfect.', 'Not bad! I accept your tribute.', 'Oh. Thanks. I’ll give it to my assistant. I mean, I’ll treasure it.'],
-    J: ['Oh, now that’s just right. Going straight onto the bridge, next to the ferns.', 'Thoughtful. Thank you, pilot.', 'Thanks. I’ll make room for it somewhere.']
+    J: ['Oh, now that’s just right. Going straight onto the bridge, next to the ferns.', 'Thoughtful. Thank you, pilot.', 'Thanks. I’ll make room for it somewhere.'],
+    Z: ['SO SHINY! Zib is going to cry glitter! Zib does not know how! Zib is learning!', 'Ooh! Zib likes this! Zib will put it next to the spoon!', 'Zib says thank you! Zib is not sure what it is! Zib loves it anyway!'],
+    O: ['Oh, my. This is the most beautiful thing I have ever been given. My antennae are trembling.', 'How thoughtful. Thank you, pilot. It will have a place of honor.', 'Thank you. I shall find a cozy shelf for it.'],
+    V: ['You get me. You really get me. This is perfect. I’m perfect. We’re perfect.', 'Nice! Good taste. Not as good as mine, but close.', 'Oh, thanks. I’ll give it a good home. Somewhere.'],
+    Y: ['Oh. You noticed. People don’t usually notice. Thank you, really.', 'That’s lovely. I’m keeping this one off the record.', 'How diplomatic. Thank you.']
   };
   const ROM = {
     F: {
@@ -6825,6 +7028,106 @@ details.act > .limits { margin: 0 0 8px; }
       date: ['Kettle’s on. Your mug’s out. Just saying.',
         'I named the new fern after you. It’s thriving. Obviously.',
         'Dock rule one is still “no cats”. Dock rule two is now “you get the good parking spot”.']
+    },
+    Z: {
+      s3: ['Zib’s Stall', [['Z', 'Welcome to Zib’s stall! Everything is shiny! That one is shiny. That one is VERY shiny. That one is a spoon.'],
+        ['Z', 'Zib collects shiny things from every world. Zib likes things that catch the light. Zib likes you, also. You are shiny on the inside.'],
+        ['P', 'That’s really sweet, Zib.'],
+        ['Z', 'Zib is glowing pink! Pink means happy. And a tiny bit embarrassed. Mostly happy.']]],
+      s6: ['The Glow', [['Z', 'On Zib’s home world, everyone glows. When Zib left, nobody here understood the colors.'],
+        ['Z', 'Blue means lonely. Zib was blue for a long time.'],
+        ['P', 'What color are you now?'],
+        ['Z', 'Look! Zib is pink and gold and a new color. Zib does not have a word for it yet. Zib will call it you-color.']]],
+      ask: [['P', 'Zib, would you go on a date with me?'], ['Z', 'A date! Zib knows about dates! Two people, one dinner, many feelings!'],
+        ['Z', 'YES! Zib is every color at once! Somebody hold Zib, Zib is floating away!']],
+      notYet: 'Zib likes you very much! But Zib’s colors say “not yet”. Zib’s colors are very honest.',
+      s8: ['Glow Under the Ice', [['Z', 'Zib brought you to the dark side of Europa. Turn off your lights. Now look.'],
+        ['Z', 'All the little glowing things in the ice are Zib’s cousins. Very distant cousins. They are saying hello.'],
+        ['P', 'It’s like stars under the ice.'],
+        ['Z', 'Zib wanted you to see where the light comes from. Zib is glowing so bright, the cousins are jealous.']]],
+      s10: ['You-Color', [['Z', 'Zib found the word for the new color. On Zib’s world, it means “home”.'],
+        ['Z', 'Zib traveled to every world looking for shiny things. The shiniest thing was here the whole time. It was you.'],
+        ['P', 'Zib, you’re going to make me cry.'],
+        ['Z', 'Good crying? Zib will hold your hand. Zib has many hands.']]],
+      bye: 'Zib is a little blue. But Zib is still your friend. Zib will save you the shiniest spoon.',
+      date: ['Zib saved you a shiny rock from today. It is the shiniest one. Zib checked them all.',
+        'Zib turns pink every time your landing comes on the radio. The other traders have noticed.',
+        'Zib told the whole market about you. Zib may have exaggerated. Zib said you can land on the Sun.']
+    },
+    O: {
+      s3: ['The Gentle Lantern', [['O', 'Welcome aboard the Gentle Lantern. Please excuse the lamps. There are, I admit, a great many lamps.'],
+        ['O', 'My people navigate by light. Long ago, by the moons. Now, mostly, by desk lamps. It is a little embarrassing.'],
+        ['P', 'I think it’s charming.'],
+        ['O', 'You are very kind. That lamp over there agrees. I can tell by how it hums.']]],
+      s6: ['Night Flight', [['O', 'Would you fly with me tonight? No cargo, no hurry. Only the dark, and the lights below.'],
+        ['O', 'When I was young, I flew into a lighthouse. Twice. My mother said I would never be a pilot.'],
+        ['P', 'And now you’re a captain.'],
+        ['O', 'And now I am a captain. And I have found a light I would happily fly toward, every time.']]],
+      ask: [['P', 'Captain Ollo, would you go on a date with me?'], ['O', 'Oh. Oh my. I must sit down. My antennae have gone quite fluffy.'],
+        ['O', 'Yes. With all my heart, yes. I shall polish every lamp on the ship.']],
+      notYet: 'You honor me. But let us not rush. A good flight needs a long, slow approach.',
+      s8: ['Lantern Festival', [['O', 'On my world, tonight is the Lantern Festival. I brought one lantern for each of us.'],
+        ['O', 'We let them go together and make a wish. You may not tell me yours. That is the rule.'],
+        ['P', 'I already know what I wished for.'],
+        ['O', 'So do I. I suspect they are the same wish. Look, the lanterns are flying side by side.']]],
+      s10: ['Brightest Light', [['O', 'I have flown past a thousand suns and ten thousand lamps. Not one of them pulled me like you do.'],
+        ['O', 'I had my ship renamed. It used to be the Gentle Lantern. Now it is the Gentle Lantern And Also You.'],
+        ['P', 'That’s a terrible ship name.'],
+        ['O', 'It is the best terrible ship name in the galaxy. Come, I will let you steer.']]],
+      bye: 'I understand. Your light is still a lovely one. I shall admire it from a respectful distance.',
+      date: ['I named a lamp after you. It is my favorite lamp. I do not fly into it, out of respect.',
+        'Your landing light was on the radar tonight. I watched it for an hour. Purely for navigation.',
+        'I wrote you a poem. It is mostly about lamps. The last line is about you.']
+    },
+    V: {
+      s3: ['Shore Leave', [['V', 'First time on a human station. Everything is so… beige. I love it.'],
+        ['V', 'Back in the fleet, I’m “the charming one”. It’s exhausting, being charming all the time.'],
+        ['P', 'You can just be normal here.'],
+        ['V', 'Normal. I like that. I’m going to be so normal you won’t believe it. Watch me. Normal.']]],
+      s6: ['Silver Eyes', [['V', 'People stare at the eyes. The silver. They think it’s cool, or creepy, depending on the people.'],
+        ['V', 'You never stared. Well. You stared once. At my hair. That’s allowed. It’s great hair.'],
+        ['P', 'It is great hair.'],
+        ['V', 'See? This is why I like you. You tell the truth, and the truth is that my hair is great.']]],
+      ask: [['P', 'Kael, do you want to go on a date?'], ['V', 'I was literally about to ask you. I had a whole speech. It had a metaphor about stars.'],
+        ['V', 'Yes. Obviously yes. I’ll save the speech for the date.']],
+      notYet: 'Tempting. But let’s make you wait a little. I hear anticipation is good for you.',
+      s8: ['Starlight Dinner', [['V', 'I booked us a table on the Veyra flagship. The window is the whole galaxy. I may have bribed the chef.'],
+        ['V', 'Okay, the speech. “You’re like a star.” No. “You’re like two stars.” Lyra said that one’s worse.'],
+        ['P', 'I like it.'],
+        ['V', 'You like it? Then I’m keeping it. Lyra owes me ten credits.']]],
+      s10: ['Staying', [['V', 'The fleet leaves the solar system next month. They asked if I’m coming.'],
+        ['V', 'I told them I found something worth staying for. They asked what. I said “a very good pilot with excellent taste in envoys”.'],
+        ['P', 'You’re staying?'],
+        ['V', 'I’m staying. Someone has to keep telling you how great my hair is.']]],
+      bye: 'Huh. First time anyone’s let me down gently. You’re good at it. Still friends, starlight.',
+      date: ['I told Lyra you’re the best pilot in the system. She said I’m biased. I said yes, obviously.',
+        'I learned to make human coffee for you. It’s terrible. I’m proud of it.',
+        'You landed perfectly today. I cheered so loud the ambassador dropped his tea.']
+    },
+    Y: {
+      s3: ['Market Day', [['Y', 'You’re showing me around? Good. Kael got us lost three times. In a straight corridor.'],
+        ['Y', 'On the flagship, every day is a meeting. Treaties, dinners, more treaties. Nobody ever just buys a pastry.'],
+        ['P', 'Want a pastry?'],
+        ['Y', 'More than I have ever wanted a treaty. Lead the way.']]],
+      s6: ['The Quiet Deck', [['Y', 'Sorry. I needed a minute away from everyone. Being the serious twin is a full-time job.'],
+        ['Y', 'Kael gets to be charming. I have to be careful. Everything I say ends up in the fleet news.'],
+        ['P', 'You don’t have to be careful with me.'],
+        ['Y', '…No. I don’t, do I? That’s new. I think I like new.']]],
+      ask: [['P', 'Lyra, would you go out with me?'], ['Y', 'Are you asking an official envoy of the Veyra fleet on a date?'],
+        ['Y', 'Good. Yes. I accept. I’m drafting the treaty now. Article one: you pick the restaurant.']],
+      notYet: 'Careful, pilot. Ask me again when you’re sure. Envoys don’t like ambiguity.',
+      s8: ['Off the Record', [['Y', 'No cameras. No translators. No fleet news. Just you, me and a terrible pastry from the vending machine.'],
+        ['Y', 'You know this is the first thing I’ve ever done off the record? Kael would be so proud.'],
+        ['P', 'Should we tell him?'],
+        ['Y', 'Absolutely not. Let him wonder. Pass the pastry.']]],
+      s10: ['The Treaty', [['Y', 'I wrote one last treaty. Between you and me. It’s very short.'],
+        ['Y', 'Article one: we stay together. Article two: Kael never gives a speech at our anything. There is no article three.'],
+        ['P', 'I accept the terms.'],
+        ['Y', 'Signed and sealed. Best treaty I ever negotiated.']]],
+      bye: 'Understood. I’ll file it under “not this time”. You were still the best part of my week, pilot.',
+      date: ['I cancelled a treaty meeting to watch your landing. They’ll survive. It was about fish.',
+        'Kael keeps asking about us. I keep saying “classified”. He keeps making faces.',
+        'I learned your favorite snack. It’s in my coat pocket. It’s always in my coat pocket now.']
     }
   };
   // a line for the Chat button: what they'd say in the break room, plus their dating lines if you're together
@@ -6867,7 +7170,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${open && !gifted ? `<div class="gifts">${GIFTS.map(g => `<button class="gift" data-give="${who}:${g.id}"${credits < g.price ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${fmt(g.price)} cr</small></button>`).join('')}</div>` : ''}
         </div>`;
       }).join('')}
-      <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb and Apogee are friends of the whole crew and aren’t part of this.</p>
+      <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb, Apogee and Blip are friends of the whole crew and aren’t part of this.</p>
       <div class="btns"><button class="btn ghost" id="back">Back to the break room</button></div>
     </div>`;
     paintFaces(card);
@@ -6945,7 +7248,7 @@ details.act > .limits { margin: 0 0 8px; }
     ganymede: ['F', 'Ganymede has the most beautiful auroras. It also turned my headset into a polka station. Send a new headset.'],
     mercury: ['F', 'Mercury. The Sun is enormous and takes everything personally. Gus packed sunscreen. SPF four thousand.']
   };
-  const SIGN = { P: 'You', F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim' };
+  const SIGN = { P: 'You', F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim', Z: 'Zib', O: 'Ollo', B: 'Blip', V: 'Kael', Y: 'Lyra' };
   let cardsSeen;
   try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
   const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
@@ -7909,6 +8212,15 @@ details.act > .limits { margin: 0 0 8px; }
         ctx.fillStyle = '#ff6b5e'; ctx.fillRect(-0.2, -2.3, 0.3, 0.3);
         return;
       }
+      if (it.what === 'blip') {
+        const hop = Math.abs(Math.sin(time / 180)) * 0.6;
+        ctx.fillStyle = '#7dff9a'; ctx.beginPath(); ctx.ellipse(0, -0.8 - hop, 0.9, 0.8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0.1, -0.9 - hop, 0.42, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#15151f'; ctx.beginPath(); ctx.arc(0.2, -0.9 - hop, 0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#4fd070'; ctx.lineWidth = 1.2 / scale; ctx.beginPath(); ctx.moveTo(0, -1.5 - hop); ctx.lineTo(0, -2.4 - hop); ctx.stroke();
+        ctx.fillStyle = '#d8ffe0'; ctx.fillRect(-0.18, -2.7 - hop, 0.36, 0.36);
+        return;
+      }
       if (it.what === 'cat') {
         // Apogee, sitting very still and pretending not to see you
         const flick = Math.sin(time / 300) * 0.3;
@@ -7955,6 +8267,7 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(-1, -1.6); ctx.lineTo(-1.1, -2.7); ctx.stroke();
       ctx.fillStyle = Math.floor(time / 350) % 2 ? '#58e0a0' : '#2a5a44'; ctx.fillRect(-1.3, -2.95, 0.4, 0.4);
       // Apogee rides along once found
+      if (mission.items.every(i => i.what !== 'blip' || i.done) && mission.items.some(i => i.what === 'blip')) { ctx.fillStyle = '#7dff9a'; ctx.beginPath(); ctx.arc(0.4, -1.9, 0.35, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#ffffff'; ctx.fillRect(0.35, -2.05, 0.2, 0.2); }
       if (mission.items.some(i => i.what === 'cat' && i.done)) { ctx.fillStyle = '#ff9a3d'; ctx.beginPath(); ctx.arc(-0.3, -1.9, 0.35, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-0.55, -2.4, 0.15, 0.3); ctx.fillRect(-0.15, -2.4, 0.15, 0.3); }
       // wheels
       for (const wx of [-0.9, 0.9]) {
