@@ -569,6 +569,9 @@ kbd {
 .gift .pvc { height: 100%; width: auto; max-width: 100%; object-fit: contain; image-rendering: pixelated; }
 .mode { position: relative; }
 .mode.nudge { border-color: var(--flame); box-shadow: 0 0 0 3px rgba(255, 181, 71, 0.22); }
+.rooms { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.rooms .mode b { font-size: 16px; }
+.mode.here { border-style: dashed; opacity: 0.7; }
 .mode .dot { position: absolute; top: -10px; right: 10px; width: auto; height: auto; padding: 2px 7px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 11px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 /* Pilot license */
 .license { width: 100%; max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center; }
@@ -2870,12 +2873,12 @@ details.act > .limits { margin: 0 0 8px; }
   addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     installPrompt = e;
-    if (mode === 'title') setMode('title');
+    if (mode === 'shipmenu') setMode('shipmenu');
   });
   addEventListener('appinstalled', () => {
     installPrompt = null;
     showToast('Installed. Descent Systems is on your home screen.');
-    if (mode === 'title') setMode('title');
+    if (mode === 'shipmenu') setMode('shipmenu');
   });
   function installLink() {
     if (!PWA || standalone()) return '';
@@ -2885,7 +2888,7 @@ details.act > .limits { margin: 0 0 8px; }
   function installApp() {
     if (installPrompt) {
       installPrompt.prompt();
-      installPrompt.userChoice.finally(() => { installPrompt = null; if (mode === 'title') setMode('title'); });
+      installPrompt.userChoice.finally(() => { installPrompt = null; if (mode === 'shipmenu') setMode('shipmenu'); });
     } else if (isIOS) {
       const tip = $('iosTip');
       if (tip) tip.hidden = false;
@@ -3785,9 +3788,11 @@ details.act > .limits { margin: 0 0 8px; }
   };
 
   // ---- Screens ----
-  const roomBack = { den: 'lounge', garage: 'lounge' };   // where the Pad's and hangar's doors lead: back the way you came
+  const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
+  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage'];
+  let shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3817,6 +3822,7 @@ details.act > .limits { margin: 0 0 8px; }
       return;
     }
     mode = m;
+    if (SHIP_ROOMS.includes(m)) lastRoom = m;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
     $('pad').classList.toggle('off', MENU_MODES.includes(m));
     $('coach').hidden = !(tut && (m === 'flying' || m === 'paused'));
@@ -3857,12 +3863,13 @@ details.act > .limits { margin: 0 0 8px; }
     const limits = `<p class="limits">Safe touchdown: vertical under ${safeVy().toFixed(1)} m/s · horizontal under ${safeVx()} m/s · tilt under ${safeAng()}°</p>`;
     let html = '';
     if (m === 'title') {
-      missionsFrom = null; roomBack.den = roomBack.garage = 'lounge';
+      missionsFrom = null;
       match = null; ghost = null; daily = null; mission = null; tut = null; run = null; rng = Math.random; siteSeed = null;
       if (intro) { store.set('ds-intro', 'done'); clearInterval(intro.anim); intro = null; }
       if (race && race.active) race = null;
       const w = storedWorld();
       if (missionTerrain || w !== world) { world = w; genTerrain(); makeBackdrop(); }
+      walkEnter = null; setMode(lastRoom); return;
     }
     if (m === 'title') {
       const isNew = !store.get('ds-tut', '');
@@ -3899,6 +3906,38 @@ details.act > .limits { margin: 0 0 8px; }
           ${installLink()}
         </div>
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
+    } else if (m === 'shipmenu') {
+      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar' };
+      const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length };
+      html = `<h1 class="good">Ship menu</h1>
+        <p class="tagline">You’re in ${ROOM_NAMES[lastRoom] === 'Hangar' ? 'the hangar' : ROOM_NAMES[lastRoom].replace(/^The /, 'the ')}.</p>
+        <span class="eyebrow">Go to</span>
+        <nav class="rooms" aria-label="Rooms on the ship">${SHIP_ROOMS.concat([]).sort((a, b) => ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'].indexOf(a) - ['den', 'bridge', 'lounge', 'garden', 'garage', 'hall'].indexOf(b)).map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: gardenReady() ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', hall: 'Every door on deck one' }[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
+        <span class="eyebrow">Ship’s business</span>
+        <div class="subnav">
+          <button class="link" id="flightsBtn">Flight deck</button>
+          <button class="link" id="friendsBtn2">Friends ♥</button>
+          <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
+          <button class="link" id="licenseBtn">License<span>${rankOf().name}</span></button>
+          <button class="link" id="settingsBtn">Settings</button>
+          <button class="link" id="howBtn">How to play</button>
+          ${installLink()}
+        </div>
+        ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}
+        <div class="btns"><button class="btn ghost" id="shipBack">Back to ${ROOM_NAMES[lastRoom] === 'Hangar' ? 'the hangar' : ROOM_NAMES[lastRoom].replace(/^The /, 'the ')}</button></div>`;
+    } else if (m === 'flights') {
+      html = `<span class="eyebrow">Nav console</span>
+        <h1 class="good">Flight deck</h1>
+        <p class="tagline">Where to today, pilot?</p>
+        <nav class="menu" aria-label="Flight modes">
+          <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : newMissions().length ? `<i class="dot">${newMissions().length} new</i>` : ''}<span>The story, side jobs and round trips</span></button>
+          <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
+          <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
+          <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
+          <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
+        </nav>
+        <button class="reqstrip" id="reqBtn">${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === 3 ? 'All done today ✓' : `${3 - d} of 3 open today`}</span></span>`; })()}</button>
+        <div class="btns"><button class="btn ghost" id="shipBack">${flightsFrom === 'bridge' ? 'Back to the bridge' : 'Back to the ship'}</button></div>`;
     } else if (m === 'setup') {
       const best = bestFor(world);
       const head = playMode === 'hotseat' ? 'Hot-seat' : playMode === 'daily' ? 'Daily challenge' : 'Free flight';
@@ -3925,7 +3964,7 @@ details.act > .limits { margin: 0 0 8px; }
         <p class="limits">Both pilots fly the same descent each round, and whoever goes second races the first pilot’s ghost. The first pilot alternates.</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">${playMode === 'hotseat' ? `Start match on ${world.name}` : playMode === 'daily' ? 'Start today’s challenge' : `Descend to ${world.name}`}</button>
-          <button class="btn ghost" id="menuBtn">Main menu</button>
+          <button class="btn ghost" id="menuBtn">${setupFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button>
         </div>
         <p class="keys-hint limits"><kbd>↑</kbd> thrust · <kbd>←</kbd><kbd>→</kbd> rotate${playMode !== 'daily' ? ' (on this screen: switch world)' : ''} · <kbd>P</kbd> pause · <kbd>Space</kbd> start</p>
         ${best && playMode === 'solo' ? `<p class="limits">Best on ${world.name}: ${fmt(best)}</p>` : ''}`;
@@ -3957,7 +3996,7 @@ details.act > .limits { margin: 0 0 8px; }
         <p>${cap(lastResult.reasons.join(', '))} on ${world.name}.</p>
         <p>You cleared <b>${sites}</b> site${sites === 1 ? '' : 's'} for <b>${fmt(run.score)}</b> points.${run.isBest ? ' <b>New best run!</b>' : b ? ` Best: site ${b.sites}, ${fmt(b.score)} points.` : ''}</p>
         ${run.taken.length ? `<p class="limits">Upgrades this run: ${run.taken.join(', ')}</p>` : ''}
-        <div class="btns"><button class="btn" id="go">New run</button>${replayBtn()}<button class="btn ghost" id="pick">Main menu</button></div>`;
+        <div class="btns"><button class="btn" id="go">New run</button>${replayBtn()}<button class="btn ghost" id="pick">Back to the ship</button></div>`;
     } else if (m === 'crashed') {
       html = `<h1 class="bad">Lander lost</h1>
         <p>${cap(lastResult.reasons.join(', '))}.</p>
@@ -3974,7 +4013,7 @@ details.act > .limits { margin: 0 0 8px; }
           <button class="btn" id="go">Fly ${world.name} again</button>
           ${replayBtn()}
           <button class="btn ghost" id="changeWorld">Change world</button>
-          <button class="btn ghost" id="pick">Main menu</button>
+          <button class="btn ghost" id="pick">Back to the ship</button>
         </div>`;
     } else if (m === 'turn') {
       const pl = cur(), nx = 1 - pl, r = lastResult;
@@ -4003,7 +4042,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${tally}
           <div class="btns">
             <button class="btn" id="go">Rematch</button>
-            <button class="btn ghost" id="pick">Main menu</button>
+            <button class="btn ghost" id="pick">Back to the ship</button>
           </div>`;
       }
     } else if (m === 'brief') {
@@ -4095,7 +4134,7 @@ details.act > .limits { margin: 0 0 8px; }
         <p class="limits">${where}</p>
         <div class="btns">
           <button class="btn" id="go">Resume</button>
-          <button class="btn ghost" id="pick">Quit to menu</button>
+          <button class="btn ghost" id="pick">Quit to the ship</button>
         </div>
         <p class="keys-hint limits"><kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>`;
     } else if (m === 'tutDone' && intro) {
@@ -4112,7 +4151,7 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="btns">
           <button class="btn" id="go">Free flight</button>
           <button class="btn ghost" id="missionsBtn">Missions</button>
-          <button class="btn ghost" id="pick">Main menu</button>
+          <button class="btn ghost" id="pick">Back to the ship</button>
         </div>`;
     } else if (m === 'tutFail') {
       html = `<span class="eyebrow">Tutorial</span>
@@ -4121,7 +4160,7 @@ details.act > .limits { margin: 0 0 8px; }
         <p class="limits">Under 2 m/s down, under 1 m/s sideways, nearly level. Near the ground, use short taps of thrust.</p>
         <div class="btns">
           <button class="btn" id="go">Try again</button>
-          <button class="btn ghost" id="pick">Main menu</button>
+          <button class="btn ghost" id="pick">Back to the ship</button>
         </div>`;
     } else if (m === 'dailyEnd') {
       const done = daily.results.length === DAILY_SITES && daily.results.every(r => r.pad);
@@ -4135,7 +4174,7 @@ details.act > .limits { margin: 0 0 8px; }
           <button class="btn" id="go">Try again</button>
           <button class="btn ghost" id="share">Copy result</button>
           ${replayBtn()}
-          <button class="btn ghost" id="pick">Main menu</button>
+          <button class="btn ghost" id="pick">Back to the ship</button>
         </div>
         <textarea class="share-text" id="shareText" rows="3" readonly hidden>${esc(shareText())}</textarea>
         <p class="limits">Every pilot gets the same terrain today. Next challenge in ${untilReset()}.</p>`;
@@ -4172,15 +4211,15 @@ details.act > .limits { margin: 0 0 8px; }
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('garage'));
     const rqb = $('reqBtn');
-    if (rqb) { paintFaces(rqb); rqb.addEventListener('click', () => { reqFrom = 'title'; setMode('requests'); }); }
+    if (rqb) { paintFaces(rqb); rqb.addEventListener('click', () => { reqFrom = m === 'flights' ? 'flights' : 'title'; setMode('requests'); }); }
     const lcb = $('licenseBtn');
     if (lcb) lcb.addEventListener('click', () => { licenseFrom = 'title'; setMode('license'); });
     const bb = $('badgesBtn');
     if (bb) bb.addEventListener('click', () => setMode('badges'));
     const mb = $('missionsBtn');
     if (mb) mb.addEventListener('click', () => setMode('missions'));
-    card.querySelectorAll('[data-setup]').forEach(b => b.addEventListener('click', () => openSetup(b.dataset.setup)));
-    card.querySelectorAll('[data-go="missions"]').forEach(b => b.addEventListener('click', () => setMode('missions')));
+    card.querySelectorAll('[data-setup]').forEach(b => b.addEventListener('click', () => { setupFrom = m === 'flights' ? 'flights' : null; openSetup(b.dataset.setup); }));
+    card.querySelectorAll('[data-go="missions"]').forEach(b => b.addEventListener('click', () => { if (m === 'flights') missionsFrom = 'flights'; setMode('missions'); }));
     card.querySelectorAll('[data-go="run"]').forEach(b => b.addEventListener('click', startRun));
     for (const id of ['tutBtn', 'howBtn']) { const b = $(id); if (b) b.addEventListener('click', startTutorial); }
     const ib = $('installBtn');
@@ -4192,7 +4231,7 @@ details.act > .limits { margin: 0 0 8px; }
     const dnb = $('denBtn');
     if (dnb) dnb.addEventListener('click', () => setMode('den'));
     const menuB = $('menuBtn');
-    if (menuB) menuB.addEventListener('click', () => setMode('title'));
+    if (menuB) menuB.addEventListener('click', () => setMode(setupFrom === 'flights' ? 'flights' : 'title'));
     const cw2 = $('changeWorld');
     if (cw2) cw2.addEventListener('click', () => openSetup('solo'));
     const tm = $('toMissions');
@@ -4210,7 +4249,14 @@ details.act > .limits { margin: 0 0 8px; }
       const again = card.querySelector(`.world[data-id="${b.dataset.id}"]`);
       if (again) again.focus({ preventScroll: true });
     }));
-    const firstFocus = m === 'title' ? card.querySelector('.newbie, .mode') : go;
+    card.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => { sfx.click(); walkEnter = null; setMode(b.dataset.room); }));
+    const sbk = $('shipBack');
+    if (sbk) sbk.addEventListener('click', () => { sfx.click(); if (m === 'flights' && flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); });
+    const flb = $('flightsBtn');
+    if (flb) flb.addEventListener('click', () => { sfx.click(); flightsFrom = null; setMode('flights'); });
+    const frb = $('friendsBtn2');
+    if (frb) frb.addEventListener('click', () => { sfx.click(); friendsFrom = 'menu'; setMode('friends'); });
+    const firstFocus = m === 'title' || m === 'flights' || m === 'shipmenu' ? card.querySelector('.newbie, .mode:not(.here)') : go;
     if (firstFocus) setTimeout(() => firstFocus.focus({ preventScroll: true }), 0);
   }
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -4246,7 +4292,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="btns">
         <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
         <button class="btn ghost" id="introBtn">Replay intro</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">Back to the ship</button>
       </div>`;
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
@@ -4421,7 +4467,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="mtabs" role="tablist">${tabs.map(([id, name, got, max]) => `<button role="tab" class="mtab${id === missionTab ? ' on' : ''}" data-tab="${id}" aria-selected="${id === missionTab}"><b>${name}${id !== missionTab && tabNew(id) ? '<i class="ndot" aria-label="new missions"></i>' : ''}</b><span>${got}/${max} ★</span></button>`).join('')}</div>
       <div class="mbody">${body}</div>
       <p class="limits">Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
-      <button class="btn ghost" id="back">${missionsFrom === 'bridge' ? 'Back to the bridge' : 'Main menu'}</button>`;
+      <button class="btn ghost" id="back">${missionsFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button>`;
     card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
     // the ones shown on this tab count as seen now (they keep their chip until you leave)
     markSeen('ds-seenM', [...freshM].filter(id => tabOf(ALL.findIndex(d => d.id === id)) === missionTab));
@@ -4430,7 +4476,7 @@ details.act > .limits { margin: 0 0 8px; }
       missionTab = b.dataset.tab; sfx.click(); renderMissions();
       const t = card.querySelector('.mtab.on'); if (t) t.focus({ preventScroll: true });
     }));
-    $('back').addEventListener('click', () => { if (missionsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode('title'); });
+    $('back').addEventListener('click', () => { if (missionsFrom === 'flights') setMode('flights'); else setMode('title'); });
     paintFaces(card);
     const firstOpen = [...card.querySelectorAll('details[open] .mtile:not(:disabled), .mbody > .mlist .mtile:not(:disabled)')];
     const pick = missionTab === 'story' ? firstOpen.pop() : firstOpen[0];
@@ -4489,7 +4535,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${a.reward ? `<span class="reward">${has ? 'Unlocked' : 'Reward'}: ${rewardName(a.reward)}</span>` : ''}
         </div></div>`;
       }).join('')}</div>
-      <button class="btn ghost" id="back">Main menu</button>`;
+      <button class="btn ghost" id="back">Back to the ship</button>`;
     $('back').addEventListener('click', () => setMode('title'));
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
@@ -4983,15 +5029,15 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" id="boardBtn">Bulletin board</button>
         <button class="btn ghost" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
         <button class="btn ghost" id="logBookBtn">Maintenance log</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">☰ Ship menu</button>
       </div>
     </div>`;
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('shipmenu'));
     $('boardBtn').addEventListener('click', () => setMode('board'));
     $('albumBtn').addEventListener('click', () => setMode('album'));
     $('logBookBtn').addEventListener('click', () => setMode('log'));
     $('reqBtn2').addEventListener('click', () => { reqFrom = 'lounge'; setMode('requests'); });
-    $('friendsBtn').addEventListener('click', () => { sfx.click(); setMode('friends'); });
+    $('friendsBtn').addEventListener('click', () => { sfx.click(); friendsFrom = 'lounge'; setMode('friends'); });
     startWalk();
     // someone says hello when you walk in
     const present = home ? ['F', 'G', 'W'] : ['F', 'G'];
@@ -6249,6 +6295,7 @@ details.act > .limits { margin: 0 0 8px; }
 
   function renderDen(keepSpot) {
     if (walkEnter) roomBack.den = walkEnter === 'hall' ? 'hall' : 'lounge';
+    if (!intro && store.get('ds-nudge', '') === 'missions' && !shipNudged) { shipNudged = true; setTimeout(() => showToast('Dottie: Your first mission is waiting on the Bridge. Out your door and it’s right there.', 5200), 700); }
     let fresh = false;
     if (!denUI) {
       denUI = { spot: 'wallL', trying: null, anim: 0, typer: 0, note: '', cat: denPickCat(denLook), catAwake: 0, visitor: null, talking: null, lastLine: '' };
@@ -6322,7 +6369,7 @@ details.act > .limits { margin: 0 0 8px; }
           </div>
         </div>` : ''}
       </div>
-      <button class="btn ghost" id="back">Main menu</button>
+      <button class="btn ghost" id="back">☰ Ship menu</button>
     </div>`;
     card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
     if (editing) markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
@@ -6388,7 +6435,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     const cb = $('denCancel'); if (cb) cb.addEventListener('click', () => { denUI.trying = null; sfx.click(); renderDen(true); });
     denTourWire();
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('shipmenu'));
   }
 
   // ---- The hangar garage: a room to walk around, with your landers parked in it ----
@@ -6417,11 +6464,11 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="radio quote" id="garSay" aria-live="polite"></div>
       <div class="btns">
         <button class="btn" id="garOpen">Open the hangar</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">☰ Ship menu</button>
       </div>
     </div>`;
     $('garOpen').addEventListener('click', () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); });
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('shipmenu'));
     const cv = $('garCv'), from = walkEnter; walkEnter = null;
     if (from) roomBack.garage = from === 'hall' ? 'hall' : 'lounge';
     gar = { cv, c: cv.getContext('2d'), me: from === 'lounge' || from === 'hall' ? { x: 236, y: 70, dir: 1 } : { x: 128, y: 146, dir: 3 }, target: null, keys: {}, last: performance.now(), raf: 0, tap: null };
@@ -6602,16 +6649,16 @@ details.act > .limits { margin: 0 0 8px; }
         ? 'The ship’s main hallway: doors to the hangar, the break room, the bridge and your Pad, and some sealed doors still to open. Tap to walk; walk up to a door to go through. With a keyboard, arrow keys walk and Enter uses the nearest door.'
         : gdn ? 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'
         : 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'}"></canvas>
-      <p class="walkhint">${hall ? 'Tap to walk · walk up to a door to go through it · sealed doors open later' : gdn ? 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips' : 'Tap to walk · the nav console picks missions · comms takes calls · sit in the captain’s chair · the hallway is behind you'}</p>
+      <p class="walkhint">${hall ? 'Tap to walk · walk up to a door to go through it · sealed doors open later' : gdn ? 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips' : 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'}</p>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
-        ${hall || gdn ? '' : '<button class="btn" id="shipMissions">Missions</button>'}
-        <button class="btn ghost" id="back">Main menu</button>
+        ${hall || gdn ? '' : '<button class="btn" id="shipMissions">Flight deck</button>'}
+        <button class="btn ghost" id="back">☰ Ship menu</button>
       </div>
     </div>`;
-    $('back').addEventListener('click', () => setMode('title'));
-    const smb = $('shipMissions'); if (smb) smb.addEventListener('click', () => { sfx.click(); missionsFrom = 'bridge'; setMode('missions'); });
+    $('back').addEventListener('click', () => setMode('shipmenu'));
+    const smb = $('shipMissions'); if (smb) smb.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); });
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
@@ -6679,7 +6726,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (rexHome()) L.push({ id: 'R', rect: [4, 102, 20, 30], go: () => [34, 126], at: () => ({ x: 14, y: 126 }), act: () => shipTalk('R') });
     if (olloMet()) L.push({ id: 'O', rect: [232, 102, 20, 30], go: () => [222, 126], at: () => ({ x: 242, y: 126 }), act: () => shipTalk('O') });
     L.push({ id: 'comms', rect: [18, 62, 56, 26], go: () => [46, 100], at: () => ({ x: 46, y: 80 }), act: () => bridgeComms() });
-    L.push({ id: 'nav', rect: [98, 60, 60, 28], go: () => [128, 100], at: () => ({ x: 128, y: 80 }), act: () => { sfx.click(); missionsFrom = 'bridge'; setMode('missions'); } });
+    L.push({ id: 'nav', rect: [98, 60, 60, 28], go: () => [128, 100], at: () => ({ x: 128, y: 80 }), act: () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); } });
     L.push({ id: 'map', rect: [182, 62, 56, 26], go: () => [210, 100], at: () => ({ x: 210, y: 80 }), act: () => shipSay(...starMapLine()) });
     L.push({ id: 'chair', rect: [114, 104, 28, 30], go: () => [128, 128], at: () => ({ x: 128, y: 100 }), act: () => { deck.me.sit = true; deck.me.dir = 3; shipSay(...chairLine()); } });
     L.push({ id: 'window', rect: [20, 4, 216, 54], go: () => [deck.me.x, 100], at: () => ({ x: deck.me.x, y: 30 }), act: () => shipSay(...bridgeWindowLine()) });
@@ -7594,7 +7641,7 @@ details.act > .limits { margin: 0 0 8px; }
       </div>
       <p class="limits">Your rank goes up as you land, finish missions, visit worlds and earn badges.</p>
       ${licenseFrom === 'intro' ? '<div class="btns"><button class="btn" id="licStamp">Sign and stamp it</button><button class="link" id="introSkip">Skip intro</button></div>'
-        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Main menu'}</button></div>`}
+        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : 'Back to the ship'}</button></div>`}
     </div>`;
     paintFaces(card);
     paintLicense();
@@ -7732,7 +7779,7 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="${!win && !tie ? 'won' : ''}"><span>${esc(R.n)}</span><b>${fmt(R.p)}</b></div>
       </div>
       ${radioQuote(line)}
-      <div class="btns"><button class="btn" id="go">Race again</button>${!R.crashed ? '<button class="btn ghost" id="raceBack">Send your ghost back</button>' : ''}${replayBtn()}<button class="btn ghost" id="pick">Main menu</button></div>`;
+      <div class="btns"><button class="btn" id="go">Race again</button>${!R.crashed ? '<button class="btn ghost" id="raceBack">Send your ghost back</button>' : ''}${replayBtn()}<button class="btn ghost" id="pick">Back to the ship</button></div>`;
     paintFaces(card);
     $('go').addEventListener('click', raceAgain);
     const rb = $('raceBack');
@@ -7775,6 +7822,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (toMissions) store.set('ds-nudge', 'missions');
     if (intro) clearInterval(intro.anim);
     intro = null;
+    lastRoom = 'den';
     setMode('title');
   }
   function sayInto(box, who, text, animate = true) {
@@ -8438,7 +8486,7 @@ details.act > .limits { margin: 0 0 8px; }
         </div>`;
       }).join('')}
       <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb, Apogee and Blip are friends of the whole crew and aren’t part of this.</p>
-      <div class="btns"><button class="btn ghost" id="back">Back to the break room</button></div>
+      <div class="btns"><button class="btn ghost" id="back">${friendsFrom === 'lounge' ? 'Back to the break room' : 'Back to the ship'}</button></div>
     </div>`;
     paintFaces(card);
     const rerender = () => { renderFriends(); };
@@ -8478,7 +8526,7 @@ details.act > .limits { margin: 0 0 8px; }
       bond.partner = null; friendsUI.confirmBye = null; friendsUI.say = [who, ROM[who].bye];
       hearts[who] = Math.min(hearts[who] || 0, 8 * HEART); saveBond(); rerender();
     }));
-    $('back').addEventListener('click', () => { friendsUI.say = null; friendsUI.open = null; setMode('lounge'); });
+    $('back').addEventListener('click', () => { friendsUI.say = null; friendsUI.open = null; setMode(friendsFrom === 'lounge' ? 'lounge' : 'title'); });
     setTimeout(() => $('back') && card.querySelector('.fcard button:not(:disabled)')?.focus({ preventScroll: true }), 0);
   }
 
@@ -8496,7 +8544,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${it.done ? '<b class="rdone" aria-label="Done">✓</b>' : ''}</div>`;
       }).join('')}
       <p class="limits">${st.bonus ? `All done for today, and the ${fmt(REQ_BONUS)} credit bonus is yours. The crew is very proud. Gus made a banner.` : `Finish all three for a ${fmt(REQ_BONUS)} credit bonus from Dottie. Everyone gets the same requests each day, so you can compare with friends.`}</p>
-      <div class="btns"><button class="btn ghost" id="back">${reqFrom === 'lounge' ? 'Back to the break room' : 'Main menu'}</button></div>
+      <div class="btns"><button class="btn ghost" id="back">${reqFrom === 'lounge' ? 'Back to the break room' : reqFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button></div>
     </div>`;
     paintFaces(card);
     $('back').addEventListener('click', () => setMode(reqFrom));
@@ -8575,7 +8623,7 @@ details.act > .limits { margin: 0 0 8px; }
       }).join('')}</div>
       <div class="btns">
         <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">Back to the break room</button>
       </div>
     </div>`;
     card.querySelectorAll('canvas[data-world]').forEach(cv => drawPostcard(cv, WORLDS.find(w => w.id === cv.dataset.world)));
@@ -8585,7 +8633,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!cardsSeen.includes(b.dataset.id)) { cardsSeen.push(b.dataset.id); store.set('ds-cards-seen', JSON.stringify(cardsSeen)); }
     }));
     $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('lounge'));
     setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
@@ -8627,11 +8675,11 @@ details.act > .limits { margin: 0 0 8px; }
       </div></div>
       <div class="btns">
         <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">Back to the break room</button>
       </div>
     </div>`;
     $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('lounge'));
     setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
@@ -8693,13 +8741,13 @@ details.act > .limits { margin: 0 0 8px; }
         ${n.cat ? '<canvas width="32" height="32" class="catpic" aria-hidden="true"></canvas>' : ''}${n.html}</div>`).join('')}</div>
       <div class="btns">
         <button class="btn" id="toLounge">Back to the break room</button>
-        <button class="btn ghost" id="back">Main menu</button>
+        <button class="btn ghost" id="back">Back to the break room</button>
       </div>
     </div>`;
     const cp = card.querySelector('.catpic');
     if (cp) drawFace(cp, 'A', 'neutral', false, false);
     $('toLounge').addEventListener('click', () => setMode('lounge'));
-    $('back').addEventListener('click', () => setMode('title'));
+    $('back').addEventListener('click', () => setMode('lounge'));
     setTimeout(() => $('toLounge').focus({ preventScroll: true }), 0);
   }
 
@@ -10279,13 +10327,15 @@ details.act > .limits { margin: 0 0 8px; }
     if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
     if (mode === 'intro') { if (e.code === 'Escape') endIntro(false); return; }
     if (mode === 'requests') { if (e.code === 'Escape') setMode(reqFrom); return; }
-    if (mode === 'friends') { if (e.code === 'Escape') setMode('lounge'); return; }
+    if (mode === 'friends') { if (e.code === 'Escape') setMode(friendsFrom === 'lounge' ? 'lounge' : 'title'); return; }
     if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
     if (mode === 'hangar') { if (e.code === 'Escape') { trying = null; hangarLander = null; setMode('garage'); } return; }
-    if (mode === 'missions' && missionsFrom === 'bridge') { if (e.code === 'Escape') setMode('bridge'); return; }
-    if (mode === 'hall' || mode === 'bridge' || mode === 'garden') { if (e.code === 'Escape') setMode('title'); return; }
+    if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
+    if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
+    if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
-      if (e.code === 'Escape') { trying = null; setMode('title'); }
+      if (e.code === 'Escape') { trying = null; setMode(SHIP_ROOMS.includes(mode) ? 'shipmenu' : mode === 'setup' && setupFrom === 'flights' ? 'flights' : 'title'); }
       return;
     }
     if ((e.code === 'KeyP' || e.code === 'Escape') && !e.repeat) {
