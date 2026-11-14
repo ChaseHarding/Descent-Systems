@@ -55,32 +55,32 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 | Earth | 9.81 m/s² | Fast falls, strong wind | ×2.5 |
 | Venus | 8.87 m/s² | Extreme mode: crushing air, hurricane winds, and clouds that hide everything except the pad beacons | ×3 |
 
-## Menus
+## Life on the ship
 
-The main menu opens on three big cards with live previews:
+There's no title menu. The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
 
-- **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford. It opens the walkable garage.
-- **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
-- **The Pad**: a live view of your cabin, decorated however you left it, with how many decorations you've collected.
+**The ship menu.** Every room has a **☰ Ship menu** button (or press Escape). It lets you jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. Below the rooms are **Flight deck**, **Friends ♥**, **Badges**, your **pilot license**, **Settings**, **How to play** (the tutorial) and **Install app** where your browser supports it.
 
-Below them are the game modes: **Free flight**, **Missions**, **Daily challenge**, **Hot-seat** and **Endless run**, then a **Crew requests** strip showing who's asking and how many of today's jobs are still open. At the bottom are links to **Badges**, your **pilot license**, **Settings** and **How to play**, which replays the tutorial.
+<p align="center"><img src="media/ship-menu.png" alt="The ship menu: six room cards (The Pad marked You are here, The Bridge and Break room with New tags, The Garden, Hangar and Hallway) above links to Flight deck, Friends, Badges, License, Settings and How to play" width="520"></p>
 
-<p align="center"><img src="media/home.png" alt="The main menu: big Hangar, Break room and Pad cards with live previews above the game modes, with Badges, License, Settings and How to play links along the bottom" width="560"></p>
+**The flight deck.** Walk up to the nav console on the Bridge (or press **Flight deck** under the room, or pick it from the ship menu) to choose how to fly: **Missions**, **Free flight**, **Daily challenge**, **Hot-seat** and **Endless run**, plus a **Crew requests** strip showing who's asking and how many of today's jobs are still open. Screens you open from here come back here.
+
+<p align="center"><img src="media/flight-deck.png" alt="The flight deck: Missions with an 8 new tag, Free flight, Daily challenge, Hot-seat and Endless run, with a Crew requests strip below" width="520"></p>
 
 ### First launch
 
-Brand-new players get a short guided start, about two to three minutes, instead of being dropped onto the menu:
+Brand-new players get a short guided start, about two to three minutes:
 
 1. **Welcome aboard.** Dottie comes on the radio, and six quick illustrated cards introduce Descent Systems: the supply-closet head office, Biscuit (Gus would like you not to scratch her), the bake sale that paid for her, and Apogee, who technically outranks you.
 2. **Your pilot license.** Type your name and pick your look, then Dottie stamps it **LICENSED · CADET**.
 3. **The certification flight.** This is the tutorial. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing, with a nervous Gus on the radio.
 4. **Meet the crew.** A short guided tour of the break room: the crew, the bulletin board, today's crew requests, your first postcard, Gus's maintenance log and Apogee.
 5. **Your Pad.** Gus brings a housewarming gift (pick a lander poster, a fern or a rug) and shows you how decorating works, while Apogee claims your bunk.
-6. Back on the main menu, **Missions** is marked **Start here**.
+6. You're left in your Pad, and Dottie points you to the Bridge, where **Missions** on the flight deck is marked **Start here**.
 
 <p align="center"><img src="media/intro.png" alt="The first-launch intro: a pixel-art Biscuit parked on a pad under the stars, with Gus on the radio saying she's their only lander and asking you, please, not to scratch her" width="480"></p>
 
-Every step has a **Skip** button. Players with an existing save never see the intro, and anyone can watch it again from **Settings → Replay intro**. Players who skip it can still start the tutorial from the main menu.
+Every step has a **Skip** button. Players with an existing save never see the intro, and anyone can watch it again from **Settings → Replay intro**. Players who skip it can still start the tutorial from **How to play** in the ship menu.
 
 **Settings** has switches for full 360° rotation, auto-zoom, story scenes, ghosts, sound and music, plus a list of the controls.
 
@@ -127,7 +127,7 @@ On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game
 
 Every point you score is banked as credits the moment you touch down. Spend them in the hangar on cosmetics. Cosmetics never change how the lander flies.
 
-Opening **Hangar** from the start screen takes you into the **garage**, a room you walk around like the break room. Your current lander stands on the landing pad in the middle in its own paint, every other lander you own is parked in the side bays, and the ones you haven't unlocked yet wait under covers (walk up to one to hear how to get it). The big hangar door is rolled up onto the world you flew last, with Gus's workbench and a fuel tank on one side and Crumb's charging dock on the other. **Walk up to a lander** to open the hangar screen on it, or use the **workbench** (or the *Open the hangar* button) for the one you're flying. The hangar's *Back to the garage* button brings you back, and the door on the right leads to the break room.
+Walking into the **hangar** takes you into the **garage**, a room you walk around like the break room. Your current lander stands on the landing pad in the middle in its own paint, every other lander you own is parked in the side bays, and the ones you haven't unlocked yet wait under covers (walk up to one to hear how to get it). The big hangar door is rolled up onto the world you flew last, with Gus's workbench and a fuel tank on one side and Crumb's charging dock on the other. **Walk up to a lander** to open the hangar screen on it, or use the **workbench** (or the *Open the hangar* button) for the one you're flying. The hangar's *Back to the garage* button brings you back, and the door on the right leads to the break room.
 
 The hangar is a garage: Biscuit hovers over the pad in front of a big open door looking out on the world you flew last, and Gus works at his bench and comments on everything you put on her.
 
@@ -173,7 +173,7 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the start screen. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
+Open **Missions** from the flight deck on the Bridge. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
 
 **Act 1 · The Signal**
 
@@ -293,7 +293,7 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the start screen to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the ship menu to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
@@ -339,7 +339,7 @@ Open **Badges** from the start screen to see your progress. Twenty-eight badges 
 
 ## Pilot license
 
-Open **License** from the bottom of the main menu, or tap the framed license on your Pad wall, to see your pilot ID card:
+Open **License** from the ship menu, or tap the framed license on your Pad wall, to see your pilot ID card:
 
 - **Your portrait**, a little pixel pilot you customize: hair style and color, skin tone, flight suit color, and glasses, goggles, a headset or a space helmet. You can also edit the name on the card.
 - **Your rank**, with chevrons and a progress bar: Cadet, Junior Pilot, Pilot, Senior Pilot, Flight Lieutenant, Captain, Commander and Legend. It climbs as you land, finish missions, visit worlds and earn badges.
@@ -354,7 +354,7 @@ Press **Share card** to get a crisp 1200×750 picture of it. On iPhone, **Share*
 
 
 The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar, the **door on the right** goes to your Pad, and the **HALL** exit at the bottom leads out to the ship's hallway. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
-Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
+Walk into the **break room** to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
 
 - Click someone, or use the buttons below the scene, to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
@@ -410,17 +410,17 @@ Click the corkboard on the break room wall, or the **Bulletin board** button, to
 
 ## The ship
 
-The rooms are part of one ship. Walk out of the break room through the **HALL** exit at the bottom and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** (see below). Two doors are still sealed: the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
+The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge** and your **Pad**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** (see below). Two doors are still sealed: the observation **dome** and the **crew** quarters. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway too.
 
 <p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
 
 **The Bridge** sits behind the big double doors in the middle of the hallway. A huge curved window looks down on the world you flew last, with three consoles in front of it:
 
-- **Nav console** (middle): opens the mission list. Its Back button says **Back to the bridge** and drops you at the console, so you can fly mission after mission from here. A red light means there are new missions.
+- **Nav console** (middle): opens the **flight deck** with every way to fly. A red light means there are new missions.
 - **Comms** (left): takes a call from Juno, Pim, Zib, Ollo or the Veyra twins, whoever you've met, with their face on the screen. It counts as chatting with them for the day, the same as the Radio in the break room.
 - **Star map** (right): a dot for every world, lit once you've landed there.
 
-The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once you've flown the Mayday mission, and Captain Ollo stands on the right once you've met. Tap them to chat. The **Missions** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
+The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once you've flown the Mayday mission, and Captain Ollo stands on the right once you've met. Tap them to chat. The **Flight deck** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
 
 <p align="center"><img src="media/bridge.png" alt="The Bridge: a wide curved window looking down on Mars, comms, nav and star map consoles, a red captain's chair, Rex Valor on the left and Captain Ollo on the right" width="560"></p>
 
@@ -436,7 +436,7 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 
 ## The Pad
 
-Open **The Pad** from the start screen to visit your own cabin, a cozy retro-future spaceship room. It has curved walls, glowing light strips along the ceiling, a capsule bunk, a window bench with cushions, a backlit shelf alcove, a floating desk with an egg chair, and a big rounded window looking down on a planet. It's a room you can **walk around**: your decorated cabin fills the back wall, and a floor in your chosen flooring runs toward you. **Tap the floor** to walk, or **tap a piece of furniture** and your pilot walks over to it and opens the decorating picker for that spot (the arcade cabinet and pilot certificate still open the arcade and your license). Guests you invite wander around the room as little sprites, admiring things, and you walk up to them to chat. Apogee naps on the furniture, Crumb rolls around the floor, and the **door on the right** leads back to the break room. The Pad opens as a **big, uncluttered view** of the room with the decorating panels tucked away. Press **Decorate** (or tap any piece of furniture) to open the full editor with every spot and item, and **Done decorating** to close it and get the big room back. On a keyboard, arrow keys walk and Enter uses whatever's nearest. You can also pick a spot from the buttons under the room to change what goes there:
+**The Pad** is your own cabin, where the game starts, a cozy retro-future spaceship room. It has curved walls, glowing light strips along the ceiling, a capsule bunk, a window bench with cushions, a backlit shelf alcove, a floating desk with an egg chair, and a big rounded window looking down on a planet. It's a room you can **walk around**: your decorated cabin fills the back wall, and a floor in your chosen flooring runs toward you. **Tap the floor** to walk, or **tap a piece of furniture** and your pilot walks over to it and opens the decorating picker for that spot (the arcade cabinet and pilot certificate still open the arcade and your license). Guests you invite wander around the room as little sprites, admiring things, and you walk up to them to chat. Apogee naps on the furniture, Crumb rolls around the floor, and the **door on the right** opens onto the hallway (or back to the break room, if that's how you came in). The Pad opens as a **big, uncluttered view** of the room with the decorating panels tucked away. Press **Decorate** (or tap any piece of furniture) to open the full editor with every spot and item, and **Done decorating** to close it and get the big room back. On a keyboard, arrow keys walk and Enter uses whatever's nearest. You can also pick a spot from the buttons under the room to change what goes there:
 
 | Spot | What can go there |
 |---|---|
@@ -504,7 +504,7 @@ The Pad isn't empty for long:
 
 ## Endless run
 
-Choose **Endless run** on the main menu for a roguelike run: how far can one lander go?
+Choose **Endless run** on the flight deck for a roguelike run: how far can one lander go?
 
 - Every site is on a random world. The first two come from the gentler worlds, Io, Mercury and Mars join from site 3, and Earth and Venus from site 6. Terrain gets rougher as you go.
 - **Fuel carries over.** Each landing refuels you a little: +15 kg for a ×2 pad, +25 for ×3, +30 for a ×4 moving pad and +40 for ×5.
@@ -524,7 +524,7 @@ No server or account is involved. Each free-flight site is built from a random s
 
 ## Hot-seat mode
 
-Switch to **Hot-seat · 2P** on the start screen and enter both names.
+Choose **Hot-seat** on the flight deck and enter both names.
 
 - A match is 3 rounds, and both pilots fly the exact same descent each round: same terrain, same starting drift, same wind.
 - Whoever goes second races a ghost of the first pilot's run.
@@ -534,7 +534,7 @@ In solo, retrying after a crash also restarts you from the same spot with a ghos
 
 ## Crew requests
 
-Every day the crew posts three small jobs. Open **Crew requests** from the main menu or the break room to see them. Each one shows who's asking, a progress bar and what it pays:
+Every day the crew posts three small jobs. Open **Crew requests** from the flight deck or the break room to see them. Each one shows who's asking, a progress bar and what it pays:
 
 | From | Request | Pays |
 |---|---|---|
@@ -556,7 +556,7 @@ Requests count from free flight, missions, the daily challenge, endless runs and
 
 ## Daily challenge
 
-Choose **Daily** on the start screen. Everyone who plays on the same day gets the same world, terrain, starting drift and wind.
+Choose **Daily challenge** on the flight deck. Everyone who plays on the same day gets the same world, terrain, starting drift and wind.
 
 - You fly 3 sites in a row with one lander. A crash ends the run.
 - Retry as often as you like. Your best score for the day is saved.
@@ -571,8 +571,8 @@ Choose **Daily** on the start screen. Everyone who plays on the same day gets th
 
 Descent Systems is an installable web app, so it can live on your home screen and play offline.
 
-- **Android (Chrome):** tap **Install app** on the main menu, or use the browser menu's **Install app** / **Add to Home screen**.
-- **iPhone/iPad (Safari):** tap **Install app** on the main menu for a reminder, then tap the **Share** button and choose **Add to Home Screen**.
+- **Android (Chrome):** tap **Install app** in the ship menu, or use the browser menu's **Install app** / **Add to Home screen**.
+- **iPhone/iPad (Safari):** tap **Install app** in the ship menu for a reminder, then tap the **Share** button and choose **Add to Home Screen**.
 
 Once installed, it opens full-screen and works without a connection. When you're online, it picks up new versions automatically. On iPhone, the home-screen app keeps its own save data, separate from Safari.
 
@@ -609,7 +609,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png` and `round-trip.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `ship-menu.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png` and `garden.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
