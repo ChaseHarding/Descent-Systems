@@ -344,6 +344,16 @@ Open **Badges** from the menu's Journal tab to see your progress. Twenty-eight b
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
 
+## Wardrobe
+
+Spend credits on clothes for your pilot. Open **Wardrobe** from the menu's Journal tab, or from your pilot license. What you wear shows everywhere: walking around the ship, on your license portrait and in photos.
+
+- **Outfits:** Cozy hoodie, Workshop overalls, Bomber jacket, Holiday sweater, Moth-silk robe, Star-print flight suit, Captain's coat and Gala tux, from 450 to 1,500 credits. **License suit** switches back to your flight suit, and picking a new suit colour on your license does the same.
+- **Hats:** Hair flower, Ball cap, Bobble beanie, Big bow, Party hat, Antenna headband, Star shades and a Tiny crown (2,000 credits). Hats sit on top of your glasses, goggles or headset; the helmet wins over hats.
+- Tap anything to **try it on**: your pilot turns around in it and your portrait updates, then **Buy** or **Put it back**. Anything you own switches instantly.
+
+<p align="center"><img src="media/wardrobe.png" alt="The wardrobe's hats tab: little pilot sprites in a Captain's coat wearing a hair flower, ball cap, bobble beanie, big bow, party hat, antenna headband, star shades and a tiny crown" width="360"></p>
+
 ## Pilot license
 
 Open **License** from the menu's Journal tab, or tap the framed license on your Pad wall, to see your pilot ID card:
@@ -418,7 +428,7 @@ Tap the corkboard on the break room wall, or open **Bulletin board** in the menu
 
 ## The ship
 
-The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad** and the **crew quarters**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). One door is still sealed: the observation **dome**. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
+The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad** and the **crew quarters**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). The observation **dome** stays sealed until you fund its repair on the project board. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
 
 <p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
 
@@ -452,6 +462,22 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 - There's a snack machine at the end of the corridor. Results vary.
 
 <p align="center"><img src="media/quarters.png" alt="The crew quarters corridor: doors labelled Hall, Dottie, Gus, Wren, Rex and Juno, with a wrench sticker on Gus's door and a gold star on Rex's, and a red carpet runner" width="560"></p>
+
+### Ship projects
+
+A corkboard over the bench in the hallway holds Gus and Dottie's **repair projects**. Tap it (or open **Ship projects** from the menu's Today tab) to chip in credits a bit at a time: +100, +500, or finish it in one go. Partial payments are saved, and each finished project changes something on the ship and gives whoever posted it a few hearts.
+
+| Project | Cost | What it does |
+|---|---|---|
+| Fix the hallway lights | 400 cr | The flickering ceiling lights go steady and warm |
+| Garden sprinklers | 1,500 cr | The garden waters itself every new ship day |
+| Hallway lounge corner | 2,000 cr | A couch, rug and lamp halfway down the hallway |
+| Break room jukebox | 2,500 cr | Wren's old jukebox plays again in the break room corner |
+| Repair the observation dome | 6,000 cr | Opens the dome |
+
+**The observation dome** sits behind the DOME door once it's repaired: a glass dome full of twinkling stars and the world you last flew, over a round platform with a telescope, a curved bench and two plants. Tap the telescope for what it's pointed at, the bench to sit a while (your partner has things to say there), or the sky. The crew sometimes go stargazing here instead of the garden.
+
+<p align="center"><img src="media/dome.png" alt="The observation dome: a starry glass dome with curved ribs and Mars in the corner, over a round platform with a telescope, a wooden bench and two potted plants" width="560"></p>
 
 ### The crew's day
 
@@ -641,7 +667,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png` and `visit.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png` and `wardrobe.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
