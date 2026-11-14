@@ -380,7 +380,8 @@ Walk into the **break room** to visit the crew between flights. It's a little pi
 
 The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday), Juno (after your first round trip), Zib (after Zib's Market), Captain Ollo (after Moth to a Flame) and Kael and Lyra (after VIP Pickup). Each has 10 hearts.
 
-- **Grow closer** by chatting once a day (here, in the break room, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
+- **Grow closer** by chatting once a day (anywhere you find them, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
+- **Days on the ship are yours to end.** Tap your bunk in the Pad, or press **🌙 Sleep**, and the screen fades to night and back: it's a new ship day, so everyone can be chatted with and given a gift again, the garden can be watered again, and the crew shuffle to new spots around the ship. You need to fly at least once (land or crash) between sleeps, or Apogee will be asleep on your pillow. The current day shows at the top of the menu. The daily challenge and crew requests still follow the real calendar.
 - **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern, Zib loves anything shiny, Ollo loves a tiny desk lamp, Kael loves hair gel too, and Lyra loves flowers. Their reaction tells you how you did.
 - **Hang out** at 3 and 6 hearts for a short scene with each of them. Friendship tops out at 8 hearts.
 
@@ -434,7 +435,7 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 **The Garden** is behind the GARDEN door, a hydroponics room with six planters under pink grow lamps.
 
 - **Plant:** tap a planter and pick a seed. Moon tea and Tiny ferns cost 20 credits and take 2 landings, Hydroponic flowers and Coffee beans cost 30 and take 3, and Cacao pods cost 40 and take 4.
-- **Grow:** crops grow a little every time you land safely, anywhere in the game. Walk up to the **tap** on the left once a day to water everything for an extra day's growth.
+- **Grow:** crops grow a little every time you land safely, anywhere in the game. Walk up to the **tap** on the left once a ship day (sleep in your bunk to start a new one) to water everything for an extra day's growth.
 - **Harvest:** a ripe planter sparkles (and so does the GARDEN door in the hallway). Tap it and press **Harvest** to put the crop in your basket.
 - **Give:** on the **Friends ♥** screen, homegrown gifts show up first in the gift list, marked 🌱. They're free, and they give a little extra ♥ on top of the usual amount. Each crop becomes the matching gift (tea, fern, flowers, coffee beans or chocolate), so everyone's tastes still count.
 - The **seed cabinet** on the right gives Gus's tips on who loves which crop, based on who you've met.
@@ -454,7 +455,7 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 
 ### The crew's day
 
-The crew don't sit in one place any more. Every 15 minutes of real time, everyone picks somewhere to be:
+The crew don't sit in one place any more. Every 15 minutes of real time, and every time you sleep, everyone picks somewhere to be:
 
 - **Dottie, Gus and Wren** are usually at the break room table. Their chair is empty when they're somewhere else.
 - **Rex and Ollo** usually hang about the Bridge.
