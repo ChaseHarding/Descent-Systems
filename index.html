@@ -170,6 +170,7 @@ kbd {
 .hangar { width: 100%; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .hangar .top { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .bay { width: 100%; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; text-align: left; }
+.bay.viewing { grid-template-columns: minmax(0, 1fr); max-width: 760px; margin: 0 auto; }
 .bay .col { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .garage { display: block; width: 100%; aspect-ratio: 4 / 3; border: 1px solid var(--space-2); border-radius: 8px; background: var(--space); }
 .hangar .radio.quote { max-width: none; padding: 8px 10px; }
@@ -6244,6 +6245,8 @@ details.act > .limits { margin: 0 0 8px; }
     }
     if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
     if (!keepSpot && denUI) denUI.trying = null;
+    if (intro && intro.step === 'den') denUI.edit = true;
+    const editing = !!denUI.edit;
     card.classList.add('wide');
     const spot = denUI.spot, s = denSpot(spot), pool = s.pool, list = DEN_ITEMS[pool];
     const shown = denUI.trying || denLook[spot];
@@ -6266,11 +6269,11 @@ details.act > .limits { margin: 0 0 8px; }
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
       <h1 class="good">The Pad</h1>
-      <p class="sub">Your cabin. Walk over to anything to change it. <span class="cr">${fmt(credits)} cr</span></p>
-      <div class="bay">
+      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
+      <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
           <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap the floor to walk; tap furniture to decorate it, or a guest to chat. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
-          <p class="walkhint">Tap to walk · tap furniture to decorate it · the door leads back to the break room</p>
+          <p class="walkhint">${editing ? 'Tap furniture (or a button below) to pick the spot to change' : 'Tap to walk · tap furniture to decorate it · the door leads back to the break room'}</p>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
@@ -6279,10 +6282,12 @@ details.act > .limits { margin: 0 0 8px; }
             <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
             <button class="btn ghost" id="denSnap">Take a photo</button>
             ${denLook.floor === 'arcade' ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
+            ${intro && intro.step === 'den' ? '' : `<button class="btn${editing ? ' ghost' : ''}" id="denEdit">${editing ? 'Done decorating' : 'Decorate'}</button>`}
           </div>
-          <div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}${x.pool !== pool && spotNew(x.id) ? '<i class="ndot" aria-label="new"></i>' : ''}</button>`).join('')}</div>
+          ${editing ? `<div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}${x.pool !== pool && spotNew(x.id) ? '<i class="ndot" aria-label="new"></i>' : ''}</button>`).join('')}</div>
+` : ''}
         </div>
-        <div class="col">
+        ${editing ? `<div class="col">
           <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
           <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => !y.world && !y.trip && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip ? ' locked' : ''}${newIn.has(pool + ':' + x.id) ? ' isnew' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
             <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
@@ -6291,12 +6296,12 @@ details.act > .limits { margin: 0 0 8px; }
             <p>${it.blurb}</p>
             <div class="btns">${action}${denUI.trying ? '<button class="btn ghost" id="denCancel">Put it back</button>' : ''}</div>
           </div>
-        </div>
+        </div>` : ''}
       </div>
       <button class="btn ghost" id="back">Main menu</button>
     </div>`;
     card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
-    markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
+    if (editing) markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
     const look = () => denUI.trying ? { ...denLook, [spot]: denUI.trying } : denLook;
     clearInterval(denUI.anim);
     denSay(denUI.say[0], denUI.say[1], fresh);
@@ -6310,6 +6315,7 @@ details.act > .limits { margin: 0 0 8px; }
     const tapSpot = hit => {
       if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
       if (hit === 'wallR' && denLook.wallR === 'cert' && !denUI.trying) { sfx.click(); licenseFrom = 'den'; setMode('license'); return; }
+      denUI.edit = true;
       pick(hit);
       const head = card.querySelector('.spothead'); if (head && matchMedia('(max-width: 760px)').matches) head.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     };
@@ -6317,6 +6323,11 @@ details.act > .limits { margin: 0 0 8px; }
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
     $('denSnap').addEventListener('click', denSnap);
+    const eb = $('denEdit');
+    if (eb) eb.addEventListener('click', () => {
+      denUI.edit = !denUI.edit; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true);
+      const nb = $('denEdit'); if (nb) nb.focus({ preventScroll: true });
+    });
     const arcB = $('denArcade'); if (arcB) arcB.addEventListener('click', () => { sfx.click(); setMode('arcade'); });
     $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
@@ -6634,7 +6645,7 @@ details.act > .limits { margin: 0 0 8px; }
     c.imageSmoothingEnabled = false;
     if (!padOff) { padOff = document.createElement('canvas'); padOff.width = RW; padOff.height = RH; }
     // your cabin exactly as decorated, with the spot you're editing outlined
-    denNoRim = true; drawDen(padOff, look, denUI.spot, t, null); denNoRim = false;
+    denNoRim = true; drawDen(padOff, look, denUI.edit ? denUI.spot : null, t, null); denNoRim = false;
     if (denUI.cat) { const oc = padOff.getContext('2d'); drawDenCat(oc, denCatSpot(denUI.cat, look), performance.now() < (denUI.catAwake || 0), t); }
     // the floor carries on toward you, in whatever flooring you picked
     const fl = denItem('floorStyle', look.floorStyle);
