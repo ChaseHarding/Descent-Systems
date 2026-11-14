@@ -350,6 +350,8 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* Engine room pipe puzzle */
+.pipecv { display: block; width: 100%; max-width: 420px; margin: 8px auto; border-radius: 6px; touch-action: manipulation; cursor: pointer; }
 /* Ship events */
 .tcard.evcard { border-color: var(--ev, var(--flame)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ev, #ffb547) 35%, transparent); }
 .tcard.evcard .eyebrow { color: var(--ev, var(--flame)); }
@@ -1283,6 +1285,7 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 stars in the original 12 missions.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
     { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
     { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Beyond Pluto.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2, ACT3), ACT3 - ACT2] },
+    { id: 'mechanic', name: 'Grease monkey', desc: 'Finish 10 repair jobs in the engine room.', prog: () => [Math.min(10, +store.get('ds-repairs', '0') || 0), 10] },
     { id: 'senders', name: 'Kind words', desc: 'Finish Act 4: The Senders.', reward: 'hull:senders', prog: () => [completedCount(ACT3), MISSIONS.length - ACT3] },
     { id: 'offroad', name: 'Off-roader', desc: 'Finish every round trip.', reward: 'hull:fieldkit', prog: () => [SIDES.filter(d => d.kind === 'trip' && missionStars[d.id] > 0).length, SIDES.filter(d => d.kind === 'trip').length] },
     { id: 'beatrex', name: 'Beat Rex', desc: 'Finish Hopscotch faster than Rex’s 90 seconds.', reward: 'flag:racing' },
@@ -3456,7 +3459,7 @@ details.act > .limits { margin: 0 0 8px; }
     const AMB = {
       bridge: { f: ['lowpass', 260], n: 0.035, hum: [55, 0.02] }, hall: { f: ['lowpass', 380], n: 0.022, hum: [60, 0.008] },
       garden: { f: ['bandpass', 900], n: 0.012, drip: true }, galley: { f: ['highpass', 4200], n: 0.02, hum: [50, 0.006] },
-      dome: { f: ['bandpass', 1400], n: 0.008, hum: [880, 0.004] }, garage: { f: ['lowpass', 220], n: 0.04, hum: [42, 0.016] },
+      dome: { f: ['bandpass', 1400], n: 0.008, hum: [880, 0.004] }, garage: { f: ['lowpass', 220], n: 0.04, hum: [42, 0.016] }, engine: { f: ['lowpass', 300], n: 0.05, hum: [58.3, 0.03] },
       quarters: { f: ['lowpass', 300], n: 0.016 }, bedroom: { f: ['lowpass', 260], n: 0.012 }, den: { f: ['lowpass', 260], n: 0.012 }
     };
     function setAmbience(kind) {
@@ -4164,10 +4167,10 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley'];
+  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine'];
   let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { applyEvening(m); } catch (e) {}
@@ -4235,7 +4238,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine') { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
@@ -4299,8 +4302,8 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'shipmenu') {
-      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters', dome: 'The Dome', galley: 'The Galley' };
-      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', dome: 'the dome', galley: 'the galley', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
+      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters', dome: 'The Dome', galley: 'The Galley', engine: 'Engine room' };
+      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', dome: 'the dome', galley: 'the galley', engine: 'the engine room', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
       const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length, garage: crumbHome() && salvageReady() };
       const met = ROM_WHO.filter(w => romMet[w]()), crewNew = met.some(w => sceneReady(w));
       const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
@@ -4309,8 +4312,8 @@ details.act > .limits { margin: 0 0 8px; }
       const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
       let body = '';
       if (menuTab === 'ship') {
-        const order = ['den', 'bridge', 'lounge', 'garden', 'galley', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
-        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', hall: 'Every door on deck one' };
+        const order = ['den', 'bridge', 'lounge', 'garden', 'galley', 'engine', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
+        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', engine: engState().done < ENGINE_JOBS ? `Gus has ${ENGINE_JOBS - engState().done} repair ${ENGINE_JOBS - engState().done === 1 ? 'job' : 'jobs'}` : 'Gus’s workshop and the core', hall: 'Every door on deck one' };
         body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
@@ -7185,7 +7188,7 @@ details.act > .limits { margin: 0 0 8px; }
     holder.stepT = (holder.stepT || 0) - dt;
     if (holder.stepT <= 0) { holder.stepT = 0.3; sfx.step(surface); }
   }
-  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete' };
+  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete', engine: 'metal' };
   // a little speech bubble over someone's head: heart, !, wave, dots, note
   function drawEmote(c, kind, x, y, t, t0) {
     const age = t0 == null ? 1 : (t - t0) / 1000;
@@ -7203,7 +7206,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- The ship: a hallway that links the rooms, and the bridge ----
   // Both are small walk-around rooms on a 2x canvas, like the hangar. The hallway is wider than the screen and scrolls.
   let deck = null;
-  const HALL_W = 470, SHIP_H = 160, VIEW_W = 256;
+  const HALL_W = 520, SHIP_H = 160, VIEW_W = 256;
   // doors along the hallway's back wall: [centre x, label, where it goes (or null when it's sealed), sealed line]
   const HALL_DOORS = [
     [26, 'HANGAR', 'garage'],
@@ -7213,7 +7216,8 @@ details.act > .limits { margin: 0 0 8px; }
     [294, 'PAD', 'den'],
     [344, 'DOME', null, ['G', 'The observation dome! It still leaks a little. Into space. Which is the bad direction. I’ve put a repair project up on the board by the bench.']],
     [394, 'CREW', 'quarters'],
-    [444, 'GALLEY', 'galley']
+    [444, 'GALLEY', 'galley'],
+    [494, 'ENGINE', 'engine']
   ];
   const HALL_SAY = [
     ['F', 'Dottie on the intercom. Bridge is straight ahead, break room’s on your left, your Pad’s on your right. Don’t run in the halls. I mean it this time.'],
@@ -7230,14 +7234,16 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipTalk(who) { bondTalk(who); shipSay(who, chatLine(who)); }
   function renderShipRoom(kind) {
-    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom', dome = kind === 'dome', gal = kind === 'galley';
+    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom', dome = kind === 'dome', gal = kind === 'galley', eng = kind === 'engine';
     if (gal) { galleySel = null; cook = null; }
+    if (eng) { pipe = null; engineSel = false; }
     if (gdn) gardenSel = null;
     const T = {
       hall: ['Hallway', 'The ship’s main hallway: doors to the hangar, the garden, the break room, the bridge, your Pad and the crew quarters, and one sealed door. Crew members sometimes wander through. Tap to walk; walk up to a door to go through, or to someone to chat. With a keyboard, arrow keys walk and Enter uses the nearest thing.', 'Tap to walk · walk up to a door to go through it · tap the crew to chat'],
       garden: ['The Garden', 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips'],
       bridge: ['The Bridge', 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'],
       quarters: ['Crew quarters', 'The crew quarters: a carpeted corridor with a bedroom door for each crew member. Doors open once you have 3 hearts with that person; a warm light under a door means someone is home. Tap to walk; walk up to a door to knock or go in. With a keyboard, arrow keys walk and Enter uses the nearest door.', 'Walk up to a door to knock · rooms open at 3 hearts · a light under the door means someone’s home'],
+      engine: ['Engine room', 'The engine room: a tall glowing core in the middle, Gus’s workbench and tool board on the left, gauges, a big red lever, and the power junction panel on the right where you do repair jobs. Tap to walk; walk up to the junction to fix things. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       galley: ['The Galley', 'The galley: a tiled kitchen with a pantry, a stove with hanging pans, a sink, a fridge and a little round table. Tap to walk; walk up to the stove to cook. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
@@ -7246,7 +7252,7 @@ details.act > .limits { margin: 0 0 8px; }
       <h1 class="good">${T[0]}</h1>
       <canvas class="room walkroom" id="shipCv" width="512" height="320" tabindex="0" role="application" aria-label="${T[1]}"></canvas>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
-      ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}
+      ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         <button class="btn ghost" id="back">☰ Menu</button>
@@ -7257,14 +7263,14 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley' }[from] || 'bridge'));
+      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley', engine: 'engine' }[from] || 'bridge'));
       start = { x: d ? d[0] : 210, y: 72, dir: from === 'projects' ? 3 : 0 };
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
     const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : [14, 98, 242, 152],
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
       crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -7285,7 +7291,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw }[kind];
+    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -7313,6 +7319,13 @@ details.act > .limits { margin: 0 0 8px; }
       const first = store.get('ds-galleySeen', '') !== '1'; store.set('ds-galleySeen', '1');
       shipSay(...(first ? ['G', 'The galley! I cleaned it. I found three forks and a whole lost lunch. Bring crops from the garden and the stove does the rest. Well, you do the rest.'] : deck.npcs.length ? [deck.npcs[0].who, deck.npcs[0].who === 'G' ? 'Snack break! Don’t tell Dottie. Unless that’s Dottie behind you. Hi, Dottie.' : 'I’m just here for a snack. I’ve been here for forty minutes. It’s a big snack.'] : ['F', 'The galley. Whoever cooks, cleans. That’s the rule. Gus has never cooked.']));
       renderGalleyPanel();
+    } else if (eng) {
+      const first = store.get('ds-engineSeen', '') !== '1'; store.set('ds-engineSeen', '1');
+      const left = ENGINE_JOBS - engState().done;
+      shipSay(...(first ? ['G', 'You found my engine room! The core, my bench, and the junction panel. Something on this ship breaks every day, so I’ve always got jobs for you. Paid jobs!']
+        : deckHas('G') && left > 0 ? ['G', `Perfect timing! ${left} ${left === 1 ? 'thing needs' : 'things need'} fixing. The junction panel’s on the right.`]
+        : ENGINE_SAYS[Math.floor(Math.random() * ENGINE_SAYS.length)]));
+      renderEnginePanel();
     } else if (dome) {
       const first = store.get('ds-domeSeen', '') !== '1'; store.set('ds-domeSeen', '1');
       shipSay(...(first ? ['G', 'Welcome to the dome! Every star you can see, you paid for. Well. You paid for the glass. The stars were free.'] : deck.npcs.length ? [deck.npcs[0].who === 'Z' ? 'Z' : deck.npcs[0].who, deck.npcs[0].who === 'Z' ? 'Zib likes the dome! The stars are like very far away jelly!' : DOME_SAYS[Math.floor(Math.random() * DOME_SAYS.length)]] : ['F', 'The dome. Quietest room on the ship. Try to keep it that way. That means you, Gus.']));
@@ -7340,6 +7353,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'bedroom') { bedroomThings(L); return L; }
     if (deck.kind === 'dome') { domeThings(L); return L; }
     if (deck.kind === 'galley') { galleyThings(L); return L; }
+    if (deck.kind === 'engine') { engineThings(L); return L; }
     if (deck.kind === 'hall') {
       L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
       if (projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
@@ -7457,7 +7471,7 @@ details.act > .limits { margin: 0 0 8px; }
     for (let x = 0; x < HALL_W; x += 25) px(c, x, 5, 1, 50, '#212c50');
     px(c, 0, 40, HALL_W, 2, '#26315a'); px(c, 0, 54, HALL_W, 2, '#2a3556'); px(c, 0, 56, HALL_W, 4, '#121933');
     // portholes between the doors
-    for (const wx of [51, 101, 254, 319, 369, 419]) {
+    for (const wx of [51, 101, 254, 319, 369, 419, 469]) {
       c.fillStyle = '#3a4668'; c.beginPath(); c.arc(wx, 24, 9, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#060914'; c.beginPath(); c.arc(wx, 24, 7, 0, Math.PI * 2); c.fill();
       for (let i = 0; i < 4; i++) { const a = (wx * 7 + i * 97 + t / 9000) % 12, sx = wx - 5 + a, sy = 19 + (i * 3) % 10; if (Math.hypot(sx - wx, sy - 24) < 6) px(c, Math.round(sx), sy, 1, 1, i % 2 ? '#8a93ab' : '#ffffff'); }
@@ -7614,6 +7628,8 @@ details.act > .limits { margin: 0 0 8px; }
     }
     // now and then Dottie, Gus or Wren slip off to the galley for a snack
     for (const w of met) if (P[w] === 'lounge' && srand(w + 'g' + slot) < 0.15) P[w] = 'galley';
+    // Gus spends a good part of his day tinkering in the engine room
+    if (P.G && (P.G === 'lounge' || P.G === 'room' || P.G === 'hall') && srand('Ge' + slot) < 0.4) P.G = 'engine';
     // once it's open, some of the garden-goers stargaze in the dome instead
     if (projDone('dome')) for (const w of met) if (P[w] === 'garden' && srand(w + 'd' + slot) < 0.6) P[w] = 'dome';
     // visitors call on someone who's home
@@ -7625,7 +7641,7 @@ details.act > .limits { margin: 0 0 8px; }
     return P;
   }
   const crewAt = who => crewPlaces()[who] || CREW_HOME[who];
-  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'Snacking in the galley' }[loc];
+  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'Snacking in the galley', engine: 'Tinkering in the engine room' }[loc];
   const roomOpen = who => heartsOf(who) >= 3 || bond.partner === who;
   const roomBusy = who => crewAt(who) === 'room' || Object.values(crewPlaces()).includes('visit:' + who);
 
@@ -7640,6 +7656,8 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (kind === 'galley') {
       const spots = [[60, 118], [160, 124], [228, 120]];
       who.filter(w => P[w] === 'galley').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: i === 1 ? 3 : 0 }); });
+    } else if (kind === 'engine') {
+      who.filter(w => P[w] === 'engine').forEach((w, i) => { const sp = [[56, 104], [180, 112]][i]; if (sp) add(w, sp[0], sp[1], { baseDir: 3 }); });
     } else if (kind === 'dome') {
       const spots = [[110, 124], [150, 120], [200, 132]];
       who.filter(w => P[w] === 'dome').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: 3 }); });
@@ -9267,6 +9285,247 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  // ---- The engine room: Gus's domain. The core, his workbench, and the power junction with daily repair jobs ----
+  const ENGINE_JOBS = 3, REPAIR_PAY = 120, REPAIR_PERFECT = 60;
+  const REPAIR_JOBS = [
+    ['The garden lamps keep flickering', 'garden lamps'], ['The galley stove only heats on one side', 'galley stove'], ['Dottie’s desk fan is spinning backwards', 'desk fan'],
+    ['The hallway lights are doing disco again', 'hallway lights'], ['The shower is either lava or ice', 'shower heater'], ['The airlock door sighs every time it opens', 'airlock door'],
+    ['The Bridge coffee maker makes soup', 'coffee maker'], ['Apogee’s heated bed has gone cold', 'cat bed heater'], ['Crumb’s charger is giving him the hiccups', 'Crumb’s charger'],
+    ['The jukebox only plays one note', 'jukebox'], ['The dome heaters are fogging the glass', 'dome heaters'], ['Rex’s hair dryer tripped the whole deck', 'Rex’s hair dryer']
+  ];
+  const ENGINE_SAYS = [
+    ['G', 'Welcome to my office! The core hums at a perfect B flat. I tuned it. Nobody asked me to. You’re welcome.'],
+    ['G', 'Something on this ship breaks every day. That’s not a problem, that’s job security.'],
+    ['G', 'Don’t touch the big red lever. It’s not connected to anything. I just like having a big red lever.'],
+    ['F', 'Dottie on the intercom. If you’re in the engine room, tell Gus his lunch has been in the galley fridge since Tuesday.']
+  ];
+  const CORE_SAYS = [
+    ['G', 'That’s the core. Ninety thousand hours without a hiccup. Well. One hiccup. We don’t talk about the hiccup.'],
+    ['G', 'See the rings going up? That’s the power heading out to the ship. Every light, every lamp, every coffee. All from this.'],
+    ['G', 'I talk to the core every morning. It doesn’t talk back. That’s what makes it a good listener.'],
+    ['G', 'Pretty, right? Don’t stare too long. Not because it’s dangerous. You’ll just get very relaxed and miss your shift.']
+  ];
+  const BENCH_SAYS = [
+    ['G', 'My workbench. Every tool has a place, and every place has an outline so I know what I lost. I’ve lost the outlines.'],
+    ['G', 'That wrench was my grandmother’s. She fixed freighters. I fix coffee makers. The family is going up in the world.'],
+    ['G', 'Half these parts came from Crumb’s salvage runs. The other half came from things I took apart to see how they work.'],
+    ['K', '*proud beep* (Crumb points his scoop at a bolt on the bench. He found that one.)']
+  ];
+  const engState = () => { let s; try { s = JSON.parse(store.get('ds-engine', 'null')); } catch (e) { s = null; } if (!s || s.day !== shipDayKey()) s = { day: shipDayKey(), done: 0 }; return s; };
+  const engSave = s => store.set('ds-engine', JSON.stringify(s));
+  const repairsTotal = () => +store.get('ds-repairs', '0') || 0;
+  let pipe = null;   // the puzzle while it's open
+  // today's jobs, picked the same way all day
+  const todaysJobs = () => { const k = shipDay * 31; const out = []; for (let i = 0; out.length < ENGINE_JOBS; i++) { const j = REPAIR_JOBS[(k + i * 5) % REPAIR_JOBS.length]; if (!out.includes(j)) out.push(j); } return out; };
+
+  function engineThings(L) {
+    L.push({ id: 'core', rect: [102, 8, 52, 78], go: () => [128, 100], at: () => ({ x: 128, y: 50 }), act: () => shipSay(...CORE_SAYS[Math.floor(Math.random() * CORE_SAYS.length)]) });
+    L.push({ id: 'junction', rect: [184, 20, 56, 54], go: () => [212, 98], at: () => ({ x: 212, y: 50 }), act: () => { sfx.click(); engineSel = true; renderEnginePanel(); } });
+    L.push({ id: 'bench', rect: [16, 24, 56, 62], go: () => [44, 98], at: () => ({ x: 44, y: 70 }), act: () => shipSay(...BENCH_SAYS[Math.floor(Math.random() * BENCH_SAYS.length)]) });
+    L.push({ id: 'gauges', rect: [76, 18, 24, 26], go: () => [88, 98], at: () => ({ x: 88, y: 30 }), act: () => { const s = engState(); shipSay('G', s.done >= ENGINE_JOBS ? `Gauges are all green. ${repairsTotal()} repairs and counting. You’ve got a knack for this, you know.` : `Gauges say ${ENGINE_JOBS - s.done} ${ENGINE_JOBS - s.done === 1 ? 'thing is' : 'things are'} acting up today. The junction panel on the right is where we fix them.`); } });
+    L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); pipe = null; walkEnter = 'engine'; setMode('hall'); } });
+  }
+  let engineSel = false;
+  function renderEnginePanel() {
+    const box = $('enginePanel'); if (!box) return;
+    if (pipe) return;   // the puzzle owns the panel
+    const s = engState(), jobs = todaysJobs();
+    box.innerHTML = `<h3>Power junction</h3><p>Gus has ${ENGINE_JOBS} repair jobs a day. Tap pipe pieces to turn them, and get power from the core (left) all the way to the broken part (right). Fewer taps pay a bonus.</p>
+      <div class="seeds">${jobs.map((j, i) => `<button class="seed" data-job="${i}"${i !== s.done ? ' disabled' : ''}><span aria-hidden="true">${i < s.done ? '✅' : '🔧'}</span><b>${j[0]}</b><small>${i < s.done ? 'Fixed' : i === s.done ? `${fmt(REPAIR_PAY)} cr, +${fmt(REPAIR_PERFECT)} if tidy` : 'Next'}</small></button>`).join('')}</div>
+      <p class="gnote">${s.done >= ENGINE_JOBS ? 'All fixed for today. Gus will find more things that are broken after you sleep.' : `${repairsTotal()} repairs so far.`}</p>`;
+    box.querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => startRepair(+b.dataset.job)));
+  }
+
+  // ---- The pipe puzzle. Each tile is a bitmask of open sides: N 1, E 2, S 4, W 8 ----
+  const rotCW = m => ((m << 1) | (m >> 3)) & 15;
+  const DIRS = [[1, -1, 0], [2, 0, 1], [4, 1, 0], [8, 0, -1]];   // bit, dr, dc
+  const opp = b => b === 1 ? 4 : b === 4 ? 1 : b === 2 ? 8 : 2;
+  function makePuzzle(R, C, minPar = 3) {
+    for (let tries = 0; tries < 200; tries++) {
+      const r0 = Math.floor(Math.random() * R), seen = new Set(), path = [];
+      // a random walk from the left edge to the right edge that never crosses itself
+      const walk = (r, c) => {
+        seen.add(r * C + c); path.push([r, c]);
+        if (c === C - 1 && Math.random() < 0.6 + path.length / (R * C)) return true;
+        const opts = DIRS.slice().sort(() => Math.random() - 0.5);
+        for (const [, dr, dc] of opts) { const nr = r + dr, nc = c + dc; if (nr < 0 || nc < 0 || nr >= R || nc >= C || seen.has(nr * C + nc)) continue; if (walk(nr, nc)) return true; }
+        if (c === C - 1) return true;
+        seen.delete(r * C + c); path.pop(); return false;
+      };
+      if (!walk(r0, 0) || path.length < C + 1) continue;
+      const want = Array.from({ length: R }, () => Array(C).fill(0));
+      path.forEach(([r, c], i) => {
+        const inB = i === 0 ? 8 : (() => { const [pr, pc] = path[i - 1]; return DIRS.find(d => d[1] === pr - r && d[2] === pc - c)[0]; })();
+        const outB = i === path.length - 1 ? 2 : (() => { const [nr, nc] = path[i + 1]; return DIRS.find(d => d[1] === nr - r && d[2] === nc - c)[0]; })();
+        want[r][c] = inB | outB;
+      });
+      const onPath = new Set(path.map(([r, c]) => r * C + c));
+      const tiles = want.map((row, r) => row.map((m, c) => {
+        let t = onPath.has(r * C + c) ? m : [5, 3, 3, 7][Math.floor(Math.random() * 4)];
+        for (let k = Math.floor(Math.random() * 4); k > 0; k--) t = rotCW(t);
+        return t;
+      }));
+      // par: the fewest turns that fix every tile on the path
+      let par = 0;
+      path.forEach(([r, c]) => { let t = tiles[r][c], k = 0; while (t !== want[r][c] && k < 4) { t = rotCW(t); k++; } par += k; });
+      const P = { R, C, r0, r1: path[path.length - 1][0], tiles, want, path, par, taps: 0, solved: false, lit: null };
+      pipeFlow(P);
+      if (!P.solved && par >= minPar) return P;
+    }
+    return null;
+  }
+  // follow the power from the core; mark what lights up and whether it reaches the far side
+  function pipeFlow(P) {
+    const lit = new Set(), q = [];
+    if (P.tiles[P.r0][0] & 8) { q.push([P.r0, 0]); lit.add(P.r0 * P.C); }
+    let reached = false;
+    while (q.length) {
+      const [r, c] = q.shift(), m = P.tiles[r][c];
+      if (c === P.C - 1 && r === P.r1 && (m & 2)) reached = true;
+      for (const [b, dr, dc] of DIRS) {
+        if (!(m & b)) continue;
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nc < 0 || nr >= P.R || nc >= P.C || lit.has(nr * P.C + nc)) continue;
+        if (P.tiles[nr][nc] & opp(b)) { lit.add(nr * P.C + nc); q.push([nr, nc]); }
+      }
+    }
+    P.lit = lit; P.solved = reached;
+  }
+  function startRepair(i) {
+    const s = engState(); if (i !== s.done) return;
+    const box = $('enginePanel'); if (!box) return;
+    const [title, part] = todaysJobs()[i];
+    const size = [[4, 4], [5, 5], [5, 6]][Math.min(2, i)];
+    pipe = makePuzzle(size[0], size[1], [4, 6, 8][Math.min(2, i)]) || makePuzzle(size[0], size[1]); if (!pipe) return;
+    pipe.part = part; pipe.job = i; pipe.t0 = performance.now(); pipe.spin = {};
+    sfx.click();
+    box.innerHTML = `<h3>${title}</h3><p>Tap a pipe to turn it. Get the glow from the core all the way to the ${part}.</p>
+      <canvas id="pipeCv" class="pipecv" role="application" aria-label="Pipe puzzle: ${pipe.R} rows by ${pipe.C} columns. Tap a tile to rotate it."></canvas>
+      <p class="gnote" id="pipeMsg" aria-live="polite">Turns: 0 · tidy is ${pipe.par + 2} or fewer</p>
+      <div class="btns"><button class="btn ghost" id="pipeQuit">Stop for now</button></div>`;
+    const cv = $('pipeCv'), c = cv.getContext('2d');
+    const cell = 40, padL = 22, padR = 22, W = padL + pipe.C * cell + padR, H = pipe.R * cell, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.aspectRatio = `${W} / ${H}`;
+    try { box.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' }); } catch (e) {}
+    const draw = () => {
+      if (!pipe || !document.body.contains(cv)) return;
+      const t = performance.now();
+      c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+      c.fillStyle = '#0c1020'; c.fillRect(0, 0, W, H);
+      // the core on the left, the broken part on the right
+      const glow = 0.6 + 0.4 * Math.sin(t / 300);
+      c.fillStyle = `rgba(127,214,255,${0.5 + glow * 0.5})`; c.fillRect(2, pipe.r0 * cell + 8, padL - 4, cell - 16);
+      c.fillStyle = pipe.solved ? '#ffe58a' : '#3a3f55'; c.beginPath(); c.arc(W - padR / 2, pipe.r1 * cell + cell / 2, 7, 0, Math.PI * 2); c.fill();
+      if (pipe.solved) { c.fillStyle = 'rgba(255,229,138,0.25)'; c.beginPath(); c.arc(W - padR / 2, pipe.r1 * cell + cell / 2, 12 + glow * 3, 0, Math.PI * 2); c.fill(); }
+      for (let r = 0; r < pipe.R; r++) for (let col = 0; col < pipe.C; col++) {
+        const x = padL + col * cell, y = r * cell, m = pipe.tiles[r][col], on = pipe.lit.has(r * pipe.C + col);
+        c.fillStyle = (r + col) % 2 ? '#141a30' : '#111628'; c.fillRect(x, y, cell, cell);
+        c.strokeStyle = '#1e2640'; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
+        const sp = pipe.spin[r * pipe.C + col], ang = sp ? Math.max(0, 1 - (t - sp) / 110) * -Math.PI / 2 : 0;
+        c.save(); c.translate(x + cell / 2, y + cell / 2); c.rotate(ang);
+        c.lineCap = 'round';
+        for (const [b] of DIRS) {
+          if (!(m & b)) continue;
+          const [ex, ey] = b === 1 ? [0, -cell / 2] : b === 2 ? [cell / 2, 0] : b === 4 ? [0, cell / 2] : [-cell / 2, 0];
+          c.strokeStyle = '#2a3150'; c.lineWidth = 12; c.beginPath(); c.moveTo(0, 0); c.lineTo(ex, ey); c.stroke();
+          c.strokeStyle = on ? (pipe.solved ? '#ffe58a' : '#7fd6ff') : '#5a6278'; c.lineWidth = 6; c.beginPath(); c.moveTo(0, 0); c.lineTo(ex, ey); c.stroke();
+        }
+        c.fillStyle = on ? (pipe.solved ? '#ffe58a' : '#bfefff') : '#6a7290'; c.beginPath(); c.arc(0, 0, 4, 0, Math.PI * 2); c.fill();
+        c.restore();
+      }
+      requestAnimationFrame(draw);
+    };
+    requestAnimationFrame(draw);
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (!pipe || pipe.solved) return;
+      const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) * W / b.width - padL, y = (e.clientY - b.top) * H / b.height;
+      const col = Math.floor(x / cell), r = Math.floor(y / cell);
+      if (col < 0 || r < 0 || col >= pipe.C || r >= pipe.R) return;
+      pipe.tiles[r][col] = rotCW(pipe.tiles[r][col]); pipe.spin[r * pipe.C + col] = performance.now(); pipe.taps++;
+      sfx.click();
+      pipeFlow(pipe);
+      const msg = $('pipeMsg');
+      if (!pipe.solved) { msg.textContent = `Turns: ${pipe.taps} · tidy is ${pipe.par + 2} or fewer`; return; }
+      repairDone();
+    });
+    $('pipeQuit').addEventListener('click', () => { sfx.click(); pipe = null; renderEnginePanel(); shipSay('G', 'No rush. It’s been broken this long, it can be broken a bit longer.'); });
+  }
+  function repairDone() {
+    const P = pipe, tidy = P.taps <= P.par + 2, pay = REPAIR_PAY + (tidy ? REPAIR_PERFECT : 0);
+    const s = engState(); s.done++; engSave(s);
+    const total = repairsTotal() + 1; store.set('ds-repairs', String(total));
+    credits += pay; saveCosmetics(); sfx.coin(); confetti(40);
+    try { reqEvent('repair'); } catch (e) {}
+    if (total >= 10) award('mechanic');
+    const msg = $('pipeMsg'); if (msg) msg.textContent = `Fixed in ${P.taps} turns! +${fmt(pay)} cr${tidy ? ' (tidy bonus)' : ''}`;
+    showToast(`Fixed the ${P.part}: +${fmt(pay)} cr`, 2400);
+    const lines = tidy ? ['Look at that. Clean as a whistle. I couldn’t have done it better. I could have done it louder.', 'Textbook! I’m putting that in the textbook. I’m writing a textbook.', 'Tidy work, pilot! The ' + P.part + ' is purring. Well. Humming. Some of them purr.']
+      : ['Fixed! It took a few tries, but so does everything worth doing. And most things not worth doing.', 'There we go. The ' + P.part + ' works again. Mostly. Good enough for a ship that runs on hope.', 'Power’s flowing! Don’t worry about the extra turns. I do that too. Every time.'];
+    shipSay('G', lines[Math.floor(Math.random() * lines.length)]);
+    const quit = $('pipeQuit'); if (quit) { quit.textContent = s.done >= ENGINE_JOBS ? 'Done for today' : 'Next job'; quit.className = 'btn'; quit.onclick = () => { pipe = null; renderEnginePanel(); }; }
+    if (deck) deck.fixedT = performance.now();
+  }
+
+  function engineDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    const s = engState(), broken = s.done < ENGINE_JOBS, pulse = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t / 600);
+    // back wall: dark plates, rivets, copper pipes
+    px(c, 0, 0, W, 86, '#181d2c'); for (let x = 0; x < W; x += 32) { px(c, x, 0, 1, 86, '#141826'); for (let y = 8; y < 84; y += 18) { px(c, x + 3, y, 1, 1, '#2c3348'); px(c, x + 28, y, 1, 1, '#2c3348'); } }
+    px(c, 0, 80, W, 6, '#10131e');
+    px(c, 0, 8, W, 4, '#a8652a'); px(c, 0, 9, W, 1, '#d08a4a'); for (let x = 20; x < W; x += 48) px(c, x, 7, 3, 6, '#6a4020');
+    px(c, 8, 12, 4, 74, '#a8652a'); px(c, 9, 12, 1, 74, '#d08a4a'); px(c, 244, 12, 4, 74, '#7a8090'); px(c, 245, 12, 1, 74, '#a8b0c0');
+    px(c, 160, 12, 3, 30, '#7a8090'); px(c, 160, 40, 24, 3, '#7a8090');
+    // the core: a tall glass cylinder with rings of light rising through it
+    c.fillStyle = `rgba(127,214,255,${0.08 + pulse * 0.08})`; c.beginPath(); c.arc(128, 46, 46, 0, Math.PI * 2); c.fill();
+    px(c, 104, 8, 48, 8, '#5a6278'); px(c, 104, 76, 48, 10, '#5a6278'); px(c, 106, 10, 44, 2, '#8a93ab'); px(c, 106, 78, 44, 2, '#8a93ab');
+    px(c, 112, 16, 32, 60, '#0e2a3a');
+    const g = c.createLinearGradient(112, 0, 144, 0); g.addColorStop(0, 'rgba(127,214,255,0.25)'); g.addColorStop(0.5, `rgba(191,239,255,${0.55 + pulse * 0.3})`); g.addColorStop(1, 'rgba(127,214,255,0.25)');
+    c.fillStyle = g; c.fillRect(114, 16, 28, 60);
+    for (let i = 0; i < 5; i++) { const y = 76 - ((t / 40 + i * 12) % 60); px(c, 114, Math.round(y), 28, 2, `rgba(255,255,255,${0.25 + 0.35 * (1 - (76 - y) / 60)})`); }
+    px(c, 112, 16, 2, 60, 'rgba(255,255,255,0.18)'); px(c, 142, 16, 2, 60, 'rgba(0,0,0,0.25)');
+    for (const bx of [106, 146]) px(c, bx, 16, 4, 60, '#3a4256');
+    // gauges, wobbling
+    for (const [gx, gy] of [[84, 26], [94, 38]]) {
+      c.fillStyle = '#c9cfdc'; c.beginPath(); c.arc(gx, gy, 6, 0, Math.PI * 2); c.fill(); c.fillStyle = '#14182a'; c.beginPath(); c.arc(gx, gy, 5, 0, Math.PI * 2); c.fill();
+      px(c, gx - 4, gy - 1, 2, 1, '#58e0a0'); px(c, gx + 2, gy - 1, 2, 1, broken ? '#ff6b5e' : '#58e0a0');
+      const a = -Math.PI / 2 + (broken ? 0.9 + Math.sin(t / 180 + gx) * 0.35 : -0.2 + Math.sin(t / 900 + gx) * 0.1);
+      c.strokeStyle = '#ffb547'; c.lineWidth = 1; c.beginPath(); c.moveTo(gx, gy); c.lineTo(gx + Math.cos(a) * 4, gy + Math.sin(a) * 4); c.stroke();
+    }
+    // the power junction: a panel of switches and lights
+    px(c, 184, 20, 56, 54, '#2a3150'); px(c, 186, 22, 52, 50, '#141a30');
+    for (let r = 0; r < 4; r++) for (let k = 0; k < 6; k++) {
+      const on = !broken || (r * 6 + k) % 5 !== 0, blink = broken && !on && Math.floor(t / 300 + k) % 2;
+      px(c, 190 + k * 8, 26 + r * 9, 4, 4, on ? ((r + k) % 3 ? '#58e0a0' : '#7fd6ff') : blink ? '#ffb547' : '#3a2a1a');
+    }
+    px(c, 190, 63, 44, 5, '#0a0e1a'); px(c, 192 + Math.floor(((t / 40) % 40)), 64, 4, 3, broken ? '#ffb547' : '#58e0a0');
+    if (deck.fixedT && t - deck.fixedT < 900) { c.fillStyle = `rgba(255,229,138,${0.4 * (1 - (t - deck.fixedT) / 900)})`; c.fillRect(184, 20, 56, 54); }
+    // the workbench and the tool board
+    px(c, 18, 26, 52, 28, '#3a3020'); px(c, 19, 27, 50, 26, '#4a3e2a');
+    for (let k = 0; k < 5; k++) { px(c, 23 + k * 9, 30, 2, 12 + (k % 2) * 4, '#8a93ab'); px(c, 22 + k * 9, 30, 4, 3, '#a8b0c0'); }
+    px(c, 16, 62, 56, 4, '#7a5c44'); px(c, 16, 66, 56, 2, '#5a4636'); px(c, 20, 68, 3, 18, '#5a4636'); px(c, 65, 68, 3, 18, '#5a4636');
+    px(c, 24, 57, 10, 5, '#c94236'); px(c, 26, 55, 6, 2, '#8a93ab'); px(c, 46, 58, 14, 4, '#5a6278'); px(c, 58, 56, 4, 6, '#3a4256');
+    // the big red lever that isn't connected to anything
+    px(c, 168, 50, 6, 12, '#3a4256'); px(c, 170, 42, 2, 9, '#8a93ab'); px(c, 168, 40, 6, 4, '#ff6b5e');
+    // steam now and then
+    if (!reduceMotion) { const k = (t % 5200) / 1400; if (k < 1) for (let i = 0; i < 4; i++) px(c, 162 + i * 2 + Math.round(k * 6), Math.round(40 - k * 18 - i * 2), 2, 2, `rgba(220,230,240,${0.35 * (1 - k)})`); }
+    // floor: grating, and hazard stripes in front of the core
+    px(c, 0, 86, W, SHIP_H - 86, '#1a1f2c');
+    for (let y = 90; y < SHIP_H; y += 6) px(c, 0, y, W, 1, '#151927');
+    for (let x = 0; x < W; x += 6) px(c, x, 86, 1, SHIP_H - 86, '#151927');
+    for (let x = 98; x < 158; x += 8) { px(c, x, 86, 4, 4, '#ffb547'); px(c, x + 4, 86, 4, 4, '#1a1f2c'); }
+    px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'HALL', true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    // a toolbox and a crate on the floor
+    things.push([126, () => { px(c, 214, 116, 20, 10, '#c94236'); px(c, 214, 116, 20, 2, '#e05a4a'); px(c, 221, 113, 6, 3, '#8a93ab'); }]);
+    things.push([140, () => { px(c, 22, 124, 22, 16, '#6a5236'); px(c, 22, 124, 22, 2, '#8a6a46'); px(c, 22, 131, 22, 1, '#4a3a26'); }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
   // ---- Crumb's salvage runs ----
   const salvage = () => { try { return JSON.parse(store.get('ds-salvage', 'null')); } catch (e) { return null; } };
   const crumbOut = () => { const s = salvage(); return !!s && !s.back; };
@@ -9317,6 +9576,7 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'projects', name: 'Fund ship repairs', where: 'Hallway · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => true, tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
     { id: 'wardrobe', name: 'Dress your pilot', where: 'Menu → Journal → Wardrobe', what: 'Outfits and hats that show everywhere, from the hallway to your license.', open: () => stats.landings >= 3, tried: () => wardOwned.size > 0, hi: ['F', 'You’ve been wearing the same flight suit for days. The wardrobe is in Menu → Journal. Treat yourself.'] },
     { id: 'galley', name: 'Cook meals', where: 'Hallway · GALLEY door', what: 'Two crops make a meal. Meals are the best gifts on the ship.', open: () => Object.keys(garden.basket).length > 0 || store.get('ds-galleySeen', '') === '1', tried: () => store.get('ds-galleySeen', '') === '1', hi: ['G', 'You’ve got crops in your basket! Take them to the galley at the end of the hallway and cook something. Meals are the best gifts there are.'] },
+    { id: 'engine', name: 'Fix things in the engine room', where: 'Hallway · ENGINE door, at the far end', what: 'Three pipe-puzzle repair jobs a day from Gus, paid in credits, with a bonus for tidy work.', open: () => true, tried: () => repairsTotal() > 0, hi: ['G', 'The engine room is at the far end of the hallway. I always have paid repair jobs for you!'] },
     { id: 'mining', name: 'Mine asteroids', where: 'Hangar · ⛏ Asteroid mining (or the flight deck)', what: 'Three pod runs a day for ore and gems.', open: () => stats.landings >= 2, tried: () => !!store.get('ds-mining', ''), hi: ['G', 'The mining pod’s fuelled! Hop in from the hangar: ore for credits, gems for gifts. Three runs a day.'] },
     { id: 'salvage', name: 'Send Crumb salvaging', where: 'Hangar · Crumb’s dock', what: 'Crumb digs up credits, gems and oddities while you fly.', open: () => crumbHome() && stats.worlds.length > 0, tried: () => !!salvage(), hi: ['K', '*hopeful beeping* (Crumb is parked by his dock in the hangar with his scoop out. He wants to go salvaging. Walk up to him!)'] },
     { id: 'quarters', name: 'Visit the crew’s rooms', where: 'Hallway · CREW door', what: 'Rooms open at 3 hearts. A light under the door means they’re home.', open: () => ROM_WHO.some(w => romMet[w]() && roomOpen(w)), tried: () => ROM_WHO.some(w => store.get('ds-roomSeen-' + w, '') === '1'), hi: ['F', 'Somebody likes you enough to let you in. The crew quarters are behind the CREW door. Knock, knock.'] },
@@ -12324,7 +12584,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
-    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
     if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
     if (mode === 'wardrobe') { if (e.code === 'Escape') { wardUI.trying = null; setMode(wardFrom === 'license' ? 'license' : wardFrom === 'den' ? 'den' : 'title'); } return; }
