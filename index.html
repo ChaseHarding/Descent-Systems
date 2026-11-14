@@ -581,6 +581,8 @@ kbd {
 .den { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .den .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); text-wrap: balance; }
 .den .sub .cr { color: var(--flame); margin-left: 6px; white-space: nowrap; }
+.den canvas.room.padroom { aspect-ratio: 200 / 148; touch-action: none; }
+.den canvas.room.padroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 .den canvas.room { display: block; width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .den .spots { display: flex; flex-wrap: wrap; gap: 5px; }
 .den .spots button { padding: 6px 9px; border: 1px solid var(--space-2); border-radius: 4px; background: var(--panel); color: var(--regolith-dim); font-family: var(--f-mono); font-size: 11px; cursor: pointer; }
@@ -4984,7 +4986,13 @@ details.act > .limits { margin: 0 0 8px; }
   const LOOKS = {
     F: { skin: '#9a5f43', hair: '#2b1d16', style: 'curly', top: '#26355e', pants: '#1e2a4c', shoes: '#15151f', acc: 'glasses', streak: '#8a8f9c' },
     G: { skin: '#f2c9a2', hair: '#c46a2c', style: 'messy', top: '#3d6b63', pants: '#3d6b63', shoes: '#5a3a24', acc: 'goggles' },
-    W: { skin: '#c99470', hair: '#d7dbe3', style: 'long', top: '#6b4226', pants: '#3a3040', shoes: '#2a1a12', scarf: '#ff9ad5' }
+    W: { skin: '#c99470', hair: '#d7dbe3', style: 'long', top: '#6b4226', pants: '#3a3040', shoes: '#2a1a12', scarf: '#ff9ad5' },
+    R: { skin: '#e8b48a', hair: '#1f1a24', style: 'pompadour', top: '#d9a420', pants: '#f4f1e8', shoes: '#2a1a3a', acc: 'shades' },
+    J: { skin: '#7a4a32', hair: '#141018', style: 'bun', top: '#2f5d58', pants: '#2f5d58', shoes: '#141018', acc: 'headset' },
+    M: { skin: '#d9a07a', hair: '#3a2418', style: 'puffs', top: '#ffcf3a', pants: '#ffcf3a', shoes: '#ff6b5e', kid: true },
+    V: { skin: '#c98d62', hair: '#20182a', style: 'short', top: '#1d3340', pants: '#1d3340', shoes: '#14223a', trim: '#c9e8ff' },
+    Y: { skin: '#e8b48c', hair: '#3a2050', style: 'long', top: '#3a1f40', pants: '#2a1430', shoes: '#2a1838', trim: '#c9e8ff' },
+    O: { skin: '#f0e2c0', hair: null, style: 'none', top: '#26355e', pants: '#26355e', shoes: '#5a4030', moth: true }
   };
   const pilotLook = () => {
     const suit = (LIC_SUITS.find(x => x[0] === lic.suit) || LIC_SUITS[0])[2];
@@ -4993,7 +5001,12 @@ details.act > .limits { margin: 0 0 8px; }
   // A 16 x 24 person, feet at (x + 8, y + 24). dir: 0 down, 1 left, 2 right, 3 up. frame 0-3 walks.
   // seated draws only the top half (a table goes in front).
   function drawSprite(c, L, x, y, dir, frame, seated) {
-    x = Math.round(x); y = Math.round(y);
+    x = Math.round(x); y = Math.round(y) + (L.kid ? 3 : 0);
+    if (L.moth && dir !== 3) {   // Ollo's wings, behind him
+      const wc = '#b89a6a', wl = '#d4b888';
+      if (dir === 0) { px(c, x - 4, y + 9, 5, 10, wc); px(c, x + 15, y + 9, 5, 10, wc); px(c, x - 3, y + 10, 3, 8, wl); px(c, x + 16, y + 10, 3, 8, wl); px(c, x - 2, y + 13, 1, 1, '#5a4030'); px(c, x + 17, y + 13, 1, 1, '#5a4030'); }
+      else px(c, dir === 1 ? x + 10 : x - 2, y + 8, 8, 11, wc);
+    }
     const P = (a, b, w, h, col) => px(c, x + a, y + b, w, h, col);
     const step = frame === 1 ? 1 : frame === 3 ? -1 : 0, side = dir === 1 || dir === 2, flip = dir === 2;
     const X = (a, w) => flip ? 16 - a - w : a;   // mirror for facing right
@@ -5020,6 +5033,8 @@ details.act > .limits { margin: 0 0 8px; }
       P(X(7 + swing, 2), 13, 2, 4, L.top); P(X(7 + swing, 2), 17, 2, 1, L.skin);
     }
     if (L.scarf) { P(4, 12, 8, 2, L.scarf); if (dir === 0) P(7, 14, 2, 2, L.scarf); }
+    if (L.trim && dir === 0) { P(5, 12, 1, 3, L.trim); P(10, 12, 1, 3, L.trim); P(7, 15, 2, 4, L.trim); }
+    if (L.moth && dir === 3) { P(1, 9, 3, 10, '#b89a6a'); P(12, 9, 3, 10, '#b89a6a'); }
     // head
     P(5, 2, 6, 1, L.skin); P(4, 3, 8, 8, L.skin); P(5, 11, 6, 1, L.skin);
     // face
@@ -5049,12 +5064,28 @@ details.act > .limits { margin: 0 0 8px; }
       H(4, 2, 8, 2); if (dir === 3) H(4, 3, 8, 6); if (side) H(9, 3, 3, 3);
     } else if (st === 'mohawk') {
       P(7, -2, 2, 6, h); if (dir === 3) P(7, 3, 2, 7, h);
+    } else if (st === 'pompadour') {
+      H(4, 0, 9, 3); H(5, -2, 7, 2); H(3, 2, 1, 4); H(12, 2, 1, 3);
+      if (dir === 3) H(4, 2, 8, 7);
+      if (side) H(9, 2, 3, 5);
+    } else if (st === 'puffs') {
+      H(4, 1, 8, 3); H(1, 1, 3, 4); H(12, 1, 3, 4); if (dir === 0) { P(3, 2, 1, 1, '#ff9ad5'); P(12, 2, 1, 1, '#ff9ad5'); }
+      if (dir === 3) H(4, 3, 8, 6);
+      if (side) H(9, 3, 3, 4);
     } else if (st === 'curly2' || st === 'short' || !st) {
       H(4, 1, 8, 3); H(3, 2, 1, 4); H(12, 2, 1, 4);
       if (dir === 3) H(4, 3, 8, 6);
       if (side) H(9, 3, 3, 4);
     }
     // accessories
+    if (L.moth) {   // fuzzy moth head: big dark eyes and feathery antennae
+      P(4, 2, 8, 9, '#f0e2c0'); P(3, 4, 1, 5, '#fff6e0'); P(12, 4, 1, 5, '#fff6e0');
+      if (dir === 0) { P(5, 5, 2, 3, '#15151f'); P(9, 5, 2, 3, '#15151f'); P(5, 5, 1, 1, '#ffffff'); P(9, 5, 1, 1, '#ffffff'); }
+      else if (side) P(X(4, 2), 5, 2, 3, '#15151f');
+      P(5, 0, 1, 2, '#c9b48a'); P(4, -2, 1, 2, '#c9b48a'); P(3, -3, 2, 1, '#e4d2a8'); P(10, 0, 1, 2, '#c9b48a'); P(11, -2, 1, 2, '#c9b48a'); P(11, -3, 2, 1, '#e4d2a8');
+      P(5, 12, 6, 1, '#f0dca0');
+    }
+    if (L.acc === 'shades' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#15151f'); else { P(4, 6, 8, 2, '#15151f'); P(5, 6, 1, 1, '#7fd6ff'); P(9, 6, 1, 1, '#7fd6ff'); } }
     if (L.acc === 'glasses' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#c9cfdc'); else { P(4, 6, 3, 1, '#c9cfdc'); P(9, 6, 3, 1, '#c9cfdc'); P(7, 6, 2, 1, '#c9cfdc'); } }
     if (L.acc === 'goggles') { P(3, 3, 10, 1, '#5a4636'); if (dir === 0) { P(5, 2, 2, 2, '#7fd6ff'); P(9, 2, 2, 2, '#7fd6ff'); } else if (side) P(X(4, 2), 2, 2, 2, '#7fd6ff'); }
     if (L.acc === 'headset') { P(3, 4, 1, 5, '#3a4668'); P(12, 4, 1, 5, '#3a4668'); P(4, 2, 8, 1, '#3a4668'); if (dir === 0) P(4, 9, 2, 1, '#3a4668'); }
@@ -5074,6 +5105,21 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, x + 3, y + 2, 7, 6, o); px(c, x + 4, y - 2, 6, 5, o); px(c, x + 4, y - 3, 1, 1, o); px(c, x + 9, y - 3, 1, 1, o);
       px(c, x + 5, y - 1, 1, 1, '#15151f'); px(c, x + 8, y - 1, 1, 1, '#15151f'); px(c, x + 10, y + 5, 3, 2, d); px(c, x + 12, y + 3, 1, 2, d);
     }
+  }
+  // Zib floats: a lavender bell with big eyes and drifting tentacles
+  function drawZibSprite(c, x, y, dir, t) {
+    x = Math.round(x); const bob = reduceMotion ? 0 : Math.round(Math.sin(t / 400) * 1.5); y = Math.round(y) + bob;
+    c.fillStyle = 'rgba(0,0,0,0.2)'; c.beginPath(); c.ellipse(x + 8, y + 24 - bob, 5, 1.5, 0, 0, Math.PI * 2); c.fill();
+    for (let i = 0; i < 4; i++) { const tx = x + 4 + i * 3, sway = Math.round(Math.sin(t / 300 + i) * 1); px(c, tx + sway, y + 12, 1, 7, i % 2 ? '#ff9ad5' : '#c8a2ff'); }
+    px(c, x + 4, y + 2, 8, 1, '#e6d4ff'); px(c, x + 3, y + 3, 10, 2, '#d8bfff'); px(c, x + 2, y + 5, 12, 6, '#c8a2ff'); px(c, x + 2, y + 11, 12, 1, '#a884e8');
+    px(c, x + 4, y + 3, 2, 1, '#f4ecff');
+    if (dir !== 3) { const off = dir === 1 ? -1 : dir === 2 ? 1 : 0; px(c, x + 5 + off, y + 6, 2, 2, '#2a1a40'); px(c, x + 9 + off, y + 6, 2, 2, '#2a1a40'); px(c, x + 5 + off, y + 6, 1, 1, '#ffffff'); px(c, x + 9 + off, y + 6, 1, 1, '#ffffff'); }
+  }
+  // anyone, by who they are
+  function drawPerson(c, who, x, y, dir, frame, t) {
+    if (who === 'Z') drawZibSprite(c, x, y, dir, t);
+    else if (who === 'P') drawSprite(c, pilotLook(), x, y, dir, frame, false);
+    else if (LOOKS[who]) drawSprite(c, LOOKS[who], x, y, dir, frame, false);
   }
   function drawCrumbSprite(c, x, y, dir, t, moving) {
     x = Math.round(x); y = Math.round(y);
@@ -5166,7 +5212,7 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'box', rect: [198, 120, 28, 26], stand: [212, 152], face: 3, act: () => setMode('album') });
     L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
     L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); setMode('hangar'); } });
-    L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); setMode('den'); } });
+    L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('den'); } });
     return L;
   }
   const WALK_COFFEE = [
@@ -5878,9 +5924,11 @@ details.act > .limits { margin: 0 0 8px; }
     // lighting
     if (L.fixture) L.fixture(c, t);
     L.overlay(c, t);
-    // the rounded rim of the cabin
-    c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, RW, RH); rrectPath(c, 1, 1, RW - 2, RH - 2, 10); c.fill('evenodd');
-    c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 1; rrect(c, 1.5, 1.5, RW - 3, RH - 3, 10); c.stroke();
+    // the rounded rim of the cabin (the walkable Pad draws its own around the whole room)
+    if (!denNoRim) {
+      c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, RW, RH); rrectPath(c, 1, 1, RW - 2, RH - 2, 10); c.fill('evenodd');
+      c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 1; rrect(c, 1.5, 1.5, RW - 3, RH - 3, 10); c.stroke();
+    }
     // highlight the spot being decorated
     const s = sel && denSpot(sel);
     if (s && !s.room && (reduceMotion || Math.floor(t / 400) % 2)) {
@@ -6215,10 +6263,11 @@ details.act > .limits { margin: 0 0 8px; }
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
       <h1 class="good">The Pad</h1>
-      <p class="sub">Your cabin. Tap anything in the room to change it. <span class="cr">${fmt(credits)} cr</span></p>
+      <p class="sub">Your cabin. Walk over to anything to change it. <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay">
         <div class="col">
-          <canvas class="room" id="denCv" width="${RW}" height="${RH}" role="img" aria-label="Your cabin: a bunk, a desk, a shelf, a window and whatever you've decorated it with"></canvas>
+          <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap the floor to walk; tap furniture to decorate it, or a guest to chat. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
+          <p class="walkhint">Tap to walk · tap furniture to decorate it · the door leads back to the break room</p>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
@@ -6246,29 +6295,22 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-pv]').forEach(el => { const cv = denPreview(spot, el.dataset.pv); cv.className = 'pvc'; el.appendChild(cv); });
     markSeen('ds-seenDen', [...newIn].filter(k => k.startsWith(pool + ':')));
     const look = () => denUI.trying ? { ...denLook, [spot]: denUI.trying } : denLook;
-    const cv = $('denCv');
     clearInterval(denUI.anim);
-    drawDen(cv, look(), spot, undefined, denUI);
-    denUI.anim = setInterval(() => { if (denUI) drawDen($('denCv'), look(), denUI.spot, undefined, denUI); }, 100);
     denSay(denUI.say[0], denUI.say[1], fresh);
     const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
     const pet = () => { const at = denCatSpot(denUI.cat, look()), opts = DEN_CAT[at.id].filter(t => t !== denUI.lastLine); const line = opts[Math.floor(Math.random() * opts.length)]; denUI.lastLine = line; denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', line); reqEvent('pet'); };
     const chat = () => { bondTalk(denUI.visitor); denSay(denUI.visitor, bond.partner === denUI.visitor && ROM[denUI.visitor] && Math.random() < 0.4 ? ROM[denUI.visitor].date[Math.floor(Math.random() * 3)] : denTalkFor(denUI.visitor, look())); };
-    cv.addEventListener('click', e => {
-      const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
-      if (denUI.cat) { const at = denCatSpot(denUI.cat, look()); if (x >= at.x - 5 && x <= at.x + 16 && y >= at.y - 6 && y <= at.y + 8) { pet(); return; } }
-      if (denUI.visitor && x >= 88 && x <= 112 && y >= 33 && y <= 64) { chat(); return; }
-      if (crumbHome() && crumbHit(denUI.crumb, x, y)) {
-        const L = loungeLines('K').filter(l => !/table|Apogee is asleep on top/.test(l));
-        denUI.crumb.beep = performance.now() + 1500; denUI.crumb.pause = performance.now() + 1800;
-        sfx.beep(); denSay('K', L[Math.floor(Math.random() * L.length)]);
-        return;
-      }
-      const hit = denHit(e);
+    const crumbTalk = () => {
+      const L = loungeLines('K').filter(l => !/table|Apogee is asleep on top/.test(l));
+      sfx.beep(); store.set('ds-crumbSeen', '1'); denSay('K', L[Math.floor(Math.random() * L.length)]);
+    };
+    const tapSpot = hit => {
       if (hit === 'floor' && denLook.floor === 'arcade' && !denUI.trying) { sfx.click(); setMode('arcade'); return; }
       if (hit === 'wallR' && denLook.wallR === 'cert' && !denUI.trying) { sfx.click(); licenseFrom = 'den'; setMode('license'); return; }
       pick(hit);
-    });
+      const head = card.querySelector('.spothead'); if (head && matchMedia('(max-width: 760px)').matches) head.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    };
+    startPadWalk(look, tapSpot, pet, chat, crumbTalk);
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
     $('denSnap').addEventListener('click', denSnap);
@@ -6310,6 +6352,150 @@ details.act > .limits { margin: 0 0 8px; }
     denTourWire();
     $('back').addEventListener('click', () => setMode('title'));
   }
+
+  // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
+  const PW = 200, PH = 148, PAD_B = [8, 86, 182, 140], PS = 2;   // the canvas is drawn at 2x; people at 1.5x the room's scale
+  let padOff = null, denNoRim = false;
+  function startPadWalk(look, pick, pet, chat, crumbTalk) {
+    const cv = $('denCv');
+    if (!cv) return;
+    let pw = denUI.walk;
+    if (pw) cancelAnimationFrame(pw.raf);
+    if (!pw) {
+      const from = walkEnter; walkEnter = null;
+      pw = denUI.walk = { me: from === 'lounge' ? { x: 176, y: 122, dir: 1 } : { x: 100, y: 124, dir: 3 }, target: null, keys: {}, guest: null,
+        crumb: crumbHome() ? { x: 20 + Math.random() * 120, y: 130, dir: 1, pause: 1 } : null };
+      Object.assign(pw.me, { goal: null, moving: false });
+    }
+    pw.cv = cv; pw.c = cv.getContext('2d'); pw.last = performance.now();
+    pw.look = look; pw.acts = { pick, pet, chat, crumbTalk };
+    if (denUI.visitor && (!pw.guest || pw.guest.who !== denUI.visitor)) pw.guest = { who: denUI.visitor, x: pw.me.x < 100 ? 140 : 60, y: 100, dir: 0, goal: null, timer: 2 };
+    if (!denUI.visitor) pw.guest = null;
+    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * PW / b.width, (e.clientY - b.top) * PH / b.height]; };
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const [x, y] = toWorld(e);
+      const hit = padThings(pw).find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
+      padGo(pw, hit, x, y);
+    });
+    const loop = () => {
+      if (!denUI || denUI.walk !== pw || mode !== 'den' || !document.body.contains(cv)) return;
+      const t = performance.now(), dt = Math.min(0.05, (t - pw.last) / 1000);
+      pw.last = t;
+      padStep(pw, dt);
+      if (!denUI || denUI.walk !== pw || !document.body.contains(cv)) return;
+      padDraw(pw, t);
+      pw.raf = requestAnimationFrame(loop);
+    };
+    pw.raf = requestAnimationFrame(loop);
+  }
+  const clampP = (x, y) => [Math.max(PAD_B[0], Math.min(PAD_B[2], x)), Math.max(PAD_B[1], Math.min(PAD_B[3], y))];
+  function padThings(pw) {
+    const L = [], look = pw.look();
+    const g = pw.guest;
+    if (g) L.push({ id: 'guest', rect: [g.x - 12, g.y - 38, 24, 39], go: () => clampP(g.x + (pw.me.x < g.x ? -15 : 15), g.y), at: () => g, act: () => { g.timer = 4; g.goal = null; g.dir = faceToward(g, pw.me); pw.acts.chat(); } });
+    if (pw.crumb) L.push({ id: 'crumb', rect: [pw.crumb.x - 2, pw.crumb.y - 8, 25, 22], go: () => clampP(pw.crumb.x + (pw.me.x < pw.crumb.x ? -10 : 22), pw.crumb.y + 6), at: () => ({ x: pw.crumb.x + 7, y: pw.crumb.y + 8 }), act: () => { pw.crumb.pause = 2.5; pw.acts.crumbTalk(); } });
+    if (denUI.cat) { const at = denCatSpot(denUI.cat, look); L.push({ id: 'cat', rect: [at.x - 6, at.y - 7, 23, 16], go: () => clampP(at.x + 5, at.y + 14), at: () => ({ x: at.x + 5, y: at.y }), act: () => pw.acts.pet() }); }
+    L.push({ id: 'door', rect: [184, 92, 16, 48], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode('lounge'); } });
+    // decorations: smallest first, so a shelf wins over the wall behind it
+    const spots = DEN_SPOTS.filter(d => !d.room).slice().sort((a, b) => a.w * a.h - b.w * b.h);
+    for (const d of spots) L.push({ id: d.id, rect: [d.x, d.y, d.w, d.h], go: () => clampP(d.x + d.w / 2, d.y + d.h + 10), at: () => ({ x: d.x + d.w / 2, y: d.y }), act: () => pw.acts.pick(d.id) });
+    return L;
+  }
+  function padGo(pw, thing, x, y) {
+    const me = pw.me;
+    pw.target = thing || null;
+    me.goal = thing ? thing.go() : clampP(x, y);
+    if (!thing) pw.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
+    if (thing && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; padArrive(pw); }
+  }
+  function padArrive(pw) {
+    const th = pw.target; pw.target = null;
+    if (!th) return;
+    pw.me.dir = faceToward(pw.me, th.at());
+    th.act();
+  }
+  function padStep(pw, dt) {
+    const me = pw.me, SPEED = 50;
+    const kx = (pw.keys.ArrowRight ? 1 : 0) - (pw.keys.ArrowLeft ? 1 : 0), ky = (pw.keys.ArrowDown ? 1 : 0) - (pw.keys.ArrowUp ? 1 : 0);
+    me.moving = false;
+    if (kx || ky) {
+      me.goal = null; pw.target = null;
+      const n = Math.hypot(kx, ky); [me.x, me.y] = clampP(me.x + kx / n * SPEED * dt, me.y + ky / n * SPEED * dt);
+      me.dir = Math.abs(kx) > Math.abs(ky) ? (kx < 0 ? 1 : 2) : (ky < 0 ? 3 : 0); me.moving = true;
+    } else if (me.goal) {
+      const dx = me.goal[0] - me.x, dy = me.goal[1] - me.y, d = Math.hypot(dx, dy);
+      if (d < 1.2) { me.goal = null; padArrive(pw); return; }
+      const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
+      me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
+    }
+    // your guest wanders about, admiring things
+    const g = pw.guest;
+    if (g) {
+      if (g.goal) {
+        const dx = g.goal[0] - g.x, dy = g.goal[1] - g.y, d = Math.hypot(dx, dy);
+        if (d < 1.2) { g.goal = null; g.timer = 3 + Math.random() * 5; g.dir = Math.random() < 0.6 ? 3 : 0; }
+        else { const st = Math.min(d, 26 * dt); g.x += dx / d * st; g.y += dy / d * st; g.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
+      } else if ((g.timer -= dt) <= 0 && denUI.talking !== g.who) {
+        let gx, gy, k = 0;
+        do { gx = 20 + Math.random() * 150; gy = 90 + Math.random() * 40; k++; } while (k < 8 && Math.hypot(gx - me.x, gy - me.y) < 24);
+        g.goal = [gx, gy];
+      }
+    }
+    const cr = pw.crumb;
+    if (cr) {
+      if (cr.pause > 0) { cr.pause -= dt; cr.moving = false; }
+      else {
+        cr.x += cr.dir * 9 * dt; cr.moving = true;
+        if (cr.x < 10) { cr.x = 10; cr.dir = 1; cr.pause = 1; }
+        if (cr.x > 166) { cr.x = 166; cr.dir = -1; cr.pause = 1; }
+        if (Math.random() < dt * 0.2) { cr.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) cr.dir *= -1; }
+      }
+    }
+  }
+  function padDraw(pw, t) {
+    const c = pw.c, look = pw.look();
+    c.setTransform(PS, 0, 0, PS, 0, 0);
+    c.imageSmoothingEnabled = false;
+    if (!padOff) { padOff = document.createElement('canvas'); padOff.width = RW; padOff.height = RH; }
+    // your cabin exactly as decorated, with the spot you're editing outlined
+    denNoRim = true; drawDen(padOff, look, denUI.spot, t, null); denNoRim = false;
+    if (denUI.cat) { const oc = padOff.getContext('2d'); drawDenCat(oc, denCatSpot(denUI.cat, look), performance.now() < (denUI.catAwake || 0), t); }
+    // the floor carries on toward you, in whatever flooring you picked
+    const fl = denItem('floorStyle', look.floorStyle);
+    for (let k = 1; k < 4; k++) { c.save(); c.translate(0, 22 * k); fl.draw(c, t); c.restore(); }
+    const fade = c.createLinearGradient(0, 100, 0, PH); fade.addColorStop(0, 'rgba(0,0,0,0.05)'); fade.addColorStop(1, 'rgba(0,0,0,0.28)');
+    c.fillStyle = fade; c.fillRect(0, 100, PW, PH - 100);
+    c.drawImage(padOff, 0, 0);
+    // the door back to the break room
+    px(c, 186, 92, 14, 48, '#c9b897'); px(c, 188, 94, 12, 46, '#2a2f45'); px(c, 190, 96, 10, 42, '#3a4060'); px(c, 191, 117, 2, 3, '#ffb547');
+    px(c, 187, 86, 12, 5, '#ffb547'); px(c, 188, 87, 10, 3, '#2a1d0a'); px(c, 190, 88, 2, 1, '#ffb547'); px(c, 193, 88, 2, 1, '#ffb547'); px(c, 196, 88, 1, 1, '#ffb547');
+    if (pw.tap && t - pw.tap.t < 500) { const k = (t - pw.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(pw.tap.x, pw.tap.y, 4 + k * 5, 2 + k * 2.5, 0, 0, Math.PI * 2); c.stroke(); }
+    // people and rovers, back to front, drawn at 1.5x so they're the right size for the furniture
+    const big = (wx, wy, ox, oy, fn) => { c.save(); c.setTransform(PS * 1.5, 0, 0, PS * 1.5, Math.round(PS * wx - ox * PS * 1.5), Math.round(PS * wy - oy * PS * 1.5)); fn(); c.restore(); };
+    const things = [], me = pw.me;
+    things.push([me.y, () => big(me.x, me.y, 8, 24, () => drawPerson(c, 'P', 0, 0, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t))]);
+    const g = pw.guest;
+    if (g) { const bob = denUI.talking === g.who && Math.floor(t / 90) % 2 ? -1 : 0; things.push([g.y, () => big(g.x, g.y, 8, 24 - bob, () => drawPerson(c, g.who, 0, 0, g.dir, g.goal ? Math.floor(t / 150) % 4 : 0, t))]); }
+    if (pw.crumb) things.push([pw.crumb.y + 12, () => big(pw.crumb.x, pw.crumb.y + 12, 0, 10, () => drawCrumbSprite(c, 0, 0, pw.crumb.dir, t, pw.crumb.moving))]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    // the rim around the whole room
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    const Wd = PW * PS, Hd = PH * PS;
+    c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, Wd, Hd); rrectPath(c, 2, 2, Wd - 4, Hd - 4, 20); c.fill('evenodd');
+    c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 2; rrect(c, 3, 3, Wd - 6, Hd - 6, 19); c.stroke();
+  }
+  window.addEventListener('keydown', e => {
+    const pw = denUI && denUI.walk;
+    if (!pw || mode !== 'den' || document.activeElement !== pw.cv) return;
+    if (e.key.startsWith('Arrow')) { pw.keys[e.key] = true; e.preventDefault(); }
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const me = pw.me, near = padThings(pw).map(t2 => { const gp = t2.go(); return [Math.hypot(gp[0] - me.x, gp[1] - me.y), t2]; }).sort((a, b) => a[0] - b[0]);
+      if (near.length && near[0][0] < 24) { pw.target = near[0][1]; padArrive(pw); }
+    }
+  });
+  window.addEventListener('keyup', e => { const pw = denUI && denUI.walk; if (pw && e.key.startsWith('Arrow')) pw.keys[e.key] = false; });
 
   // ---- Descent Systems Classic: the playable arcade cabinet in the Pad ----
   // A tiny vector-graphics lander game in the style of the 1979 arcade machines. Fuel is your life:
