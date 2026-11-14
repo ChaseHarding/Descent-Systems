@@ -4535,7 +4535,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   const CRUMB_Y = 97;
   // Blip hides somewhere new each visit: the shelf, the window ledge, a mug, the box, under the table
-  const BLIP_SPOTS = [{ id: 'shelf', x: 30, y: 28 }, { id: 'ledge', x: 132, y: 45 }, { id: 'mug', x: 0, y: 56 }, { id: 'box', x: 166, y: 70 }, { id: 'floor', x: 118, y: 97 }];
+  const BLIP_SPOTS = [{ id: 'shelf', x: 30, y: 28 }, { id: 'poster', x: 186, y: 41 }, { id: 'mug', x: 0, y: 56 }, { id: 'box', x: 166, y: 70 }, { id: 'floor', x: 118, y: 97 }];
   function blipPx(c, x, y, t, peek) {
     const hop = !reduceMotion && Math.floor(t / 700) % 5 === 0 ? -1 : 0, X = Math.round(x), Y = Math.round(y) + hop;
     if (!peek) { px(c, X - 3, Y - 1, 7, 1, '#4fd070'); px(c, X - 4, Y - 6, 9, 5, '#7dff9a'); }
