@@ -463,7 +463,6 @@ kbd {
 .gift.homegrown { border-color: #58e0a0; }
 .gift.homegrown small { color: #9fe0b8; }
 .lounge canvas.walkroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
-.walkhint { margin: -4px 0 0; font-family: var(--f-mono); font-size: 11px; color: var(--regolith-dim); text-align: center; }
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; position: relative; }
@@ -5085,7 +5084,6 @@ details.act > .limits { margin: 0 0 8px; }
     card.innerHTML = `<div class="lounge">
       <h1 class="good">Break room</h1>
       <canvas class="room walkroom" id="room" width="${WW}" height="${WH}" tabindex="0" role="application" aria-label="The Descent Systems break room. Tap to walk; tap someone or something to use it. With a keyboard, use the arrow keys to walk and Enter to talk to whoever is nearest."></canvas>
-      <p class="walkhint">Tap to walk · tap people and things to use them · doors lead to the hangar, your Pad and the hallway</p>
       <div class="radio quote" id="loungeSay" aria-live="polite"></div>
       <div class="btns">
         <button class="btn ghost" id="back">☰ Menu</button>
@@ -6413,7 +6411,6 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
           <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap the floor to walk; tap furniture to decorate it, or a guest to chat. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
-          <p class="walkhint">${editing ? 'Tap furniture (or a button below) to pick the spot to change' : 'Tap to walk · tap furniture to decorate it · the door leads back to the ' + (roomBack.den === 'hall' ? 'hallway' : 'break room')}</p>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
@@ -6529,7 +6526,6 @@ details.act > .limits { margin: 0 0 8px; }
     card.innerHTML = `<div class="lounge garageroom">
       <h1 class="good">Hangar</h1>
       <canvas class="room walkroom" id="garCv" width="${GW * 2}" height="${GH * 2}" tabindex="0" role="application" aria-label="The hangar: your lander parked on the pad, your other landers in the bays, Gus's workbench and the big hangar door. Tap to walk; walk up to a lander or the workbench to open the hangar. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
-      <p class="walkhint">Tap to walk · walk up to a lander or the workbench to tune it up · the door leads to the ${roomBack.garage === 'hall' ? 'hallway' : 'break room'}</p>
       <div class="radio quote" id="garSay" aria-live="polite"></div>
       <div class="btns">
         <button class="btn" id="garOpen">Open the hangar</button>
@@ -6720,7 +6716,6 @@ details.act > .limits { margin: 0 0 8px; }
         ? 'The ship’s main hallway: doors to the hangar, the break room, the bridge and your Pad, and some sealed doors still to open. Tap to walk; walk up to a door to go through. With a keyboard, arrow keys walk and Enter uses the nearest door.'
         : gdn ? 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'
         : 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'}"></canvas>
-      <p class="walkhint">${hall ? 'Tap to walk · walk up to a door to go through it · sealed doors open later' : gdn ? 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips' : 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'}</p>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
