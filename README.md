@@ -220,11 +220,13 @@ Open **Missions** from the start screen. The campaign has 26 hand-built missions
 - **Pad hopping:** touch down safely on numbered pads in order.
 - **Sling load:** the cargo hangs on a cable below the lander and swings with momentum, and its pull tugs the lander around. Don't drag it into the ground, and lower it gently onto DROP. While it's hanging, the altitude readout shows the load's height.
 
-<p align="center"><img src="media/missions.png" alt="The mission select screen: twelve campaign missions with their star ratings, and a row of side missions from the crew, each tile showing the crew member who gave it" width="560"></p>
+<p align="center"><img src="media/missions.png" alt="The mission list on the Round trips tab: Story, Side jobs and Round trips tabs with star totals, and tiles for each round trip with the face of whoever asked, from Gus's Rock Collection to Crumb's Blip!" width="420"></p>
 
 The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way.
 
 A few friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Out past the inner planets you'll also meet **Zib**, a floating jellyfish trader who talks about itself in the third person and loves anything shiny; **Captain Ollo**, a polite moth pilot who is helpless around lamps; **Blip**, a tiny one-eyed green stowaway who moves into the break room and says only "bip"; and **Kael and Lyra Veyra**, glamorous twin envoys from an alien fleet who look human apart from their silver eyes. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
+
+![Friends you meet along the way: Juno the dock master, Pim from Moonbase Pim, Crumb the rover, Zib the jelly trader, Captain Ollo the moth pilot, Blip the stowaway, and Kael and Lyra Veyra, twin envoys](media/new-friends.png)
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
 
@@ -263,6 +265,8 @@ Side missions pay their own credits and have their own stars, but they don't cou
 ### Round trips
 
 Round trips turn a landing into the middle of the mission. Land on LZ and Crumb, the rover Gus built out of a shopping cart, a cooler and a lot of tape, rolls down a ramp from Biscuit's hatch. Drive it to do the job before its battery runs out, drive back up the ramp, then launch and dock with the Descent Systems mothership waiting above. Docking is gentle: get close under the port and slow down, and the clamp holds you up and pulls you in.
+
+<p align="center"><img src="media/round-trip.png" alt="A round trip on the Moon: on the left, Crumb the rover drives down the ramp from Biscuit toward a glowing moon rock with a pink marker over it, battery timer in the goal box; on the right, Biscuit climbs toward the Descent Systems mothership, following the pink guide beam under its docking clamp" width="760"></p>
 
 Crumb drives differently on every world. Slopes steeper than 45° stop it, so steps and ledges need a **HOP**, and hops get higher as gravity drops: a small wiggle on Mars, a big bounce on Pluto. Europa's ice has little grip, and Titan's thick air slows everything down. Pink arrows at the edge of the screen point to the nearest job on each side.
 
@@ -351,7 +355,7 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
-<p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus and Wren around a table, a corkboard and a coffee machine with Apogee curled up on the counter, and Wren talking about the day Apogee sat on her lap" width="560"></p>
+<p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus, Wren and your pilot in a space helmet around the table, Blip the tiny green alien peeking over the lander poster, Apogee riding on Crumb across the floor, Blip saying it found the cookie jar, and the Friends button showing a hangout is ready" width="480"></p>
 
 - Once you've finished your first round trip, **Crumb** the rover lives here too. He trundles along the front of the room, bonks into walls and stops to look around. Some days Apogee naps on top of him while he drives. Tap him, or the **Crumb** button, and he beeps. The crew translates: he has his own lines, and he grows new ones as you finish more round trips. Dottie, Gus and Wren have things to say about him too.
 
@@ -367,6 +371,11 @@ The **Friends ♥** button in the break room shows everyone you've met: Dottie, 
 - **Grow closer** by chatting once a day (here, in the break room, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
 - **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern, Zib loves anything shiny, Ollo loves a tiny desk lamp, Kael loves hair gel too, and Lyra loves flowers. Their reaction tells you how you did.
 - **Hang out** at 3 and 6 hearts for a short scene with each of them. Friendship tops out at 8 hearts.
+
+<p align="center">
+  <img src="media/friends.png" alt="The Friends screen: cards for Juno, Zib, Captain Ollo and Lyra Veyra, each with a row of pink hearts, Chat and Give a gift buttons; Ollo's card glows pink with Dating, a Just friends button and his line about all the lamps aboard being accounted for" width="44%">
+  <img src="media/date.png" alt="An 8-heart date with Captain Ollo, the Lantern Festival: Ollo explains you release lanterns together and make a wish, you say you already know what you wished for, and he says the lanterns are flying side by side" width="44%">
+</p>
 
 **Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb, Apogee and Blip are friends of the whole crew and are never part of romance.
 
@@ -460,7 +469,7 @@ The Pad isn't empty for long:
 - **The crew drop by.** About half the time someone is already sitting on your window bench when you walk in: Dottie, Gus, Wren once she's home, or Rex once you've rescued him. Press **Invite someone over** to knock on another door.
 - **They notice your decor.** Gus gets excited about the arcade cabinet and the disco ball, Dottie spots the mug she gave you and the red alert lighting, Wren recognizes her star chart and gets misty over the piece of Pluto, and Rex is delighted to find his own poster on your wall. Souvenirs get comments too. If someone's visiting when you buy or place something, they react to it on the spot. Tap them, or press **Chat**, for another comment.
 
-<p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin with amber light strips, Gus sitting on the window bench under a big rounded window, Apogee asleep on the retro computer keyboard, a new purple cat bed in the corner, and Gus saying he could have built a better cat bed with heating and a small engine" width="640"></p>
+<p align="center"><img src="media/pad.png" alt="The Pad: a cream spaceship cabin where you and Captain Ollo sit on a red comfy couch under the big window, a framed photo of the two of you on the wall, Apogee asleep in her cat bed and Crumb parked on the floor" width="640"></p>
 
 ## Endless run
 
@@ -569,7 +578,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `home.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png` and `round-trip.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
