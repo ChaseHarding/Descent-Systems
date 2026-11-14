@@ -22,7 +22,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 26 hand-built missions in three acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
-- **Round trips**: eight missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
+- **Round trips**: nine missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, seating, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
@@ -224,7 +224,7 @@ Open **Missions** from the start screen. The campaign has 26 hand-built missions
 
 The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way.
 
-Two friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
+A few friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Out past the inner planets you'll also meet **Zib**, a floating jellyfish trader who talks about itself in the third person and loves anything shiny; **Captain Ollo**, a polite moth pilot who is helpless around lamps; **Blip**, a tiny one-eyed green stowaway who moves into the break room and says only "bip"; and **Kael and Lyra Veyra**, glamorous twin envoys from an alien fleet who look human apart from their silver eyes. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
 
@@ -252,6 +252,9 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | Polka Radio | Gus | Moon | Triangulation | Broadcast route: fly through three markers to switch on Gus's all-polka radio station, then land |
 | Geyser Surfing | Rex | Europa | Echo | Pad hopping between erupting geysers, and try to beat Rex's 75 seconds |
 | Catnip Run | Dottie | Titan | Old Station | Fragile cargo: Titan catnip for Apogee. Touch down slower than 1.3 m/s with it aboard |
+| Moth to a Flame | Captain Ollo | Titan | Methane Canyon | A lamp slalom: fly through the three lamps Ollo hung in the haze, then land. He finds them very distracting |
+| Zib's Market | Zib | Ganymede | Relay Run | Deliver a crate of ice from PICKUP to Zib's market stall at DROP. Zib is very pink about it |
+| VIP Pickup | Dottie | Mars | Mayday | Diplomatic rescue: the Veyra twins' shuttle overheated in a dust storm. Land at CREW, let them board and fly them to orbit |
 | Captain Floaty | Pim | Moon | Swing Shift | Balloon chase: Pim's balloon escaped the Moonbase Pim airlock. Fly through the three markers along its path, then land to hand it back |
 | Meteor Watch | Wren | Mercury | Rex's Shortcut | Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
 
@@ -270,6 +273,7 @@ Crumb drives differently on every world. Slopes steeper than 45° stop it, so st
 | Bounce House | Rex | Pluto | Edge of the World | Hop up three ledges for the ice crystals Rex left there "for safekeeping" |
 | Ice Cores | Wren | Europa | Echo | Grab two ice cores and fix Wren's old seismometer, on slippery ice |
 | Where's Apogee? | Apogee | Titan | Methane Canyon | Find Apogee, who hopped out of the rover to explore. She runs off twice before she gives up |
+| Blip! | Crumb | Mars | Beacon Repair | Catch the tiny green alien Crumb found. It hops away twice, once right over the rock step |
 | Lost Luggage | Juno | Vesta | Rock Collection | Find three suitcases that floated out of a mothership hatch. Crumb floats a long way on every bump here |
 | Dish Duty | Juno | Ganymede | Relay Run | Stop beside two blinking relay dishes until they're fixed. Storms scramble Biscuit, not Crumb |
 | Show and Tell | Pim | Moon | Captain Floaty | Collect two of Pim's drawings, then park Crumb by the classroom window so the whole class can see him |
@@ -358,13 +362,13 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 
 ### Friends ♥ (and romance)
 
-The **Friends ♥** button in the break room shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday) and Juno (after your first round trip). Each has 10 hearts.
+The **Friends ♥** button in the break room shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday), Juno (after your first round trip), Zib (after Zib's Market), Captain Ollo (after Moth to a Flame) and Kael and Lyra (after VIP Pickup). Each has 10 hearts.
 
 - **Grow closer** by chatting once a day (here, in the break room, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
-- **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern. Their reaction tells you how you did.
+- **Gifts** cost credits. Everyone has favorites: Dottie loves fancy coffee, Gus loves a shiny wrench set, Wren loves vintage radio tapes, Rex loves premium hair gel, Juno loves a tiny fern, Zib loves anything shiny, Ollo loves a tiny desk lamp, Kael loves hair gel too, and Lyra loves flowers. Their reaction tells you how you did.
 - **Hang out** at 3 and 6 hearts for a short scene with each of them. Friendship tops out at 8 hearts.
 
-**Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb and Apogee are friends of the whole crew and are never part of romance.
+**Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb, Apogee and Blip are friends of the whole crew and are never part of romance.
 
 ### Postcards
 
