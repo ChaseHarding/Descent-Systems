@@ -446,6 +446,22 @@ kbd {
 /* Break room */
 .lounge { width: 100%; max-width: 34rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .lounge canvas.room.walkroom { aspect-ratio: 8 / 5; touch-action: none; cursor: pointer; }
+.gpanel { border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); padding: 12px 14px; display: grid; gap: 8px; text-align: left; }
+.gpanel h3 { margin: 0; font-family: var(--f-display); font-size: 15px; letter-spacing: 0.05em; color: var(--flame); }
+.gpanel p { margin: 0; font-size: 13px; line-height: 1.5; }
+.gpanel .btns { justify-content: flex-start; margin: 0; }
+.gpanel .gbasket { color: #9fe0b8; font-size: 12px; }
+.gpanel .gnote { color: var(--flame); font-size: 12px; }
+.seeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
+.seed { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; padding: 8px; border: 1px solid var(--space-2); border-radius: 6px; background: var(--space); color: var(--regolith); font-family: var(--f-mono); cursor: pointer; }
+.seed:disabled { opacity: 0.45; cursor: default; }
+.seed span { grid-row: span 2; font-size: 20px; }
+.seed b { font-size: 12px; font-weight: 600; }
+.seed small { font-size: 11px; color: var(--flame); }
+.gbar { height: 8px; border-radius: 4px; background: var(--space); border: 1px solid var(--space-2); overflow: hidden; }
+.gbar i { display: block; height: 100%; background: #58e0a0; }
+.gift.homegrown { border-color: #58e0a0; }
+.gift.homegrown small { color: #9fe0b8; }
 .lounge canvas.walkroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 .walkhint { margin: -4px 0 0; font-family: var(--f-mono); font-size: 11px; color: var(--regolith-dim); text-align: center; }
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
@@ -3771,7 +3787,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Screens ----
   const roomBack = { den: 'lounge', garage: 'lounge' };   // where the Pad's and hangar's doors lead: back the way you came
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3827,7 +3843,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden') { renderShipRoom(m); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       syncFleet();
@@ -6556,7 +6572,7 @@ details.act > .limits { margin: 0 0 8px; }
   // doors along the hallway's back wall: [centre x, label, where it goes (or null when it's sealed), sealed line]
   const HALL_DOORS = [
     [26, 'HANGAR', 'garage'],
-    [76, 'GARDEN', null, ['F', 'Hydroponics. Sealed since the sprinkler incident. Gus says it’s “basically a rainforest now”. I’m not going in there.']],
+    [76, 'GARDEN', 'garden'],
     [126, 'BREAK', 'lounge'],
     [210, 'BRIDGE', 'bridge'],
     [294, 'PAD', 'den'],
@@ -6578,16 +6594,19 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipTalk(who) { bondTalk(who); shipSay(who, chatLine(who)); }
   function renderShipRoom(kind) {
-    const hall = kind === 'hall', W = hall ? VIEW_W : 256;
+    const hall = kind === 'hall', gdn = kind === 'garden', W = hall ? VIEW_W : 256;
+    if (gdn) gardenSel = null;
     card.innerHTML = `<div class="lounge shiproom">
-      <h1 class="good">${hall ? 'Hallway' : 'The Bridge'}</h1>
+      <h1 class="good">${hall ? 'Hallway' : gdn ? 'The Garden' : 'The Bridge'}</h1>
       <canvas class="room walkroom" id="shipCv" width="${W * 2}" height="${SHIP_H * 2}" tabindex="0" role="application" aria-label="${hall
         ? 'The ship’s main hallway: doors to the hangar, the break room, the bridge and your Pad, and some sealed doors still to open. Tap to walk; walk up to a door to go through. With a keyboard, arrow keys walk and Enter uses the nearest door.'
+        : gdn ? 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'
         : 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.'}"></canvas>
-      <p class="walkhint">${hall ? 'Tap to walk · walk up to a door to go through it · sealed doors open later' : 'Tap to walk · the nav console picks missions · comms takes calls · sit in the captain’s chair · the hallway is behind you'}</p>
+      <p class="walkhint">${hall ? 'Tap to walk · walk up to a door to go through it · sealed doors open later' : gdn ? 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips' : 'Tap to walk · the nav console picks missions · comms takes calls · sit in the captain’s chair · the hallway is behind you'}</p>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
+      ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
-        ${hall ? '' : '<button class="btn" id="shipMissions">Missions</button>'}
+        ${hall || gdn ? '' : '<button class="btn" id="shipMissions">Missions</button>'}
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
@@ -6596,10 +6615,10 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = HALL_DOORS.find(x => x[2] === (from === 'lounge' ? 'lounge' : from === 'den' ? 'den' : from === 'hangar' ? 'garage' : 'bridge'));
+      const d = HALL_DOORS.find(x => x[2] === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden' }[from] || 'bridge'));
       start = { x: d ? d[0] : 210, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    deck = { kind, cv, c: cv.getContext('2d'), W: hall ? HALL_W : 256, B: hall ? [10, 66, HALL_W - 10, 152] : [14, 98, 242, 152],
+    deck = { kind, cv, c: cv.getContext('2d'), W: hall ? HALL_W : 256, B: hall ? [10, 66, HALL_W - 10, 152] : gdn ? [10, 72, 246, 152] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null, cam: 0,
       crumb: crumbHome() && (hall || Math.random() < 0.4) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -6622,12 +6641,17 @@ details.act > .limits { margin: 0 0 8px; }
       deck.last = t;
       shipStep(dt);
       if (!deck) return;
-      if (hall) hallDraw(t); else bridgeDraw(t);
+      if (hall) hallDraw(t); else if (gdn) gardenDraw(t); else bridgeDraw(t);
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
     if (hall) shipSay(...HALL_SAY[Math.floor(Math.random() * HALL_SAY.length)]);
-    else {
+    else if (gdn) {
+      const first = store.get('ds-gardenSeen', '') !== '1'; store.set('ds-gardenSeen', '1');
+      shipSay(...(first ? ['G', 'Welcome to the garden! I fixed the sprinklers. Mostly. Plant something, land a few times, and you’ll have homegrown gifts for the crew.']
+        : gardenReady() ? ['G', 'Something’s ready to pick! I can smell it from here. Or that’s the compost.'] : gardenTip()));
+      renderGardenPanel();
+    } else {
       const hi = [['F', 'Dottie on the intercom. Welcome to the bridge. The nav console has your missions. The big chair is the captain’s. Today, that’s you. Don’t let it go to your head.'],
         ['G', 'Gus here. Everything on the bridge works. Except the button labelled “DO NOT”. Nobody knows what it does. Let’s keep it that way.']];
       if (newMissions().length) hi.push(['F', 'New jobs on the nav console, pilot. The red light means paperwork. I mean, adventure.']);
@@ -6640,6 +6664,7 @@ details.act > .limits { margin: 0 0 8px; }
   function shipThings() {
     const L = [];
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
+    if (deck.kind === 'garden') { gardenThings(L); return L; }
     if (deck.kind === 'hall') {
       for (const [x, label, to, sealed] of HALL_DOORS) {
         const w = label === 'BRIDGE' ? 36 : 22;
@@ -6774,6 +6799,7 @@ details.act > .limits { margin: 0 0 8px; }
         px(c, x0 + 2, 18, w - 4, 38, open ? '#1a2442' : '#1b1f30');
         px(c, x - 1, 18, 2, 38, '#121a33');
         px(c, x + 6, 36, 2, 2, open ? '#58e0a0' : '#ff6b5e');
+        if (to === 'garden' && gardenReady() && (reduceMotion || Math.floor(t / 400) % 2)) px(c, x + 7, 18, 3, 3, '#ffe58a');
         if (!open) for (let yy = 22; yy < 54; yy += 8) { px(c, x0 + 2, yy, w - 4, 3, '#c9a24a'); for (let xx = x0 + 2; xx < x0 + w - 2; xx += 4) px(c, xx, yy, 2, 3, '#26304f'); }
       }
       doorPlate(c, x, 6, label, open);
@@ -6874,6 +6900,147 @@ details.act > .limits { margin: 0 0 8px; }
     }
   });
   window.addEventListener('keyup', e => { if (deck && e.key.startsWith('Arrow')) deck.keys[e.key] = false; });
+
+  // ---- The garden: six planters. Crops grow a little with every landing, and a daily watering helps ----
+  const SEEDS = [
+    { id: 'tea', name: 'Moon tea', icon: '🍵', cost: 20, grow: 2, leaf: '#58b878', fruit: '#d8f0a0' },
+    { id: 'plant', name: 'Tiny fern', icon: '🌿', cost: 20, grow: 2, leaf: '#3f8a58', fruit: '#7fd09a' },
+    { id: 'flowers', name: 'Hydroponic flowers', icon: '💐', cost: 30, grow: 3, leaf: '#4a9a5a', fruit: '#ff9ad5' },
+    { id: 'coffee', name: 'Coffee beans', icon: '☕', cost: 30, grow: 3, leaf: '#2f7a48', fruit: '#d0453a' },
+    { id: 'choc', name: 'Cacao pods', icon: '🍫', cost: 40, grow: 4, leaf: '#3a7a40', fruit: '#e0a040' }
+  ];
+  // the gift each crop becomes (the same ids as GIFTS, so everyone's tastes still apply)
+  const GARDEN_BEDS = [[30, 84], [106, 84], [182, 84], [30, 120], [106, 120], [182, 120]];   // top-left of each planter, 44 x 16
+  let garden = (() => { let g = {}; try { g = JSON.parse(store.get('ds-garden', '{}')) || {}; } catch (e) {} return { beds: [null, null, null, null, null, null], basket: {}, ...g }; })();
+  const saveGarden = () => store.set('ds-garden', JSON.stringify(garden));
+  let gardenSel = null;
+  const seedOf = bed => bed && SEEDS.find(s => s.id === bed.seed);
+  const bedGrowth = bed => bed ? Math.max(0, stats.landings - bed.at) + (bed.w || 0) : 0;
+  const bedReady = bed => !!bed && bedGrowth(bed) >= seedOf(bed).grow;
+  const gardenReady = () => garden.beds.some(bedReady);
+  const basketCount = () => Object.values(garden.basket).reduce((a, b) => a + b, 0);
+  function gardenThings(L) {
+    GARDEN_BEDS.forEach(([x, y], i) => L.push({ id: 'bed' + i, rect: [x - 2, y - 14, 48, 32], go: () => [x + 22, y + 24], at: () => ({ x: x + 22, y }), act: () => { gardenSel = i; sfx.click(); renderGardenPanel(); } }));
+    L.push({ id: 'tap', rect: [8, 22, 36, 36], go: () => [26, 74], at: () => ({ x: 26, y: 40 }), act: () => gardenWaterAll() });
+    L.push({ id: 'seeds', rect: [212, 18, 36, 40], go: () => [230, 74], at: () => ({ x: 230, y: 40 }), act: () => { gardenSel = 'seeds'; sfx.click(); renderGardenPanel(); shipSay(...gardenTip()); } });
+    L.push({ id: 'door', rect: [104, 148, 48, 12], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'garden'; setMode('hall'); } });
+  }
+  // who loves what, from everyone's real tastes (only the people you've met)
+  function gardenTip() {
+    const met = ROM_WHO.filter(w => romMet[w]());
+    const parts = SEEDS.map(sd => [sd, met.filter(w => GIFT_TASTE[w][0].includes(sd.id)).map(w => SIGN[w])]).filter(p => p[1].length);
+    if (!parts.length || Math.random() < 0.25) return ['G', 'Everything grows a bit every time you land. Water it once a day and it grows faster. Talk to it and… nothing happens, but it’s nice.'];
+    const [sd, fans] = parts[Math.floor(Math.random() * parts.length)];
+    return ['G', `Pro tip: ${fans.length > 1 ? fans.slice(0, -1).join(', ') + ' and ' + fans[fans.length - 1] : fans[0]} ${fans.length > 1 ? 'love' : 'loves'} ${sd.name.toLowerCase()}. Just saying. I’m not saying anything.`];
+  }
+  function gardenWaterAll() {
+    const d = todayKey(); let n = 0;
+    garden.beds.forEach(b => { if (b && !bedReady(b) && b.wd !== d) { b.wd = d; b.w = (b.w || 0) + 1; n++; } });
+    saveGarden();
+    if (deck) deck.splash = performance.now();
+    if (n) { sfx.click(); shipSay('G', n === 1 ? 'Watered! It’ll grow a bit faster now. Come back tomorrow for another drink.' : `Watered all ${n}! Look at them go. Slowly. Very slowly. But they’re going.`); }
+    else shipSay('G', garden.beds.some(b => b && !bedReady(b)) ? 'They’ve had their water for today. Any more and we’re back to the sprinkler incident.' : 'Nothing to water. Plant something first! The seed cabinet’s on the right.');
+    renderGardenPanel();
+  }
+  function renderGardenPanel() {
+    const box = $('gardenPanel'); if (!box) return;
+    const bk = SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon} ×${garden.basket[s.id]}`).join(' · ');
+    const basket = `<p class="gbasket">${bk ? `Your basket: ${bk}. Give them as gifts on the Friends ♥ screen, free and extra welcome.` : 'Your basket is empty. Harvest a crop and it goes here, ready to give as a gift on the Friends ♥ screen.'}</p>`;
+    const seedBtns = i => `<div class="seeds">${SEEDS.map(s => `<button class="seed" data-plant="${i}:${s.id}"${credits < s.cost ? ' disabled' : ''}><span aria-hidden="true">${s.icon}</span><b>${s.name}</b><small>${s.cost} cr · ${s.grow} landings</small></button>`).join('')}</div>`;
+    let html;
+    if (gardenSel === 'seeds') {
+      html = `<h3>Seed cabinet</h3><p>Pick an empty planter to plant one. Each crop grows a little every time you land safely, and watering at the tap once a day adds a day’s growth too.</p>${seedBtns(garden.beds.findIndex(b => !b))}${garden.beds.every(b => b) ? '<p class="gnote">Every planter is full. Harvest something first.</p>' : ''}`;
+    } else if (typeof gardenSel === 'number') {
+      const i = gardenSel, b = garden.beds[i], s = seedOf(b);
+      if (!b) html = `<h3>Planter ${i + 1} · empty</h3><p>What should we grow? You have ${fmt(credits)} credits.</p>${seedBtns(i)}`;
+      else if (bedReady(b)) html = `<h3>Planter ${i + 1} · ${s.name} ${s.icon}</h3><p>Ready to pick!</p><div class="btns"><button class="btn" data-harvest="${i}">Harvest</button></div>`;
+      else {
+        const g = bedGrowth(b), watered = b.wd === todayKey();
+        html = `<h3>Planter ${i + 1} · ${s.name} ${s.icon}</h3>
+          <div class="gbar" role="img" aria-label="${g} of ${s.grow} grown"><i style="width:${Math.round(g / s.grow * 100)}%"></i></div>
+          <p>${s.grow - g === 1 ? 'One more landing (or a watering) and it’s ready.' : `${s.grow - g} more landings or waterings to go.`} ${watered ? 'Watered today ✓' : 'Thirsty: water it at the tap.'}</p>
+          <div class="btns">${watered ? '' : `<button class="btn" data-water="1">Water</button>`}<button class="btn ghost" data-pull="${i}">Pull it up</button></div>`;
+      }
+    } else html = `<h3>The Garden</h3><p>Tap a planter to plant seeds from the cabinet. Crops grow a little with every safe landing, and a daily watering at the tap gives them a boost. What you harvest becomes gifts for the crew.</p>`;
+    box.innerHTML = html + basket;
+    box.querySelectorAll('[data-plant]').forEach(btn => btn.addEventListener('click', () => {
+      const [i, id] = btn.dataset.plant.split(':'), s = SEEDS.find(x => x.id === id), k = +i;
+      if (k < 0 || garden.beds[k] || credits < s.cost) return;
+      credits -= s.cost; saveCosmetics();
+      garden.beds[k] = { seed: id, at: stats.landings, w: 0, wd: null }; saveGarden();
+      gardenSel = k; sfx.coin(); shipSay('G', `${s.name}, planted! Give it ${s.grow} landings. Or water it and it’s quicker.`); renderGardenPanel();
+    }));
+    box.querySelectorAll('[data-harvest]').forEach(btn => btn.addEventListener('click', () => {
+      const k = +btn.dataset.harvest, b = garden.beds[k]; if (!bedReady(b)) return;
+      const s = seedOf(b); garden.basket[s.id] = (garden.basket[s.id] || 0) + 1; garden.beds[k] = null; saveGarden();
+      const gg = GIFTS.find(x => x.id === s.id); sfx.coin(); showToast(`${gg.icon} ${gg.name} into the basket`); renderGardenPanel();
+      const fans = ROM_WHO.filter(w => romMet[w]() && GIFT_TASTE[w][0].includes(s.id)).map(w => SIGN[w]);
+      shipSay('G', fans.length ? `Look at that! ${fans.join(' and ')} would love ${s.id === 'plant' ? 'a fern' : 'some'} of that.` : 'A fine harvest. Somebody on this ship is getting a homegrown present.');
+    }));
+    box.querySelectorAll('[data-water]').forEach(btn => btn.addEventListener('click', () => gardenWaterAll()));
+    box.querySelectorAll('[data-pull]').forEach(btn => btn.addEventListener('click', () => { garden.beds[+btn.dataset.pull] = null; saveGarden(); sfx.click(); renderGardenPanel(); }));
+  }
+  // a crop at bed (x, y): stage 0 seedling to 3 ready
+  function drawCrop(c, x, y, s, stage, t, k) {
+    const sway = reduceMotion ? 0 : Math.round(Math.sin(t / 700 + k) * 0.6);
+    if (stage === 0) { px(c, x - 1, y - 2, 1, 2, s.leaf); px(c, x + 1, y - 3, 1, 3, s.leaf); return; }
+    const h = stage === 1 ? 5 : stage === 2 ? 9 : 11;
+    px(c, x, y - h, 1, h, s.leaf);
+    for (let j = 2; j < h; j += 3) { px(c, x - 3 + sway, y - j - 1, 3, 2, s.leaf); px(c, x + 1 + sway, y - j - 2, 3, 2, s.leaf); }
+    if (s.id === 'plant') for (let j = 0; j < stage; j++) { px(c, x - 4 - j + sway, y - 3 - j * 3, 3, 1, s.fruit); px(c, x + 2 + j + sway, y - 4 - j * 3, 3, 1, s.fruit); }
+    if (stage === 3) {
+      if (s.id === 'flowers') { for (const [fx, fy] of [[-3, -11], [2, -12], [0, -9]]) { px(c, x + fx + sway, y + fy, 3, 3, s.fruit); px(c, x + fx + 1 + sway, y + fy + 1, 1, 1, '#ffe58a'); } }
+      else if (s.id === 'tea') { px(c, x - 3 + sway, y - 12, 7, 3, s.fruit); }
+      else if (s.id === 'coffee') { for (const [fx, fy] of [[-3, -6], [2, -8], [-2, -10], [1, -4]]) px(c, x + fx, y + fy, 2, 2, s.fruit); }
+      else if (s.id === 'choc') { px(c, x - 4, y - 8, 3, 4, s.fruit); px(c, x + 2, y - 10, 3, 4, s.fruit); }
+      if (!reduceMotion && Math.floor(t / 500 + k) % 3 === 0) px(c, x + 4, y - 13, 1, 1, '#ffffff');
+    }
+  }
+  function gardenDraw(t) {
+    const c = deck.c, W = 256;
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    c.imageSmoothingEnabled = false;
+    // back wall: green-tinted panels, a window, hanging vines and grow lamps
+    px(c, 0, 0, W, 66, '#173232'); for (let x = 0; x < W; x += 20) px(c, x, 0, 1, 62, '#1b3b3a');
+    px(c, 0, 60, W, 2, '#24504a'); px(c, 0, 62, W, 4, '#0f2222');
+    const w = storedWorld() || WORLDS[1];
+    px(c, 78, 10, 100, 36, '#2f5a54'); px(c, 80, 12, 96, 32, '#050a12');
+    for (let i = 0; i < 16; i++) px(c, 82 + (i * 37) % 92, 14 + (i * 13) % 26, 1, 1, i % 3 ? '#7a8a9a' : '#ffffff');
+    c.fillStyle = w.orb; c.beginPath(); c.arc(156, 24, 6, 0, Math.PI * 2); c.fill();
+    px(c, 127, 12, 2, 32, '#2f5a54');
+    for (let x = 6; x < W; x += 13) { const len = 6 + (x * 7) % 14; for (let y = 0; y < len; y += 2) px(c, x + Math.round(Math.sin(y / 3 + x) * 1), y, 2, 2, y % 4 ? '#3f8a58' : '#58b878'); }
+    // the tap and watering can (left), the seed cabinet (right)
+    px(c, 14, 30, 24, 4, '#8a93ab'); px(c, 24, 26, 4, 6, '#8a93ab'); px(c, 12, 34, 28, 22, '#2f5a54'); px(c, 14, 36, 24, 3, '#3f6a64');
+    px(c, 16, 44, 12, 9, '#58e0a0'); px(c, 28, 46, 6, 2, '#58e0a0'); px(c, 18, 41, 8, 3, '#2f7a58');
+    if (deck.splash && t - deck.splash < 900) for (let i = 0; i < 4; i++) px(c, 25 + i * 2, 36 + ((t - deck.splash) / 60 + i * 3) % 10, 1, 2, '#7fd6ff');
+    px(c, 212, 18, 36, 42, '#5a4636'); px(c, 214, 20, 32, 38, '#7a5c44');
+    SEEDS.forEach((s, i) => { const dx = 216 + (i % 3) * 10, dy = 23 + Math.floor(i / 3) * 12; px(c, dx, dy, 8, 9, '#a5835a'); px(c, dx + 2, dy + 2, 4, 3, s.fruit); px(c, dx + 3, dy + 7, 2, 1, '#5a4636'); });
+    px(c, 216, 48, 28, 8, '#a5835a'); c.fillStyle = '#2a1d0a'; c.font = '700 5px monospace'; c.fillText('SEEDS', 218, 54);
+    // floor: wet tiles and a drain
+    px(c, 0, 66, W, SHIP_H - 66, '#1c2a2e');
+    for (let y = 76; y < SHIP_H; y += 10) px(c, 0, y, W, 1, '#21333a');
+    for (let x = 0; x < W; x += 20) px(c, x, 66, 1, SHIP_H - 66, '#21333a');
+    px(c, 82, 142, 16, 4, '#151f22'); for (let x = 84; x < 96; x += 3) px(c, x, 143, 1, 2, '#2a3a40');
+    px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'HALL', true);
+    // grow-lamp glow over the planters
+    const glow = 0.08 + 0.03 * Math.sin(t / 900);
+    for (const [bx, by] of GARDEN_BEDS) { const top = by < 100 ? by - 22 : by - 6; c.fillStyle = `rgba(255,120,220,${glow})`; c.beginPath(); c.moveTo(bx + 14, top); c.lineTo(bx + 30, top); c.lineTo(bx + 46, by + 14); c.lineTo(bx - 2, by + 14); c.fill(); }
+    // planters, Crumb and you, back to front
+    const things = shipFloorThings(c, t), me = deck.me;
+    GARDEN_BEDS.forEach(([bx, by], i) => things.push([by + 16, () => {
+      const b = garden.beds[i], s = seedOf(b), sel = gardenSel === i;
+      if (by < 100) { px(c, bx + 18, by - 26, 8, 3, '#3a4668'); px(c, bx + 19, by - 23, 6, 2, '#ff9ad5'); }
+      px(c, bx, by + 4, 44, 12, '#6e5232'); px(c, bx, by + 4, 44, 2, '#8a6a42'); px(c, bx + 2, by, 40, 5, '#3a2a1c');
+      if (b && b.wd === todayKey()) px(c, bx + 2, by, 40, 5, '#2a2016');
+      if (s) { const g = bedGrowth(b), st = bedReady(b) ? 3 : Math.min(2, Math.floor(g / s.grow * 3)); for (let k = 0; k < 4; k++) drawCrop(c, bx + 7 + k * 10, by + 3, s, st, t, k + i); }
+      if (b && bedReady(b) && (reduceMotion || Math.floor(t / 450) % 2)) { px(c, bx + 40, by - 10, 3, 3, '#ffe58a'); }
+      if (sel) { c.strokeStyle = '#ffb547'; c.lineWidth = 1; c.strokeRect(bx - 1.5, by - 13.5, 47, 31); }
+    }]));
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
 
   // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
   const PW = 200, PH = 148, PAD_B = [8, 86, 182, 140], PS = 2;   // the canvas is drawn at 2x; people at 1.5x the room's scale
@@ -8267,7 +8434,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${romanceOn && !bond.partner && !canAsk && h < 6 ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
             ${bond.partner === who ? `<button class="btn ghost" data-bye="${who}">${friendsUI.confirmBye === who ? 'Tap again to be just friends' : 'Just friends'}</button>` : ''}
           </div>
-          ${open && !gifted ? `<div class="gifts">${GIFTS.map(g => `<button class="gift" data-give="${who}:${g.id}"${credits < g.price ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${fmt(g.price)} cr</small></button>`).join('')}</div>` : ''}
+          ${open && !gifted ? `<div class="gifts">${GIFTS.slice().sort((a, b) => (garden.basket[b.id] ? 1 : 0) - (garden.basket[a.id] ? 1 : 0)).map(g => { const home = garden.basket[g.id] || 0; return `<button class="gift${home ? ' homegrown' : ''}" data-give="${who}:${g.id}"${credits < g.price && !home ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${home ? `🌱 homegrown ×${home}` : `${fmt(g.price)} cr`}</small></button>`; }).join('')}</div>` : ''}
         </div>`;
       }).join('')}
       <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb, Apogee and Blip are friends of the whole crew and aren’t part of this.</p>
@@ -8283,11 +8450,13 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-gifts]').forEach(b => b.addEventListener('click', () => { const who = b.dataset.gifts; friendsUI.open = friendsUI.open === who ? null : who; sfx.click(); rerender(); }));
     card.querySelectorAll('[data-give]').forEach(b => b.addEventListener('click', () => {
       const [who, gid] = b.dataset.give.split(':'), g = GIFTS.find(x => x.id === gid);
-      if (!g || credits < g.price || bond.gift[who] === todayKey()) return;
-      credits -= g.price; saveCosmetics();
+      const home = (garden.basket[gid] || 0) > 0;
+      if (!g || (credits < g.price && !home) || bond.gift[who] === todayKey()) return;
+      if (home) { garden.basket[gid]--; if (!garden.basket[gid]) delete garden.basket[gid]; saveGarden(); }
+      else { credits -= g.price; saveCosmetics(); }
       const [love, like] = GIFT_TASTE[who], k = love.includes(gid) ? 0 : like.includes(gid) ? 1 : 2;
       bond.gift[who] = todayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]];
-      sfx.coin(); addHearts(who, [80, 45, 20][k]); rerender();
+      sfx.coin(); addHearts(who, [80, 45, 20][k] + (home ? 15 : 0)); if (home) showToast('Homegrown! A little extra ♥', 2200); rerender();
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.scene, n = sceneReady(who), [title, lines] = ROM[who]['s' + n];
@@ -10114,7 +10283,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
     if (mode === 'hangar') { if (e.code === 'Escape') { trying = null; hangarLander = null; setMode('garage'); } return; }
     if (mode === 'missions' && missionsFrom === 'bridge') { if (e.code === 'Escape') setMode('bridge'); return; }
-    if (mode === 'hall' || mode === 'bridge') { if (e.code === 'Escape') setMode('title'); return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden') { if (e.code === 'Escape') setMode('title'); return; }
     if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
       return;
