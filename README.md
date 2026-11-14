@@ -353,6 +353,8 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 
 - Once you've met them, a **Radio** button patches in a call from Juno on the mothership or Pim on the Moon, each with their own stack of lines. Both can also visit your Pad when you invite someone over, and they turn up in crew requests: Pim wants you to land on the Moon so she can wave, and Juno wants a docking.
 
+- **You're there too.** Your pilot, exactly as you look on your pilot license, sits at the table with the crew and has their own mug. Change your look on the license and you change at the table. In your Pad you sit on the window bench, and when you invite someone over they sit beside you.
+
 ### Postcards
 
 The first time you land on each world, someone on the crew sends you a postcard: a pixel-art picture of that world with Biscuit on a pad (in her current paint) and a note on the back. Open **Postcards** in the break room, or click the box in the corner, to see your album. Tap a card to flip it over. New cards are marked until you read them, and every world has one.
