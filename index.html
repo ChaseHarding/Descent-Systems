@@ -3340,8 +3340,14 @@ details.act > .limits { margin: 0 0 8px; }
         if (tut.step < 2) { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }   // training hold: gravity switches on at step 3
       }
       if (L.grounded) {
-        // resting on a pad: stay put until the engine can lift you
-        if (L.firing && ay > 0) { L.grounded = false; L.y += 0.05; L.liftAt = simT; if (mission) mission.loading = false; }
+        // resting on a pad: stay put until the engine can lift you.
+        // While crew or cargo is boarding, a stray tap of thrust doesn't cancel it: you have to hold thrust to leave.
+        const boarding = mission && mission.loading;
+        if (L.firing && ay > 0 && boarding) {
+          L.liftHold = (L.liftHold || 0) + dt;
+          if (!mission.nagged.includes('hold')) { mission.nagged.push('hold'); showToast(`Let go of thrust while ${currentGoal().what === 'cargo' ? 'they load the cargo' : 'they board'}!`, 1800); }
+        } else L.liftHold = 0;
+        if (L.firing && ay > 0 && (!boarding || L.liftHold > 0.6)) { L.grounded = false; L.y += 0.05; L.liftAt = simT; L.liftHold = 0; if (mission) mission.loading = false; }
         else { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }
       }
       L.vx += ax * dt; L.vy += ay * dt;
