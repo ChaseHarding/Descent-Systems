@@ -447,6 +447,29 @@ kbd {
 .lounge canvas.room { width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .lounge .who-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lounge .who-row .btn { padding: 8px 14px; font-size: 12px; position: relative; }
+.friends { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.fcard { width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); }
+.fcard.dating { border-color: #ff6b9a; box-shadow: inset 0 0 0 1px rgba(255,107,154,0.35); }
+.fhead { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.fhead canvas.face { width: 56px; height: 56px; flex: none; image-rendering: pixelated; border-radius: 4px; }
+.fmeta { display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: left; }
+.fmeta b { font-family: var(--f-display); font-size: 14px; letter-spacing: 0.06em; }
+.fmeta small { color: var(--regolith-dim); font-size: 11px; font-family: var(--f-mono); }
+.hrow { display: flex; gap: 2px; flex-wrap: wrap; }
+.hrt { font-style: normal; font-size: 15px; line-height: 1; color: #3a3550; }
+.hrt.on { color: #ff6b9a; }
+.hrt.lock:not(.on) { opacity: 0.35; }
+.fbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.fbtns .btn { padding: 8px 12px; font-size: 12px; }
+.fsay { margin: 0; }
+.gifts { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.gift { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; padding: 8px; border-radius: 6px; cursor: pointer;
+  background: var(--space); color: var(--regolith); border: 1px solid var(--space-2); font-family: var(--f-mono); }
+.gift span { grid-row: span 2; font-size: 20px; }
+.gift b { font-size: 12px; font-weight: 600; }
+.gift small { font-size: 11px; color: var(--flame); }
+.gift:disabled { opacity: 0.45; cursor: default; }
+.gift:not(:disabled):hover { border-color: var(--flame); }
 .lounge .who-row .btn .dot { position: absolute; top: -9px; right: -6px; width: auto; height: auto; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 10px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
 .lounge .who-row .btn.locked { opacity: 0.5; border-style: dashed; }
 .mtile .mnew { position: absolute; top: -8px; right: 8px; padding: 1px 6px; border-radius: 3px; background: var(--flame); color: var(--space); font-family: var(--f-display); font-style: normal; font-weight: 700; font-size: 10px; line-height: 1.4; letter-spacing: 0.1em; text-transform: uppercase; }
@@ -1439,6 +1462,7 @@ details.act > .limits { margin: 0 0 8px; }
     c.clearRect(0, 0, 32, 32);
     if (who === 'A') { drawCat(c, open, blink, bare); return; }
     if (who === 'K') { drawCrumbFace(c, open, blink, bare); return; }
+    if (who === 'P') { drawPilot(c, 0, 0, 32, lic, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -1469,7 +1493,7 @@ details.act > .limits { margin: 0 0 8px; }
     for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
   }
   // which face each line gets; anything not listed uses the speaker's usual look
-  const DEFAULT_MOOD = { F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy', J: 'neutral', M: 'happy' };
+  const DEFAULT_MOOD = { P: 'happy', F: 'deadpan', G: 'happy', W: 'neutral', A: 'neutral', R: 'happy', K: 'happy', J: 'neutral', M: 'happy' };
   const MOODS = [
     ['Morning, pilot', 'happy'], ['Hey hey', 'happy'], ['Huh. Not bad', 'deadpan'], ['…Mayday', 'worried'], ['You came for me', 'happy'], ['Hi, pilot! So, funny', 'worried'], ['Oh. Oh no', 'worried'], ['I’m not scared', 'worried'], ['I’m aboard! I’m alive', 'happy'], ['Pilot. The sunrise line', 'worried'], ['Fine. FINE', 'deadpan'], ['I need a favor', 'neutral'], ['Got them', 'happy'], ['Everyone’s home', 'happy'], ['So. Apex', 'neutral'], ['Welcome aboard, Rex', 'happy'], ['Well, well', 'deadpan'], ['Pilot! I’m throwing', 'happy'], ['It’s soup', 'worried'], ['Okay, science question', 'happy'], ['Science says', 'happy'], ['So, uh, small problem', 'worried'], ['My cat is on a lander', 'deadpan'], ['Pilot, this is a Category One', 'worried'], ['My spa crate', 'worried'], ['Cold. It’s cold', 'worried'], ['Oh, and I left something', 'happy'], ['She’s purring', 'happy'], ['Pilot! Biscuit', 'happy'], ['Three stars on day one', 'happy'], ['Change of plans', 'worried'],
     ['Biscuit’s never carried', 'worried'], ['Land, let them board', 'happy'], ['I owe you the truth', 'neutral'],
@@ -1485,6 +1509,7 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Story: the Descent Systems campaign, told over the radio ----
   const SPEAKERS = {
+    P: { get name() { return `${(typeof lic !== 'undefined' && lic.name) || 'Pilot'} · You`; }, color: '#ffb547' },
     F: { name: 'Flight · Dottie', color: 'var(--flame)' },
     G: { name: 'Engineering · Gus', color: 'var(--ok)' },
     W: { name: 'Wren Aldana', color: '#ff9ad5' },
@@ -2642,6 +2667,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'long-way-round') award('surveyor');
     if (d.id === 'ice-cream' && mission.melt < 50) award('brainfreeze');
     if (d.id === 'skipping-stones') award('skipper');
+    if (d.side && prev === 0) addHearts(d.giver, 40);
     const find = d.kind === 'trip' && prev === 0 && DEN_ITEMS.shelf.find(x => x.trip === d.id);
     if (find) setTimeout(() => showToast(`New for your Pad shelf, from Crumb: ${find.name}!`, 3000), 1600);
     const gift = LANDERS.find(l => l.story === d.id);
@@ -3611,7 +3637,7 @@ details.act > .limits { margin: 0 0 8px; }
   };
 
   // ---- Screens ----
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3656,6 +3682,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'raceInvite') { renderRaceInvite(); return; }
     if (m === 'intro') { renderIntro(); return; }
     if (m === 'requests') { renderRequests(); return; }
+    if (m === 'friends') { renderFriends(); return; }
     if (m === 'raceEnd') { renderRaceEnd(); return; }
     if (m === 'board') { renderBoard(); return; }
     if (m === 'album') { renderAlbum(); return; }
@@ -4050,6 +4077,7 @@ details.act > .limits { margin: 0 0 8px; }
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
         ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
         ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
+        ${row('setRomance', 'Romance', 'Ask a crewmate out once you’re close (Friends ♥ in the break room). Off keeps everyone as friends', romanceOn)}
         ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
         ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
         ${row('setMusic', 'Music', 'A soundtrack generated as you play. It builds as you near the ground', sfx.musicOn)}
@@ -4067,6 +4095,11 @@ details.act > .limits { margin: 0 0 8px; }
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
     $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
+    $('setRomance').addEventListener('click', () => {
+      romanceOn = !romanceOn; store.set('ds-romance', romanceOn ? '1' : '0');
+      if (!romanceOn && bond.partner) { showToast(`Romance off: you and ${SIGN[bond.partner]} are back to being friends.`, 2600); hearts[bond.partner] = Math.min(hearts[bond.partner] || 0, 8 * HEART); bond.partner = null; saveBond(); }
+      renderSettings('setRomance');
+    });
     $('setGhost').addEventListener('click', () => { showGhost = !showGhost; store.set('ds-ghost', showGhost ? '1' : '0'); renderSettings('setGhost'); });
     $('setSound').addEventListener('click', () => { toggleMute(); });
     $('setMusic').addEventListener('click', () => { toggleMusic(); });
@@ -4560,7 +4593,8 @@ details.act > .limits { margin: 0 0 8px; }
       who = callers.length > 1 && callers[0] === lounge.lastCaller ? callers[1] : callers[Math.floor(Math.random() * callers.length)];
       lounge.lastCaller = who;
     }
-    const L = loungeLines(who), last = lounge.last[who];
+    bondTalk(who);
+    const L = loungeLines(who).concat(bond.partner === who && ROM[who] ? ROM[who].date : []), last = lounge.last[who];
     let i = Math.floor(Math.random() * L.length);
     if (L.length > 1 && i === last) i = (i + 1) % L.length;
     lounge.last[who] = i;
@@ -4742,6 +4776,7 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn" id="albumBtn">Postcards${newCards() ? ` · ${newCards()} new` : ''}</button>
         <button class="btn" id="logBookBtn">Maintenance log</button>
         <button class="btn" id="reqBtn2">Crew requests${reqDoneCount() < 3 ? ` · ${3 - reqDoneCount()} open` : ''}</button>
+        <button class="btn" id="friendsBtn">Friends ♥${anySceneReady() ? ' · hang out ready' : ''}</button>
         <button class="btn ghost" id="back">Main menu</button>
       </div>
     </div>`;
@@ -4752,6 +4787,7 @@ details.act > .limits { margin: 0 0 8px; }
     $('albumBtn').addEventListener('click', () => setMode('album'));
     $('logBookBtn').addEventListener('click', () => setMode('log'));
     $('reqBtn2').addEventListener('click', () => { reqFrom = 'lounge'; setMode('requests'); });
+    $('friendsBtn').addEventListener('click', () => { sfx.click(); setMode('friends'); });
     drawRoom();
     lounge.anim = setInterval(drawRoom, 100);
     // someone says hello when you walk in
@@ -4914,6 +4950,17 @@ details.act > .limits { margin: 0 0 8px; }
         } },
       { id: 'rex', name: 'Signed Rex poster', price: 1500, blurb: 'Rex Valor mailed it to you. Unprompted. It says “To my biggest fan”.',
         draw(c, x, y, t, st) { px(c, x, y, 30, 28, '#7a1a1a'); px(c, x + 1, y + 1, 28, 26, '#c0392b'); if (st.faces) c.drawImage(st.faces.R, 0, 0, 32, 32, x + 5, y + 1, 20, 20); for (let i = 0; i < 18; i++) px(c, x + 6 + i, y + 23 + Math.round(Math.sin(i * 1.3)), 1, 1, '#ffd27a'); } },
+      { id: 'couple', romance: true, name: 'Photo of you two', price: 0, blurb: 'A framed photo from your first big date. You both look very happy. One of you blinked.',
+        draw(c, x, y) {
+          px(c, x + 2, y + 2, 26, 22, '#c9a24a'); px(c, x + 3, y + 3, 24, 20, '#ffd6e6'); px(c, x + 3, y + 17, 24, 6, '#ffb3c8');
+          if (bond.partner) {
+            c.save(); c.imageSmoothingEnabled = false;
+            c.drawImage(pilotFace(), 0, 0, 32, 32, x + 2, y + 6, 16, 16);
+            const pf = denFaces()[bond.partner]; if (pf) c.drawImage(pf, 0, 0, 32, 32, x + 12, y + 6, 16, 16);
+            c.restore();
+          }
+          px(c, x + 14, y + 4, 2, 1, '#ff6b9a'); px(c, x + 13, y + 5, 4, 1, '#ff6b9a'); px(c, x + 14, y + 6, 2, 1, '#ff6b9a');
+        } },
       { id: 'pimart', trip: 'show-and-tell', name: 'Pim’s drawing', price: 0, blurb: 'Crayon on paper: you, Biscuit and Crumb, under a very big Moon. You’re the one with the cool helmet. Signed “PIM (age 9)”.',
         draw(c, x, y) {
           px(c, x + 2, y + 2, 26, 22, '#f4f1e8'); outline(c, x + 2, y + 2, 26, 22, '#c9cfdc');
@@ -5124,6 +5171,22 @@ details.act > .limits { margin: 0 0 8px; }
             if (pat === 'stars') { px(c, cx - 6, 72, 1, 1, '#ffe58a'); px(c, cx + 5, 70, 1, 1, '#ffe58a'); }
           }
         } },
+      { id: 'hammock', name: 'Hammock', price: 500, blurb: 'Strung between two posts. It sways a little when the engines run. Apogee considers it hers.',
+        dy: 5, at: [70, 58], guest: 86, catDy: 6,
+        back(c) {
+          for (const x of [55, 121]) { px(c, x, 44, 3, 34, '#8a93ab'); px(c, x, 44, 3, 1, '#c9cfdc'); px(c, x - 2, 77, 7, 2, '#5a6380'); }
+          c.strokeStyle = '#c9b897'; c.lineWidth = 1;
+          c.beginPath(); c.moveTo(58, 47); c.lineTo(64, 60); c.moveTo(121, 47); c.lineTo(115, 60); c.stroke();
+        },
+        front(c, cols, pat) {
+          c.fillStyle = cols[0];
+          c.beginPath(); c.moveTo(62, 59); c.quadraticCurveTo(89, 82, 117, 59); c.lineTo(117, 63); c.quadraticCurveTo(89, 88, 62, 63); c.closePath(); c.fill();
+          c.strokeStyle = cols[1]; c.lineWidth = 1.5;
+          c.beginPath(); c.moveTo(63, 61); c.quadraticCurveTo(89, 84, 116, 61); c.stroke();
+          c.strokeStyle = '#f4ead6'; c.lineWidth = 1;
+          for (let i = 0; i < 6; i++) { const x = 70 + i * 8; const y = 61 + 13 * Math.sin(Math.PI * (x - 62) / 55) * 0.95; px(c, x, Math.round(y), 1, 3, '#f4ead6'); }
+          if (pat === 'stars') for (const x of [74, 92, 106]) px(c, x, 70, 1, 1, '#ffe58a');
+        } },
       { id: 'hover', name: 'Hover sofa', price: 900, blurb: 'Floats on a cushion of air, with a soft glow underneath. Gus swears it’s safe. Gus is sitting very far away from it.',
         dy: 0, at: [70, 58], guest: 86, catDy: 0,
         back(c, cols) { c.fillStyle = '#e8ebf2'; rrect(c, 60, 51, 58, 14, 7); c.fill(); px(c, 63, 52, 52, 1, '#ffffff'); c.fillStyle = cols[0]; rrect(c, 63, 54, 52, 9, 4); c.fill(); },
@@ -5142,7 +5205,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return !!(bond.partner && bond.seen.includes(bond.partner + '8')); return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -5557,12 +5620,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.romance) action = `<button class="btn" disabled>Go on your 8-heart date with someone (Friends ♥) to get it</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
@@ -5605,7 +5669,7 @@ details.act > .limits { margin: 0 0 8px; }
     denSay(denUI.say[0], denUI.say[1], fresh);
     const pick = id => { denUI.spot = id; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true); };
     const pet = () => { const at = denCatSpot(denUI.cat, look()), opts = DEN_CAT[at.id].filter(t => t !== denUI.lastLine); const line = opts[Math.floor(Math.random() * opts.length)]; denUI.lastLine = line; denUI.catAwake = performance.now() + 4000; sfx.purr(); denSay('A', line); reqEvent('pet'); };
-    const chat = () => denSay(denUI.visitor, denTalkFor(denUI.visitor, look()));
+    const chat = () => { bondTalk(denUI.visitor); denSay(denUI.visitor, bond.partner === denUI.visitor && ROM[denUI.visitor] && Math.random() < 0.4 ? ROM[denUI.visitor].date[Math.floor(Math.random() * 3)] : denTalkFor(denUI.visitor, look())); };
     cv.addEventListener('click', e => {
       const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * RW, y = (e.clientY - r.top) / r.height * RH;
       if (denUI.cat) { const at = denCatSpot(denUI.cat, look()); if (x >= at.x - 5 && x <= at.x + 16 && y >= at.y - 6 && y <= at.y + 8) { pet(); return; } }
@@ -5627,7 +5691,7 @@ details.act > .limits { margin: 0 0 8px; }
     const arcB = $('denArcade'); if (arcB) arcB.addEventListener('click', () => { sfx.click(); setMode('arcade'); });
     $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
-      const who = guests[Math.floor(Math.random() * guests.length)];
+      const who = bond.partner && guests.includes(bond.partner) && Math.random() < 0.5 ? bond.partner : guests[Math.floor(Math.random() * guests.length)];
       denUI.visitor = who; sfx.knock();
       denUI.pendingSay = [who, denTalkFor(who, look())];
       renderDen(true);
@@ -6561,6 +6625,7 @@ details.act > .limits { margin: 0 0 8px; }
         it.done = true;
         credits += T.pay;
         const who = reqWho(it), line = who === 'G' && T.who === 'W' ? REQ_DONE.fuelG : REQ_DONE[it.type];
+        addHearts(who, 25);
         setTimeout(() => crewToast(who, line, `+${fmt(T.pay)} cr`), delay);
       }
     }
@@ -6570,6 +6635,281 @@ details.act > .limits { margin: 0 0 8px; }
     }
     if (changed) { store.set('ds-req', JSON.stringify(st)); saveCosmetics(); }
   }
+  // ---- Friends and romance: hearts, gifts, hangouts, and (if you turn it on) dating ----
+  // Everyone you've met has 10 hearts. Chatting once a day, a gift once a day, their side jobs and their crew
+  // requests all fill them. Friendship tops out at 8 hearts; dating someone opens the last two.
+  // Romance is off by default (Settings). Pim, Crumb and Apogee are friends only and never appear here.
+  const HEART = 100, ROM_WHO = ['F', 'G', 'W', 'R', 'J'];
+  const romMet = { F: () => true, G: () => true, W: () => wrenHome(), R: () => (missionStars.mayday || 0) > 0, J: () => junoMet() };
+  let romanceOn = store.get('ds-romance', '0') === '1';
+  let hearts = (() => { try { return JSON.parse(store.get('ds-hearts', '{}')) || {}; } catch (e) { return {}; } })();
+  let bond = (() => { let b = {}; try { b = JSON.parse(store.get('ds-bond', '{}')) || {}; } catch (e) {} return { talk: {}, gift: {}, seen: [], partner: null, ...b }; })();
+  const saveBond = () => { store.set('ds-hearts', JSON.stringify(hearts)); store.set('ds-bond', JSON.stringify(bond)); };
+  const heartCap = who => bond.partner === who ? 10 : 8;
+  const heartsOf = who => Math.min(heartCap(who), Math.floor((hearts[who] || 0) / HEART));
+  // which hangout is waiting, if any: friendship at 3 and 6, dates at 8 and 10
+  function sceneReady(who) {
+    const h = heartsOf(who);
+    for (const n of [3, 6, 8, 10]) {
+      if (h < n || bond.seen.includes(who + n)) continue;
+      if (n >= 8 && bond.partner !== who) continue;
+      return n;
+    }
+    return 0;
+  }
+  const anySceneReady = () => ROM_WHO.some(w => romMet[w]() && sceneReady(w));
+  function addHearts(who, pts) {
+    if (!ROM_WHO.includes(who) || !romMet[who]()) return;
+    const before = heartsOf(who);
+    hearts[who] = Math.min(heartCap(who) * HEART, (hearts[who] || 0) + pts);
+    saveBond();
+    const after = heartsOf(who);
+    if (after > before) {
+      const scene = sceneReady(who);
+      setTimeout(() => showToast(scene ? `♥ ${SIGN[who]} is at ${after} hearts and wants to hang out! (Friends ♥)` : `♥ ${SIGN[who]} is at ${after} heart${after === 1 ? '' : 's'}`, 2600), 900);
+    }
+  }
+  function bondTalk(who) {
+    const d = todayKey();
+    if (!ROM_WHO.includes(who) || bond.talk[who] === d) return;
+    bond.talk[who] = d; addHearts(who, 20);
+  }
+  const GIFTS = [
+    { id: 'coffee', name: 'Fancy coffee beans', icon: '☕', price: 80 },
+    { id: 'tea', name: 'Moon tea', icon: '🍵', price: 80 },
+    { id: 'pastry', name: 'Moonbase Pim pastry', icon: '🥐', price: 90 },
+    { id: 'choc', name: 'Space chocolate', icon: '🍫', price: 100 },
+    { id: 'plant', name: 'Tiny fern', icon: '🌿', price: 100 },
+    { id: 'flowers', name: 'Hydroponic flowers', icon: '💐', price: 120 },
+    { id: 'gel', name: 'Premium hair gel', icon: '✨', price: 120 },
+    { id: 'tools', name: 'Shiny wrench set', icon: '🔧', price: 150 },
+    { id: 'tapes', name: 'Vintage radio tapes', icon: '📼', price: 150 },
+    { id: 'stars', name: 'Star chart print', icon: '🗺️', price: 150 }
+  ];
+  // love, like; anything else is fine
+  const GIFT_TASTE = {
+    F: [['coffee', 'pastry'], ['choc', 'stars', 'plant']],
+    G: [['tools', 'choc'], ['coffee', 'tapes', 'pastry']],
+    W: [['tapes', 'tea'], ['stars', 'flowers', 'plant']],
+    R: [['gel', 'flowers'], ['choc', 'coffee', 'stars']],
+    J: [['plant', 'tea'], ['flowers', 'pastry', 'stars']]
+  };
+  const GIFT_SAYS = {
+    F: ['Oh. Oh, this is exactly the right one. It’s going in my desk. The secret drawer.', 'Very thoughtful. Noted in your file. The good file.', 'Thank you. I’ll find a place for it. Probably.'],
+    G: ['NO WAY. This is the best gift anyone’s ever given me! I’m going to cry and then build something!', 'Ooh, nice! Thank you! Can I take it apart? I’m going to take it apart.', 'Aw, thanks! I’ll find a use for it. I always find a use.'],
+    W: ['You remembered. Nobody remembers. Thank you, truly.', 'How lovely. Thank you, dear.', 'That’s kind of you. Thank you.'],
+    R: ['Finally, someone who gets me. This is perfect. I’m perfect. We’re both perfect.', 'Not bad! I accept your tribute.', 'Oh. Thanks. I’ll give it to my assistant. I mean, I’ll treasure it.'],
+    J: ['Oh, now that’s just right. Going straight onto the bridge, next to the ferns.', 'Thoughtful. Thank you, pilot.', 'Thanks. I’ll make room for it somewhere.']
+  };
+  const ROM = {
+    F: {
+      s3: ['Dottie’s Office', [['F', 'You’re in my office. Nobody comes into my office. Sit. Not there, that’s the important chair.'],
+        ['F', 'I keep a file on every pilot. Yours is the thickest. Mostly good things. Some burnt toast.'],
+        ['P', 'Can I see it?'],
+        ['F', 'No. …Fine. Page one: “Lands like they mean it.” I wrote that. Don’t let it go to your head.']]],
+      s6: ['Night Shift', [['F', 'It’s two in the morning and the coffee machine is broken. You came to keep me company. Why.'],
+        ['P', 'You sounded lonely on the radio.'],
+        ['F', 'I don’t get lonely. I get efficient. Quietly. For hours.'],
+        ['F', '…Thank you. Don’t tell Gus I said that. He’ll make a banner.']]],
+      ask: [['P', 'Dottie, would you want to go out sometime? Like, on a date.'], ['F', '…'],
+        ['F', 'I have filed a form approving this. Yes. I was going to ask you next quarter. You’re early. I like early.']],
+      notYet: 'Ask me again when I know you better. I’m thorough. You knew that.',
+      s8: ['Dinner on the Mothership', [['F', 'Juno lent us the observation deck. There are candles. I checked them for fire safety. Twice.'],
+        ['F', 'I made a schedule for tonight. Item one: dinner. Item two: look at Jupiter. Item three: I didn’t write an item three.'],
+        ['P', 'Item three could be dessert.'],
+        ['F', 'Item three is dessert. Look at that. We make a good team.']]],
+      s10: ['The Good File', [['F', 'I closed your file today. Not because you’re leaving. Because I don’t need it anymore. I know you.'],
+        ['F', 'I kept one page. It says “favorite person”. I wrote it in pen.'],
+        ['P', 'Pen is very permanent for you.'],
+        ['F', 'I know. That’s the point.']]],
+      bye: 'Understood. I’ll update the file. …It’s a nice file either way.',
+      date: ['There’s a coffee waiting at your seat. It got there by accident. It’s exactly how you like it. By accident.',
+        'I put your landing on the big screen today. For “training purposes”. I watched it four times.',
+        'Gus asked if we’re dating. I said that’s classified. He made a banner anyway.']
+    },
+    G: {
+      s3: ['Workshop Tour', [['G', 'Welcome to the workshop! Mind the crater. It’s not a real crater. That’s where the toaster used to be.'],
+        ['G', 'This is Crumb’s spare wheel, this is a drawing of Biscuit I did in third grade, and this is a sandwich. Don’t eat it. It’s evidence.'],
+        ['P', 'Evidence of what?'],
+        ['G', 'Lunch, mostly. Okay! You’re officially a workshop friend. There are only three. You, Apogee and the sandwich.']]],
+      s6: ['Fix-It Night', [['G', 'Biscuit’s left leg squeaks and I want to fix it tonight. Want to hold the flashlight? It’s the most important job.'],
+        ['G', 'When I started here I wasn’t sure I belonged. Too loud. Too many ideas. Too many explosions. Small ones.'],
+        ['P', 'I think you belong exactly here.'],
+        ['G', '…Okay, I’m not crying, the flashlight is in my eyes. Hold it lower. No, keep it there.']]],
+      ask: [['P', 'Gus, would you want to go on a date with me?'], ['G', 'A date? With me? A DATE date? With dinner and everything?'],
+        ['G', 'YES. Yes yes yes. I’m building a robot to celebrate. A small one. A safe one. Mostly safe.']],
+      notYet: 'Oh! Um. Can we hang out a bit more first? I want to get it right. I’m making a checklist.',
+      s8: ['Picnic on the Moon', [['G', 'I packed a picnic! Sandwiches, juice, and a blanket I modified to stay down in low gravity. It has magnets.'],
+        ['G', 'Look, Earth’s coming up over the horizon. I timed it. I’ve been timing it all week.'],
+        ['P', 'You planned this whole thing?'],
+        ['G', 'I planned it so hard. There’s a backup picnic in the rover. Crumb is guarding it.']]],
+      s10: ['Gus’s Best Invention', [['G', 'I made you something. It’s a tiny lander that lights up when you’re nearby. Is that weird? That’s weird.'],
+        ['P', 'It’s perfect.'],
+        ['G', 'It’s the best thing I ever built. Second best. The best thing I ever did was say yes to you.']]],
+      bye: 'Oh. Okay. That’s okay! We’re still workshop friends forever. The sandwich and I will be fine.',
+      date: ['I painted a tiny heart on Biscuit’s landing leg. The left one. Dottie hasn’t noticed. Don’t tell Dottie.',
+        'I named a new wrench after you. It’s my favorite wrench. Nobody else is allowed to touch it.',
+        'Every time you land, I yell “that’s my pilot!” Out loud. In the control room. Dottie has asked me to stop.']
+    },
+    W: {
+      s3: ['The Founder’s Desk', [['W', 'Sit with me a moment. This desk is older than Gus. I built my first lander on it.'],
+        ['W', 'People think I started Descent Systems to make money. I started it because I wanted to see what was out there. I still do.'],
+        ['P', 'What do you think is out there?'],
+        ['W', 'Something that answers back. Maybe we’ll find out together.']]],
+      s6: ['Old Photographs', [['W', 'I found my old flight photos. That’s me on Mars, terrible haircut. That’s Biscuit, brand new. Shiny.'],
+        ['W', 'For a long time I flew alone. I told myself I liked it that way.'],
+        ['P', 'And now?'],
+        ['W', 'Now the coffee tastes better when someone else is at the table. Funny how that works.']]],
+      ask: [['P', 'Wren, would you have dinner with me? A real date.'], ['W', 'Well. Nobody has asked me that in a very long time.'],
+        ['W', 'Yes. I’d like that very much. I know a place with a view of Saturn. I’ve been saving it.']],
+      notYet: 'You’re sweet. Let’s get to know each other a little more first. I like the scenic route.',
+      s8: ['Saturn View', [['W', 'There it is. Saturn, rings and all. I found this spot thirty years ago and never showed anyone.'],
+        ['W', 'I used to come here to think about the signal. Tonight I’m not thinking about the signal at all.'],
+        ['P', 'What are you thinking about?'],
+        ['W', 'You. Obviously. Pass the bread.']]],
+      s10: ['Co-Pilot', [['W', 'I had Gus add a second seat to my old lander. Right next to mine.'],
+        ['W', 'I spent a long time looking for something out there. Turns out the best thing I found was right here at the table.'],
+        ['P', 'So… co-pilots?'],
+        ['W', 'Co-pilots. For whatever’s next. Even if it’s past Pluto.']]],
+      bye: 'I understand. Thank you for being honest with me. My table is always open to you.',
+      date: ['I saved you the seat by the window. I always save you the seat by the window.',
+        'Dottie caught me humming today. I haven’t hummed in years. It’s your fault.',
+        'When you’re out flying, I listen in on the radio. I tell myself it’s for safety.']
+    },
+    R: {
+      s3: ['Rex’s Hangar', [['R', 'Welcome to the Apex hangar. Try not to be overwhelmed by the shine. I polish everything myself. Including my hair.'],
+        ['R', 'That’s my trophy wall. That’s my other trophy wall. That one’s a mirror.'],
+        ['P', 'For what it’s worth, you’re a great pilot.'],
+        ['R', 'I KNOW. …Thank you. Nobody says it like they mean it. You’re allowed in the hangar now. Don’t touch the mirror.']]],
+      s6: ['Behind the Hair', [['R', 'Can I tell you something? The hair takes forty minutes every morning. The confidence takes longer.'],
+        ['R', 'Everybody wants Rex Valor, famous pilot. Nobody asks how Rex is doing.'],
+        ['P', 'How is Rex doing?'],
+        ['R', '…Better, now. Don’t make it weird. It’s weird. I like it.']]],
+      ask: [['P', 'Rex, want to go on a date with me?'], ['R', 'Obviously yes. I mean. Ahem. I’ll check my schedule. It’s free. It was always free.'],
+        ['R', 'I’ll pick you up in the Apex. It has heated seats. And a disco ball. I’m not explaining the disco ball.']],
+      notYet: 'Slow down, hotshot. Even I need a few more fly-bys first.',
+      s8: ['The Disco Ball', [['R', 'Okay, I’ll explain the disco ball. It’s for dancing in zero gravity. Nobody can see your feet.'],
+        ['R', 'Hold the rail. Now let go. See? We’re floating. We’re basically dancing.'],
+        ['P', 'You’re a surprisingly good dancer.'],
+        ['R', 'I’m a surprisingly good everything. But this is the first time I didn’t care who was watching.']]],
+      s10: ['Valor and You', [['R', 'I repainted the Apex. It used to say “REX VALOR” in gold. Now it says “REX VALOR AND”. Gus is helping with the rest.'],
+        ['R', 'I spent my whole life trying to be the best pilot in the system. Turns out I just wanted someone to fly next to.'],
+        ['P', 'Best pilot in the system is still up for grabs, you know.'],
+        ['R', 'Then let’s race for it. Loser buys dinner. I’ll lose on purpose. Don’t tell anyone.']]],
+      bye: 'Ha. Your loss. …No, really, it’s fine. We’re still rivals. The good kind.',
+      date: ['I told a reporter I’m seeing someone. She asked who. I said “the best pilot in the system”. She wrote down my name. I corrected her.',
+        'I brought you a signed poster of me for your wall. It’s signed “to my favorite”. I don’t sign anyone else’s like that.',
+        'I let you win the last race. I didn’t, actually. You’re just good. Don’t let it go to your hair.']
+    },
+    J: {
+      s3: ['The Bridge Garden', [['J', 'Welcome to the bridge garden. Mind the ferns. They’re dramatic.'],
+        ['J', 'I talk to them on long shifts. They’re good listeners. Better than Gus.'],
+        ['P', 'What do you talk about?'],
+        ['J', 'Pilots, mostly. You come up a lot. Good docking. Nice and slow. The ferns approve.']]],
+      s6: ['Tea at the Dock', [['J', 'Kettle’s on. I don’t share tea with many people. Tea is serious up here.'],
+        ['J', 'The dock gets quiet between ships. Some nights I count the minutes until the next pilot calls in.'],
+        ['P', 'I’ll call in more often.'],
+        ['J', '…Good. Do that. The clamp will be glad. So will I.']]],
+      ask: [['P', 'Juno, would you go out with me?'], ['J', 'Out? Out of the mothership? Nobody gets me off the mothership.'],
+        ['J', '…For you, I’ll make an exception. Yes. I’ll bring the good tea.']],
+      notYet: 'Let’s take it slow and steady. You know how I feel about rushing.',
+      s8: ['Spacewalk', [['J', 'Suits on. I know a spot on the hull where you can see the whole system at once. I go there when I need quiet.'],
+        ['J', 'There’s Jupiter. There’s the Moon. That tiny light is Moonbase Pim. Probably still awake.'],
+        ['P', 'It’s beautiful.'],
+        ['J', 'It is. I used to come out here to be alone. Turns out I like it better with company.']]],
+      s10: ['Docked', [['J', 'I had a second mug made for the dock office. It has your name on it. It lives next to mine.'],
+        ['J', 'Every pilot I bring in, I tell them “welcome home”. With you, I finally mean it.'],
+        ['P', 'Welcome home, Juno.'],
+        ['J', 'Clamp locked. Nice and gentle. I’m not letting go.']]],
+      bye: 'Understood. Clamp released. …You’re always welcome to dock here, pilot.',
+      date: ['Kettle’s on. Your mug’s out. Just saying.',
+        'I named the new fern after you. It’s thriving. Obviously.',
+        'Dock rule one is still “no cats”. Dock rule two is now “you get the good parking spot”.']
+    }
+  };
+  // a line for the Chat button: what they'd say in the break room, plus their dating lines if you're together
+  function chatLine(who) {
+    let L = who === 'R' ? DEN_IDLE.R.slice() : loungeLines(who).slice();
+    if (bond.partner === who) L = L.concat(ROM[who].date, ROM[who].date);
+    return L[Math.floor(Math.random() * L.length)];
+  }
+  const statusOf = who => bond.partner === who ? 'Dating ♥' : heartsOf(who) >= 6 ? 'Close friend' : heartsOf(who) >= 3 ? 'Good friend' : 'Friend';
+  let friendsUI = { open: null, say: null, confirmBye: null };
+  function renderFriends() {
+    const today = todayKey();
+    const met = ROM_WHO.filter(w => romMet[w]());
+    const heartRow = who => Array.from({ length: 10 }, (_, k) => {
+      const lock = k >= heartCap(who);
+      return `<i class="hrt${k < heartsOf(who) ? ' on' : ''}${lock ? ' lock' : ''}" aria-hidden="true">♥</i>`;
+    }).join('');
+    card.innerHTML = `<div class="friends">
+      <h1 class="good">Friends ♥</h1>
+      <p class="sub">${romanceOn ? (bond.partner ? `You’re dating ${SIGN[bond.partner]} ♥` : 'Romance is on. Reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat every day, bring gifts and help with their jobs to grow closer. Romance is off (turn it on in Settings).'}</p>
+      ${met.map(who => {
+        const scene = sceneReady(who), h = heartsOf(who), open = friendsUI.open === who;
+        const talked = bond.talk[who] === today, gifted = bond.gift[who] === today;
+        const canAsk = romanceOn && !bond.partner && h >= 6 && bond.seen.includes(who + '6');
+        const say = friendsUI.say && friendsUI.say[0] === who ? friendsUI.say[1] : null;
+        return `<div class="fcard${bond.partner === who ? ' dating' : ''}">
+          <div class="fhead">${faceTag(who, SPEAKERS[who].name)}
+            <div class="fmeta"><b style="color:${SPEAKERS[who].color}">${SPEAKERS[who].name}</b>
+              <span class="hrow" role="img" aria-label="${h} of 10 hearts">${heartRow(who)}</span>
+              <small>${statusOf(who)} · ${talked ? 'chatted today ✓' : 'say hi today'} · ${gifted ? 'gift given ✓' : 'gift ready'}</small></div></div>
+          ${say ? `<div class="radio quote fsay">${faceTag(who, say)}<div class="said"><p>${esc(say)}</p></div></div>` : ''}
+          <div class="fbtns">
+            <button class="btn ghost" data-chat="${who}">Chat</button>
+            <button class="btn ghost" data-gifts="${who}"${gifted ? ' disabled' : ''}>${gifted ? 'Gift given' : 'Give a gift'}</button>
+            ${scene ? `<button class="btn" data-scene="${who}">Hang out ♥</button>` : ''}
+            ${canAsk ? `<button class="btn" data-ask="${who}">Ask out</button>` : ''}
+            ${romanceOn && !bond.partner && !canAsk && h < 6 ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
+            ${bond.partner === who ? `<button class="btn ghost" data-bye="${who}">${friendsUI.confirmBye === who ? 'Tap again to be just friends' : 'Just friends'}</button>` : ''}
+          </div>
+          ${open && !gifted ? `<div class="gifts">${GIFTS.map(g => `<button class="gift" data-give="${who}:${g.id}"${credits < g.price ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${fmt(g.price)} cr</small></button>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('')}
+      <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb and Apogee are friends of the whole crew and aren’t part of this.</p>
+      <div class="btns"><button class="btn ghost" id="back">Back to the break room</button></div>
+    </div>`;
+    paintFaces(card);
+    const rerender = () => { renderFriends(); };
+    card.querySelectorAll('[data-chat]').forEach(b => b.addEventListener('click', () => {
+      const who = b.dataset.chat; friendsUI.say = [who, chatLine(who)]; friendsUI.confirmBye = null;
+      if (who === 'J') sfx.radio(); else sfx.click();
+      bondTalk(who); rerender();
+    }));
+    card.querySelectorAll('[data-gifts]').forEach(b => b.addEventListener('click', () => { const who = b.dataset.gifts; friendsUI.open = friendsUI.open === who ? null : who; sfx.click(); rerender(); }));
+    card.querySelectorAll('[data-give]').forEach(b => b.addEventListener('click', () => {
+      const [who, gid] = b.dataset.give.split(':'), g = GIFTS.find(x => x.id === gid);
+      if (!g || credits < g.price || bond.gift[who] === todayKey()) return;
+      credits -= g.price; saveCosmetics();
+      const [love, like] = GIFT_TASTE[who], k = love.includes(gid) ? 0 : like.includes(gid) ? 1 : 2;
+      bond.gift[who] = todayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]];
+      sfx.coin(); addHearts(who, [80, 45, 20][k]); rerender();
+    }));
+    card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
+      const who = b.dataset.scene, n = sceneReady(who), [title, lines] = ROM[who]['s' + n];
+      playStory(lines, { label: `${n >= 8 ? 'Date' : 'Hanging out'} · ${SIGN[who]} · ${n} ♥`, title }, () => {
+        if (!bond.seen.includes(who + n)) bond.seen.push(who + n);
+        saveBond(); friendsUI.say = null; setMode('friends');
+        if (n === 8) setTimeout(() => showToast('New for your Pad wall: a photo of the two of you ♥', 2800), 600);
+      });
+    }));
+    card.querySelectorAll('[data-ask]').forEach(b => b.addEventListener('click', () => {
+      const who = b.dataset.ask;
+      playStory(ROM[who].ask, { label: `Asking out · ${SIGN[who]}`, title: 'A Big Question' }, () => {
+        bond.partner = who; saveBond(); friendsUI.say = null; setMode('friends');
+      });
+    }));
+    card.querySelectorAll('[data-bye]').forEach(b => b.addEventListener('click', () => {
+      const who = b.dataset.bye;
+      if (friendsUI.confirmBye !== who) { friendsUI.confirmBye = who; rerender(); return; }
+      bond.partner = null; friendsUI.confirmBye = null; friendsUI.say = [who, ROM[who].bye];
+      hearts[who] = Math.min(hearts[who] || 0, 8 * HEART); saveBond(); rerender();
+    }));
+    $('back').addEventListener('click', () => { friendsUI.say = null; friendsUI.open = null; setMode('lounge'); });
+    setTimeout(() => $('back') && card.querySelector('.fcard button:not(:disabled)')?.focus({ preventScroll: true }), 0);
+  }
+
   function renderRequests() {
     const st = reqToday(), done = st.items.filter(i => i.done).length;
     card.innerHTML = `<div class="reqs">
@@ -6605,7 +6945,7 @@ details.act > .limits { margin: 0 0 8px; }
     ganymede: ['F', 'Ganymede has the most beautiful auroras. It also turned my headset into a polka station. Send a new headset.'],
     mercury: ['F', 'Mercury. The Sun is enormous and takes everything personally. Gus packed sunscreen. SPF four thousand.']
   };
-  const SIGN = { F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim' };
+  const SIGN = { P: 'You', F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim' };
   let cardsSeen;
   try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
   const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
@@ -8357,6 +8697,7 @@ details.act > .limits { margin: 0 0 8px; }
     if ($('photoPop')) { if (e.code === 'Escape') closeDenPhoto(); return; }
     if (mode === 'intro') { if (e.code === 'Escape') endIntro(false); return; }
     if (mode === 'requests') { if (e.code === 'Escape') setMode(reqFrom); return; }
+    if (mode === 'friends') { if (e.code === 'Escape') setMode('lounge'); return; }
     if (mode === 'license') { if (e.code === 'Escape') { if (licenseFrom === 'intro') endIntro(false); else setMode(licenseFrom); } return; }
     if (mode === 'hangar' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode('title'); }
