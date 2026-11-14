@@ -22,7 +22,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
 - **Mission campaign**: 26 hand-built missions in three acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
 - **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
-- **Round trips**: five missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
+- **Round trips**: eight missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **The Pad**: your own cozy spaceship cabin. Tap any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
@@ -222,7 +222,9 @@ Open **Missions** from the start screen. The campaign has 26 hand-built missions
 
 <p align="center"><img src="media/missions.png" alt="The mission select screen: twelve campaign missions with their star ratings, and a row of side missions from the crew, each tile showing the crew member who gave it" width="560"></p>
 
-The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
+The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way.
+
+Two friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
 
 ![Meet the crew: Dottie Reyes, flight director; Gus Tran, engineering; Wren Aldana, founder](media/crew.png)
 
@@ -250,6 +252,7 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | Polka Radio | Gus | Moon | Triangulation | Broadcast route: fly through three markers to switch on Gus's all-polka radio station, then land |
 | Geyser Surfing | Rex | Europa | Echo | Pad hopping between erupting geysers, and try to beat Rex's 75 seconds |
 | Catnip Run | Dottie | Titan | Old Station | Fragile cargo: Titan catnip for Apogee. Touch down slower than 1.3 m/s with it aboard |
+| Captain Floaty | Pim | Moon | Swing Shift | Balloon chase: Pim's balloon escaped the Moonbase Pim airlock. Fly through the three markers along its path, then land to hand it back |
 | Meteor Watch | Wren | Mercury | Rex's Shortcut | Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
@@ -267,6 +270,9 @@ Crumb drives differently on every world. Slopes steeper than 45° stop it, so st
 | Bounce House | Rex | Pluto | Edge of the World | Hop up three ledges for the ice crystals Rex left there "for safekeeping" |
 | Ice Cores | Wren | Europa | Echo | Grab two ice cores and fix Wren's old seismometer, on slippery ice |
 | Where's Apogee? | Apogee | Titan | Methane Canyon | Find Apogee, who hopped out of the rover to explore. She runs off twice before she gives up |
+| Lost Luggage | Juno | Vesta | Rock Collection | Find three suitcases that floated out of a mothership hatch. Crumb floats a long way on every bump here |
+| Dish Duty | Juno | Ganymede | Relay Run | Stop beside two blinking relay dishes until they're fixed. Storms scramble Biscuit, not Crumb |
+| Show and Tell | Pim | Moon | Captain Floaty | Collect two of Pim's drawings, then park Crumb by the classroom window so the whole class can see him |
 
 Fuel carries through the whole trip, so a wasteful landing costs you on the climb back up. Stars are for fuel left after docking and total time.
 
@@ -300,7 +306,7 @@ Open **Badges** from the start screen to see your progress. Twenty-eight badges 
 | Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
 | Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
 | Signal chaser | Finish Act 3: Beyond Pluto | Unit Zero hull |
-| Off-roader | Finish all five round trips | Field Kit hull |
+| Off-roader | Finish every round trip | Field Kit hull |
 | Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
 | Barista | Finish The Coffee Crisis with 15 seconds to spare | Espresso flame |
@@ -344,6 +350,8 @@ Open **Break room** from the start screen to visit the crew between flights. It'
 <p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus and Wren around a table, a corkboard and a coffee machine with Apogee curled up on the counter, and Wren talking about the day Apogee sat on her lap" width="560"></p>
 
 - Once you've finished your first round trip, **Crumb** the rover lives here too. He trundles along the front of the room, bonks into walls and stops to look around. Some days Apogee naps on top of him while he drives. Tap him, or the **Crumb** button, and he beeps. The crew translates: he has his own lines, and he grows new ones as you finish more round trips. Dottie, Gus and Wren have things to say about him too.
+
+- Once you've met them, a **Radio** button patches in a call from Juno on the mothership or Pim on the Moon, each with their own stack of lines. Both can also visit your Pad when you invite someone over, and they turn up in crew requests: Pim wants you to land on the Moon so she can wave, and Juno wants a docking.
 
 ### Postcards
 
@@ -424,7 +432,7 @@ The first time you land on each world, you bring a souvenir home for your shelf,
 
 #### Crumb's finds
 
-Each round trip also brings home a shelf item, found by Crumb: three moon rocks (one looks like Dottie), the old beacon bulb from Mars, one of Rex's ice crystals, a slice of Wren's Europa ice core, and the pebble Apogee brought you from Titan. They have their own group in the shelf picker. Crumb also visits the Pad, rolling around the floor, and you can tap him there to say hi.
+Each round trip also brings home a shelf item, found by Crumb: three moon rocks (one looks like Dottie), the old beacon bulb from Mars, one of Rex's ice crystals, a slice of Wren's Europa ice core, the pebble Apogee brought you from Titan, and Juno's lucky keychain from the lost luggage. Show and Tell earns Pim's crayon drawing of you, Biscuit and Crumb for your left wall. They have their own group in the shelf picker. Crumb also visits the Pad, rolling around the floor, and you can tap him there to say hi.
 
 ### Company
 
