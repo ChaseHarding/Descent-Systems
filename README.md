@@ -58,7 +58,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 The main menu opens on three big cards with live previews:
 
-- **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford.
+- **Hangar**: Biscuit hovering over a pad in her current paint, flame and flag, with your credits and how many items you can afford. It opens the walkable garage.
 - **Break room**: a live view of the crew at the table, with Apogee asleep somewhere. A **New** tag appears when postcards are waiting.
 - **The Pad**: a live view of your cabin, decorated however you left it, with how many decorations you've collected.
 
@@ -125,6 +125,8 @@ On touch screens, on-screen **ROT / THRUST / ROT** buttons appear below the game
 ## Hangar
 
 Every point you score is banked as credits the moment you touch down. Spend them in the hangar on cosmetics. Cosmetics never change how the lander flies.
+
+Opening **Hangar** from the start screen takes you into the **garage**, a room you walk around like the break room. Your current lander stands on the landing pad in the middle in its own paint, every other lander you own is parked in the side bays, and the ones you haven't unlocked yet wait under covers (walk up to one to hear how to get it). The big hangar door is rolled up onto the world you flew last, with Gus's workbench and a fuel tank on one side and Crumb's charging dock on the other. **Walk up to a lander** to open the hangar screen on it, or use the **workbench** (or the *Open the hangar* button) for the one you're flying. The hangar's *Back to the garage* button brings you back, and the door on the right leads to the break room.
 
 The hangar is a garage: Biscuit hovers over the pad in front of a big open door looking out on the world you flew last, and Gus works at his bench and comments on everything you put on her.
 
