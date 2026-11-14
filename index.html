@@ -572,6 +572,37 @@ kbd {
 .rooms { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .rooms .mode b { font-size: 16px; }
 .mode.here { border-style: dashed; opacity: 0.7; }
+.wardrobe { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.wstage { width: 100%; display: flex; gap: 14px; align-items: center; padding: 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; flex-wrap: wrap; }
+.wstage canvas { image-rendering: pixelated; flex: none; }
+#wardBig { width: 96px; height: 120px; background: radial-gradient(circle at 50% 70%, rgba(255,181,71,0.12), transparent 70%); }
+#wardFace { width: 64px; height: 64px; border-radius: 6px; }
+.wnote { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
+.wnote b { font-family: var(--f-display); font-size: 15px; letter-spacing: 0.04em; color: var(--regolith); }
+.wnote p { font-size: 12px; }
+.wnote .btns { justify-content: flex-start; margin: 0; }
+.wnote .btn { padding: 8px 14px; font-size: 12px; }
+.wtabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.witems { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.witem { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); color: var(--regolith); font-family: var(--f-mono); cursor: pointer; }
+.witem canvas { width: 48px; height: 60px; image-rendering: pixelated; }
+.witem b { font-size: 11px; font-weight: 600; text-align: center; }
+.witem small { font-size: 10px; color: var(--regolith-dim); }
+.witem.shop small { color: var(--flame); }
+.witem.on { border-color: var(--flame); box-shadow: inset 0 -2px 0 var(--flame); }
+.projects { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.plist { width: 100%; display: grid; gap: 10px; }
+.pcard { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; }
+.pcard.done { border-color: rgba(88, 224, 160, 0.4); }
+.pcard .phead { display: flex; gap: 10px; align-items: center; }
+.pcard .phead canvas.face { width: 40px; height: 40px; flex: none; }
+.pcard .phead b { display: block; font-family: var(--f-display); font-size: 16px; letter-spacing: 0.04em; color: var(--regolith); }
+.pcard .phead small { font-size: 11px; color: var(--regolith-dim); }
+.pcard .pdone { margin-left: auto; font-style: normal; font-size: 20px; color: #58e0a0; }
+.pcard .pwhat { font-size: 12px; color: #9fe0b8; }
+.pcard .pmeta { font-family: var(--f-mono); font-size: 11px; color: var(--flame); }
+.pcard .btns { justify-content: flex-start; margin: 0; }
+.pcard .btn { padding: 8px 14px; font-size: 12px; }
 .sleepfade { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #05070f; color: #e8edf5; pointer-events: none; animation: sleepfade 3s ease forwards; }
 .sleepfade b { font-family: var(--f-display); font-size: clamp(28px, 7vw, 48px); letter-spacing: 0.08em; text-transform: uppercase; color: var(--flame); }
 .sleepfade span { font-family: var(--f-mono); font-size: 13px; color: var(--regolith-dim); }
@@ -3822,10 +3853,10 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom'];
+  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome'];
   let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3884,7 +3915,9 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome') { renderShipRoom(m); return; }
+    if (m === 'projects') { renderProjects(); return; }
+    if (m === 'wardrobe') { renderWardrobe(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       syncFleet();
@@ -3944,8 +3977,8 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'shipmenu') {
-      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters' };
-      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
+      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters', dome: 'The Dome' };
+      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', dome: 'the dome', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
       const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length };
       const met = ROM_WHO.filter(w => romMet[w]()), crewNew = met.some(w => sceneReady(w));
       const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
@@ -3954,8 +3987,8 @@ details.act > .limits { margin: 0 0 8px; }
       const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
       let body = '';
       if (menuTab === 'ship') {
-        const order = ['den', 'bridge', 'lounge', 'garden', 'garage', 'quarters', 'hall'];
-        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', quarters: 'Everyone’s rooms', hall: 'Every door on deck one' };
+        const order = ['den', 'bridge', 'lounge', 'garden', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
+        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: 'Paint, upgrades, the fleet', quarters: 'Everyone’s rooms', dome: 'Stars, a telescope, quiet', hall: 'Every door on deck one' };
         body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
@@ -3979,6 +4012,7 @@ details.act > .limits { margin: 0 0 8px; }
             <button class="btn ghost" id="reqBtn" data-menuret>Open crew requests</button></div>
           <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
             <button class="btn ghost" data-room="garden">Go to the garden</button></div>
+          ${(() => { const nextP = PROJECTS.find(pj => !projDone(pj.id)); return `<div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><button class="btn ghost" id="projBtn" data-menuret>Open the project board</button></div>`; })()}
           <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
             <button class="btn ghost" id="flightsBtn">Open the flight deck</button></div>
         </div>`;
@@ -3989,6 +4023,7 @@ details.act > .limits { margin: 0 0 8px; }
           <button class="mode" id="logBtn2" data-menuret><b>Maintenance log</b><span>Gus’s notes on your flying</span></button>
           <button class="mode" id="badgesBtn" data-menuret><b>Badges</b><span>${earned()} of ${ACH.length} earned</span></button>
           <button class="mode" id="licenseBtn" data-menuret><b>License</b><span>${rankOf().name}</span></button>
+          <button class="mode" id="wardBtn2" data-menuret><b>Wardrobe</b><span>${wardOwned.size} of ${OUTFITS.length + HATS.length} owned</span></button>
           <button class="mode" id="settingsBtn" data-menuret><b>Settings</b><span>Sound, controls, romance</span></button>
         </nav>
         <div class="subnav"><button class="link" id="howBtn">How to play</button>${installLink()}</div>
@@ -4325,6 +4360,8 @@ details.act > .limits { margin: 0 0 8px; }
     }));
     card.querySelectorAll('[data-menuret]').forEach(b => b.addEventListener('click', () => { menuReturn = true; }, { capture: true }));
     card.querySelectorAll('[data-mtab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.mtab === menuTab) return; menuTab = b.dataset.mtab; sfx.click(); setMode('shipmenu'); const t2 = card.querySelector(`[data-mtab="${menuTab}"]`); if (t2) t2.focus({ preventScroll: true }); }));
+    { const wdb = $('wardBtn2'); if (wdb) wdb.addEventListener('click', () => { sfx.click(); wardFrom = 'menu'; setMode('wardrobe'); }); }
+    { const pjb = $('projBtn'); if (pjb) pjb.addEventListener('click', () => { sfx.click(); projectsFrom = 'menu'; setMode('projects'); }); }
     for (const [id, to] of [['albumBtn2', 'album'], ['boardBtn2', 'board'], ['logBtn2', 'log']]) { const b2 = $(id); if (b2) b2.addEventListener('click', () => { sfx.click(); setMode(to); }); }
     card.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => { sfx.click(); walkEnter = null; setMode(b.dataset.room); }));
     const sbk = $('shipBack');
@@ -5109,7 +5146,7 @@ details.act > .limits { margin: 0 0 8px; }
     const present = (home ? ['F', 'G', 'W'] : ['F', 'G']).filter(w => crewAt(w) === 'lounge');
     const hellos = { F: 'Pilot. Coffee’s fresh. Well, fresh-ish.', G: 'Oh hey, pilot! Grab a mug. Not that one, that’s a science experiment.', W: 'There’s my favorite pilot. Sit, sit. Biscuit can wait five minutes.' };
     if (intro && intro.step === 'lounge') { loungeTourStep(); return; }
-    if (!present.length) { loungeSay('A', 'Mrrp. (Nobody’s at the table. Apogee has claimed all three chairs. The crew must be elsewhere on the ship: check the menu’s Crew tab.)'); }
+    if (!present.length) { loungeSay('A', 'Mrrp. (Nobody’s at the table right now. Apogee doesn’t mind one bit. The crew must be somewhere else on the ship: the menu’s Crew tab knows where.)'); }
     else { const first = present[Math.floor(Math.random() * present.length)]; loungeSay(first, hellos[first]); }
     setTimeout(() => $('back').focus({ preventScroll: true }), 0);
   }
@@ -5130,10 +5167,13 @@ details.act > .limits { margin: 0 0 8px; }
     Y: { skin: '#e8b48c', hair: '#3a2050', style: 'long', top: '#3a1f40', pants: '#2a1430', shoes: '#2a1838', trim: '#c9e8ff' },
     O: { skin: '#f0e2c0', hair: null, style: 'none', top: '#26355e', pants: '#26355e', shoes: '#5a4030', moth: true }
   };
-  const pilotLook = () => {
-    const suit = (LIC_SUITS.find(x => x[0] === lic.suit) || LIC_SUITS[0])[2];
-    return { skin: LIC_SKINS[lic.skin] || LIC_SKINS[1], hair: LIC_HAIR_COLS[lic.hairCol] || LIC_HAIR_COLS[1], style: lic.hair, top: suit, pants: suit, shoes: '#2a3045', acc: lic.acc, patch: true };
-  };
+  // how a pilot looks in sprite form: license basics, plus any wardrobe outfit and hat
+  function lookFor(Lc) {
+    const suit = (LIC_SUITS.find(x => x[0] === Lc.suit) || LIC_SUITS[0])[2], o = outfitOf(Lc);
+    const base = { skin: LIC_SKINS[Lc.skin] || LIC_SKINS[1], hair: LIC_HAIR_COLS[Lc.hairCol] || LIC_HAIR_COLS[1], style: Lc.hair, acc: Lc.acc, hat: Lc.hat };
+    return o ? { ...base, top: o.top, pants: o.pants, shoes: o.shoes, trim: o.trim, scarf: o.scarf, dots: o.dots } : { ...base, top: suit, pants: suit, shoes: '#2a3045', patch: true };
+  }
+  const pilotLook = () => lookFor(lic);
   // A 16 x 24 person, feet at (x + 8, y + 24). dir: 0 down, 1 left, 2 right, 3 up. frame 0-3 walks.
   // seated draws only the top half (a table goes in front).
   function drawSprite(c, L, x, y, dir, frame, seated) {
@@ -5168,6 +5208,7 @@ details.act > .limits { margin: 0 0 8px; }
     } else {
       P(X(7 + swing, 2), 13, 2, 4, L.top); P(X(7 + swing, 2), 17, 2, 1, L.skin);
     }
+    if (L.dots && dir !== 3) { P(5, 13, 1, 1, L.dots); P(10, 13, 1, 1, L.dots); P(8, 15, 1, 1, L.dots); P(6, 17, 1, 1, L.dots); P(10, 16, 1, 1, L.dots); }
     if (L.scarf) { P(4, 12, 8, 2, L.scarf); if (dir === 0) P(7, 14, 2, 2, L.scarf); }
     if (L.trim && dir === 0) { P(5, 12, 1, 3, L.trim); P(10, 12, 1, 3, L.trim); P(7, 15, 2, 4, L.trim); }
     if (L.moth && dir === 3) { P(1, 9, 3, 10, '#b89a6a'); P(12, 9, 3, 10, '#b89a6a'); }
@@ -5225,6 +5266,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (L.acc === 'glasses' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#c9cfdc'); else { P(4, 6, 3, 1, '#c9cfdc'); P(9, 6, 3, 1, '#c9cfdc'); P(7, 6, 2, 1, '#c9cfdc'); } }
     if (L.acc === 'goggles') { P(3, 3, 10, 1, '#5a4636'); if (dir === 0) { P(5, 2, 2, 2, '#7fd6ff'); P(9, 2, 2, 2, '#7fd6ff'); } else if (side) P(X(4, 2), 2, 2, 2, '#7fd6ff'); }
     if (L.acc === 'headset') { P(3, 4, 1, 5, '#3a4668'); P(12, 4, 1, 5, '#3a4668'); P(4, 2, 8, 1, '#3a4668'); if (dir === 0) P(4, 9, 2, 1, '#3a4668'); }
+    if (L.hat && L.hat !== 'none' && L.acc !== 'helmet') drawSpriteHat(P, X, side, dir, L.hat);
     if (L.acc === 'helmet') { c.strokeStyle = 'rgba(232,235,242,0.85)'; c.lineWidth = 1; c.fillStyle = 'rgba(200,225,255,0.18)'; c.beginPath(); c.arc(x + 8, y + 6.5, 6.5, 0, Math.PI * 2); c.fill(); c.stroke(); P(4, 1, 2, 1, 'rgba(255,255,255,0.8)'); }
   }
   // Apogee, curled up (or sitting up, awake)
@@ -5278,6 +5320,7 @@ details.act > .limits { margin: 0 0 8px; }
     const [x0, y0, x1, y1] = WR.bounds;
     if (x < x0 || x > x1 || y < y0 || y > y1) return true;
     for (const [a, b, c2, d] of WR.block) if (x > a - 3 && x < c2 + 3 && y > b - 2 && y < d + 2) return true;
+    if (projDone('jukebox') && x < 26 && y > 62 && y < 100) return true;
     // the crew's chairs behind the table (the walkway behind them stays open)
     if (walk) for (const n of walk.npcs) if (n.state === 'sit' && Math.abs(x - seatCx(n.who)) < 10 && y > 60 && y < 76) return true;
     return false;
@@ -5359,6 +5402,7 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
     L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('garage'); } });
     L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('den'); } });
+    if (projDone('jukebox')) L.push({ id: 'jukebox', rect: [4, 62, 22, 38], stand: [34, 90], face: 1, act: () => { sfx.click(); const who = (walk.npcs.find(n => n.state === 'sit') || {}).who || 'F'; loungeSay(who, '♪ ' + JUKEBOX[Math.floor(Math.random() * JUKEBOX.length)]); } });
     L.push({ id: 'hall', rect: [106, 140, 44, 20], stand: [128, 152], face: 0, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('hall'); } });
     return L;
   }
@@ -5522,6 +5566,14 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 28, 20, 13, 19, '#3a3f52'); px(c, 30, 22, 9, 6, '#14182a'); px(c, 31, 23, 3, 2, Math.floor(t / 500) % 2 ? '#ff6b5e' : '#7a3a3a'); px(c, 31, 32, 7, 6, '#26304f'); px(c, 32, 34, 4, 4, '#e8e0d0');
     px(c, 48, 30, 13, 8, '#5a4636'); px(c, 49, 31, 6, 6, '#3a2e24'); px(c, 56, 31, 4, 2, '#ffb547'); px(c, 56, 34, 4, 1, '#c9cfdc'); px(c, 59, 24, 1, 6, '#c9cfdc');
     if (radioNew()) px(c, 61, 22, 3, 3, '#ff6b5e');
+    // Wren's jukebox, once it's fixed
+    if (projDone('jukebox')) {
+      px(c, 6, 66, 18, 32, '#7a2f4a'); px(c, 6, 66, 18, 6, '#c9a24a'); c.fillStyle = '#c9a24a'; c.beginPath(); c.arc(15, 67, 9, Math.PI, 0); c.fill();
+      c.fillStyle = '#ffd36a'; c.beginPath(); c.arc(15, 67, 6, Math.PI, 0); c.fill();
+      px(c, 9, 74, 12, 10, '#14182a'); px(c, 10, 76, 10, 1, '#ff9ad5'); px(c, 10, 79, 10, 1, '#7fd6ff'); px(c, 10, 82, 10, 1, '#ffe58a');
+      for (let i = 0; i < 3; i++) px(c, 9 + i * 4, 88, 3, 3, ['#ff6b5e', '#58e0a0', '#7fd6ff'][(i + Math.floor(t / 400)) % 3]);
+      if (!reduceMotion) px(c, 26 + Math.round(Math.sin(t / 300) * 2), 60 - (t / 40) % 14, 2, 2, '#ffe58a');
+    }
     // the plant and the postcard box
     px(c, 230, 120, 14, 10, '#8a5a3a'); px(c, 231, 120, 12, 2, '#a5735a');
     for (const [lx, ly] of [[232, 108], [236, 104], [240, 109], [234, 113], [239, 114]]) px(c, lx, ly, 4, 6, '#3f8a58');
@@ -6707,7 +6759,7 @@ details.act > .limits { margin: 0 0 8px; }
     [126, 'BREAK', 'lounge'],
     [210, 'BRIDGE', 'bridge'],
     [294, 'PAD', 'den'],
-    [344, 'DOME', null, ['G', 'The observation dome! Best view on the deck. Once I re-seal the glass. It only leaks a little. Into space. Which is the bad direction.']],
+    [344, 'DOME', null, ['G', 'The observation dome! It still leaks a little. Into space. Which is the bad direction. I’ve put a repair project up on the board by the bench.']],
     [394, 'CREW', 'quarters']
   ];
   const HALL_SAY = [
@@ -6725,13 +6777,14 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipTalk(who) { bondTalk(who); shipSay(who, chatLine(who)); }
   function renderShipRoom(kind) {
-    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom';
+    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom', dome = kind === 'dome';
     if (gdn) gardenSel = null;
     const T = {
       hall: ['Hallway', 'The ship’s main hallway: doors to the hangar, the garden, the break room, the bridge, your Pad and the crew quarters, and one sealed door. Crew members sometimes wander through. Tap to walk; walk up to a door to go through, or to someone to chat. With a keyboard, arrow keys walk and Enter uses the nearest thing.', 'Tap to walk · walk up to a door to go through it · tap the crew to chat'],
       garden: ['The Garden', 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips'],
       bridge: ['The Bridge', 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'],
       quarters: ['Crew quarters', 'The crew quarters: a carpeted corridor with a bedroom door for each crew member. Doors open once you have 3 hearts with that person; a warm light under a door means someone is home. Tap to walk; walk up to a door to knock or go in. With a keyboard, arrow keys walk and Enter uses the nearest door.', 'Walk up to a door to knock · rooms open at 3 hearts · a light under the door means someone’s home'],
+      dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
     }[kind];
     card.innerHTML = `<div class="lounge shiproom">
@@ -6749,14 +6802,14 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = HALL_DOORS.find(x => x[2] === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters' }[from] || 'bridge'));
-      start = { x: d ? d[0] : 210, y: 72, dir: 0 };
+      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome' }[from] || 'bridge'));
+      start = { x: d ? d[0] : 210, y: 72, dir: from === 'projects' ? 3 : 0 };
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
     const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : [14, 98, 242, 152],
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
       crumb: crumbHome() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -6775,7 +6828,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw }[kind];
+    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -6788,7 +6841,7 @@ details.act > .limits { margin: 0 0 8px; }
     requestAnimationFrame(loop);
     if (hall) {
       const wand = deck.npcs.map(n => n.who);
-      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the hallway. Say hi. Then everybody back to work.`] : HALL_SAY[Math.floor(Math.random() * HALL_SAY.length)]));
+      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the hallway. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])(HALL_SAY.filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1]))))));
     } else if (gdn) {
       const first = store.get('ds-gardenSeen', '') !== '1'; store.set('ds-gardenSeen', '1');
       shipSay(...(first ? ['G', 'Welcome to the garden! I fixed the sprinklers. Mostly. Plant something, land a few times, and you’ll have homegrown gifts for the crew.']
@@ -6799,6 +6852,9 @@ details.act > .limits { margin: 0 0 8px; }
       const open = QUARTERS.filter(w => romMet[w]() && roomOpen(w));
       shipSay('F', first ? 'Crew quarters. Everyone’s room is behind one of these doors. Get to 3 hearts with someone and they’ll let you in. A light under the door means they’re home.'
         : open.length ? `${open.length === 1 ? 'One door is' : `${open.length} doors are`} open to you now. Knock on the rest when you know them better.` : 'All locked for now. 3 hearts with someone and their door opens. Chat, bring gifts, do their jobs.');
+    } else if (dome) {
+      const first = store.get('ds-domeSeen', '') !== '1'; store.set('ds-domeSeen', '1');
+      shipSay(...(first ? ['G', 'Welcome to the dome! Every star you can see, you paid for. Well. You paid for the glass. The stars were free.'] : deck.npcs.length ? [deck.npcs[0].who === 'Z' ? 'Z' : deck.npcs[0].who, deck.npcs[0].who === 'Z' ? 'Zib likes the dome! The stars are like very far away jelly!' : DOME_SAYS[Math.floor(Math.random() * DOME_SAYS.length)]] : ['F', 'The dome. Quietest room on the ship. Try to keep it that way. That means you, Gus.']));
     } else if (bed) {
       const R = ROOMS[bedroomOwner], home = deck.npcs.some(n => n.owner), guests = deck.npcs.filter(n => n.visit);
       if (home) shipSay(bedroomOwner, guests.length && bedroomOwner !== 'Z' && Math.random() < 0.5 ? HOST_SAYS[Math.floor(Math.random() * HOST_SAYS.length)](SIGN[guests[0].who]) : R.hello);
@@ -6821,8 +6877,11 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
     if (deck.kind === 'quarters') { quartersThings(L); return L; }
     if (deck.kind === 'bedroom') { bedroomThings(L); return L; }
+    if (deck.kind === 'dome') { domeThings(L); return L; }
     if (deck.kind === 'hall') {
-      for (const [x, label, to, sealed] of HALL_DOORS) {
+      L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
+      if (projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
+      for (const d of HALL_DOORS) { const [x, label, , sealed] = d, to = hallDoorTo(d);
         const w = label === 'BRIDGE' ? 36 : 22;
         L.push({ id: label, rect: [x - w / 2, 14, w, 52], go: () => [x, 70], at: () => ({ x, y: 30 }), act: () => {
           if (!to) { sfx.click(); shipSay(...sealed); return; }
@@ -6928,22 +6987,26 @@ details.act > .limits { margin: 0 0 8px; }
     c.imageSmoothingEnabled = false;
     // ceiling strip and back wall
     px(c, 0, 0, HALL_W, 60, '#1c2646');
-    px(c, 0, 0, HALL_W, 5, '#141b33'); for (let x = 4; x < HALL_W; x += 24) px(c, x, 1, 14, 2, Math.floor(t / 2400 + x) % 17 === 0 ? '#8a7a56' : '#ffe9b8');
+    px(c, 0, 0, HALL_W, 5, '#141b33'); const lit = projDone('lights'); for (let x = 4; x < HALL_W; x += 24) px(c, x, 1, 14, 2, !lit && Math.floor(t / 2400 + x) % 17 === 0 ? '#8a7a56' : '#ffe9b8');
+    if (lit) { const g = c.createLinearGradient(0, 4, 0, 26); g.addColorStop(0, 'rgba(255,220,160,0.16)'); g.addColorStop(1, 'rgba(255,220,160,0)'); c.fillStyle = g; c.fillRect(0, 4, HALL_W, 22); }
     for (let x = 0; x < HALL_W; x += 25) px(c, x, 5, 1, 50, '#212c50');
     px(c, 0, 40, HALL_W, 2, '#26315a'); px(c, 0, 54, HALL_W, 2, '#2a3556'); px(c, 0, 56, HALL_W, 4, '#121933');
     // portholes between the doors
-    for (const wx of [51, 101, 166, 254, 319, 369]) {
+    for (const wx of [51, 101, 254, 319, 369]) {
       c.fillStyle = '#3a4668'; c.beginPath(); c.arc(wx, 24, 9, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#060914'; c.beginPath(); c.arc(wx, 24, 7, 0, Math.PI * 2); c.fill();
       for (let i = 0; i < 4; i++) { const a = (wx * 7 + i * 97 + t / 9000) % 12, sx = wx - 5 + a, sy = 19 + (i * 3) % 10; if (Math.hypot(sx - wx, sy - 24) < 6) px(c, Math.round(sx), sy, 1, 1, i % 2 ? '#8a93ab' : '#ffffff'); }
       px(c, wx - 4, 19, 2, 1, 'rgba(255,255,255,0.35)');
     }
+    // the project board over the bench
+    px(c, 152, 10, 30, 26, '#5a4636'); px(c, 153, 11, 28, 24, '#a47a4c');
+    PROJECTS.forEach((pj, i) => { const nx = 155 + (i % 3) * 9, ny = 13 + Math.floor(i / 3) * 11; px(c, nx, ny, 7, 9, projDone(pj.id) ? '#c9f0d8' : '#f4f1e8'); px(c, nx + 3, ny, 1, 1, '#ff6b5e'); if (projDone(pj.id)) px(c, nx + 2, ny + 4, 3, 2, '#3f8a58'); });
     // a bench and a plant, and the ship plaque
     px(c, 150, 46, 30, 3, '#7a5c44'); px(c, 152, 49, 2, 6, '#4a3a2c'); px(c, 176, 49, 2, 6, '#4a3a2c');
     px(c, 236, 44, 10, 10, '#8a5a3a'); for (const [lx, ly] of [[237, 34], [241, 31], [244, 36], [238, 39]]) px(c, lx, ly, 3, 6, '#3f8a58');
     // doors
-    for (const [x, label, to] of HALL_DOORS) {
-      const bridge = label === 'BRIDGE', w = bridge ? 36 : 22, x0 = x - w / 2, open = !!to;
+    for (const d of HALL_DOORS) {
+      const [x, label] = d, to = hallDoorTo(d), bridge = label === 'BRIDGE', w = bridge ? 36 : 22, x0 = x - w / 2, open = !!to;
       px(c, x0 - 1, 15, w + 2, 41, '#2a3556'); px(c, x0, 16, w, 40, '#0e1428');
       if (bridge) {
         px(c, x0 + 2, 18, w / 2 - 3, 38, '#1f2c52'); px(c, x + 1, 18, w / 2 - 3, 38, '#1f2c52');
@@ -6966,14 +7029,23 @@ details.act > .limits { margin: 0 0 8px; }
     for (let y = 60, k = 0; y < SHIP_H; y += 14, k++) for (let x = (k % 2) * 20; x < HALL_W; x += 40) px(c, x, y, 1, 14, '#202744');
     for (let x = 4; x < HALL_W; x += 16) px(c, x, 108, 8, 2, Math.floor((t / 160 - x / 16)) % 12 === 0 ? '#ffe58a' : '#7a5a24');
     // door mats
-    for (const [x, , to] of HALL_DOORS) if (to) px(c, x - 9, 60, 18, 3, '#26304f');
+    for (const d of HALL_DOORS) if (hallDoorTo(d)) px(c, d[0] - 9, 60, 18, 3, '#26304f');
+    // the lounge corner, once it's built
+    if (projDone('lounge')) {
+      c.fillStyle = '#3a2a4a'; c.beginPath(); c.ellipse(285, 140, 40, 9, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = '#c9a24a'; c.lineWidth = 1; c.beginPath(); c.ellipse(285, 140, 36, 7, 0, 0, Math.PI * 2); c.stroke();
+    }
     const things = shipFloorThings(c, t), me = deck.me;
+    if (projDone('lounge')) things.push([138, () => {
+      px(c, 260, 118, 50, 10, '#3d6b63'); px(c, 260, 118, 50, 2, '#4f8a80'); px(c, 260, 128, 50, 9, '#2f5a54'); px(c, 256, 120, 6, 18, '#2f5a54'); px(c, 308, 120, 6, 18, '#2f5a54');
+      px(c, 266, 129, 18, 3, '#4f8a80'); px(c, 286, 129, 18, 3, '#4f8a80'); px(c, 262, 137, 3, 3, '#1f3a36'); px(c, 305, 137, 3, 3, '#1f3a36');
+      px(c, 320, 106, 2, 30, '#3a4668'); px(c, 315, 102, 12, 6, '#ffe9b8'); px(c, 316, 136, 10, 2, '#3a4668');
+      c.fillStyle = 'rgba(255,233,184,0.12)'; c.beginPath(); c.arc(321, 108, 16, 0, Math.PI * 2); c.fill();
+    }]);
     things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     shipTapRing(c, t);
     c.setTransform(1, 0, 0, 1, 0, 0);
-    // edge arrows when there's more hallway off-screen
-    c.fillStyle = 'rgba(255,181,71,0.7)';
     hallArrows(c, v, HALL_W);
   }
   function bridgeDraw(t) {
@@ -7075,6 +7147,8 @@ details.act > .limits { margin: 0 0 8px; }
       if (cap[loc] != null && (count[loc] || 0) >= cap[loc]) loc = 'room';
       count[loc] = (count[loc] || 0) + 1; P[w] = loc;
     }
+    // once it's open, some of the garden-goers stargaze in the dome instead
+    if (projDone('dome')) for (const w of met) if (P[w] === 'garden' && srand(w + 'd' + slot) < 0.6) P[w] = 'dome';
     // visitors call on someone who's home
     for (const w of met) if (P[w] === 'visit') {
       const hosts = met.filter(h => h !== w && P[h] === 'room');
@@ -7084,7 +7158,7 @@ details.act > .limits { margin: 0 0 8px; }
     return P;
   }
   const crewAt = who => crewPlaces()[who] || CREW_HOME[who];
-  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden' }[loc];
+  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden', dome: 'Stargazing in the dome' }[loc];
   const roomOpen = who => heartsOf(who) >= 3 || bond.partner === who;
   const roomBusy = who => crewAt(who) === 'room' || Object.values(crewPlaces()).includes('visit:' + who);
 
@@ -7096,6 +7170,9 @@ details.act > .limits { margin: 0 0 8px; }
     else if (kind === 'bridge') {
       const here = who.filter(w => P[w] === 'bridge'), spare = [[70, 146], [190, 146], [100, 120]];
       for (const w of here) { const s = w === 'R' ? [24, 128] : w === 'O' ? [232, 128] : spare.shift(); if (s) add(w, s[0], s[1], { baseDir: s[0] < 128 ? 2 : 1 }); }
+    } else if (kind === 'dome') {
+      const spots = [[110, 124], [150, 120], [200, 132]];
+      who.filter(w => P[w] === 'dome').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: 3 }); });
     } else if (kind === 'garden') {
       const spots = [[90, 114], [166, 114], [236, 108]];
       who.filter(w => P[w] === 'garden').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: 3 }); });
@@ -7315,6 +7392,114 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  // ---- Ship repair projects: fund them a bit at a time on the hallway board ----
+  const PROJECTS = [
+    { id: 'lights', name: 'Fix the hallway lights', who: 'G', cost: 400, blurb: 'The hallway lights flicker every Tuesday. And most Wednesdays. Gus has a theory, a ladder and a lot of tape.', what: 'Steady, warm lights all down the hallway.', done: 'Lights fixed! Steady and warm. I kind of miss the flicker. No I don’t.' },
+    { id: 'sprinkler', name: 'Garden sprinklers', who: 'G', cost: 1500, blurb: 'A little sprinkler head on every planter, so the garden waters itself.', what: 'The garden waters itself every new day.', done: 'Sprinklers in! The garden waters itself every morning now. Don’t stand too close at six a.m.' },
+    { id: 'lounge', name: 'Hallway lounge corner', who: 'F', cost: 2000, blurb: 'A couch, a rug and a lamp halfway down the hallway. Somewhere to sit that isn’t the break room. Or my desk.', what: 'A cosy corner in the hallway, near your Pad.', done: 'The lounge corner is done. It has a couch. I have already napped on it. Professionally.' },
+    { id: 'jukebox', name: 'Break room jukebox', who: 'W', cost: 2500, blurb: 'There’s an old jukebox in storage. A new needle, some wiring and a polish, and the break room has music again.', what: 'A working jukebox in the break room.', done: 'Listen to that. Forty years old and it still plays. Just like me.' },
+    { id: 'dome', name: 'Repair the observation dome', who: 'G', cost: 6000, blurb: 'Re-seal the dome glass, re-pressurise it and clean the telescope. Best view on the ship, once it stops leaking into space.', what: 'Opens the observation dome off the hallway.', done: 'The dome is open! Re-sealed, re-pressurised and only slightly smudged. Go and look up!' }
+  ];
+  let projPaid = (() => { try { return JSON.parse(store.get('ds-projects', '{}')) || {}; } catch (e) { return {}; } })();
+  const projById = id => PROJECTS.find(p => p.id === id);
+  const projDone = id => (projPaid[id] || 0) >= projById(id).cost;
+  const projWho = p => p.who === 'W' && !wrenHome() ? 'F' : p.who;
+  let projectsFrom = 'title', projSay = null;
+  function renderProjects() {
+    const doneN = PROJECTS.filter(p => projDone(p.id)).length;
+    card.innerHTML = `<div class="projects">
+      <span class="eyebrow">Hallway board</span>
+      <h1 class="good">Ship projects</h1>
+      <p class="sub">${doneN} of ${PROJECTS.length} done · you have <b class="cr">${fmt(credits)} credits</b>. Chip in a bit at a time; every project changes something on the ship.</p>
+      ${projSay ? `<div class="radio quote">${faceTag(projSay[0], projSay[1])}<div class="said"><span class="who" style="color:${SPEAKERS[projSay[0]].color}">${SPEAKERS[projSay[0]].name}</span><p>${esc(projSay[1])}</p></div></div>` : ''}
+      <div class="plist">${PROJECTS.map(p => {
+        const paid = Math.min(p.cost, projPaid[p.id] || 0), left = p.cost - paid, done = left <= 0, who = projWho(p);
+        return `<div class="pcard${done ? ' done' : ''}">
+          <div class="phead">${faceTag(who, SIGN[who])}<div><b>${p.name}</b><small>Posted by ${SIGN[who]}</small></div>${done ? '<i class="pdone" aria-label="Done">✓</i>' : ''}</div>
+          <p>${done ? p.done : p.blurb}</p>
+          <p class="pwhat">${done ? '✓ ' : 'Finished: '}${p.what}</p>
+          ${done ? '' : `<div class="gbar" role="progressbar" aria-valuemin="0" aria-valuemax="${p.cost}" aria-valuenow="${paid}"><i style="width:${Math.round(paid / p.cost * 100)}%"></i></div>
+          <small class="pmeta">${fmt(paid)} of ${fmt(p.cost)} credits</small>
+          <div class="btns">${[100, 500].filter(a => a < left).map(a => `<button class="btn ghost" data-pay="${p.id}:${a}"${credits < a ? ' disabled' : ''}>+${a}</button>`).join('')}<button class="btn" data-pay="${p.id}:${left}"${credits < 1 ? ' disabled' : ''}>${credits >= left ? `Finish it · ${fmt(left)}` : `Put in ${fmt(credits)}`}</button></div>`}
+        </div>`;
+      }).join('')}</div>
+      <p class="limits">More projects will go up on the board as the ship grows.</p>
+      <div class="btns"><button class="btn ghost" id="back">${projectsFrom === 'hall' ? 'Back to the hallway' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
+    </div>`;
+    paintFaces(card);
+    card.querySelectorAll('[data-pay]').forEach(b => b.addEventListener('click', () => {
+      const [id, a] = b.dataset.pay.split(':'), p = projById(id), left = p.cost - (projPaid[id] || 0);
+      const amt = Math.min(+a, credits, left);
+      if (amt <= 0) return;
+      credits -= amt; saveCosmetics();
+      projPaid[id] = (projPaid[id] || 0) + amt; store.set('ds-projects', JSON.stringify(projPaid));
+      if (projDone(id)) {
+        sfx.coin(); projSay = [projWho(p), p.done]; crewCache = null;
+        showToast(`Project done: ${p.name}!`, 2600);
+        const who = projWho(p); if (ROM_WHO.includes(who)) addHearts(who, 30);
+      } else { sfx.click(); projSay = [projWho(p), amt >= 500 ? 'Whoa, big donor! Thank you!' : 'Every credit helps. Thank you, pilot!']; }
+      renderProjects();
+      const again = card.querySelector(`[data-pay^="${id}:"]`); if (again) again.focus({ preventScroll: true });
+    }));
+    $('back').addEventListener('click', () => { projSay = null; if (projectsFrom === 'hall') { walkEnter = 'projects'; setMode('hall'); } else setMode('title'); });
+  }
+  const LOUNGE_SAYS = [['F', 'The lounge corner. I sit here when I need to think. Or when I need people to think I’m thinking.'], ['G', 'Comfiest couch on the ship. I checked. I checked all of them. Twice.'], ['F', 'No feet on the couch. That rule is for Gus. Gus knows.']];
+  const hallDoorTo = d => d[1] === 'DOME' && projDone('dome') ? 'dome' : d[2];
+  const JUKEBOX = ['“Fly Me to the Moon”. Gus picked it. Gus always picks it.', '“Space Oddity”. Dottie hums along and pretends she isn’t.', 'Something with a lot of saxophone. Wren closes her eyes. Nobody interrupts.',
+    '“Rocket Man”. Rex sings every word. Badly. Loudly. With feeling.', 'A slow waltz. Apogee watches the record go round and round and round.', 'Ollo’s request: “Moth Ballad No. 9”. It’s mostly about lamps.'];
+
+  // ---- The observation dome ----
+  const DOME_SAYS = ['Look at all of it. Every one of those is somewhere you could land, someday.', 'It’s so quiet up here. Even Gus whispers.', 'You can see your whole route from here. Well. Some of it. The pretty parts.'];
+  function domeThings(L) {
+    L.push({ id: 'scope', rect: [168, 54, 36, 38], go: () => [176, 100], at: () => ({ x: 186, y: 70 }), act: () => {
+      const w = storedWorld() || WORLDS[1];
+      const opts = [['G', `The telescope’s pointed at ${w.name}. Clean lens, finally. You can see the pads you landed on. Well, I can. I have good eyes.`],
+        ['F', 'I looked through it once and saw Gus’s yogurt floating past the window. I don’t look through it any more.'],
+        ['G', `Point it anywhere you’ve landed and the scope finds your landing pad. ${stats.worlds.length} worlds so far!`]];
+      if ((missionStars['unit-zero'] || 0) > 0) opts.push(['F', 'There’s something on the far edge of the scope that wasn’t there yesterday. A blinking light. Steady. Like it’s waiting for someone.']);
+      sfx.click(); shipSay(...opts[Math.floor(Math.random() * opts.length)]);
+    } });
+    L.push({ id: 'bench', rect: [36, 94, 64, 22], go: () => [68, 124], at: () => ({ x: 68, y: 100 }), act: () => shipSay(...(bond.partner && romMet[bond.partner]() ? [bond.partner, ROM[bond.partner].date[Math.floor(Math.random() * ROM[bond.partner].date.length)]] : ['F', 'Sit. Look up. Breathe. Doctor’s orders. I’m not a doctor. Sit anyway.'])) });
+    L.push({ id: 'sky', rect: [10, 2, 236, 52], go: () => [deck.me.x, 96], at: () => ({ x: deck.me.x, y: 20 }), act: () => shipSay(['G', 'F', 'W'].filter(w => w !== 'W' || wrenHome())[Math.floor(Math.random() * (wrenHome() ? 3 : 2))], DOME_SAYS[Math.floor(Math.random() * DOME_SAYS.length)]) });
+    L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'dome'; setMode('hall'); } });
+  }
+  function domeDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view);
+    c.imageSmoothingEnabled = false;
+    // the sky through the glass
+    px(c, 0, 0, W, 72, '#04060f');
+    const neb = c.createLinearGradient(0, 10, W, 50); neb.addColorStop(0, 'rgba(120,80,200,0)'); neb.addColorStop(0.5, 'rgba(120,80,200,0.18)'); neb.addColorStop(1, 'rgba(80,160,220,0)');
+    c.fillStyle = neb; c.fillRect(0, 6, W, 50);
+    for (let i = 0; i < 70; i++) { const sx = (i * 53 + Math.floor(t / 90) * (i % 3 === 0 ? 1 : 0) * 0) % W, sy = (i * 29) % 66; const tw = (Math.sin(t / 500 + i) + 1) / 2; px(c, sx, sy, 1, 1, i % 6 ? `rgba(200,210,235,${0.4 + tw * 0.5})` : '#ffffff'); }
+    const w = storedWorld() || WORLDS[1];
+    c.fillStyle = w.orb; c.beginPath(); c.arc(214, 22, 14, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.arc(220, 25, 14, 0, Math.PI * 2); c.fill();
+    // the dome's ribs
+    c.strokeStyle = '#3a4668'; c.lineWidth = 2;
+    for (const k of [-0.75, -0.25, 0.25, 0.75]) { c.beginPath(); c.moveTo(128 + k * 160, 72); c.quadraticCurveTo(128 + k * 60, -10, 128, -20); c.stroke(); }
+    c.beginPath(); c.moveTo(0, 30); c.quadraticCurveTo(128, -6, W, 30); c.stroke();
+    px(c, 0, 66, W, 6, '#2a3556'); px(c, 0, 66, W, 1, '#4a5578');
+    // the floor: a round platform
+    px(c, 0, 72, W, SHIP_H - 72, '#141a30');
+    c.fillStyle = '#1e2644'; c.beginPath(); c.ellipse(128, 118, 118, 38, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = 'rgba(127,214,255,0.25)'; c.lineWidth = 1; c.beginPath(); c.ellipse(128, 118, 108, 33, 0, 0, Math.PI * 2); c.stroke();
+    for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; px(c, Math.round(128 + Math.cos(a) * 108), Math.round(118 + Math.sin(a) * 33), 2, 1, (Math.floor(t / 300) + i) % 8 === 0 ? '#7fd6ff' : '#3a5070'); }
+    px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'HALL', true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    // a curved bench, the telescope, two potted plants
+    things.push([116, () => { px(c, 38, 100, 60, 6, '#7a5c44'); px(c, 38, 100, 60, 1, '#8e6d52'); px(c, 36, 96, 64, 4, '#5a4636'); px(c, 42, 106, 3, 8, '#4a3a2c'); px(c, 91, 106, 3, 8, '#4a3a2c'); }]);
+    things.push([92, () => {
+      px(c, 184, 74, 2, 18, '#8a93ab'); c.strokeStyle = '#8a93ab'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(185, 80); c.lineTo(176, 92); c.moveTo(185, 80); c.lineTo(194, 92); c.stroke();
+      c.save(); c.translate(185, 72); c.rotate(-0.55); px(c, -4, -3, 26, 7, '#c9cfdc'); px(c, 18, -4, 5, 9, '#8a93ab'); px(c, -6, -2, 3, 5, '#3a4668'); c.restore();
+    }]);
+    for (const [px0, py0] of [[14, 84], [228, 86]]) things.push([py0 + 24, () => { px(c, px0 + 3, py0 + 16, 10, 8, '#8a5a3a'); for (const [a, b] of [[2, 6], [6, 2], [10, 7], [4, 10], [9, 11]]) px(c, px0 + a, py0 + b, 3, 6, '#3f8a58'); }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
   // ---- The garden: six planters. Crops grow a little with every landing, and a daily watering helps ----
   const SEEDS = [
     { id: 'tea', name: 'Moon tea', icon: '🍵', cost: 20, grow: 2, leaf: '#58b878', fruit: '#d8f0a0' },
@@ -7446,6 +7631,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (by < 100) { px(c, bx + 18, by - 26, 8, 3, '#3a4668'); px(c, bx + 19, by - 23, 6, 2, '#ff9ad5'); }
       px(c, bx, by + 4, 44, 12, '#6e5232'); px(c, bx, by + 4, 44, 2, '#8a6a42'); px(c, bx + 2, by, 40, 5, '#3a2a1c');
       if (b && b.wd === shipDayKey()) px(c, bx + 2, by, 40, 5, '#2a2016');
+      if (projDone('sprinkler')) { px(c, bx - 1, by + 2, 3, 3, '#8a93ab'); px(c, bx, by + 1, 1, 1, '#7fd6ff'); px(c, bx + 42, by + 2, 3, 3, '#8a93ab'); px(c, bx + 43, by + 1, 1, 1, '#7fd6ff'); }
       if (s) { const g = bedGrowth(b), st = bedReady(b) ? 3 : Math.min(2, Math.floor(g / s.grow * 3)); for (let k = 0; k < 4; k++) drawCrop(c, bx + 7 + k * 10, by + 3, s, st, t, k + i); }
       if (b && bedReady(b) && (reduceMotion || Math.floor(t / 450) % 2)) { px(c, bx + 40, by - 10, 3, 3, '#ffe58a'); }
       if (sel) { c.strokeStyle = '#ffb547'; c.lineWidth = 1; c.strokeRect(bx - 1.5, by - 13.5, 47, 31); }
@@ -7483,6 +7669,7 @@ details.act > .limits { margin: 0 0 8px; }
     document.body.appendChild(fade);
     const wake = () => {
       shipDay = next; store.set('ds-shipDay', String(shipDay)); store.set('ds-sleepAt', String(flightsDone()));
+      if (projDone('sprinkler')) { garden.beds.forEach(b => { if (b && !bedReady(b)) { b.wd = shipDayKey(); b.w = (b.w || 0) + 1; } }); saveGarden(); }
       crewCache = null;
       if (denUI) { denUI.visitor = null; denUI.say = MORNING[Math.floor(Math.random() * MORNING.length)]; }
       if (mode === 'den') renderDen(true);
@@ -7876,6 +8063,108 @@ details.act > .limits { margin: 0 0 8px; }
     arc.raf = requestAnimationFrame(arcLoop);
   }
 
+
+  // ---- The pilot wardrobe: outfits and hats bought with credits ----
+  const OUTFITS = [
+    { id: 'hoodie', name: 'Cozy hoodie', price: 500, top: '#7a5ab8', pants: '#3a3050', shoes: '#2a2238', blurb: 'For long nights on the Bridge.' },
+    { id: 'overalls', name: 'Workshop overalls', price: 450, top: '#3d6b63', pants: '#3d6b63', shoes: '#5a3a24', trim: '#c9cfdc', blurb: 'Gus approved. Several pockets. One has a sandwich in it.' },
+    { id: 'jacket', name: 'Bomber jacket', price: 600, top: '#7a4a2c', pants: '#2a3045', shoes: '#2a1a12', scarf: '#e8dcb8', blurb: 'Fur collar, leather patches, maximum swagger.' },
+    { id: 'sweater', name: 'Holiday sweater', price: 700, top: '#b8322a', pants: '#2a3045', shoes: '#2a1a12', trim: '#f4f1e8', dots: '#f4f1e8', blurb: 'Hand-knitted by Dottie. She will deny it.' },
+    { id: 'moth', name: 'Moth-silk robe', price: 900, top: '#d4b888', pants: '#8a6a42', shoes: '#5a4030', scarf: '#f0e2c0', blurb: 'A gift-shop copy of Ollo’s travelling robe. Very soft.' },
+    { id: 'stars', name: 'Star-print flight suit', price: 1000, top: '#26355e', pants: '#26355e', shoes: '#15151f', dots: '#ffe58a', blurb: 'Covered in tiny constellations. You can find Orion if you squint.' },
+    { id: 'captain', name: 'Captain’s coat', price: 1200, top: '#1d2a4c', pants: '#1d2a4c', shoes: '#15151f', trim: '#ffd36a', blurb: 'Gold trim, sharp shoulders. You look like you own the ship.' },
+    { id: 'tux', name: 'Gala tux', price: 1500, top: '#15151f', pants: '#15151f', shoes: '#0a0a12', trim: '#f4f1e8', blurb: 'For embassy dinners, and for dates in the dome.' }
+  ];
+  const HATS = [
+    { id: 'flower', name: 'Hair flower', price: 200, blurb: 'A star lily from the garden. Probably.' },
+    { id: 'cap', name: 'Ball cap', price: 250, blurb: 'Descent Systems team cap. The team is five people and a cat.' },
+    { id: 'beanie', name: 'Bobble beanie', price: 300, blurb: 'Warm ears, warm heart.' },
+    { id: 'bow', name: 'Big bow', price: 300, blurb: 'It’s a very big bow.' },
+    { id: 'party', name: 'Party hat', price: 350, blurb: 'Every landing is a party if you believe hard enough.' },
+    { id: 'antennae', name: 'Antenna headband', price: 400, blurb: 'Now you and Ollo match. He cried a little.' },
+    { id: 'shades', name: 'Star shades', price: 500, blurb: 'Rex has the same pair. Rex says yours are knockoffs.' },
+    { id: 'crown', name: 'Tiny crown', price: 2000, blurb: 'For the pilot who has everything. Now you have a crown too.' }
+  ];
+  let wardOwned = (() => { try { return new Set(JSON.parse(store.get('ds-wardrobe', '[]'))); } catch (e) { return new Set(); } })();
+  const saveWard = () => store.set('ds-wardrobe', JSON.stringify([...wardOwned]));
+  const outfitOf = L => OUTFITS.find(o => o.id === L.outfit) || null;
+  // a hat (or the star shades) on the little walking sprite
+  function drawSpriteHat(P, X, side, dir, hat) {
+    const H = (a, b, w, h, col) => P(side ? X(a, w) : a, b, w, h, col);
+    if (hat === 'cap') { H(4, 0, 8, 3, '#ff6b5e'); H(5, -1, 6, 1, '#ff6b5e'); if (dir === 0) P(3, 3, 10, 1, '#b8322a'); else if (side) H(0, 2, 5, 1, '#b8322a'); }
+    else if (hat === 'beanie') { H(4, -1, 8, 4, '#4fae8a'); H(3, 2, 10, 1, '#2f7a58'); H(7, -3, 2, 2, '#f4f1e8'); }
+    else if (hat === 'antennae') { H(5, -2, 1, 3, '#3a4668'); H(10, -2, 1, 3, '#3a4668'); H(4, -4, 3, 2, '#ff9ad5'); H(9, -4, 3, 2, '#ff9ad5'); H(4, 1, 8, 1, '#3a4668'); }
+    else if (hat === 'flower' && dir !== 3) { H(10, 1, 3, 3, '#ff9ad5'); H(11, 2, 1, 1, '#ffe58a'); }
+    else if (hat === 'bow') { H(4, -1, 3, 3, '#ff6b9a'); H(9, -1, 3, 3, '#ff6b9a'); H(7, 0, 2, 2, '#c9406a'); }
+    else if (hat === 'party') { H(6, -1, 4, 2, '#7fd6ff'); H(7, -3, 2, 2, '#ffe58a'); H(7, -5, 2, 2, '#ff6b5e'); H(7, -6, 2, 1, '#f4f1e8'); }
+    else if (hat === 'crown') { H(5, -1, 6, 2, '#ffd36a'); H(5, -3, 1, 2, '#ffd36a'); H(7, -3, 2, 2, '#ffd36a'); H(10, -3, 1, 2, '#ffd36a'); if (dir === 0) P(7, -1, 2, 1, '#ff6b5e'); }
+    else if (hat === 'shades' && dir !== 3) { if (side) H(3, 7, 3, 1, '#15151f'); else { P(4, 6, 8, 2, '#15151f'); P(5, 6, 1, 1, '#ffd36a'); P(9, 6, 1, 1, '#ffd36a'); } }
+  }
+  // ...and on the big license portrait (32 x 32)
+  function drawPortraitHat(P, hat) {
+    if (hat === 'cap') { P(9, 5, 14, 4, '#ff6b5e'); P(11, 4, 10, 1, '#ff6b5e'); P(8, 9, 16, 1, '#b8322a'); P(15, 6, 2, 2, '#f4f1e8'); }
+    else if (hat === 'beanie') { P(9, 3, 14, 6, '#4fae8a'); P(8, 8, 16, 2, '#2f7a58'); P(14, 1, 4, 3, '#f4f1e8'); }
+    else if (hat === 'antennae') { P(10, 7, 12, 1, '#3a4668'); P(11, 2, 1, 5, '#3a4668'); P(20, 2, 1, 5, '#3a4668'); P(9, 0, 4, 3, '#ff9ad5'); P(19, 0, 4, 3, '#ff9ad5'); }
+    else if (hat === 'flower') { P(19, 6, 5, 5, '#ff9ad5'); P(20, 5, 3, 7, '#ff9ad5'); P(21, 8, 1, 1, '#ffe58a'); }
+    else if (hat === 'bow') { P(10, 4, 5, 5, '#ff6b9a'); P(17, 4, 5, 5, '#ff6b9a'); P(15, 5, 2, 3, '#c9406a'); }
+    else if (hat === 'party') { P(13, 4, 6, 3, '#7fd6ff'); P(14, 1, 4, 3, '#ffe58a'); P(15, -1, 2, 2, '#ff6b5e'); P(15, 7, 2, 1, '#ff6b5e'); }
+    else if (hat === 'crown') { P(11, 4, 10, 3, '#ffd36a'); P(11, 2, 2, 2, '#ffd36a'); P(15, 1, 2, 3, '#ffd36a'); P(19, 2, 2, 2, '#ffd36a'); P(15, 5, 2, 1, '#ff6b5e'); }
+    else if (hat === 'shades') { P(11, 13, 10, 4, '#15151f'); P(12, 14, 2, 1, '#ffd36a'); P(18, 14, 2, 1, '#ffd36a'); }
+  }
+  let wardUI = { tab: 'outfit', trying: null }, wardFrom = 'title';
+  function wardTrial() {   // the look you'd have with what you're trying on
+    const L = { ...lic };
+    if (wardUI.trying) { if (wardUI.tab === 'outfit') L.outfit = wardUI.trying; else L.hat = wardUI.trying; }
+    return L;
+  }
+  function renderWardrobe() {
+    const isOut = wardUI.tab === 'outfit', list = isOut ? OUTFITS : HATS, cur = isOut ? (lic.outfit || null) : (lic.hat && lic.hat !== 'none' ? lic.hat : null);
+    const tryIt = wardUI.trying && list.find(i => i.id === wardUI.trying);
+    const tile = (id, name, sub, on, owned) => `<button class="witem${on ? ' on' : ''}${owned ? '' : ' shop'}" data-ward="${id || ''}" aria-pressed="${on}"><canvas class="wpv" data-wpv="${id || ''}" width="48" height="60" aria-hidden="true"></canvas><b>${name}</b><small>${sub}</small></button>`;
+    card.innerHTML = `<div class="wardrobe">
+      <h1 class="good">Wardrobe</h1>
+      <p class="sub">Dress your pilot. What you wear shows up everywhere: walking around the ship, at the table and on your license. <span class="cr">${fmt(credits)} cr</span></p>
+      <div class="wstage"><canvas id="wardBig" width="96" height="120" aria-label="Your pilot, turning around"></canvas><canvas id="wardFace" width="64" height="64" aria-hidden="true"></canvas>
+        <div class="wnote">${tryIt ? `<b>Trying on: ${tryIt.name}</b><p>${tryIt.blurb}</p><div class="btns"><button class="btn" id="wardBuy"${credits < tryIt.price ? ' disabled' : ''}>${credits < tryIt.price ? `Need ${fmt(tryIt.price - credits)} more cr` : `Buy · ${fmt(tryIt.price)} cr`}</button><button class="btn ghost" id="wardPut">Put it back</button></div>` : `<b>${isOut ? (outfitOf(lic) ? outfitOf(lic).name : 'Your license suit') : (HATS.find(h => h.id === lic.hat) || { name: 'No hat' }).name}</b><p>Tap anything to try it on. Things you own switch instantly.</p>`}</div></div>
+      <div class="mtabs wtabs" role="tablist"><button role="tab" class="mtab${isOut ? ' on' : ''}" data-wtab="outfit" aria-selected="${isOut}"><b>Outfits</b></button><button role="tab" class="mtab${isOut ? '' : ' on'}" data-wtab="hat" aria-selected="${!isOut}"><b>Hats</b></button></div>
+      <div class="witems">${isOut ? tile(null, 'License suit', 'Free · your colour', !cur, true) : tile(null, 'No hat', 'Free', !cur, true)}${list.map(i => { const own = wardOwned.has(i.id); return tile(i.id, i.name, cur === i.id ? 'Wearing' : own ? 'Owned' : `${fmt(i.price)} cr`, cur === i.id || wardUI.trying === i.id, own); }).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="back">${wardFrom === 'license' ? 'Back to your license' : wardFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
+    </div>`;
+    // little previews on each tile
+    card.querySelectorAll('[data-wpv]').forEach(cv => {
+      const id = cv.dataset.wpv || null, L = { ...lic, ...(isOut ? { outfit: id } : { hat: id || 'none' }) };
+      const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.setTransform(2, 0, 0, 2, 0, 0);
+      drawSprite(c, lookFor(L), 8, 4, 0, 0, false);
+    });
+    const big = $('wardBig'), face = $('wardFace');
+    const loop = () => {
+      if (mode !== 'wardrobe' || !document.body.contains(big)) return;
+      const t = performance.now(), L = wardTrial(), c = big.getContext('2d');
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 96, 120); c.imageSmoothingEnabled = false; c.setTransform(4, 0, 0, 4, 0, 0);
+      const dir = [0, 2, 3, 1][Math.floor(t / 1400) % 4];
+      drawSprite(c, lookFor(L), 4, 4, dir, Math.floor(t / 180) % 4, false);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    { const fc = face.getContext('2d'); fc.imageSmoothingEnabled = false; drawPilot(fc, 0, 0, 64, wardTrial(), false); }
+    card.querySelectorAll('[data-wtab]').forEach(b => b.addEventListener('click', () => { if (wardUI.tab === b.dataset.wtab) return; wardUI.tab = b.dataset.wtab; wardUI.trying = null; sfx.click(); renderWardrobe(); }));
+    card.querySelectorAll('[data-ward]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.ward || null;
+      if (!id || wardOwned.has(id)) { if (isOut) lic.outfit = id; else lic.hat = id || 'none'; saveLic(); wardUI.trying = null; sfx.click(); }
+      else { wardUI.trying = id; sfx.click(); }
+      renderWardrobe();
+      const again = card.querySelector(`[data-ward="${id || ''}"]`); if (again) again.focus({ preventScroll: true });
+    }));
+    const bb = $('wardBuy'); if (bb) bb.addEventListener('click', () => {
+      const it = list.find(i => i.id === wardUI.trying); if (!it || credits < it.price) return;
+      credits -= it.price; saveCosmetics(); wardOwned.add(it.id); saveWard();
+      if (isOut) lic.outfit = it.id; else lic.hat = it.id; saveLic();
+      wardUI.trying = null; sfx.coin(); showToast(`${it.name} is yours`); renderWardrobe();
+    });
+    const pb = $('wardPut'); if (pb) pb.addEventListener('click', () => { wardUI.trying = null; sfx.click(); renderWardrobe(); });
+    $('back').addEventListener('click', () => { wardUI.trying = null; if (wardFrom === 'license') setMode('license'); else if (wardFrom === 'den') setMode('den'); else setMode('title'); });
+  }
+
   // ---- Pilot license: a shareable ID card with your portrait, rank and career stats ----
   const LIC_HAIR = [['short', 'Short'], ['curly', 'Curly'], ['long', 'Long'], ['bun', 'Bun'], ['buzz', 'Buzz'], ['mohawk', 'Mohawk'], ['none', 'Bald']];
   const LIC_HAIR_COLS = ['#2a1a12', '#5a3520', '#a8652a', '#e8c070', '#c94236', '#e8e8ee', '#4a5aa8', '#ff9ad5'];
@@ -7898,11 +8187,13 @@ details.act > .limits { margin: 0 0 8px; }
   function drawPilot(c, x, y, size, L = lic, bare = false) {
     const off = document.createElement('canvas'); off.width = off.height = 32;
     const p = off.getContext('2d'), P = (a, b, w, h, col) => { p.fillStyle = col; p.fillRect(a, b, w, h); };
-    const skin = LIC_SKINS[L.skin] || LIC_SKINS[1], hc = LIC_HAIR_COLS[L.hairCol] || LIC_HAIR_COLS[1], suit = (LIC_SUITS.find(s => s[0] === L.suit) || LIC_SUITS[0])[2];
+    const out = outfitOf(L), skin = LIC_SKINS[L.skin] || LIC_SKINS[1], hc = LIC_HAIR_COLS[L.hairCol] || LIC_HAIR_COLS[1], suit = out ? out.top : (LIC_SUITS.find(s => s[0] === L.suit) || LIC_SUITS[0])[2];
     if (!bare) { const g = p.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#cfe3ff'); g.addColorStop(1, '#9fb8e0'); p.fillStyle = g; p.fillRect(0, 0, 32, 32); }
     if (L.hair === 'long') P(8, 10, 16, 14, hc);
     // suit with a mission patch, neck, head
-    P(4, 25, 24, 7, suit); P(6, 24, 20, 1, suit); P(12, 24, 8, 3, 'rgba(0,0,0,0.18)'); P(20, 27, 3, 3, '#ffb547'); P(21, 28, 1, 1, '#0a0e1c');
+    P(4, 25, 24, 7, suit); P(6, 24, 20, 1, suit); P(12, 24, 8, 3, 'rgba(0,0,0,0.18)');
+    if (!out) { P(20, 27, 3, 3, '#ffb547'); P(21, 28, 1, 1, '#0a0e1c'); }
+    else { if (out.trim) { P(15, 26, 2, 6, out.trim); P(9, 25, 1, 7, out.trim); P(22, 25, 1, 7, out.trim); } if (out.scarf) P(8, 24, 16, 3, out.scarf); if (out.dots) for (const [a, b] of [[7, 28], [11, 30], [20, 28], [24, 30], [17, 29]]) P(a, b, 1, 1, out.dots); }
     P(14, 21, 4, 4, skin); P(14, 23, 4, 1, 'rgba(0,0,0,0.15)');
     P(11, 8, 10, 1, skin); P(10, 9, 12, 11, skin); P(11, 20, 10, 2, skin); P(9, 13, 1, 3, skin); P(22, 13, 1, 3, skin);
     P(13, 14, 2, 2, '#1a1a2a'); P(18, 14, 2, 2, '#1a1a2a'); P(13, 14, 1, 1, '#ffffff'); P(18, 14, 1, 1, '#ffffff');
@@ -7924,6 +8215,7 @@ details.act > .limits { margin: 0 0 8px; }
       p.strokeStyle = '#e8ebf2'; p.lineWidth = 1.2; p.beginPath(); p.arc(16, 14, 10.5, 0, Math.PI * 2); p.stroke();
       P(9, 6, 3, 1, 'rgba(255,255,255,0.8)'); P(8, 7, 1, 3, 'rgba(255,255,255,0.6)'); P(8, 23, 16, 2, '#e8ebf2'); P(8, 24, 16, 1, '#9aa3b8');
     }
+    if (L.hat && L.hat !== 'none' && L.acc !== 'helmet') drawPortraitHat(P, L.hat);
     c.save(); c.imageSmoothingEnabled = false; c.drawImage(off, x, y, size, size); c.restore();
   }
   // you, as you look on your license, ready to sit with the crew (redrawn only when the license changes)
@@ -8045,7 +8337,7 @@ details.act > .limits { margin: 0 0 8px; }
       </div>
       <p class="limits">Your rank goes up as you land, finish missions, visit worlds and earn badges.</p>
       ${licenseFrom === 'intro' ? '<div class="btns"><button class="btn" id="licStamp">Sign and stamp it</button><button class="link" id="introSkip">Skip intro</button></div>'
-        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>`}
+        : `<div class="btns"><button class="btn" id="licShare">Share card</button><button class="btn ghost" id="licWard">Wardrobe</button><button class="btn ghost" id="back">${licenseFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>`}
     </div>`;
     paintFaces(card);
     paintLicense();
@@ -8053,7 +8345,7 @@ details.act > .limits { margin: 0 0 8px; }
     $('licName').addEventListener('input', e => { lic.name = e.target.value.trim() || 'Pilot'; saveLic(); paintLicense(); });
     card.querySelectorAll('[data-lic]').forEach(b => b.addEventListener('click', () => {
       const key = b.dataset.lic, v = /^\d+$/.test(b.dataset.v) ? +b.dataset.v : b.dataset.v;
-      lic[key] = v; saveLic(); sfx.click(); paintLicense();
+      lic[key] = v; if (key === 'suit') lic.outfit = null; saveLic(); sfx.click(); paintLicense();
       card.querySelectorAll(`[data-lic="${key}"]`).forEach(o => o.setAttribute('aria-pressed', String(o === b)));
     }));
     if (licenseFrom === 'intro') {
@@ -8068,6 +8360,7 @@ details.act > .limits { margin: 0 0 8px; }
       showPhotoPop(out, 'pilot-license.png', 'My pilot license', 'My Descent Systems pilot license', 'Your pilot license');
     });
     $('back').addEventListener('click', () => setMode(licenseFrom));
+    { const wb = $('licWard'); if (wb) wb.addEventListener('click', () => { sfx.click(); wardFrom = 'license'; setMode('wardrobe'); }); }
   }
 
   // ---- Ghost links: share a landing as a link, and a friend races your ghost on the same terrain ----
@@ -10731,7 +11024,9 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
-    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'wardrobe') { if (e.code === 'Escape') { wardUI.trying = null; setMode(wardFrom === 'license' ? 'license' : wardFrom === 'den' ? 'den' : 'title'); } return; }
+    if (mode === 'projects') { if (e.code === 'Escape') { projSay = null; if (projectsFrom === 'hall') { walkEnter = 'projects'; setMode('hall'); } else setMode('title'); } return; }
     if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
       if (e.code === 'Escape') { trying = null; setMode(SHIP_ROOMS.includes(mode) ? 'shipmenu' : mode === 'setup' && setupFrom === 'flights' ? 'flights' : 'title'); }
       return;
