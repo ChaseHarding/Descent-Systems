@@ -5124,22 +5124,6 @@ details.act > .limits { margin: 0 0 8px; }
             if (pat === 'stars') { px(c, cx - 6, 72, 1, 1, '#ffe58a'); px(c, cx + 5, 70, 1, 1, '#ffe58a'); }
           }
         } },
-      { id: 'hammock', name: 'Hammock', price: 500, blurb: 'Strung between two posts. It sways a little when the engines run. Apogee considers it hers.',
-        dy: 5, at: [70, 58], guest: 86, catDy: 6,
-        back(c) {
-          for (const x of [55, 121]) { px(c, x, 44, 3, 34, '#8a93ab'); px(c, x, 44, 3, 1, '#c9cfdc'); px(c, x - 2, 77, 7, 2, '#5a6380'); }
-          c.strokeStyle = '#c9b897'; c.lineWidth = 1;
-          c.beginPath(); c.moveTo(58, 47); c.lineTo(64, 60); c.moveTo(121, 47); c.lineTo(115, 60); c.stroke();
-        },
-        front(c, cols, pat) {
-          c.fillStyle = cols[0];
-          c.beginPath(); c.moveTo(62, 59); c.quadraticCurveTo(89, 82, 117, 59); c.lineTo(117, 63); c.quadraticCurveTo(89, 88, 62, 63); c.closePath(); c.fill();
-          c.strokeStyle = cols[1]; c.lineWidth = 1.5;
-          c.beginPath(); c.moveTo(63, 61); c.quadraticCurveTo(89, 84, 116, 61); c.stroke();
-          c.strokeStyle = '#f4ead6'; c.lineWidth = 1;
-          for (let i = 0; i < 6; i++) { const x = 70 + i * 8; const y = 61 + 13 * Math.sin(Math.PI * (x - 62) / 55) * 0.95; px(c, x, Math.round(y), 1, 3, '#f4ead6'); }
-          if (pat === 'stars') for (const x of [74, 92, 106]) px(c, x, 70, 1, 1, '#ffe58a');
-        } },
       { id: 'hover', name: 'Hover sofa', price: 900, blurb: 'Floats on a cushion of air, with a soft glow underneath. Gus swears it’s safe. Gus is sitting very far away from it.',
         dy: 0, at: [70, 58], guest: 86, catDy: 0,
         back(c, cols) { c.fillStyle = '#e8ebf2'; rrect(c, 60, 51, 58, 14, 7); c.fill(); px(c, 63, 52, 52, 1, '#ffffff'); c.fillStyle = cols[0]; rrect(c, 63, 54, 52, 9, 4); c.fill(); },
