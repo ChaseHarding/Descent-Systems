@@ -349,13 +349,15 @@ Press **Share card** to get a crisp 1200×750 picture of it. On iPhone, **Share*
 
 ## Break room
 
+
+The break room is a little room you can **walk around**, in small Stardew-style pixel sprites. **Tap the floor** to walk there, or **tap someone or something** and your pilot walks over and uses it: the crew at the table, Apogee, Crumb, Blip, the radio on the counter, the coffee machine, the window, the bulletin board, the lander poster (Gus's maintenance log is behind it) and the postcard box. Conversations open with everyone's big portraits, the same as before. Gus gets up for coffee now and then. The **door on the left** goes to the hangar and the **door on the right** goes to your Pad. On a keyboard, walk with the arrow keys and press Enter to talk to whoever is nearest.
 Open **Break room** from the start screen to visit the crew between flights. It's a little pixel-art scene: Dottie and Gus at the table, a coffee machine that sounds like a dying whale, a window looking out on the world you flew last, a poster of Biscuit in her current paint, and a shelf with a trophy for each badge you've earned.
 
 - Click someone, or use the buttons below the scene, to hear what's on their mind. Everyone has well over a dozen things to say, and their lines change as you play: Dottie keeps a tally of your crashes and notices which lander you're flying, Gus comments on your feather landings, paint jobs and upgrades, Wren remembers her old routes, and the worlds you've visited, side missions you've finished and even how you've decorated the Pad come up in conversation.
 - Until you finish the campaign, Wren's chair is empty, with a reserved card on the table and her photo on the wall. After the finale, she's there in person.
 - Apogee the cat sleeps somewhere different every visit. Click her to pet her. She purrs, usually.
 
-<p align="center"><img src="media/break-room.png" alt="The break room: Dottie, Gus, Wren and your pilot in a space helmet around the table, Blip the tiny green alien peeking over the lander poster, Apogee riding on Crumb across the floor, Blip saying it found the cookie jar, and the Friends button showing a hangout is ready" width="480"></p>
+<p align="center"><img src="media/break-room.png" alt="The walkable break room in small pixel sprites: Dottie and Wren seated at the table, Gus up at the coffee machine, your pilot in a helmet walking over to Wren, Apogee asleep on the table, Blip perched on the postcard box and Crumb rolling across the floor; below, Wren chats in her big portrait" width="480"></p>
 
 - Once you've finished your first round trip, **Crumb** the rover lives here too. He trundles along the front of the room, bonks into walls and stops to look around. Some days Apogee naps on top of him while he drives. Tap him, or the **Crumb** button, and he beeps. The crew translates: he has his own lines, and he grows new ones as you finish more round trips. Dottie, Gus and Wren have things to say about him too.
 
