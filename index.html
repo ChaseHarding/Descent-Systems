@@ -572,6 +572,9 @@ kbd {
 .rooms { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .rooms .mode b { font-size: 16px; }
 .mode.here { border-style: dashed; opacity: 0.7; }
+.datescene { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+#dateCv { width: 100%; aspect-ratio: 200 / 112; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #000; touch-action: manipulation; }
+.datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .wardrobe { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .wstage { width: 100%; display: flex; gap: 14px; align-items: center; padding: 12px; border: 1px solid var(--space-2); border-radius: 8px; background: var(--panel); text-align: left; flex-wrap: wrap; }
 .wstage canvas { image-rendering: pixelated; flex: none; }
@@ -3856,7 +3859,7 @@ details.act > .limits { margin: 0 0 8px; }
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome'];
   let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -3918,6 +3921,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome') { renderShipRoom(m); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
+    if (m === 'datescene') { renderDate(); return; }
     if (m === 'hangar') {
       trying = { ...equip };
       syncFleet();
@@ -8064,6 +8068,230 @@ details.act > .limits { margin: 0 0 8px; }
   }
 
 
+  // ---- Date scenes: every hangout and date plays as a little cutscene on its own backdrop ----
+  const DATE_BG = { F3: 'office', F6: 'breaknight', F8: 'obsdeck', F10: 'office', G3: 'workshop', G6: 'hangarnight', G8: 'moon', G10: 'workshop',
+    W3: 'study', W6: 'study', W8: 'saturn', W10: 'cockpit', R3: 'hangar', R6: 'dressing', R8: 'disco', R10: 'hangar',
+    J3: 'fernery', J6: 'dock', J8: 'hull', J10: 'dock', Z3: 'market', Z6: 'glow', Z8: 'ice', Z10: 'glow',
+    O3: 'lanterns', O6: 'cockpit', O8: 'festival', O10: 'lanterns', V3: 'station', V6: 'quiet', V8: 'obsdeck', V10: 'fleet',
+    Y3: 'market', Y6: 'quiet', Y8: 'vending', Y10: 'embassy' };
+  const DATE_HELMET = { moon: 1, hull: 1, ice: 1 };
+  const DW = 200, DH = 112, FY = 100;   // backdrop size and where feet stand
+  let dateS = null;
+  function playDate(who, key, lines, chapter, after) {
+    dateS = { who, key, bg: key === 'ask' ? 'domebg' : DATE_BG[who + key] || 'quiet', lines, chapter, after, i: 0, phase: 'intro', t0: performance.now(), typer: 0, outroAt: 0, romantic: key === 'ask' || +key >= 8 };
+    setMode('datescene');
+  }
+  // a pixel star field
+  const dStars = (c, x0, y0, w, h, n, t, seed = 1) => { for (let i = 0; i < n; i++) { const sx = x0 + (i * 53 * seed + 7) % w, sy = y0 + (i * 29 + seed * 11) % h, tw = (Math.sin(t / 600 + i * 1.7) + 1) / 2; px(c, sx, sy, 1, 1, i % 7 ? `rgba(210,220,240,${0.35 + tw * 0.6})` : '#ffffff'); } };
+  const dGlow = (c, x, y, r, col, a) => { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col.replace('A', a)); g.addColorStop(1, col.replace('A', 0)); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); };
+  const dPlanet = (c, x, y, r, col, shade = 'rgba(0,0,0,0.38)') => { c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); c.fillStyle = shade; c.beginPath(); c.arc(x + r * 0.35, y + r * 0.2, r, 0, Math.PI * 2); c.fill(); };
+  function dateBg(c, id, t) {
+    const W = DW, F = 86;   // the wall/floor line
+    const room = (wall, floor) => { px(c, 0, 0, W, F, wall); px(c, 0, F, W, DH - F, floor); px(c, 0, F, W, 1, 'rgba(255,255,255,0.08)'); };
+    const lamp = (x, y, col = 'rgba(255,214,140,A)') => dGlow(c, x, y, 26, col, 0.28 + 0.04 * Math.sin(t / 500));
+    if (id === 'office') {
+      room('#2c3552', '#3a2e24'); for (let x = 0; x < W; x += 20) px(c, x, 0, 1, F, 'rgba(255,255,255,0.04)');
+      px(c, 14, 12, 34, 24, '#3a4668'); px(c, 16, 14, 30, 20, '#060914'); dStars(c, 16, 14, 30, 20, 10, t);
+      px(c, 150, 40, 18, 46, '#8a93ab'); px(c, 170, 40, 18, 46, '#8a93ab'); for (let i = 0; i < 3; i++) { px(c, 152, 43 + i * 14, 14, 11, '#6a7390'); px(c, 172, 43 + i * 14, 14, 11, '#6a7390'); px(c, 157, 47 + i * 14, 4, 1, '#c9cfdc'); px(c, 177, 47 + i * 14, 4, 1, '#c9cfdc'); }
+      px(c, 60, 16, 20, 14, '#ffb547'); px(c, 62, 18, 16, 10, '#f4f1e8'); px(c, 84, 18, 16, 12, '#ffb547'); px(c, 86, 20, 12, 8, '#f4f1e8');
+      c.strokeStyle = '#c9cfdc'; c.lineWidth = 1; c.beginPath(); c.arc(124, 20, 7, 0, Math.PI * 2); c.stroke(); px(c, 124, 15, 1, 5, '#c9cfdc'); px(c, 124, 20, 3, 1, '#c9cfdc');
+      px(c, 52, 66, 52, 6, '#7a5c44'); px(c, 54, 72, 4, 14, '#5a4636'); px(c, 98, 72, 4, 14, '#5a4636'); px(c, 58, 60, 14, 6, '#f4f1e8'); px(c, 86, 56, 2, 10, '#3a4668'); px(c, 82, 54, 9, 3, '#ffe58a'); lamp(86, 58);
+    } else if (id === 'breaknight') {
+      room('#141b33', '#0e1428'); px(c, 70, 8, 60, 34, '#2a3556'); px(c, 72, 10, 56, 30, '#03050c'); dStars(c, 72, 10, 56, 30, 16, t); dPlanet(c, 112, 22, 9, '#e8e8f0');
+      px(c, 10, 52, 54, 6, '#2a3556'); px(c, 10, 58, 54, 28, '#1a2240'); px(c, 18, 34, 13, 18, '#2a2e40'); px(c, 21, 37, 7, 5, '#0a0c16'); px(c, 22, 38, 2, 2, Math.floor(t / 600) % 2 ? '#ff6b5e' : '#5a2a2a');
+      px(c, 150, 30, 6, 6, '#ffe58a'); lamp(153, 34); px(c, 152, 36, 2, 50, '#2a3045');
+    } else if (id === 'obsdeck' || id === 'fleet') {
+      px(c, 0, 0, W, F, '#03050c'); dStars(c, 0, 0, W, F, 50, t, 3);
+      if (id === 'obsdeck') { dPlanet(c, 150, 30, 22, '#d9a066'); for (let i = 0; i < 4; i++) px(c, 130, 22 + i * 5, 40, 1, 'rgba(120,70,40,0.35)'); }
+      else { dPlanet(c, 40, 70, 30, '#4a6aa8'); for (let i = 0; i < 6; i++) { const sx = ((t / 60 + i * 37) % (W + 40)) - 20, sy = 14 + i * 9; px(c, sx, sy, 10, 3, '#8a93ab'); px(c, sx + 10, sy + 1, 3, 1, '#7fd6ff'); } }
+      for (const x of [0, 66, 132, 198]) px(c, x, 0, 3, F, '#2a3556'); px(c, 0, 0, W, 3, '#2a3556'); px(c, 0, F, W, DH - F, '#1a1d30');
+      if (id === 'obsdeck') { px(c, 88, 84, 24, 4, '#f4f1e8'); px(c, 98, 88, 4, 12, '#5a4636'); for (const cx of [93, 106]) { px(c, cx, 78, 2, 6, '#f4f1e8'); px(c, cx, 75 + (Math.floor(t / 150 + cx) % 2), 2, 3, '#ffb547'); dGlow(c, cx + 1, 77, 14, 'rgba(255,190,90,A)', 0.3); } }
+    } else if (id === 'workshop' || id === 'hangar' || id === 'hangarnight') {
+      const night = id === 'hangarnight', rex = id === 'hangar';
+      room(night ? '#10162a' : rex ? '#2a2440' : '#2a3a38', night ? '#14182a' : '#2a2e3a');
+      if (id === 'workshop') {
+        px(c, 10, 14, 70, 40, '#5a4636'); for (let i = 0; i < 8; i++) px(c, 14 + i * 8, 20 + (i % 2) * 6, 3, 14 + (i % 3) * 4, ['#c9cfdc', '#ff6b5e', '#ffb547', '#7fd6ff'][i % 4]);
+        px(c, 120, 62, 70, 6, '#7a5c44'); px(c, 122, 68, 4, 18, '#5a4636'); px(c, 184, 68, 4, 18, '#5a4636'); px(c, 150, 48, 16, 14, '#8a93ab'); px(c, 153, 51, 3, 3, '#9fe0b8'); px(c, 160, 51, 3, 3, '#9fe0b8');
+        if (!reduceMotion) for (let i = 0; i < 5; i++) { const a = (t / 90 + i * 1.3) % 6; px(c, 132 + Math.cos(i) * a * 2, 58 - a * 1.5, 1, 1, '#ffe58a'); }
+        dGlow(c, 132, 58, 14, 'rgba(255,220,120,A)', 0.4);
+      } else {
+        px(c, 60, 6, 80, 40, night ? '#060914' : '#1a2440'); dStars(c, 60, 6, 80, 40, 14, t); px(c, 58, 4, 84, 3, '#ffb547'); for (let x = 58; x < 142; x += 8) px(c, x, 4, 4, 3, '#2a3045');
+        const lx = 160, gold = rex ? '#d9a420' : '#c9cfdc';
+        px(c, lx - 14, 50, 28, 18, gold); px(c, lx - 10, 44, 20, 8, gold); px(c, lx - 6, 52, 12, 6, '#14182a'); px(c, lx - 18, 68, 3, 18, '#8a93ab'); px(c, lx + 15, 68, 3, 18, '#8a93ab'); px(c, lx - 22, 84, 8, 2, '#8a93ab'); px(c, lx + 14, 84, 8, 2, '#8a93ab');
+        if (rex) { px(c, lx - 12, 60, 24, 2, '#ff6b5e'); dGlow(c, lx, 50, 40, 'rgba(255,220,120,A)', 0.18); }
+        if (night) { c.fillStyle = 'rgba(255,240,180,0.12)'; c.beginPath(); c.moveTo(86, 88); c.lineTo(140, 64); c.lineTo(150, 82); c.fill(); }
+      }
+    } else if (id === 'moon' || id === 'hull' || id === 'ice') {
+      px(c, 0, 0, W, F, '#020308'); dStars(c, 0, 0, W, F, 60, t, 5);
+      if (id === 'moon') { dPlanet(c, 160, 24, 14, '#4a8ad8'); px(c, 152, 20, 6, 3, '#58b878'); px(c, 162, 28, 5, 3, '#58b878');
+        px(c, 0, F - 6, W, DH - F + 6, '#8a8a92'); c.fillStyle = '#9a9aa2'; c.beginPath(); c.moveTo(0, F - 6); c.quadraticCurveTo(60, F - 14, 120, F - 6); c.quadraticCurveTo(170, F, W, F - 8); c.lineTo(W, F); c.lineTo(0, F); c.fill();
+        for (const [cx, cy, r] of [[30, 96, 6], [170, 104, 8], [130, 92, 3]]) { c.fillStyle = '#6e6e78'; c.beginPath(); c.ellipse(cx, cy, r, r / 3, 0, 0, Math.PI * 2); c.fill(); }
+        for (let i = 0; i < 4; i++) for (let k = 0; k < 2; k++) px(c, 86 + i * 7, 98 + k * 4, 7, 4, (i + k) % 2 ? '#ff6b5e' : '#f4f1e8');
+      } else if (id === 'hull') {
+        [['#d9a066', 30, 18, 6], ['#c94236', 60, 30, 3], ['#e8d8a0', 100, 14, 9], ['#7fd6ff', 150, 26, 5], ['#4a6aa8', 178, 12, 4]].forEach(([col, x, y, r]) => dPlanet(c, x, y, r, col));
+        c.fillStyle = '#5a6278'; c.beginPath(); c.moveTo(0, F + 4); c.quadraticCurveTo(W / 2, F - 12, W, F + 4); c.lineTo(W, DH); c.lineTo(0, DH); c.fill();
+        for (let x = 10; x < W; x += 24) px(c, x, F + 2, 1, 20, '#4a5268'); px(c, 40, F - 4, 3, 3, '#ffb547'); px(c, 150, F - 3, 3, 3, '#ff6b5e');
+      } else {
+        dPlanet(c, 150, 26, 18, '#d9a066');
+        px(c, 0, F, W, DH - F, '#a8c8e0'); for (let i = 0; i < 7; i++) { const a = 0.4 + 0.4 * Math.sin(t / 500 + i); c.strokeStyle = `rgba(127,240,255,${a})`; c.lineWidth = 1; c.beginPath(); c.moveTo(i * 30, DH); c.lineTo(i * 30 + 14, F + 4); c.stroke(); }
+        dGlow(c, 100, 104, 60, 'rgba(120,230,255,A)', 0.25 + 0.1 * Math.sin(t / 700));
+      }
+    } else if (id === 'study') {
+      room('#3a2c26', '#2a1f1a'); px(c, 16, 14, 40, 30, '#e8dcb8'); for (const [a, b] of [[22, 22], [34, 30], [46, 20], [28, 36]]) px(c, a, b, 2, 2, '#ff6b5e');
+      for (let i = 0; i < 3; i++) { px(c, 70 + i * 18, 16, 14, 12, '#c9a24a'); px(c, 72 + i * 18, 18, 10, 8, '#f4f1e8'); }
+      px(c, 140, 18, 44, 68, '#5a4636'); for (let r = 0; r < 4; r++) for (let k = 0; k < 7; k++) px(c, 142 + k * 6, 20 + r * 16, 5, 13, ['#6b4226', '#ff9ad5', '#c9a24a', '#3d6b63', '#8a6a42'][(k + r) % 5]);
+      px(c, 60, 64, 50, 6, '#7a5c44'); px(c, 64, 70, 4, 16, '#5a4636'); px(c, 102, 70, 4, 16, '#5a4636'); px(c, 92, 54, 2, 10, '#3a4668'); px(c, 88, 52, 9, 3, '#ffe58a'); lamp(92, 56);
+    } else if (id === 'saturn' || id === 'cockpit') {
+      px(c, 0, 0, W, F, '#020308'); dStars(c, 0, 0, W, F, 50, t, 7);
+      if (id === 'saturn') { dPlanet(c, 110, 40, 24, '#e8c890'); c.strokeStyle = '#c9a870'; c.lineWidth = 3; c.beginPath(); c.ellipse(110, 40, 44, 9, -0.2, 0, Math.PI * 2); c.stroke(); c.strokeStyle = 'rgba(232,200,144,0.5)'; c.lineWidth = 1; c.beginPath(); c.ellipse(110, 40, 52, 11, -0.2, 0, Math.PI * 2); c.stroke(); }
+      else { c.fillStyle = '#0a1020'; c.beginPath(); c.ellipse(100, 120, 160, 50, 0, 0, Math.PI * 2); c.fill(); for (let i = 0; i < 30; i++) px(c, 20 + (i * 37) % 160, 76 + (i * 7) % 10, 1, 1, i % 3 ? '#ffd36a' : '#7fd6ff'); }
+      px(c, 0, F - 6, W, DH - F + 6, '#1a2240'); px(c, 0, F - 6, W, 2, '#3a4668'); for (let i = 0; i < 10; i++) px(c, 14 + i * 18, F - 2, 4, 2, ['#ff6b5e', '#58e0a0', '#ffb547', '#7fd6ff'][(i + Math.floor(t / 400)) % 4]);
+      c.strokeStyle = '#2a3556'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(100, 30, W, 0); c.stroke();
+    } else if (id === 'dressing') {
+      room('#3a2050', '#2a1a36'); px(c, 70, 10, 60, 44, '#c9a24a'); px(c, 74, 14, 52, 36, '#3a5070'); px(c, 80, 18, 4, 14, 'rgba(255,255,255,0.3)');
+      for (let i = 0; i < 6; i++) { const on = (Math.floor(t / 300) + i) % 7 !== 0; px(c, 72 + i * 11, 8, 4, 4, on ? '#fff4c0' : '#8a7a56'); px(c, 72 + i * 11, 52, 4, 4, on ? '#fff4c0' : '#8a7a56'); }
+      px(c, 16, 14, 24, 30, '#d9a420'); px(c, 18, 16, 20, 26, '#3a2050'); px(c, 24, 20, 8, 8, '#e8b48a'); px(c, 23, 18, 10, 4, '#1f1a24');
+      px(c, 150, 30, 40, 2, '#8a93ab'); for (let i = 0; i < 5; i++) px(c, 152 + i * 8, 32, 6, 26, ['#d9a420', '#ff9ad5', '#f4f1e8', '#7fd6ff', '#ff6b5e'][i]);
+    } else if (id === 'disco') {
+      px(c, 0, 0, W, DH, '#1a0f2a'); dStars(c, 0, 0, W, 60, 20, t, 9);
+      const a = t / 700; c.fillStyle = '#c9cfdc'; c.beginPath(); c.arc(100, 16, 9, 0, Math.PI * 2); c.fill(); px(c, 100, 0, 1, 7, '#8a93ab');
+      for (let i = 0; i < 6; i++) { const k = a + i; px(c, 100 + Math.cos(k) * 6, 16 + Math.sin(k * 1.3) * 6, 2, 2, '#ffffff'); }
+      for (let i = 0; i < 5; i++) { const sx = 100 + Math.cos(a * 0.8 + i * 1.25) * 80, sy = 96 + Math.sin(a + i) * 8; c.fillStyle = ['rgba(255,107,154,0.35)', 'rgba(127,214,255,0.35)', 'rgba(255,229,138,0.35)', 'rgba(159,224,184,0.35)', 'rgba(200,162,255,0.35)'][i]; c.beginPath(); c.ellipse(sx, sy, 14, 4, 0, 0, Math.PI * 2); c.fill(); }
+    } else if (id === 'fernery') {
+      room('#173232', '#1c2a2e'); px(c, 60, 8, 80, 30, '#2f5a54'); px(c, 62, 10, 76, 26, '#050a12'); dStars(c, 62, 10, 76, 26, 12, t);
+      for (let x = 4; x < W; x += 11) { const len = 8 + (x * 7) % 18; for (let y = 0; y < len; y += 2) px(c, x + Math.round(Math.sin(y / 3 + x + t / 900) * 1), y, 2, 2, y % 4 ? '#3f8a58' : '#58b878'); }
+      for (const x of [14, 160]) { px(c, x, 70, 26, 16, '#6e5232'); for (let k = 0; k < 4; k++) for (const [a, b] of [[2, -8], [6, -12], [10, -7]]) px(c, x + k * 6 + a - 2, 70 + b, 3, 8, '#3f8a58'); }
+    } else if (id === 'dock') {
+      room('#1f3a3a', '#1a2a2a'); c.fillStyle = '#2f5d58'; c.beginPath(); c.arc(100, 38, 30, 0, Math.PI * 2); c.fill(); c.fillStyle = '#03050c'; c.beginPath(); c.arc(100, 38, 26, 0, Math.PI * 2); c.fill();
+      c.save(); c.beginPath(); c.arc(100, 38, 26, 0, Math.PI * 2); c.clip(); dStars(c, 74, 12, 52, 52, 14, t); c.strokeStyle = '#8a93ab'; c.lineWidth = 3; c.beginPath(); c.arc(100, 46, 18, 0, Math.PI * 2); c.stroke(); px(c, 94, 40 + Math.sin(t / 900) * 2, 12, 5, '#c9cfdc'); c.restore();
+      px(c, 140, 60, 50, 6, '#3a4668'); px(c, 140, 66, 50, 20, '#26304f'); px(c, 150, 52, 10, 8, '#c9cfdc'); px(c, 168, 54, 5, 6, '#ffb547'); px(c, 176, 54, 5, 6, '#7fd6ff');
+      if (!reduceMotion) for (let i = 0; i < 3; i++) px(c, 153 + i * 2, 50 - ((t / 200 + i * 3) % 8), 1, 2, 'rgba(255,255,255,0.5)');
+      for (const x of [16, 30]) { px(c, x, 70, 10, 16, '#6e5232'); px(c, x + 2, 62, 3, 8, '#3f8a58'); px(c, x + 6, 60, 3, 10, '#58b878'); }
+    } else if (id === 'market') {
+      px(c, 0, 0, W, DH, '#120e24'); dStars(c, 0, 0, W, 40, 20, t, 11);
+      c.strokeStyle = '#3a3058'; c.lineWidth = 1; c.beginPath(); c.moveTo(0, 14); c.quadraticCurveTo(100, 30, W, 14); c.stroke();
+      for (let i = 0; i < 9; i++) { const x = 10 + i * 22, y = 18 + Math.sin(i / 8 * Math.PI) * 8; px(c, x, y, 5, 6, ['#ffb547', '#ff9ad5', '#7fd6ff', '#9fe0b8'][i % 4]); dGlow(c, x + 2, y + 3, 10, 'rgba(255,200,120,A)', 0.25); }
+      for (const [x, col] of [[8, '#ff6b5e'], [130, '#7fd6ff']]) { for (let k = 0; k < 6; k++) px(c, x + k * 10, 44, 10, 8, k % 2 ? col : '#f4f1e8'); px(c, x, 52, 60, 34, '#3a2a4a'); px(c, x + 2, 60, 56, 4, '#5a4636'); for (let k = 0; k < 6; k++) px(c, x + 5 + k * 9, 56, 4, 4, ['#c9cfdc', '#ffd36a', '#c8a2ff', '#ff9ad5'][k % 4]); }
+      px(c, 0, F, W, DH - F, '#1e1830');
+    } else if (id === 'glow') {
+      px(c, 0, 0, W, DH, '#060816');
+      for (let i = 0; i < 18; i++) { const x = (i * 47 + t / (40 + i)) % W, y = 10 + (i * 23) % 70 + Math.sin(t / 900 + i) * 4, col = ['rgba(200,162,255,A)', 'rgba(255,154,213,A)', 'rgba(127,214,255,A)', 'rgba(159,224,184,A)'][i % 4]; dGlow(c, x, y, 8 + (i % 3) * 3, col, 0.5); }
+      px(c, 0, F, W, DH - F, '#0e1024');
+    } else if (id === 'lanterns' || id === 'festival') {
+      if (id === 'lanterns') { room('#3a2a1c', '#2a1e14'); for (const x of [30, 160]) { c.fillStyle = '#5a4030'; c.beginPath(); c.arc(x, 36, 14, 0, Math.PI * 2); c.fill(); c.fillStyle = '#060914'; c.beginPath(); c.arc(x, 36, 11, 0, Math.PI * 2); c.fill(); dStars(c, x - 10, 26, 20, 20, 5, t); } }
+      else { const g = c.createLinearGradient(0, 0, 0, F); g.addColorStop(0, '#0a0e2a'); g.addColorStop(1, '#2a1e44'); c.fillStyle = g; c.fillRect(0, 0, W, F); dStars(c, 0, 0, W, 50, 30, t, 13); c.fillStyle = '#141028'; c.beginPath(); c.moveTo(0, F); c.lineTo(0, 74); c.quadraticCurveTo(60, 62, 110, 72); c.quadraticCurveTo(160, 80, W, 66); c.lineTo(W, F); c.fill(); px(c, 0, F, W, DH - F, '#1a1430'); }
+      const N = id === 'lanterns' ? 9 : 14;
+      for (let i = 0; i < N; i++) {
+        const x = 12 + (i * 37) % 176, base = id === 'lanterns' ? 14 + (i % 3) * 10 : 80 - ((t / (30 + i * 3) + i * 17) % 90), y = id === 'lanterns' ? base + Math.sin(t / 700 + i) * 1.5 : base;
+        if (id === 'lanterns') px(c, x + 2, 0, 1, y, '#5a4030');
+        px(c, x, y, 5, 7, '#ffcf7a'); px(c, x + 1, y + 7, 3, 1, '#c9802a'); dGlow(c, x + 2, y + 3, 12, 'rgba(255,190,90,A)', 0.35 + 0.08 * Math.sin(t / 300 + i));
+      }
+    } else if (id === 'station') {
+      room('#d8cdb4', '#c4b898'); for (let x = 0; x < W; x += 25) px(c, x, 0, 1, F, '#c4b898'); px(c, 0, 50, W, 3, '#b8ab8a');
+      px(c, 70, 16, 60, 12, '#3a4668'); c.fillStyle = '#e8edf5'; c.font = '700 6px monospace'; c.textAlign = 'center'; c.fillText('WELCOME TO DECK 1', 100, 24); c.textAlign = 'left';
+      px(c, 170, 66, 12, 20, '#8a5a3a'); for (const [a, b] of [[170, 54], [175, 50], [180, 56]]) px(c, a, b, 3, 10, '#3f8a58'); px(c, 14, 30, 24, 40, '#a8a090'); px(c, 16, 32, 20, 36, '#beb6a4');
+    } else if (id === 'quiet' || id === 'vending') {
+      room('#161c34', '#10162a'); px(c, 10, 14, 120, 30, '#2a3556'); px(c, 12, 16, 116, 26, '#03050c'); dStars(c, 12, 16, 116, 26, 24, t, 15);
+      if (id === 'vending') { px(c, 150, 26, 34, 60, '#c44a5a'); px(c, 153, 30, 22, 40, '#14182a'); for (let r = 0; r < 4; r++) for (let k = 0; k < 3; k++) px(c, 155 + k * 7, 33 + r * 9, 4, 6, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]); dGlow(c, 166, 50, 36, 'rgba(255,120,140,A)', 0.2); }
+      else { px(c, 140, 70, 46, 6, '#3a4668'); px(c, 142, 76, 3, 10, '#2a3045'); px(c, 181, 76, 3, 10, '#2a3045'); }
+    } else if (id === 'embassy') {
+      room('#2e1a36', '#24162a'); for (const [x, col] of [[20, '#c9e8ff'], [44, '#1d3340'], [150, '#3a1f40'], [174, '#c9e8ff']]) { px(c, x, 10, 14, 34, col); c.fillStyle = col; c.beginPath(); c.moveTo(x, 44); c.lineTo(x + 7, 50); c.lineTo(x + 14, 44); c.fill(); }
+      px(c, 90, 4, 20, 3, '#c9a24a'); for (let i = 0; i < 5; i++) { px(c, 88 + i * 6, 7, 2, 6, '#c9a24a'); px(c, 88 + i * 6, 13, 2, 2, '#fff4c0'); } dGlow(c, 100, 12, 30, 'rgba(255,240,190,A)', 0.25);
+      px(c, 60, 68, 80, 6, '#5a4030'); px(c, 64, 74, 4, 12, '#3a2a1c'); px(c, 132, 74, 4, 12, '#3a2a1c'); px(c, 84, 63, 16, 5, '#f4f1e8'); px(c, 104, 62, 2, 6, '#c9e8ff');
+    } else if (id === 'domebg') {
+      px(c, 0, 0, W, F, '#04060f'); const neb = c.createLinearGradient(0, 10, W, 50); neb.addColorStop(0, 'rgba(120,80,200,0)'); neb.addColorStop(0.5, 'rgba(120,80,200,0.2)'); neb.addColorStop(1, 'rgba(80,160,220,0)'); c.fillStyle = neb; c.fillRect(0, 0, W, F);
+      dStars(c, 0, 0, W, F, 60, t, 17); dPlanet(c, 168, 22, 12, (storedWorld() || WORLDS[1]).orb);
+      c.strokeStyle = '#3a4668'; c.lineWidth = 2; for (const k of [-0.75, -0.25, 0.25, 0.75]) { c.beginPath(); c.moveTo(100 + k * 130, F); c.quadraticCurveTo(100 + k * 50, -8, 100, -16); c.stroke(); }
+      px(c, 0, F - 4, W, 4, '#2a3556'); px(c, 0, F, W, DH - F, '#141a30'); c.fillStyle = '#1e2644'; c.beginPath(); c.ellipse(100, 102, 90, 12, 0, 0, Math.PI * 2); c.fill();
+    }
+  }
+  function drawDateScene(t) {
+    const cv = $('dateCv'); if (!cv || !dateS) return;
+    const c = cv.getContext('2d'), s = dateS, el = t - s.t0;
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    // the intro: a slow push-in while the two of you walk in from the sides
+    const intro = s.phase === 'intro' ? Math.min(1, el / 2400) : 1, ease = 1 - Math.pow(1 - intro, 2);
+    const zoom = 1.12 - 0.12 * ease;
+    c.save(); c.translate(DW / 2, DH / 2); c.scale(zoom, zoom); c.translate(-DW / 2, -DH / 2);
+    dateBg(c, s.bg, t);
+    const speaker = s.phase === 'talk' && s.lines[s.i] ? s.lines[s.i][0] : null;
+    const helmet = DATE_HELMET[s.bg];
+    const px1 = -14 + (78 + 14) * ease, px2 = DW + 14 - (DW + 14 - 122) * ease, walking = intro < 1;
+    const fig = (who, x, dir, look) => {
+      const bob = !walking && speaker === who && Math.floor(t / 160) % 2 ? -1 : 0;
+      c.save(); c.translate(Math.round(x), FY + bob); c.scale(1.5, 1.5);
+      if (look) drawSprite(c, look, -8, -24, dir, walking ? Math.floor(t / 140) % 4 : 0, false); else drawPerson(c, who, -8, -24, dir, walking ? Math.floor(t / 140) % 4 : 0, t);
+      c.restore();
+      if (!walking && speaker === who) { c.fillStyle = 'rgba(255,255,255,0.85)'; for (let k = 0; k < 3; k++) if (Math.floor(t / 250) % 3 >= k) px(c, Math.round(x) - 4 + k * 4, FY - 44, 2, 2, '#ffffff'); }
+    };
+    fig('P', px1, 2, helmet ? lookFor({ ...lic, acc: 'helmet', hat: 'none' }) : null);
+    fig(s.who, px2, 1, helmet && s.who !== 'Z' && LOOKS[s.who] ? { ...LOOKS[s.who], acc: 'helmet' } : null);
+    // floating hearts on dates
+    if (s.romantic && !reduceMotion) for (let i = 0; i < 5; i++) { const k = (t / 2600 + i / 5) % 1, hx = 100 + Math.sin(i * 2.3 + t / 900) * 18, hy = FY - 30 - k * 50; c.globalAlpha = Math.sin(k * Math.PI) * 0.7; c.fillStyle = '#ff6b9a'; c.beginPath(); c.arc(hx - 1.2, hy, 1.4, 0, Math.PI * 2); c.arc(hx + 1.2, hy, 1.4, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(hx - 2.6, hy + 0.5); c.lineTo(hx, hy + 3.2); c.lineTo(hx + 2.6, hy + 0.5); c.fill(); c.globalAlpha = 1; }
+    c.restore();
+    // letterbox bars and the title card during the intro
+    if (s.phase === 'intro') {
+      const bar = 10 * (1 - Math.max(0, (el - 1800) / 600));
+      px(c, 0, 0, DW, Math.max(0, bar), '#000'); px(c, 0, DH - Math.max(0, bar), DW, Math.max(0, bar), '#000');
+      const a = Math.min(1, el / 500) * (el > 1900 ? Math.max(0, 1 - (el - 1900) / 500) : 1);
+      c.globalAlpha = a; c.fillStyle = '#ffb547'; c.font = '700 9px "Chakra Petch", sans-serif'; c.textAlign = 'center'; c.fillText(s.chapter.title.toUpperCase(), DW / 2, 30);
+      c.fillStyle = '#e8edf5'; c.font = '6px "IBM Plex Mono", monospace'; c.fillText(s.chapter.label, DW / 2, 40); c.textAlign = 'left'; c.globalAlpha = 1;
+    }
+    // fade in, and the fade out at the end
+    const fin = Math.max(0, 1 - el / 600);
+    if (fin > 0) { c.fillStyle = `rgba(0,0,0,${fin})`; c.fillRect(0, 0, DW, DH); }
+    if (s.phase === 'outro') {
+      const o = Math.min(1, (t - s.outroAt) / 1300);
+      if (s.romantic) for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2, r = 8 + o * 50; c.globalAlpha = 1 - o; c.fillStyle = i % 2 ? '#ff6b9a' : '#ffc6e4'; c.fillRect(100 + Math.cos(a) * r, 70 + Math.sin(a) * r * 0.6, 3, 3); c.globalAlpha = 1; }
+      c.fillStyle = `rgba(0,0,0,${o})`; c.fillRect(0, 0, DW, DH);
+    }
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  function renderDate() {
+    const s = dateS;
+    card.innerHTML = `<div class="datescene">
+      <span class="eyebrow">${s.chapter.label} · ${esc(s.chapter.title)}</span>
+      <canvas id="dateCv" width="${DW * 2}" height="${DH * 2}" role="img" aria-label="${esc(s.chapter.title)}: you and ${SIGN[s.who]}"></canvas>
+      <div class="radio quote" id="dateSay" aria-live="polite"></div>
+      <div class="btns"><button class="btn" id="dateNext">Next</button><button class="btn ghost" id="dateSkip">Skip</button></div>
+    </div>`;
+    const loop = () => { if (mode !== 'datescene' || dateS !== s) return; const t = performance.now();
+      if (s.phase === 'intro' && t - s.t0 > 2500) { s.phase = 'talk'; dateLine(); }
+      if (s.phase === 'outro' && t - s.outroAt > 1350) { dateEnd(); return; }
+      drawDateScene(t); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    $('dateCv').addEventListener('pointerdown', () => { if (s.phase === 'intro') { s.t0 = performance.now() - 2500; } });
+    $('dateNext').addEventListener('click', dateNext);
+    $('dateSkip').addEventListener('click', dateEnd);
+    setTimeout(() => { const b = $('dateNext'); if (b) b.focus({ preventScroll: true }); }, 0);
+  }
+  function dateLine() {
+    const s = dateS, box = $('dateSay'); if (!box || !s.lines[s.i]) return;
+    const [who, text] = s.lines[s.i];
+    clearInterval(s.typer);
+    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    paintFaces(box);
+    if (who !== 'P') sfx.radio();
+    const p = box.querySelector('p'); $('dateNext').textContent = s.i === s.lines.length - 1 ? 'Continue' : 'Next';
+    if (reduceMotion || !p) return;
+    p.textContent = ''; let n = 0;
+    s.typer = setInterval(() => { n += 2; p.textContent = text.slice(0, n); if (n >= text.length) clearInterval(s.typer); }, 22);
+  }
+  function dateNext() {
+    const s = dateS; if (!s) return;
+    if (s.phase === 'intro') { s.t0 = performance.now() - 2500; return; }
+    if (s.phase !== 'talk') return;
+    const p = document.querySelector('#dateSay p'), full = s.lines[s.i][1];
+    if (p && p.textContent.length < full.length) { clearInterval(s.typer); p.textContent = full; return; }   // finish the line first
+    if (s.i < s.lines.length - 1) { s.i++; sfx.click(); dateLine(); return; }
+    s.phase = 'outro'; s.outroAt = performance.now(); if (s.romantic) sfx.coin();
+  }
+  function dateEnd() {
+    const s = dateS; if (!s) return;
+    clearInterval(s.typer); dateS = null;
+    s.after();
+  }
+
   // ---- The pilot wardrobe: outfits and hats bought with credits ----
   const OUTFITS = [
     { id: 'hoodie', name: 'Cozy hoodie', price: 500, top: '#7a5ab8', pants: '#3a3050', shoes: '#2a2238', blurb: 'For long nights on the Bridge.' },
@@ -9205,7 +9433,7 @@ details.act > .limits { margin: 0 0 8px; }
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.scene, n = sceneReady(who), [title, lines] = ROM[who]['s' + n];
-      playStory(lines, { label: `${n >= 8 ? 'Date' : 'Hanging out'} · ${SIGN[who]} · ${n} ♥`, title }, () => {
+      playDate(who, n, lines, { label: `${n >= 8 ? 'Date' : 'Hanging out'} · ${SIGN[who]} · ${n} ♥`, title }, () => {
         if (!bond.seen.includes(who + n)) bond.seen.push(who + n);
         saveBond(); friendsUI.say = null; setMode('friends');
         if (n === 8) setTimeout(() => showToast('New for your Pad wall: a photo of the two of you ♥', 2800), 600);
@@ -9213,7 +9441,7 @@ details.act > .limits { margin: 0 0 8px; }
     }));
     card.querySelectorAll('[data-ask]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.ask;
-      playStory(ROM[who].ask, { label: `Asking out · ${SIGN[who]}`, title: 'A Big Question' }, () => {
+      playDate(who, 'ask', ROM[who].ask, { label: `Asking out · ${SIGN[who]}`, title: 'A Big Question' }, () => {
         bond.partner = who; saveBond(); friendsUI.say = null; setMode('friends');
       });
     }));
@@ -11025,6 +11253,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
     if (mode === 'wardrobe') { if (e.code === 'Escape') { wardUI.trying = null; setMode(wardFrom === 'license' ? 'license' : wardFrom === 'den' ? 'den' : 'title'); } return; }
     if (mode === 'projects') { if (e.code === 'Escape') { projSay = null; if (projectsFrom === 'hall') { walkEnter = 'projects'; setMode('hall'); } else setMode('title'); } return; }
     if (mode === 'garage' || mode === 'badges' || mode === 'missions' || mode === 'settings' || mode === 'lounge' || mode === 'den' || (mode === 'setup' && e.code === 'Escape')) {
