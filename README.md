@@ -10,7 +10,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Features
 
-- **Eleven worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io, blinding clouds on Venus, fuel-boiling sunlight on Mercury, a spinning asteroid and instrument-scrambling storms on Ganymede
+- **Twelve worlds** with real surface gravity, each with its own sky, terrain and atmosphere, plus geysers on Europa, eruptions on Io, blinding clouds on Venus, fuel-boiling sunlight on Mercury, a spinning asteroid, instrument-scrambling storms on Ganymede, and the pitch-dark ice of Eris, where all you have is your landing light
 - **Moving landing pads**: rovers that drive back and forth across most worlds, and a barge rocking on Earth's ocean. Match their speed, then touch down
 - **Meteor showers** on airless worlds: red markers and dotted tracks show where each meteor will land, so you can dodge them
 - **Guided tutorial** that teaches a first landing step by step
@@ -20,8 +20,8 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Five landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, Wren's slow, steady Lark, Dottie's Workhorse cargo hauler and Whisker, the twitchy little lander Gus built for Apogee. Each keeps its own paint, flame and flag
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
-- **Mission campaign**: 26 hand-built missions in three acts, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
-- **Side missions**: seventeen optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
+- **Mission campaign**: 34 hand-built missions in four acts (and more on the way), with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
+- **Side missions**: twenty-three optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Round trips**: nine missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
 - **The ship**: the break room, Pad and hangar are joined by a walkable **hallway**, which leads to **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. A **garden** where you grow homegrown gifts for the crew, and sealed doors to an observation dome and the crew quarters that hint at rooms still to come
@@ -34,7 +34,9 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **Crew requests**: three small jobs from the crew every day, like soft landings, ×5 pads, rovers or petting Apogee, each paying credits, with a bonus for finishing all three
-- **37 badges** to earn, 28 of which unlock exclusive cosmetics
+- **38 badges** to earn, 29 of which unlock exclusive cosmetics
+- **Celebrations**: confetti, a fanfare and a cheer from the crew when you finish an act, complete a ship project, buy your first outfit, level up a friendship or start dating someone
+- **Evening glow**: the more you fly in a ship day, the warmer and dimmer the ship's rooms get, until you sleep
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
 - **Saved progress** for best scores, credits and unlocks, kept in your browser
@@ -54,6 +56,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 | Mars | 3.71 m/s² | Thin air, gusting dust storms | ×1.5 |
 | Earth | 9.81 m/s² | Fast falls, strong wind | ×2.5 |
 | Venus | 8.87 m/s² | Extreme mode: crushing air, hurricane winds, and clouds that hide everything except the pad beacons | ×3 |
+| Eris | 0.82 m/s² | So far from the Sun that it's nearly pitch dark. Your landing light shows the ground right below you, and pad beacons shine through. Opens for free flight after First Light in Act 4 | ×1.5 |
 
 ## Life on the ship
 
@@ -71,6 +74,8 @@ There's no title menu. The game opens inside the ship, in **your Pad**, and ever
 A dot on a tab means something new is inside it. Screens you open from the menu come back to the menu, and **Back to** returns you to the room you were in.
 
 <p align="center"><img src="media/menu-crew.png" alt="The Crew tab of the menu: Dottie, Gus, Wren, Rex, Juno and Ollo with their portraits, pink heart rows, friendship status and today's chat and gift status, with Hang out tags on Dottie and Gus" width="360"></p>
+
+**The ship guide.** The first time something new opens up (the garden, the project board, the mining pod, Crumb's salvage runs, the wardrobe, someone's room, a hangout, the dome), Dottie, Gus or Crumb gives you a one-line heads-up, at most one every so often so nothing piles up. The menu's Journal tab has a **Ship guide** listing every activity with where to find it: a ✓ once you've tried it, a dot if it's open and waiting, and a 🔒 with what unlocks it.
 
 **The flight deck.** Walk up to the nav console on the Bridge (or press **Flight deck** under the room, or pick it from the menu) to choose how to fly: **Missions**, **Free flight**, **Daily challenge**, **Hot-seat** and **Endless run**, plus a **Crew requests** strip showing who's asking and how many of today's jobs are still open. Screens you open from here come back here.
 
@@ -182,7 +187,7 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the flight deck on the Bridge. The campaign has 26 hand-built missions in three acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, and Act 3 once you finish Sunrise. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
+Open **Missions** from the flight deck on the Bridge. The campaign has 34 hand-built missions in four acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, Act 3 once you finish Sunrise, and Act 4 once you finish Unit Zero. More acts are on the way. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
 
 **Act 1 · The Signal**
 
@@ -225,6 +230,21 @@ Open **Missions** from the flight deck on the Bridge. The campaign has 26 hand-b
 | 25 | Rex's Shortcut | Vesta | Rescue |
 | 26 | Unit Zero | Pluto | Canyon (finale) |
 
+**Act 4 · The Senders**
+
+| # | Mission | World | Type |
+|---|---|---|---|
+| 27 | Deep Tank | Ganymede | Cargo, through the storms |
+| 28 | First Light | Eris | Precision, in the dark |
+| 29 | Old Lights | Eris | Route along an old beacon trail |
+| 30 | Quiet Posts | Titan | Pad hopping |
+| 31 | Envoy Escort | Io | Rescue |
+| 32 | The Key | Eris | Sling load |
+| 33 | The Vault | Eris | Canyon, in the dark |
+| 34 | The Reply | Eris | Pad hopping (act finale) |
+
+<p align="center"><img src="media/eris.png" alt="Old Lights on Eris: the ground is nearly black, the lander’s landing light shines a soft beam down onto the ice, and three pink markers and an orange LZ beacon glow in the dark" width="560"></p>
+
 - **Precision:** land on the marked pad, LZ.
 - **Cargo:** land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes the lander heavier and slower to turn.
 - **Canyon:** fly beneath rock overhangs to reach the pad. Touching the rock overhead is a crash.
@@ -234,7 +254,7 @@ Open **Missions** from the flight deck on the Bridge. The campaign has 26 hand-b
 
 <p align="center"><img src="media/missions.png" alt="The mission list on the Round trips tab: Story, Side jobs and Round trips tabs with star totals, and tiles for each round trip with the face of whoever asked, from Gus's Rock Collection to Crumb's Blip!" width="420"></p>
 
-The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. It ends on a cliffhanger, and Act 4 is on its way.
+The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. In Act 4, Unit Zero's coordinates send the crew to Eris, farther out than anyone has flown. They fit Biscuit with a long-range tank, make the first landing on the dark ice, follow a trail of old lights, wake the Senders' listening posts on Titan and rescue Kael and Lyra on Io, who know the Senders from an old story in their fleet. Then they use Unit Zero as a key, find the vault under the ice and send a reply. Its epilogue leaves the door open for what comes next.
 
 A few friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Out past the inner planets you'll also meet **Zib**, a floating jellyfish trader who talks about itself in the third person and loves anything shiny; **Captain Ollo**, a polite moth pilot who is helpless around lamps; **Blip**, a tiny one-eyed green stowaway who moves into the break room and says only "bip"; and **Kael and Lyra Veyra**, glamorous twin envoys from an alien fleet who look human apart from their silver eyes. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
 
@@ -271,6 +291,8 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 | VIP Pickup | Dottie | Mars | Mayday | Diplomatic rescue: the Veyra twins' shuttle overheated in a dust storm. Land at CREW, let them board and fly them to orbit |
 | Captain Floaty | Pim | Moon | Swing Shift | Balloon chase: Pim's balloon escaped the Moonbase Pim airlock. Fly through the three markers along its path, then land to hand it back |
 | Meteor Watch | Wren | Mercury | Rex's Shortcut | Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
+| Dark Picnic | Gus | Eris | First Light | Fragile cargo in the dark: carry Gus's picnic basket to DROP, touching down slower than 1.3 m/s |
+| Ice Regatta | Lyra | Europa | Envoy Escort | Race route: fly Lyra's three markers over the ice, then land, to settle who's the better pilot, her or Kael |
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
 
@@ -302,12 +324,12 @@ You can set down safely on any pad and lift off again. Each mission awards up to
 
 ## Badges
 
-Open **Badges** from the menu's Journal tab to see your progress. Twenty-eight badges unlock exclusive cosmetics that can't be bought:
+Open **Badges** from the menu's Journal tab to see your progress. Twenty-nine badges unlock exclusive cosmetics that can't be bought:
 
 | Badge | How to earn it | Reward |
 |---|---|---|
 | First contact | Land on any pad | |
-| Grand Tour | Land on every world | Grand Tour hull |
+| Grand Tour | Land on the original eleven worlds (Eris doesn't count) | Grand Tour hull |
 | Earthling | Land on Earth | |
 | Feather | Touch down slower than 0.3 m/s | Feather Light flame |
 | Plumb line | Land within 1° of level, drifting under 0.2 m/s | |
@@ -326,6 +348,7 @@ Open **Badges** from the menu's Journal tab to see your progress. Twenty-eight b
 | Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
 | Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
 | Signal chaser | Finish Act 3: Beyond Pluto | Unit Zero hull |
+| Kind words | Finish Act 4: The Senders | Dots and Lines hull |
 | Off-roader | Finish every round trip | Field Kit hull |
 | Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
@@ -350,8 +373,8 @@ Open **Badges** from the menu's Journal tab to see your progress. Twenty-eight b
 
 Spend credits on clothes for your pilot. Open **Wardrobe** from the menu's Journal tab, or from your pilot license. What you wear shows everywhere: walking around the ship, on your license portrait and in photos.
 
-- **Outfits:** Cozy hoodie, Workshop overalls, Bomber jacket, Holiday sweater, Moth-silk robe, Star-print flight suit, Captain's coat and Gala tux, from 450 to 1,500 credits. **License suit** switches back to your flight suit, and picking a new suit colour on your license does the same.
-- **Hats:** Hair flower, Ball cap, Bobble beanie, Big bow, Party hat, Antenna headband, Star shades and a Tiny crown (2,000 credits). Hats sit on top of your glasses, goggles or headset; the helmet wins over hats.
+- **Outfits:** Cozy hoodie, Workshop overalls, Bomber jacket, Holiday sweater, Moth-silk robe, Star-print flight suit, Captain's coat and Gala tux, from 800 to 3,000 credits. **License suit** switches back to your flight suit, and picking a new suit colour on your license does the same.
+- **Hats:** Hair flower, Ball cap, Bobble beanie, Big bow, Party hat, Antenna headband, Star shades (400 to 1,000 credits) and a Tiny crown (5,000 credits). Hats sit on top of your glasses, goggles or headset; the helmet wins over hats.
 - Tap anything to **try it on**: your pilot turns around in it and your portrait updates, then **Buy** or **Put it back**. Anything you own switches instantly.
 
 <p align="center"><img src="media/wardrobe.png" alt="The wardrobe's hats tab: little pilot sprites in a Captain's coat wearing a hair flower, ball cap, bobble beanie, big bow, party hat, antenna headband, star shades and a tiny crown" width="360"></p>
@@ -475,11 +498,11 @@ A corkboard over the bench in the hallway holds Gus and Dottie's **repair projec
 
 | Project | Cost | What it does |
 |---|---|---|
-| Fix the hallway lights | 400 cr | The flickering ceiling lights go steady and warm |
-| Garden sprinklers | 1,500 cr | The garden waters itself every new ship day |
-| Hallway lounge corner | 2,000 cr | A couch, rug and lamp halfway down the hallway |
-| Break room jukebox | 2,500 cr | Wren's old jukebox plays again in the break room corner |
-| Repair the observation dome | 6,000 cr | Opens the dome |
+| Fix the hallway lights | 800 cr | The flickering ceiling lights go steady and warm |
+| Garden sprinklers | 3,000 cr | The garden waters itself every new ship day |
+| Hallway lounge corner | 4,000 cr | A couch, rug and lamp halfway down the hallway |
+| Break room jukebox | 5,000 cr | Wren's old jukebox plays again in the break room corner |
+| Repair the observation dome | 12,000 cr | Opens the dome |
 
 **The observation dome** sits behind the DOME door once it's repaired: a glass dome full of twinkling stars and the world you last flew, over a round platform with a telescope, a curved bench and two plants. Tap the telescope for what it's pointed at, the bench to sit a while (your partner has things to say there), or the sky. The crew sometimes go stargazing here instead of the garden.
 
@@ -489,7 +512,7 @@ A corkboard over the bench in the hallway holds Gus and Dottie's **repair projec
 
 Three things to do between flights, all paying out in credits or gifts:
 
-**Asteroid mining.** Press **⛏ Asteroid mining** in the hangar, or pick it on the flight deck, to take the little mining pod into the belt. Drag your finger (or use the arrow keys) and the pod follows. Scoop up copper (8 cr), gold (25 cr) and the occasional gem, and dodge the tumbling rocks: three dents and you head home early. Runs last 45 seconds and get busier as they go. Ore sells automatically; gems can be sold for 60 cr each or kept as gifts (Zib, Rex and Lyra love them, and everyone else likes them). You get **3 runs per ship day**; sleeping refuels the pod.
+**Asteroid mining.** Press **⛏ Asteroid mining** in the hangar, or pick it on the flight deck, to take the little mining pod into the belt. Drag your finger (or use the arrow keys) and the pod follows. Scoop up copper (12 cr), gold (40 cr) and the occasional gem, and dodge the tumbling rocks: three dents and you head home early. Runs last 45 seconds and get busier as they go. Ore sells automatically; gems can be sold for 100 cr each or kept as gifts (Zib, Rex and Lyra love them, and everyone else likes them). You get **3 runs per ship day**; sleeping refuels the pod.
 
 <p align="center"><img src="media/mining.png" alt="Asteroid mining: the white mining pod with its magnet ring among drifting copper and gold ore, two blue gems and dark rocks, with the timer, ore counts and hull lights along the top" width="300"></p>
 
@@ -497,7 +520,7 @@ Three things to do between flights, all paying out in credits or gifts:
 
 <p align="center"><img src="media/galley.png" alt="The galley: pantry shelves of jars, hanging pans over a stove, a sink, a tall fridge with magnets, a checkered floor and a little round table" width="560"></p>
 
-**Salvage with Crumb.** Walk up to Crumb's charging dock in the hangar and pick a world you've landed on. Crumb hops a supply drone and is away from the ship (he won't be in any rooms) until you've flown once. When he's back he bounces on his dock until you come and see: 60 to 180 credits of salvage, a one-in-three chance of a gem, either some excellent junk (a rock shaped exactly like Gus) or, rarely, a real find worth another 400 credits. The menu's Today tab tells you where he is, and the Hangar gets a **New** tag when he's home with loot.
+**Salvage with Crumb.** Walk up to Crumb's charging dock in the hangar and pick a world you've landed on. Crumb hops a supply drone and is away from the ship (he won't be in any rooms) until you've flown once. When he's back he bounces on his dock until you come and see: 100 to 300 credits of salvage, a one-in-three chance of a gem, either some excellent junk (a rock shaped exactly like Gus) or, rarely, a real find worth another 600 credits. The menu's Today tab tells you where he is, and the Hangar gets a **New** tag when he's home with loot.
 
 Gems and meals go in the same basket as garden crops, so they show up first in the gift list on the Friends ♥ screen, marked 💎 mined or 🍳 homemade.
 
@@ -513,6 +536,18 @@ The crew don't sit in one place any more. Every 15 minutes of real time, and eve
 Tap anyone you meet to chat. It counts as your daily chat for hearts, wherever you find them. The **Crew ♥** tab in the menu shows where everyone is right now (📍 In the break room, Wandering the hallway, Visiting Zib…) and whose room is open to you. If you walk into an empty break room, Apogee has taken all three chairs.
 
 <p align="center"><img src="media/visit.png" alt="Zib's room: lilac walls, a jelly tank, a spoon shelf and a photo of Zib's cloud mother, with Zib floating on the rug while Lyra visits" width="560"></p>
+
+### Evenings
+
+Each ship day starts in the morning. After your third flight the lights start to turn warm, and by your sixth it's night: every room on the ship goes golden and dim, with a soft glow around the edges. The first time it turns evening, someone on the crew mentions it, and the ship menu shows the time of day next to the day number. Sleep in your bunk to start a fresh morning.
+
+<p align="center"><img src="media/evening.png" alt="The Pad and the garden side by side, in the morning and at night: at night the rooms are warmer and dimmer, with an orange glow around the edges" width="560"></p>
+
+### Celebrations
+
+The big moments get confetti, a little fanfare and a cheer from the crew: finishing an act, completing a ship project, buying your first outfit or hat, finishing all three crew requests in a day, and every badge. Friendships get their own version, with pink pixel hearts floating up each time someone's heart level goes up, a bigger burst when you max out a friendship, and a shower of hearts when you start dating someone.
+
+<p align="center"><img src="media/celebrate.png" alt="Confetti falling over the hallway, with a Ship project done banner for Hallway lights at the top" width="300"></p>
 
 ## The Pad
 
@@ -567,6 +602,7 @@ The first time you land on each world, you bring a souvenir home for your shelf,
 | Mars | A vial of red dust that pours like an hourglass |
 | Venus | A sealed jar of cloud |
 | Earth | A seashell from the ocean by the landing barge |
+| Eris | A jam-jar copy of the Senders' beacons that blinks four times |
 
 #### Crumb's finds
 

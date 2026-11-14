@@ -350,6 +350,9 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* Ship events */
+.tcard.evcard { border-color: var(--ev, var(--flame)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ev, #ffb547) 35%, transparent); }
+.tcard.evcard .eyebrow { color: var(--ev, var(--flame)); }
 /* Celebrations */
 .confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 70; }
 .party { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); z-index: 71; display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -4168,6 +4171,10 @@ details.act > .limits { margin: 0 0 8px; }
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { applyEvening(m); } catch (e) {}
+    if (SHIP_ROOMS.includes(m) && !intro) {
+      try { eventHello(); eventHook('room', { room: m }); } catch (e) {}
+      if (eventPartyReady()) { startEventParty(m); return; }
+    }
     // walking between rooms: a quick fade from black, with a door whoosh if you came through a door
     if (SHIP_ROOMS.includes(m) && m !== mode && (SHIP_ROOMS.includes(mode) || mode === 'shipmenu') && !intro) roomFade(!!walkEnter && SHIP_ROOMS.includes(mode));
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
@@ -4322,6 +4329,7 @@ details.act > .limits { margin: 0 0 8px; }
           <div class="btns"><button class="btn" id="friendsBtn2" data-menuret>Gifts and hangouts</button></div>`;
       } else if (menuTab === 'today') {
         body = `<div class="todaylist">
+          ${eventCard()}
           <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
             ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
             <button class="btn ghost" id="reqBtn" data-menuret>Open crew requests</button></div>
@@ -4349,7 +4357,7 @@ details.act > .limits { margin: 0 0 8px; }
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
       }
       html = `<h1 class="good">Menu</h1>
-        <p class="tagline">Day ${shipDay}${eveLevel() > 0 ? ` · ${eveName()}` : ''} · You’re in ${here} · ${fmt(credits)} credits</p>
+        <p class="tagline">Day ${shipDay}${eventFor() ? ` · ${eventFor().name}` : ''}${eveLevel() > 0 ? ` · ${eveName()}` : ''} · You’re in ${here} · ${fmt(credits)} credits</p>
         <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab || (id === 'journal' && menuTab === 'guide') ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
         <div class="menubody">${body}</div>
         <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
@@ -5842,7 +5850,7 @@ details.act > .limits { margin: 0 0 8px; }
       walk.last = t;
       walkStep(dt, t);
       if (!walk) return;
-      walkDraw(t);
+      walkDraw(t); eventDecor(walk.c, () => camT(walk.c, walk.view), WW, WH, t, 'lounge', walk.view.cy);
       walk.raf = requestAnimationFrame(loop);
     };
     walk.raf = requestAnimationFrame(loop);
@@ -6223,6 +6231,18 @@ details.act > .limits { margin: 0 0 8px; }
     ],
     shelf: [
       NOTHING,
+      { id: 'ev-gourd', ev: 'harvest', name: 'Harvest gourd', price: 0, blurb: 'A gourd from the Harvest Festival. Gus drew a face on it. It looks a little bit like Gus.',
+        draw(c, x, y) { px(c, x + 4, y + 11, 8, 1, '#5a4636'); px(c, x + 4, y + 5, 8, 6, '#ff9a3d'); px(c, x + 5, y + 4, 6, 1, '#ff9a3d'); px(c, x + 7, y + 5, 1, 6, '#d97a2a'); px(c, x + 7, y + 2, 2, 2, '#5a8a3a'); px(c, x + 5, y + 7, 1, 1, '#3a2010'); px(c, x + 10, y + 7, 1, 1, '#3a2010'); px(c, x + 6, y + 9, 4, 1, '#3a2010'); } },
+      { id: 'ev-record', ev: 'polka', name: 'Polka record', price: 0, blurb: 'Gus’s greatest hits, pressed on real vinyl. There is only one song. It is eleven minutes long.',
+        draw(c, x, y, t) { c.fillStyle = '#14141c'; c.beginPath(); c.arc(x + 8, y + 7, 5, 0, Math.PI * 2); c.fill(); px(c, x + 7, y + 6, 2, 2, '#ff9ad5'); const k = reduceMotion ? 0 : Math.floor(t / 300) % 4; px(c, x + 8 + [3, 0, -4, 0][k], y + 7 + [0, 3, 0, -4][k], 1, 1, '#5a5a6a'); px(c, x + 3, y + 12, 10, 1, '#3a4668'); } },
+      { id: 'ev-partyhat', ev: 'apogee', name: 'Apogee’s party hat', price: 0, blurb: 'The tiny party hat Apogee wore for exactly four seconds. It still has some fur on it. That’s part of its charm.',
+        draw(c, x, y) { px(c, x + 4, y + 11, 8, 1, '#3a4668'); for (let k = 0; k < 8; k++) px(c, x + 8 - Math.ceil(k / 2), y + 3 + k, Math.ceil(k / 2) * 2 + 1, 1, k % 3 === 1 ? '#7fd6ff' : '#ff9ad5'); px(c, x + 7, y + 1, 3, 2, '#ffd27a'); } },
+      { id: 'ev-pin', ev: 'launch', name: 'Launch Day pin', price: 0, blurb: 'A gold pin from Launch Day, with a tiny Biscuit on it. Dottie gives one out every year and keeps the box under her desk.',
+        draw(c, x, y) { px(c, x + 4, y + 11, 8, 1, '#3a4668'); c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(x + 8, y + 6, 4.5, 0, Math.PI * 2); c.fill(); px(c, x + 7, y + 3, 2, 4, '#f4f1e8'); px(c, x + 6, y + 7, 4, 1, '#f4f1e8'); px(c, x + 7, y + 8, 2, 1, '#ff6b5e'); } },
+      { id: 'ev-starjar', ev: 'starfall', name: 'Star jar', price: 0, blurb: 'A jar of stardust Wren swept off the dome after Starfall Night. It twinkles in the dark. She says it’s mostly regular dust. It still twinkles.',
+        draw(c, x, y, t) { px(c, x + 4, y + 3, 8, 9, 'rgba(207,227,255,0.3)'); px(c, x + 4, y + 2, 8, 1, '#8a93ab'); for (let k = 0; k < 5; k++) if (reduceMotion || Math.floor(t / 300 + k * 2) % 3) px(c, x + 5 + (k * 3) % 6, y + 5 + (k * 2) % 6, 1, 1, ['#ffffff', '#c9b8ff', '#7fd6ff'][k % 3]); } },
+      { id: 'ev-mug', ev: 'cocoa', name: 'Cocoa mug', price: 0, blurb: 'Your Cocoa Night mug. Somebody has written “PILOT” on it in marker. The handwriting looks suspiciously like Dottie’s.',
+        draw(c, x, y, t) { px(c, x + 5, y + 5, 6, 7, '#f4f1e8'); px(c, x + 11, y + 7, 2, 3, '#f4f1e8'); px(c, x + 6, y + 6, 4, 1, '#7a4a2c'); px(c, x + 6, y + 9, 4, 1, '#ff6b5e'); if (!reduceMotion) px(c, x + 7 + Math.floor(t / 400) % 2, y + 1 + Math.floor(t / 300) % 3, 1, 2, 'rgba(255,255,255,0.6)'); } },
       { id: 'cactus', name: 'Little cactus', price: 0, blurb: 'Named Spike. Thrives on neglect, like the rest of us.',
         draw(c, x, y) { px(c, x + 5, y + 8, 6, 4, '#c0603a'); px(c, x + 7, y + 1, 2, 7, '#3fa86b'); px(c, x + 5, y + 3, 2, 3, '#3fa86b'); px(c, x + 9, y + 2, 2, 3, '#3fa86b'); px(c, x + 7, y, 2, 1, '#ff9ad5'); } },
       { id: 'books', name: 'Flight manuals', price: 0, blurb: 'Unread. Well. Skimmed. The pictures were good.',
@@ -6430,7 +6450,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return !!(bond.partner && bond.seen.includes(bond.partner + '8')); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return !!(bond.partner && bond.seen.includes(bond.partner + '8')); if (it.ev) return !!evDoneMap()[it.ev]; return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -6861,12 +6881,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.ev) action = `<button class="btn" disabled>Celebrate ${EVENTS.find(e => e.id === it.ev).name} to get it</button>`;
     else if (it.romance) action = `<button class="btn" disabled>Go on your 8-heart date with someone (Friends ♥) to get it</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
@@ -6892,7 +6913,7 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         ${editing ? `<div class="col">
           <div class="spothead"><b>${s.name}</b><span>${ownedN}/${totalN} owned</span></div>
-          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => !y.world && !y.trip && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip ? ' locked' : ''}${newIn.has(pool + ':' + x.id) ? ' isnew' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
+          <div class="items den-items">${(pool === 'shelf' ? [list[0], ...list.filter(y => y.world), ...list.filter(y => y.trip), ...list.filter(y => y.ev), ...list.filter(y => !y.world && !y.trip && !y.ev && y.id !== 'none')] : list).map(x => `${x.id === 's-pluto' ? `<p class="grp">Souvenirs · ${list.filter(y => y.world && denOwns(pool, y.id)).length} of ${list.filter(y => y.world).length} collected</p>` : x.id === 'c-rocks' ? `<p class="grp">Crumb’s finds · ${list.filter(y => y.trip && denOwns(pool, y.id)).length} of ${list.filter(y => y.trip).length}</p>` : x.id === 'ev-gourd' ? `<p class="grp">Event keepsakes · ${list.filter(y => y.ev && denOwns(pool, y.id)).length} of ${list.filter(y => y.ev).length}</p>` : x.id === 'cactus' ? '<p class="grp">From the shop</p>' : ''}<button class="item${denLook[spot] === x.id ? ' equipped' : owns(x) ? ' owned' : x.world || x.trip || x.ev ? ' locked' : ''}${newIn.has(pool + ':' + x.id) ? ' isnew' : ''}" data-den="${x.id}" aria-pressed="${x.id === it.id}">
             <span class="pv" data-pv="${x.id}"></span><b>${x.name}</b><span>${status(x)}</span></button>`).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
@@ -7027,7 +7048,7 @@ details.act > .limits { margin: 0 0 8px; }
       gar.last = t;
       garStep(dt);
       if (!gar) return;
-      garDraw(t);
+      garDraw(t); eventDecor(gar.c, () => camT(gar.c, gar.view), GW, GH, t, 'garage', gar.view.cy);
       gar.raf = requestAnimationFrame(loop);
     };
     gar.raf = requestAnimationFrame(loop);
@@ -7271,7 +7292,7 @@ details.act > .limits { margin: 0 0 8px; }
       deck.last = t;
       shipStep(dt);
       if (!deck) return;
-      draw(t);
+      draw(t); eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
@@ -8165,7 +8186,8 @@ details.act > .limits { margin: 0 0 8px; }
     const fade = document.createElement('div');
     fade.className = 'sleepfade' + (reduceMotion ? ' still' : '');
     fade.setAttribute('role', 'status');
-    fade.innerHTML = `<div class="zz" aria-hidden="true">z z Z</div><b>Day ${next}</b><span>Everyone’s ready to chat again</span>`;
+    const evNext = eventFor(next);
+    fade.innerHTML = `<div class="zz" aria-hidden="true">z z Z</div><b>Day ${next}</b><span>${evNext ? `It’s ${evNext.name}!` : 'Everyone’s ready to chat again'}</span>`;
     document.body.appendChild(fade);
     const wake = () => {
       shipDay = next; store.set('ds-shipDay', String(shipDay)); store.set('ds-sleepAt', String(flightsDone())); store.set('ds-dayStart', String(flightsDone())); applyEvening();
@@ -8173,9 +8195,224 @@ details.act > .limits { margin: 0 0 8px; }
       crewCache = null;
       if (denUI) { denUI.visitor = null; denUI.say = MORNING[Math.floor(Math.random() * MORNING.length)]; }
       if (mode === 'den') renderDen(true);
+      eventHello();
     };
     setTimeout(wake, reduceMotion ? 50 : 1300);
     setTimeout(() => fade.remove(), reduceMotion ? 1600 : 3000);
+  }
+
+  // ---- Ship events: every fourth ship day is a holiday, with decorations, a goal, a party and a keepsake ----
+  const EVENT_EVERY = 4, EVENT_PAY = 300;
+  const EVENTS = [
+    { id: 'harvest', name: 'Harvest Festival', host: 'G', cols: ['#ff9a3d', '#ffd27a', '#c94236', '#8fcf7e'], fx: 'leaves', type: 'gift', n: 1, bg: 'party', keep: 'ev-gourd',
+      tease: 'Start growing something now.',
+      goal: () => 'Give someone a homegrown gift: a crop, a gem or a home-cooked meal',
+      hello: 'Happy Harvest Festival! I hung gourds on everything, including Dottie’s door. Give someone a gift you grew, mined or cooked, then come and feast!',
+      ready: 'Gift given! The feast is on the table. Come and find us on the ship.',
+      party: [['G', 'Welcome to the first annual Descent Systems Harvest Feast! Second annual. I lost count. Annual!'],
+        ['F', 'Gus made a pie out of everything in the garden. It’s green. It’s warm. It’s… a pie.'],
+        ['W', 'When I started flying we celebrated the harvest with one potato and a lot of singing. This is better.'],
+        ['R', 'I brought a store-bought salad and nobody can prove it.'],
+        ['P', 'To the garden, and everyone who waters it!'],
+        ['G', 'To the garden! Who wants the first slice? Don’t all rush at once. Please rush a little.']],
+      thanks: ['G', 'Best feast ever. I saved you a gourd. It has a face now. I drew it.'] },
+    { id: 'polka', name: 'Polka Night', host: 'G', cols: ['#ff9ad5', '#5fd3c8', '#ffd27a', '#c9b8ff'], fx: 'notes', type: 'room', n: 1, bg: 'party', keep: 'ev-record',
+      tease: 'Gus is tuning the accordion.',
+      goal: () => 'Polka Night starts in the evening. Fly until the ship’s lights go warm, then come to the break room',
+      hello: 'It’s POLKA NIGHT! It starts when the lights go warm this evening. Fly a few runs, then meet me in the break room. Wear your dancing boots.',
+      party: [['G', 'Ladies, gentlemen and cats: welcome to Polka Night! The accordion is real. I made it out of a vacuum cleaner.'],
+        ['F', 'I said I wouldn’t dance. I am now dancing. I don’t want to talk about it.'],
+        ['R', 'This is the Rex Valor Shuffle. It’s trademarked. Don’t copy it. Okay, you can copy it.'],
+        ['W', 'I won the Titan polka championship once. Watch the footwork, pilot.'],
+        ['P', 'I think I’ve got it! Left, right, spin, spin…'],
+        ['G', 'You’ve got it! Polka is in your blood now. There’s no cure.']],
+      thanks: ['G', 'My feet hurt and I have never been happier. Same time next Polka Night?'] },
+    { id: 'apogee', name: 'Apogee’s Birthday', host: 'F', cols: ['#ff9a3d', '#ff9ad5', '#7fd6ff', '#ffd27a'], fx: 'balloons', type: 'pet', n: 1, bg: 'party', keep: 'ev-partyhat',
+      tease: 'Nobody knows how old she is. She won’t say.',
+      goal: () => 'Find Apogee and give her a birthday pet. She naps in the Pad, the break room and the hallway',
+      hello: 'It’s Apogee’s birthday. Nobody knows how old she is, and she won’t say. Find her and give her a birthday pet, and then there’s cake.',
+      ready: 'She accepted the pet! That means the party can start. Come and find us on the ship.',
+      party: [['F', 'Everyone, quiet. Here she comes. Act natural.'],
+        ['G', 'SURPRISE! Happy birthday, Apogee!'],
+        ['A', 'Mrrp?! (Apogee looks at the cake. Apogee looks at you. Apogee sits in the cake box instead.)'],
+        ['W', 'She likes the box better than the cake. Every year.'],
+        ['R', 'I got her a tiny crown. She ate the crown.'],
+        ['F', 'Happy birthday, you ridiculous cat. Best crew member on this ship. Don’t tell Gus.']],
+      thanks: ['A', 'Prrrrrrp. (Apogee has fallen asleep in her birthday box. She looks very pleased with the year.)'] },
+    { id: 'launch', name: 'Launch Day', host: 'F', cols: ['#ffb547', '#ffd27a', '#f4f1e8', '#ff6b5e'], fx: 'sparkles', type: 'land', n: 3, bg: 'party', keep: 'ev-pin',
+      tease: 'The day Descent Systems first flew.',
+      goal: () => 'Land three times today, anywhere. Missions count',
+      hello: 'Happy Launch Day! On this day Descent Systems made its very first landing. Celebrate by doing what we do: land three times today, anywhere.',
+      ready: 'Three landings on Launch Day! There’s cake on the ship with your name on it. Literally. Gus piped it.',
+      party: [['F', 'Years ago today, one lander and one very nervous pilot made the first Descent Systems landing.'],
+        ['W', 'That pilot was me. I bounced twice and landed on my own toolbox.'],
+        ['G', 'And now look at us! Five landers! A garden! A disco ball, nearly!'],
+        ['R', 'Apex has thirty landers, for the record. But ours are… cozier. There. I said something nice.'],
+        ['P', 'To Descent Systems: the smallest landing agency in the solar system!'],
+        ['F', 'And the best. To Descent Systems.']],
+      thanks: ['F', 'Happy Launch Day, pilot. I’m glad you fly for us. The cake has a candle shaped like Biscuit. Go blow it out.'] },
+    { id: 'starfall', name: 'Starfall Night', host: 'W', cols: ['#c9b8ff', '#7fd6ff', '#f4f1e8', '#ff9ad5'], fx: 'stars', type: 'room', n: 1, bg: 'domebg', keep: 'ev-starjar',
+      tease: 'The ship crosses an old comet trail.',
+      goal: () => `Watch the meteor shower from the ${projDone('dome') ? 'dome' : 'Bridge window'}`,
+      hello: 'Starfall Night tonight. Once a year the ship crosses an old comet trail and the sky lights up. Come and watch it with me.',
+      party: [['W', 'There. Look. That’s the first one.'],
+        ['G', 'I’m making a wish on every single one. I’m up to forty wishes. Most are about sandwiches.'],
+        ['F', 'I come up here every year and pretend I’m not crying. I am not crying.'],
+        ['R', 'That one was pink! Did you see that? That was a pink one!'],
+        ['P', 'I didn’t know the sky could do that.'],
+        ['W', 'It always could. You just have to stop and look up.']],
+      thanks: ['W', 'Thank you for watching with me, pilot. I’ll remember this one.'] },
+    { id: 'cocoa', name: 'Cocoa Night', host: 'F', cols: ['#f4f1e8', '#9ad8ff', '#a8652a', '#ff9a3d'], fx: 'snow', type: 'cook', n: 1, bg: 'breaknight', keep: 'ev-mug',
+      tease: 'Blankets out, heating down.',
+      goal: () => 'Cook something warm in the galley to bring along',
+      hello: 'It’s Cocoa Night. Every year we turn the heating down, wear blankets and drink cocoa until we can’t feel our tongues. Cook something in the galley to bring along.',
+      ready: 'Something smells wonderful. Bring it over, the cocoa’s ready. Come and find us on the ship.',
+      party: [['F', 'Blankets on, lights low, cocoa up. That’s the only rule on Cocoa Night.'],
+        ['G', 'I put fourteen marshmallows in mine. It’s mostly marshmallow now. It’s a marshmallow with a cocoa problem.'],
+        ['W', 'On Pluto we used to melt snow for cocoa. It tasted like Pluto. Which is to say, not great.'],
+        ['R', 'I brought my own mug. It has my face on it. You can borrow it. No, you can’t.'],
+        ['P', 'This is the coziest night of the year.'],
+        ['F', 'It is. Thank you for being here. Now nobody move. Apogee is asleep on all of our feet.']],
+      thanks: ['F', 'Best Cocoa Night yet. Take a mug home. Wash it first. Gus used it.'] }
+  ];
+  const eventOn = (d = shipDay) => d > 0 && d % EVENT_EVERY === 0;
+  const eventFor = (d = shipDay) => eventOn(d) ? EVENTS[(d / EVENT_EVERY - 1) % EVENTS.length] : null;
+  const nextEventDay = () => (Math.floor(shipDay / EVENT_EVERY) + 1) * EVENT_EVERY;
+  // Wren hosts only once she's home; until then Dottie stands in
+  const evHost = ev => ev.host === 'W' && !wrenHome() ? 'F' : ev.host;
+  const evPresent = w => w === 'W' ? wrenHome() : w === 'R' ? !!(romMet.R && romMet.R()) : true;
+  let evSt = null;
+  function evState() {
+    const k = shipDayKey();
+    if (!evSt || evSt.day !== k) {
+      try { evSt = JSON.parse(store.get('ds-event', 'null')); } catch (e) { evSt = null; }
+      if (!evSt || evSt.day !== k) evSt = { day: k, prog: 0, done: false, partied: false, hi: false };
+    }
+    return evSt;
+  }
+  const saveEv = () => store.set('ds-event', JSON.stringify(evSt));
+  const evDoneMap = () => { try { return JSON.parse(store.get('ds-evDone', '{}')) || {}; } catch (e) { return {}; } };
+  // the host says hello the first time you're aboard on an event day
+  function eventHello() {
+    const ev = eventFor(); if (!ev) return;
+    const st = evState(); if (st.hi) return;
+    st.hi = true; saveEv();
+    setTimeout(() => crewToast(evHost(ev), ev.hello, ev.name), 1400);
+  }
+  // things you do around the ship move the event goal along
+  function eventHook(type, d = {}) {
+    const ev = eventFor(); if (!ev || ev.type !== type) return;
+    const st = evState(); if (st.done) return;
+    if (type === 'gift' && !d.home) return;
+    if (type === 'room' && (ev.id === 'polka' ? !(d.room === 'lounge' && eveLevel() >= 0.5) : d.room !== (projDone('dome') ? 'dome' : 'bridge'))) return;
+    st.prog++;
+    if (st.prog >= ev.n) { st.done = true; saveEv(); if (type !== 'room') setTimeout(() => crewToast(evHost(ev), ev.ready, 'Party time'), 1800); }
+    else { saveEv(); showToast(`${ev.name}: ${st.prog} of ${ev.n}`, 1800); }
+  }
+  const eventPartyReady = () => { const ev = eventFor(); if (!ev) return false; const st = evState(); return st.done && !st.partied; };
+  function startEventParty(back) {
+    const ev = eventFor(), st = evState(), host = evHost(ev);
+    st.partied = true; saveEv();
+    const guests = ['F', 'G', 'W', 'R'].filter(w => w !== host && evPresent(w)).slice(0, 3);
+    const lines = ev.party.filter(([w]) => w === 'P' || w === 'A' || w === host || guests.includes(w));
+    playDate(host, 'ev', lines, { label: `Ship event · Day ${shipDay}`, title: ev.name }, () => { eventReward(ev); setMode(back); }, { bg: ev.bg, guests, ev });
+  }
+  function eventReward(ev) {
+    const dm = evDoneMap(), first = !dm[ev.id];
+    dm[ev.id] = (dm[ev.id] || 0) + 1; store.set('ds-evDone', JSON.stringify(dm));
+    credits += EVENT_PAY; saveCosmetics();
+    const host = evHost(ev); if (ROM_WHO.includes(host)) addHearts(host, 40);
+    const keep = DEN_ITEMS.shelf.find(x => x.id === ev.keep);
+    setTimeout(() => celebrate('Ship event', ev.name, `+${fmt(EVENT_PAY)} credits${first && keep ? ` · ${keep.name} for your shelf` : ''}`, ev.thanks[0] === 'W' && !wrenHome() ? 'F' : ev.thanks[0], ev.thanks[1], { n: 180 }), 500);
+  }
+  // the Today card in the menu
+  function eventCard() {
+    const ev = eventFor();
+    if (!ev) {
+      const d = nextEventDay(), nx = eventFor(d), n = d - shipDay;
+      return `<div class="tcard"><span class="eyebrow">Coming up · ship day ${d}</span><p><b>${nx.name}</b> in ${n} ship ${n === 1 ? 'day' : 'days'}. ${nx.tease} Sleep in your bunk to move the days along.</p></div>`;
+    }
+    const st = evState();
+    return `<div class="tcard evcard" style="--ev:${ev.cols[0]}"><span class="eyebrow">Today · ${ev.name}</span>
+      <p>${st.partied ? 'The party’s over. What a night. See you at the next one.' : st.done ? 'Goal done! The party’s waiting for you.' : `${ev.goal()}.${ev.n > 1 ? ` <b>${st.prog} of ${ev.n}</b>` : ''}`}</p>
+      ${st.done && !st.partied ? `<button class="btn" data-room="${ev.id === 'starfall' ? (projDone('dome') ? 'dome' : 'bridge') : 'lounge'}">Join the party</button>` : ''}</div>`;
+  }
+
+  // ---- Decorations: bunting along the top of every room, and something floating about ----
+  function eventDecor(c, setT, W, H, t, kind, top = 0) {
+    const ev = eventFor(); if (!ev) return;
+    setT(); c.imageSmoothingEnabled = false;
+    c.save(); c.translate(0, Math.round(top || 0));   // hang everything from the top of what's on screen
+    const cols = ev.cols, tt = reduceMotion ? 0 : t;
+    // bunting: strings of little flags that sag between pins
+    for (let x0 = 0; x0 < W; x0 += 64) {
+      for (let i = 0; i < 8; i++) {
+        const x = Math.round(x0 + 4 + i * 7.5), y = Math.round(2 + Math.sin((i + 0.5) / 8 * Math.PI) * 5), col = cols[(i + x0 / 64) % cols.length];
+        px(c, x - 1, y - 1, 8, 1, 'rgba(240,235,220,0.55)');
+        px(c, x, y, 5, 1, col); px(c, x + 1, y + 1, 3, 1, col); px(c, x + 2, y + 2, 1, 1, col);
+      }
+    }
+    const R = (i, k) => { const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
+    if (ev.fx === 'leaves' || ev.fx === 'snow') {
+      for (let i = 0; i < 18; i++) {
+        const sp = 9 + R(i, 1) * 8, y = ((tt / 1000 * sp + R(i, 2) * H) % (H + 10)) - 6, x = (R(i, 3) * W + Math.sin(tt / 900 + i) * 6) % W;
+        if (ev.fx === 'snow') px(c, x, y, R(i, 4) < 0.3 ? 2 : 1, R(i, 4) < 0.3 ? 2 : 1, 'rgba(255,255,255,0.85)');
+        else { px(c, x, y, 2, 1, cols[i % 3]); px(c, x + (Math.floor(tt / 300 + i) % 2), y + 1, 1, 1, cols[i % 3]); }
+      }
+    } else if (ev.fx === 'notes') {
+      for (let i = 0; i < 9; i++) {
+        const y = H - ((tt / 1000 * (8 + R(i, 1) * 6) + R(i, 2) * H) % H), x = (R(i, 3) * W + Math.sin(tt / 700 + i) * 4) % W, col = cols[i % 2];
+        c.globalAlpha = Math.min(1, y / 40);
+        px(c, x, y + 3, 2, 2, col); px(c, x + 1, y, 1, 4, col); px(c, x + 2, y, 1, 1, col);
+        c.globalAlpha = 1;
+      }
+      // a little disco ball in the middle of the ceiling
+      const dx = Math.round(W / 2);
+      px(c, dx, 0, 1, 6, '#8a93ab'); c.fillStyle = '#c9cfdc'; c.beginPath(); c.arc(dx + 0.5, 9, 3.5, 0, Math.PI * 2); c.fill();
+      for (let k = 0; k < 4; k++) if (Math.floor(tt / 200 + k) % 3 === 0) px(c, dx - 2 + (k % 2) * 3, 7 + Math.floor(k / 2) * 3, 1, 1, '#ffffff');
+    } else if (ev.fx === 'balloons') {
+      for (let x = 14; x < W; x += 58) {
+        for (let k = 0; k < 2; k++) {
+          const bx = x + k * 8, by = 14 + k * 3 + Math.sin(tt / 700 + x + k) * 1.5, col = cols[(x / 58 + k) % cols.length | 0];
+          c.strokeStyle = 'rgba(240,235,220,0.5)'; c.lineWidth = 0.5; c.beginPath(); c.moveTo(bx, by + 4); c.lineTo(bx + 1, by + 14); c.stroke();
+          c.fillStyle = col; c.beginPath(); c.ellipse(bx, by, 3, 4, 0, 0, Math.PI * 2); c.fill();
+          px(c, bx - 1, by - 2, 1, 1, 'rgba(255,255,255,0.7)');
+        }
+      }
+    } else if (ev.fx === 'sparkles') {
+      for (let i = 0; i < 14; i++) {
+        const on = Math.floor(tt / 260 + i * 3) % 5, x = Math.round(R(i, 1) * W), y = Math.round(10 + R(i, 2) * (H * 0.45));
+        if (on < 2) { const col = cols[i % 2]; px(c, x, y - 1, 1, 3, col); px(c, x - 1, y, 3, 1, col); }
+      }
+    } else if (ev.fx === 'stars') {
+      for (let x = 20; x < W; x += 32) {
+        const len = 6 + (x * 7) % 9, y = 8 + len, sw = Math.sin(tt / 800 + x) * 1;
+        px(c, x, 8, 1, len, 'rgba(240,235,220,0.45)');
+        const col = Math.floor(tt / 400 + x) % 4 === 0 ? '#ffffff' : cols[(x / 32 | 0) % 2];
+        px(c, x - 1 + sw, y, 3, 3, col); px(c, x + sw, y - 1, 1, 5, col); px(c, x - 2 + sw, y + 1, 5, 1, col);
+      }
+    }
+    c.restore();
+  }
+
+  // the party backdrop: the break room after hours, with bunting in the event's colors and a cake
+  function eventPartyBg(c, ev, t) {
+    const W = DW, F = 86;
+    px(c, 0, 0, W, F, '#1a2240'); px(c, 0, F, W, DH - F, '#151a2e'); px(c, 0, F, W, 1, 'rgba(255,255,255,0.08)');
+    px(c, 66, 10, 68, 36, '#2a3556'); px(c, 68, 12, 64, 32, '#03050c'); dStars(c, 68, 12, 64, 32, 18, t, 2);
+    for (let i = 0; i < 22; i++) { const x = 6 + i * 9, y = 4 + Math.round(Math.sin((i % 11 + 0.5) / 11 * Math.PI) * 6), col = ev.cols[i % ev.cols.length]; px(c, x, y, 5, 1, col); px(c, x + 1, y + 1, 3, 1, col); px(c, x + 2, y + 2, 1, 1, col); }
+    dGlow(c, 30, 40, 30, 'rgba(255,200,140,A)', 0.22); dGlow(c, 170, 40, 30, 'rgba(255,200,140,A)', 0.22);
+    // the table and the cake (or the cocoa)
+    px(c, 70, 74, 60, 5, '#7a5c44'); px(c, 74, 79, 3, 10, '#5a4636'); px(c, 123, 79, 3, 10, '#5a4636');
+    if (ev.id === 'cocoa') { for (const x of [80, 96, 112]) { px(c, x, 68, 6, 6, '#f4f1e8'); px(c, x + 1, 69, 4, 2, '#7a4a2c'); if (!reduceMotion) px(c, x + 2 + Math.floor(t / 400 + x) % 2, 63 - Math.floor(t / 300 + x) % 3, 1, 2, 'rgba(255,255,255,0.6)'); } }
+    else {
+      px(c, 88, 64, 24, 10, '#f4f1e8'); px(c, 88, 64, 24, 2, ev.cols[1]); px(c, 88, 69, 24, 1, ev.cols[0]);
+      for (const x of [93, 100, 107]) { px(c, x, 59, 1, 5, '#ff9ad5'); px(c, x, 57 + (Math.floor(t / 160 + x) % 2), 1, 2, '#ffd27a'); }
+      dGlow(c, 100, 58, 12, 'rgba(255,220,140,A)', 0.35);
+    }
+    if (ev.id === 'apogee') { px(c, 84, 46, 32, 2, '#3a4668'); drawCatSprite(c, 92, 36, true, t); px(c, 99, 33, 3, 1, '#ff9ad5'); px(c, 100, 31, 1, 2, '#ff9ad5'); }
+    // falling confetti
+    if (!reduceMotion) for (let i = 0; i < 16; i++) { const y = (t / 30 + i * 37) % (DH + 10) - 6, x = (i * 53 + Math.sin(t / 500 + i) * 4) % W; px(c, x, y, 2, 1, ev.cols[i % ev.cols.length]); }
   }
 
   // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
@@ -8210,7 +8447,7 @@ details.act > .limits { margin: 0 0 8px; }
       pw.last = t;
       padStep(pw, dt);
       if (!denUI || denUI.walk !== pw || !document.body.contains(cv)) return;
-      padDraw(pw, t);
+      padDraw(pw, t); eventDecor(pw.c, () => pw.c.setTransform(PS, 0, 0, PS, 0, 0), PW, PH, t, 'den');
       pw.raf = requestAnimationFrame(loop);
     };
     pw.raf = requestAnimationFrame(loop);
@@ -8574,8 +8811,8 @@ details.act > .limits { margin: 0 0 8px; }
   const DATE_HELMET = { moon: 1, hull: 1, ice: 1 };
   const DW = 200, DH = 112, FY = 100;   // backdrop size and where feet stand
   let dateS = null;
-  function playDate(who, key, lines, chapter, after) {
-    dateS = { who, key, bg: key === 'ask' ? 'domebg' : DATE_BG[who + key] || 'quiet', lines, chapter, after, i: 0, phase: 'intro', t0: performance.now(), typer: 0, outroAt: 0, romantic: key === 'ask' || +key >= 8 };
+  function playDate(who, key, lines, chapter, after, opts = {}) {
+    dateS = { who, key, bg: opts.bg || (key === 'ask' ? 'domebg' : DATE_BG[who + key] || 'quiet'), guests: opts.guests || [], ev: opts.ev || null, lines, chapter, after, i: 0, phase: 'intro', t0: performance.now(), typer: 0, outroAt: 0, romantic: key === 'ask' || +key >= 8 };
     setMode('datescene');
   }
   // a pixel star field
@@ -8695,6 +8932,7 @@ details.act > .limits { margin: 0 0 8px; }
       room('#2e1a36', '#24162a'); for (const [x, col] of [[20, '#c9e8ff'], [44, '#1d3340'], [150, '#3a1f40'], [174, '#c9e8ff']]) { px(c, x, 10, 14, 34, col); c.fillStyle = col; c.beginPath(); c.moveTo(x, 44); c.lineTo(x + 7, 50); c.lineTo(x + 14, 44); c.fill(); }
       px(c, 90, 4, 20, 3, '#c9a24a'); for (let i = 0; i < 5; i++) { px(c, 88 + i * 6, 7, 2, 6, '#c9a24a'); px(c, 88 + i * 6, 13, 2, 2, '#fff4c0'); } dGlow(c, 100, 12, 30, 'rgba(255,240,190,A)', 0.25);
       px(c, 60, 68, 80, 6, '#5a4030'); px(c, 64, 74, 4, 12, '#3a2a1c'); px(c, 132, 74, 4, 12, '#3a2a1c'); px(c, 84, 63, 16, 5, '#f4f1e8'); px(c, 104, 62, 2, 6, '#c9e8ff');
+    } else if (id === 'party') { eventPartyBg(c, dateS.ev, t);
     } else if (id === 'domebg') {
       px(c, 0, 0, W, F, '#04060f'); const neb = c.createLinearGradient(0, 10, W, 50); neb.addColorStop(0, 'rgba(120,80,200,0)'); neb.addColorStop(0.5, 'rgba(120,80,200,0.2)'); neb.addColorStop(1, 'rgba(80,160,220,0)'); c.fillStyle = neb; c.fillRect(0, 0, W, F);
       dStars(c, 0, 0, W, F, 60, t, 17); dPlanet(c, 168, 22, 12, (storedWorld() || WORLDS[1]).orb);
@@ -8711,6 +8949,7 @@ details.act > .limits { margin: 0 0 8px; }
     const zoom = 1.12 - 0.12 * ease;
     c.save(); c.translate(DW / 2, DH / 2); c.scale(zoom, zoom); c.translate(-DW / 2, -DH / 2);
     dateBg(c, s.bg, t);
+    if (s.ev && s.ev.fx === 'stars' && !reduceMotion) for (let i = 0; i < 4; i++) { const k = ((t / 1400) + i * 0.27) % 1, x0 = 30 + ((i * 61 + Math.floor(t / 1400 + i * 0.27) * 37) % 140), y0 = 6 + (i * 13) % 30; if (k < 0.35) { const q = k / 0.35; c.globalAlpha = 1 - q; c.strokeStyle = '#f4f1e8'; c.lineWidth = 1; c.beginPath(); c.moveTo(x0 + q * 30, y0 + q * 14); c.lineTo(x0 + q * 30 - 10, y0 + q * 14 - 5); c.stroke(); c.globalAlpha = 1; } }
     const speaker = s.phase === 'talk' && s.lines[s.i] ? s.lines[s.i][0] : null;
     const helmet = DATE_HELMET[s.bg];
     const px1 = -14 + (78 + 14) * ease, px2 = DW + 14 - (DW + 14 - 122) * ease, walking = intro < 1;
@@ -8721,6 +8960,11 @@ details.act > .limits { margin: 0 0 8px; }
       c.restore();
       if (!walking && speaker === who) { c.fillStyle = 'rgba(255,255,255,0.85)'; for (let k = 0; k < 3; k++) if (Math.floor(t / 250) % 3 >= k) px(c, Math.round(x) - 4 + k * 4, FY - 44, 2, 2, '#ffffff'); }
     };
+    (s.guests || []).forEach((g, k) => {
+      const gx = [24, 176, 50][k], bob = !walking && speaker === g && Math.floor(t / 160) % 2 ? -1 : 0, hop = s.ev && !reduceMotion && !walking ? -Math.max(0, Math.sin(t / 260 + k * 2)) * 1.5 : 0;
+      c.save(); c.translate(gx, FY - 8 + bob + hop); c.scale(1.25, 1.25); drawPerson(c, g, -8, -24, gx < 100 ? 2 : 1, 0, t); c.restore();
+      if (!walking && speaker === g) for (let q = 0; q < 3; q++) if (Math.floor(t / 250) % 3 >= q) px(c, gx - 4 + q * 4, FY - 46, 2, 2, '#ffffff');
+    });
     fig('P', px1, 2, helmet ? lookFor({ ...lic, acc: 'helmet', hat: 'none' }) : null);
     fig(s.who, px2, 1, helmet && s.who !== 'Z' && LOOKS[s.who] ? { ...LOOKS[s.who], acc: 'helmet' } : null);
     // floating hearts on dates
@@ -8748,7 +8992,7 @@ details.act > .limits { margin: 0 0 8px; }
     const s = dateS;
     card.innerHTML = `<div class="datescene">
       <span class="eyebrow">${s.chapter.label} · ${esc(s.chapter.title)}</span>
-      <canvas id="dateCv" width="${DW * 2}" height="${DH * 2}" role="img" aria-label="${esc(s.chapter.title)}: you and ${SIGN[s.who]}"></canvas>
+      <canvas id="dateCv" width="${DW * 2}" height="${DH * 2}" role="img" aria-label="${esc(s.chapter.title)}: you and ${[s.who, ...(s.guests || [])].map(w => SIGN[w]).join(', ')}"></canvas>
       <div class="radio quote" id="dateSay" aria-live="polite"></div>
       <div class="btns"><button class="btn" id="dateNext">Next</button><button class="btn ghost" id="dateSkip">Skip</button></div>
     </div>`;
@@ -8985,7 +9229,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (cook.round < 3) { cook.zone = 0.2 + Math.random() * 0.6; cook.t0 = performance.now(); msg.textContent = `${ok ? 'Nice stir!' : 'Missed!'} Stir ${cook.round + 1} of 3`; return; }
       cook.done = true;
       const q = cook.hits, made = q === 3 ? 2 : q === 2 ? 1 : q === 1 ? 1 : 0, rr = cook.r;
-      if (made) { garden.basket[rr.id] = (garden.basket[rr.id] || 0) + made; saveGarden(); }
+      if (made) { garden.basket[rr.id] = (garden.basket[rr.id] || 0) + made; saveGarden(); eventHook('cook'); }
       const res = q === 3 ? `Perfect! You made two portions of ${giftName(rr.id)}.` : q >= 1 ? `${q === 2 ? 'Nicely done!' : 'A bit lumpy, but edible.'} One ${giftName(rr.id)} for your basket.` : 'Oh no. It’s… very crispy. Gus ate it anyway and said it was “structurally interesting”.';
       msg.textContent = res; showToast(made ? `${giftIcon(rr.id)} ×${made} into your basket` : 'Burnt! Gus ate it.', 2400);
       shipSay(made ? 'G' : 'G', made ? rr.line : 'I’d give that a solid… crunch out of ten. Try again! We’ve got more crops. Probably.');
@@ -9077,7 +9321,8 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'salvage', name: 'Send Crumb salvaging', where: 'Hangar · Crumb’s dock', what: 'Crumb digs up credits, gems and oddities while you fly.', open: () => crumbHome() && stats.worlds.length > 0, tried: () => !!salvage(), hi: ['K', '*hopeful beeping* (Crumb is parked by his dock in the hangar with his scoop out. He wants to go salvaging. Walk up to him!)'] },
     { id: 'quarters', name: 'Visit the crew’s rooms', where: 'Hallway · CREW door', what: 'Rooms open at 3 hearts. A light under the door means they’re home.', open: () => ROM_WHO.some(w => romMet[w]() && roomOpen(w)), tried: () => ROM_WHO.some(w => store.get('ds-roomSeen-' + w, '') === '1'), hi: ['F', 'Somebody likes you enough to let you in. The crew quarters are behind the CREW door. Knock, knock.'] },
     { id: 'hangout', name: 'Hang out', where: 'Menu → Crew ♥ → Gifts and hangouts', what: 'At 3, 6, 8 and 10 hearts, a little scene with someone.', open: () => ROM_WHO.some(w => romMet[w]() && sceneReady(w)) || bond.seen.length > 0, tried: () => bond.seen.length > 0, hi: ['F', 'Someone wants to hang out with you! Look for the Hang out ♥ tag in Menu → Crew ♥.'] },
-    { id: 'dome', name: 'Stargaze in the dome', where: 'Hallway · DOME door', what: 'The telescope, a bench, and the best view on the ship.', open: () => projDone('dome'), tried: () => store.get('ds-domeSeen', '') === '1', hi: ['G', 'The dome is open! Go and look up. Bring someone special, maybe.'] }
+    { id: 'dome', name: 'Stargaze in the dome', where: 'Hallway · DOME door', what: 'The telescope, a bench, and the best view on the ship.', open: () => projDone('dome'), tried: () => store.get('ds-domeSeen', '') === '1', hi: ['G', 'The dome is open! Go and look up. Bring someone special, maybe.'] },
+    { id: 'events', name: 'Celebrate a ship event', where: 'Every 4th ship day · menu, Today tab', what: 'A holiday aboard: decorations everywhere, one small goal, then a party with the crew and a keepsake for your shelf.', open: () => true, tried: () => Object.keys(evDoneMap()).length > 0, hi: ['G', 'Every fourth ship day is a holiday! Check the Today tab to see what’s coming up.'] }
   ];
   let guideSaid = (() => { try { return JSON.parse(store.get('ds-guideSaid', '[]')); } catch (e) { return []; } })();
   // the first time something opens up, one heads-up per room you walk into (never during the intro)
@@ -9835,6 +10080,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   const reqDoneCount = () => reqToday().items.filter(i => i.done).length;
   function reqEvent(type, d = {}) {
+    try { eventHook(type, d); } catch (e) {}
     const st = reqToday();
     let changed = false, delay = 2200;
     for (const it of st.items) {
@@ -10237,7 +10483,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (home) { garden.basket[gid]--; if (!garden.basket[gid]) delete garden.basket[gid]; saveGarden(); }
       else { credits -= g.price; saveCosmetics(); }
       const [love, like] = GIFT_TASTE[who], k = g.meal || love.includes(gid) || (gid === 'gem' && GEM_FANS.includes(who)) ? 0 : like.includes(gid) || gid === 'gem' ? 1 : 2;
-      bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]];
+      bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]]; eventHook('gift', { home, who });
       sfx.coin(); addHearts(who, [80, 45, 20][k] + (home ? 15 : 0) + (g.meal ? 25 : 0)); if (home) showToast(g.meal ? 'Home-cooked! Extra ♥' : g.src === 'mined' ? 'You mined it yourself! A little extra ♥' : 'Homegrown! A little extra ♥', 2200); rerender();
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
