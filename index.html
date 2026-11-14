@@ -615,6 +615,11 @@ kbd {
 .pcard .pmeta { font-family: var(--f-mono); font-size: 11px; color: var(--flame); }
 .pcard .btns { justify-content: flex-start; margin: 0; }
 .pcard .btn { padding: 8px 14px; font-size: 12px; }
+.savebox { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.savebox textarea { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 6px; border: 1px solid var(--space-2); background: var(--space); color: var(--regolith); font-family: var(--f-mono); font-size: 11px; resize: vertical; }
+.savebox .btns { justify-content: flex-start; margin: 0; }
+.roomfade { position: fixed; inset: 0; z-index: 55; background: #000; pointer-events: none; animation: roomfade 0.5s ease-out forwards; }
+@keyframes roomfade { 0% { opacity: 1; } 100% { opacity: 0; } }
 .sleepfade { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #05070f; color: #e8edf5; pointer-events: none; animation: sleepfade 3s ease forwards; }
 .sleepfade b { font-family: var(--f-display); font-size: clamp(28px, 7vw, 48px); letter-spacing: 0.08em; text-transform: uppercase; color: var(--flame); }
 .sleepfade span { font-family: var(--f-mono); font-size: 13px; color: var(--regolith-dim); }
@@ -3187,7 +3192,46 @@ details.act > .limits { margin: 0 0 8px; }
       n.connect(f); f.connect(g); g.connect(master);
       n.start(t); n.stop(t + dur + 0.05);
     }
+    // a short filtered click for footsteps: metal rings a little, carpet thumps, tile ticks
+    function stepTick(kind) {
+      if (!live()) return;
+      const t = ac.currentTime, n = noise(false), f = ac.createBiquadFilter(), g = ac.createGain();
+      const S = { metal: ['bandpass', 2400, 0.05, 0.05], carpet: ['lowpass', 500, 0.05, 0.04], tile: ['bandpass', 3200, 0.035, 0.035], wood: ['bandpass', 1100, 0.05, 0.045], concrete: ['bandpass', 1600, 0.04, 0.045] }[kind] || ['bandpass', 1500, 0.04, 0.04];
+      f.type = S[0]; f.frequency.value = S[1] * (0.9 + Math.random() * 0.2); f.Q.value = 1.2;
+      env(g, t, S[3], 0.003, S[2]);
+      n.connect(f); f.connect(g); g.connect(master); n.start(t); n.stop(t + S[2] + 0.05);
+      if (kind === 'metal') tone(180 + Math.random() * 20, 'triangle', 0, 0.05, 0.012);
+    }
+    // room ambience: one quiet layer at a time, crossfaded as you walk between rooms
+    let amb = null, ambKind = null, dripT = 0;
+    const AMB = {
+      bridge: { f: ['lowpass', 260], n: 0.035, hum: [55, 0.02] }, hall: { f: ['lowpass', 380], n: 0.022, hum: [60, 0.008] },
+      garden: { f: ['bandpass', 900], n: 0.012, drip: true }, galley: { f: ['highpass', 4200], n: 0.02, hum: [50, 0.006] },
+      dome: { f: ['bandpass', 1400], n: 0.008, hum: [880, 0.004] }, garage: { f: ['lowpass', 220], n: 0.04, hum: [42, 0.016] },
+      quarters: { f: ['lowpass', 300], n: 0.016 }, bedroom: { f: ['lowpass', 260], n: 0.012 }, den: { f: ['lowpass', 260], n: 0.012 }
+    };
+    function setAmbience(kind) {
+      if (!ac || ambKind === kind) return;
+      ambKind = kind;
+      const t = ac.currentTime;
+      if (amb) { const old = amb; old.g.gain.setTargetAtTime(0, t, 0.3); setTimeout(() => { try { old.src.forEach(s => s.stop()); } catch (e) {} }, 1500); amb = null; }
+      const A = AMB[kind]; if (!A) return;
+      const g = ac.createGain(); g.gain.value = 0; g.connect(master);
+      const n = noise(), f = ac.createBiquadFilter(), ng = ac.createGain(); f.type = A.f[0]; f.frequency.value = A.f[1]; ng.gain.value = A.n;
+      n.connect(f); f.connect(ng); ng.connect(g); n.start(); const src = [n];
+      if (A.hum) { const o = ac.createOscillator(), og = ac.createGain(); o.type = 'sine'; o.frequency.value = A.hum[0]; og.gain.value = A.hum[1]; o.connect(og); og.connect(g); o.start(); src.push(o); }
+      g.gain.setTargetAtTime(1, t, 0.6);
+      amb = { g, src, drip: !!A.drip };
+    }
     return {
+      step(kind) { stepTick(kind); },
+      door() { burst(0, 0.32, 0.07, 2600, 260); tone(320, 'sine', 0.02, 0.18, 0.02, 180); },
+      pop() { tone(880, 'sine', 0, 0.08, 0.025, 1320); },
+      ambient(kind) { setAmbience(kind); },
+      ambientTick(dt) {   // drips in the garden, now and then
+        if (!amb || !amb.drip || !live()) return;
+        dripT -= dt; if (dripT <= 0) { dripT = 0.8 + Math.random() * 2.2; tone(1200 + Math.random() * 900, 'sine', 0, 0.09, 0.012, 600 + Math.random() * 300); }
+      },
       unlock() {
         if (!ac && !init()) return;
         // iOS also uses an 'interrupted' state after calls or app switches, so resume from anything but running
@@ -3871,6 +3915,8 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    // walking between rooms: a quick fade from black, with a door whoosh if you came through a door
+    if (SHIP_ROOMS.includes(m) && m !== mode && (SHIP_ROOMS.includes(mode) || mode === 'shipmenu') && !intro) roomFade(!!walkEnter && SHIP_ROOMS.includes(mode));
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
     if (SHIP_ROOMS.includes(m)) card.classList.add('wide');
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
@@ -3900,6 +3946,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     mode = m;
     if (SHIP_ROOMS.includes(m)) lastRoom = m;
+    sfx.ambient(SHIP_ROOMS.includes(m) ? m : null);
     if (SHIP_ROOMS.includes(m) || m === 'flights' || m === 'flying') menuReturn = false;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
     $('pad').classList.toggle('off', MENU_MODES.includes(m));
@@ -4420,6 +4467,14 @@ details.act > .limits { margin: 0 0 8px; }
         <tbody>${keyRows.map(([a, k]) => `<tr><td>${a}</td><td>${k}</td></tr>`).join('')}</tbody>
       </table></div>
       <p class="limits">On touch screens, use the buttons below the game.</p>
+      <h2 class="sect">Save backup</h2>
+      <div class="savebox">
+        <p class="limits">Everything (hearts, dates, your ship, your wardrobe) is saved in this browser. iPhone Safari can clear that if you don’t visit for a while, so keep a backup somewhere safe, like your Notes app.</p>
+        <div class="btns"><button class="btn" id="saveCopy">Copy save code</button><button class="btn ghost" id="saveFile">Download save file</button></div>
+        <textarea id="saveIn" rows="3" spellcheck="false" autocomplete="off" placeholder="To restore, paste a save code here" aria-label="Save code"></textarea>
+        <div class="btns"><button class="btn ghost" id="saveLoad">Restore from code</button><label class="btn ghost" for="saveFileIn">Load a save file</label><input type="file" id="saveFileIn" accept=".txt,text/plain" hidden></div>
+        <p class="limits" id="saveMsg" aria-live="polite"></p>
+      </div>
       <div class="btns">
         <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
         <button class="btn ghost" id="introBtn">Replay intro</button>
@@ -4438,9 +4493,62 @@ details.act > .limits { margin: 0 0 8px; }
     $('setMusic').addEventListener('click', () => { toggleMusic(); });
     $('tutBtn2').addEventListener('click', startTutorial);
     $('introBtn').addEventListener('click', startIntro);
+    wireSaveBackup();
     $('back').addEventListener('click', () => setMode('title'));
     const f = $(focusId || 'setZoom');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
+  }
+
+  // ---- Save backup: everything the game keeps lives in localStorage under ds-, packed into one code ----
+  function saveCode() {
+    const data = {};
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) data[k] = localStorage.getItem(k); } } catch (e) {}
+    return 'DSAVE1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ v: 1, at: Date.now(), data }))));
+  }
+  function readSave(s) {
+    s = String(s || '').replace(/\s+/g, '');
+    if (!s.startsWith('DSAVE1:')) throw new Error('not a save');
+    const o = JSON.parse(decodeURIComponent(escape(atob(s.slice(7)))));
+    if (!o || typeof o.data !== 'object') throw new Error('empty');
+    return o;
+  }
+  function saveSummary(o) {
+    const d = o.data, cr = +d['ds-credits'] || 0, day = +d['ds-shipDay'] || 1;
+    let name = 'Pilot'; try { name = JSON.parse(d['ds-license'] || '{}').name || d['ds-p1'] || 'Pilot'; } catch (e) {}
+    return `${name} · ship day ${day} · ${fmt(cr)} credits · saved ${new Date(o.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
+  function wireSaveBackup() {
+    const msg = $('saveMsg'), box = $('saveIn'); let pending = null;
+    const say = t => { if (msg) msg.textContent = t; };
+    $('saveCopy').addEventListener('click', () => {
+      const code = saveCode();
+      const fallback = () => { box.value = code; box.focus(); box.select(); say('Your save code is in the box. Copy it and keep it somewhere safe.'); };
+      try { navigator.clipboard.writeText(code).then(() => { sfx.coin(); say('Save code copied. Paste it into your Notes app (or anywhere safe).'); }, fallback); } catch (e) { fallback(); }
+    });
+    $('saveFile').addEventListener('click', () => {
+      try {
+        const a = document.createElement('a'), d = new Date();
+        a.href = URL.createObjectURL(new Blob([saveCode()], { type: 'text/plain' }));
+        a.download = `descent-systems-save-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.txt`;
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        say('Save file downloaded. If nothing appeared, use Copy save code instead.');
+      } catch (e) { say('This browser won’t download files here. Use Copy save code instead.'); }
+    });
+    const tryRestore = text => {
+      let o; try { o = readSave(text); } catch (e) { pending = null; say('That doesn’t look like a Descent Systems save code. It should start with DSAVE1:'); return; }
+      if (pending !== text) { pending = text; say(`Found: ${saveSummary(o)}. This replaces your current progress. Tap restore again to confirm.`); return; }
+      try {
+        const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
+        kill.forEach(k => localStorage.removeItem(k));
+        Object.entries(o.data).forEach(([k, v]) => { if (k.startsWith('ds-')) localStorage.setItem(k, v); });
+      } catch (e) { say('Couldn’t write the save here. Is private browsing on?'); return; }
+      say('Restored! Reloading…'); setTimeout(() => location.reload(), 600);
+    };
+    $('saveLoad').addEventListener('click', () => tryRestore(box.value));
+    $('saveFileIn').addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0]; if (!f) return;
+      const rd = new FileReader(); rd.onload = () => { box.value = String(rd.result || '').trim(); tryRestore(box.value); }; rd.readAsText(f);
+    });
   }
 
   function chapterFor(i) {
@@ -4962,6 +5070,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function loungeTalk(who) {
     if (!lounge) return;
+    if (walk && ROM_WHO.includes(who)) { const n = walk.npcs.find(k => k.who === who), now = performance.now(), first = bond.talk[who] !== shipDayKey(); if (n) n.emote = { k: first ? 'heart' : 'dots', t0: now, until: now + 1800 }; if (first) sfx.pop(); }
     if (who === 'P') { loungeSay(...photoLine()); return; }
     if (who === 'radio') {
       // whoever's calling in: Juno from the mothership, or Pim from the Moon
@@ -5449,6 +5558,7 @@ details.act > .limits { margin: 0 0 8px; }
       npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).filter(w => crewAt(w) === 'lounge').map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
       cat: lounge.cat, crumb: crumbAround() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
     };
+    { const now = performance.now(); walk.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 400 + i * 300, until: now + 2200 + i * 300 }; }); }
     walk.view = roomView(WW, WH); fitRoomCanvas(cv, walk.view); camAim(walk.view, walk.me.x, walk.me.y, WW, WH);
     walk.catPos = () => lounge.cat.id === 'crumb' && walk.crumb ? [walk.crumb.x, walk.crumb.y - 8] : (CAT_WALK[lounge.cat.id] || CAT_WALK.rug);
     walk.blipPos = () => walk.blip.id === 'mug' ? [seatCx('G') - 1, 81] : (BLIP_WALK[walk.blip.id] || BLIP_WALK.floor);
@@ -5528,6 +5638,7 @@ details.act > .limits { margin: 0 0 8px; }
         else if (n.state === 'back') { n.state = 'sit'; n.x = seatCx(n.who); n.y = 72; n.dir = 0; n.timer = 30 + Math.random() * 25; }
       }
     }
+    footstep(me, me.moving, dt, 'wood');
     { const hl = lounge.hl && (lounge.hl === 'cat' ? null : WALK_HL[lounge.hl] || (Array.isArray(lounge.hl) ? lounge.hl : null));
       camAim(walk.view, hl ? hl[0] + hl[2] / 2 : me.x, hl ? hl[1] + hl[3] + 30 : me.y, WW, WH, dt); }
     // Crumb potters about the floor
@@ -5602,7 +5713,8 @@ details.act > .limits { margin: 0 0 8px; }
       const sx2 = WR.seats[who];
       px(c, sx2 + 1, 56, 14, 18, '#2a3045'); px(c, sx2 + 2, 57, 12, 2, '#3a4668');
       const n = walk.npcs.find(k => k.who === who);
-      if (n && n.state === 'sit') { const bob = lounge.talking === who && Math.floor(t / 90) % 2 ? -1 : 0; drawSprite(c, LOOKS[who], sx2, 52 + bob, 0, 0, true); }
+      if (n && n.state === 'sit') { const bob = lounge.talking === who && Math.floor(t / 90) % 2 ? -1 : 0; drawSprite(c, LOOKS[who], sx2, 52 + bob, 0, 0, true);
+        if (n.emote && t >= n.emote.t0 && t < n.emote.until) drawEmote(c, n.emote.k, seatCx(who), 50, t, n.emote.t0); else if (bond.talk[who] !== shipDayKey()) drawEmote(c, 'bang', seatCx(who), 50, t, null); }
     }
     if (!home) { px(c, 162, 76, 9, 5, '#e8e0d0'); px(c, 163, 78, 7, 1, '#8a8f9c'); }
     // the table
@@ -6692,6 +6804,7 @@ details.act > .limits { margin: 0 0 8px; }
       const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
       me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
     }
+    footstep(me, me.moving, dt, 'concrete');
     camAim(gar.view, me.x, me.y, GW, GH, dt);
   }
   function garDraw(t) {
@@ -6768,6 +6881,34 @@ details.act > .limits { margin: 0 0 8px; }
   });
   window.addEventListener('keyup', e => { if (gar && e.key.startsWith('Arrow')) gar.keys[e.key] = false; });
 
+  // ---- Polish: room fades, footsteps, emotes ----
+  function roomFade(door) {
+    if (reduceMotion) { if (door) sfx.door(); return; }
+    const f = document.createElement('div'); f.className = 'roomfade'; document.body.appendChild(f);
+    if (door) sfx.door();
+    setTimeout(() => f.remove(), 520);
+  }
+  // footsteps: call every frame with whether you're walking and what the floor is
+  function footstep(holder, moving, dt, surface) {
+    if (!moving) { holder.stepT = 0.12; return; }
+    holder.stepT = (holder.stepT || 0) - dt;
+    if (holder.stepT <= 0) { holder.stepT = 0.3; sfx.step(surface); }
+  }
+  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete' };
+  // a little speech bubble over someone's head: heart, !, wave, dots, note
+  function drawEmote(c, kind, x, y, t, t0) {
+    const age = t0 == null ? 1 : (t - t0) / 1000;
+    if (age < 0) return;
+    const pop = t0 == null ? 0 : Math.max(0, 1 - age * 6), yy = Math.round(y - pop * 3 + (t0 == null ? Math.sin(t / 300) * 0.8 : 0));
+    x = Math.round(x);
+    px(c, x - 5, yy - 8, 11, 9, '#f4f1e8'); px(c, x - 6, yy - 7, 13, 7, '#f4f1e8'); px(c, x - 1, yy + 1, 3, 1, '#f4f1e8'); px(c, x, yy + 2, 1, 1, '#f4f1e8');
+    if (kind === 'heart') { px(c, x - 3, yy - 6, 2, 2, '#ff6b9a'); px(c, x + 1, yy - 6, 2, 2, '#ff6b9a'); px(c, x - 3, yy - 5, 6, 2, '#ff6b9a'); px(c, x - 2, yy - 3, 4, 1, '#ff6b9a'); px(c, x - 1, yy - 2, 2, 1, '#ff6b9a'); }
+    else if (kind === 'bang') { px(c, x - 1, yy - 7, 2, 4, '#ff6b5e'); px(c, x - 1, yy - 2, 2, 1, '#ff6b5e'); }
+    else if (kind === 'wave') { const k = Math.floor(t / 150) % 2; px(c, x - 2 + k, yy - 7, 3, 4, '#e8b48a'); px(c, x - 3 + k, yy - 6, 1, 2, '#e8b48a'); px(c, x - 1 + k, yy - 3, 2, 1, '#e8b48a'); }
+    else if (kind === 'note') { px(c, x + 1, yy - 7, 1, 5, '#3a4668'); px(c, x - 1, yy - 3, 2, 2, '#3a4668'); px(c, x + 2, yy - 7, 2, 1, '#3a4668'); }
+    else { for (let k = 0; k < 3; k++) if (Math.floor(t / 250) % 4 > k) px(c, x - 4 + k * 3, yy - 4, 2, 2, '#3a4668'); }
+  }
+
   // ---- The ship: a hallway that links the rooms, and the bridge ----
   // Both are small walk-around rooms on a 2x canvas, like the hangar. The hallway is wider than the screen and scrolls.
   let deck = null;
@@ -6837,6 +6978,8 @@ details.act > .limits { margin: 0 0 8px; }
       crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
+    { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
+    deck.cat = hall && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
     deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
@@ -6991,6 +7134,8 @@ details.act > .limits { margin: 0 0 8px; }
         if (Math.random() < dt * 0.2) { k.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) k.dir *= -1; }
       }
     }
+    footstep(me, me.moving, dt, ROOM_FLOOR[deck.kind]);
+    hallCatStep(dt);
     camAim(deck.view, me.x, me.y, deck.W, SHIP_H, dt);
   }
   // a little amber plate with a word on it
@@ -7230,7 +7375,9 @@ details.act > .limits { margin: 0 0 8px; }
   function npcTalk(n) {
     n.pause = 4; n.goal = null; n.dir = faceToward(n, deck.me);
     const w = n.who, pick = A => A[Math.floor(Math.random() * A.length)];
+    const first = ROM_WHO.includes(w) && bond.talk[w] !== shipDayKey(), now = performance.now();
     bondTalk(w);
+    n.emote = { k: first ? 'heart' : 'dots', t0: now, until: now + 1800 }; n.notice = now + 1800; if (first) sfx.pop();
     let line = null;
     if (w !== 'Z' && w !== 'O') {
       const guests = deck.npcs.filter(o => o.visit), r = Math.random();
@@ -7242,8 +7389,11 @@ details.act > .limits { margin: 0 0 8px; }
     shipSay(w, line || chatLine(w));
   }
   function npcStep(dt) {
+    const now = performance.now();
     for (const n of deck.npcs) {
       n.moving = false;
+      if (n.notice > now) { n.dir = faceToward(n, deck.me); continue; }
+      if (n.wander && Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 34 && !(n.greetT > now - 20000)) { n.greetT = now; n.emote = { k: 'wave', t0: now, until: now + 1600 }; n.notice = now + 1600; n.goal = null; n.pause = Math.max(n.pause, 1.6); continue; }
       if (n.pause > 0) { n.pause -= dt; if (!n.wander || n.pause > 2.5) { const near = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46; n.dir = near ? faceToward(n, deck.me) : n.baseDir; } continue; }
       if (!n.wander) { n.dir = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46 ? faceToward(n, deck.me) : n.baseDir; continue; }
       if (!n.goal) n.goal = [30 + Math.random() * (deck.W - 60), 84 + Math.random() * 56];
@@ -7254,10 +7404,27 @@ details.act > .limits { margin: 0 0 8px; }
     }
   }
   function npcThings(L) {
+    if (deck.cat) { const k = deck.cat; L.push({ id: 'cat', rect: [k.x - 9, k.y - 12, 18, 14], go: () => [k.x + (deck.me.x < k.x ? -14 : 14), k.y + 2], at: () => k, act: () => { k.sleep = false; k.follow = 6; const now = performance.now(); k.emote = { t0: now, until: now + 1600 }; sfx.purr(); reqEvent('pet'); shipSay('A', HALL_CAT[Math.floor(Math.random() * HALL_CAT.length)]); } }); }
     for (const n of deck.npcs) L.push({ npc: n, id: 'npc' + n.who, rect: [n.x - 9, n.y - 26, 18, 28], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => npcTalk(n) });
   }
   function npcDrawThings(c, t, things) {
-    for (const n of deck.npcs) things.push([n.y, () => drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t)]);
+    for (const n of deck.npcs) things.push([n.y, () => {
+      drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t);
+      if (n.emote && t >= n.emote.t0 && t < n.emote.until) drawEmote(c, n.emote.k, n.x, n.y - 28, t, n.emote.t0);
+      else if (ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
+    }]);
+    if (deck.cat) { const k = deck.cat; things.push([k.y, () => { drawCatSprite(c, k.x - 7, k.y - 8, !k.sleep, t); if (k.emote && t < k.emote.until) drawEmote(c, 'heart', k.x, k.y - 14, t, k.emote.t0); }]); }
+  }
+  // Apogee sometimes shows up in the hallway and trots after you for a bit
+  const HALL_CAT = ['Mrrp. (Apogee trots after you down the hallway, tail up. She has decided you need an escort.)', 'Prrrp. (Apogee headbutts your boot, then sits on it.)', 'Mrrow. (Apogee is on patrol. Her patrol route is wherever you are.)'];
+  function hallCatStep(dt) {
+    const k = deck && deck.cat; if (!k) return;
+    k.moving = false;
+    if (k.sleep) return;
+    k.follow -= dt;
+    if (k.follow <= 0) { k.sleep = true; return; }
+    const dx = deck.me.x - 14 - k.x, dy = deck.me.y + 4 - k.y, d = Math.hypot(dx, dy);
+    if (d > 16) { const s = Math.min(d - 16, 38 * dt); k.x += dx / d * s; k.y += dy / d * s; k.moving = true; }
   }
 
   // ---- Crew quarters: a corridor of bedroom doors ----
@@ -7790,6 +7957,7 @@ details.act > .limits { margin: 0 0 8px; }
       const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
       me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
     }
+    footstep(me, me.moving, dt, 'carpet');
     // your guest wanders about, admiring things
     const g = pw.guest;
     if (g) {
@@ -11512,6 +11680,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     fuelAlarm(frameDt);
     sfx.music(musicMood(), musicIntensity(), mode === 'paused' || mode === 'arcade');
+    sfx.ambientTick(frameDt);
     updateCamera(frameDt);
     draw(now);
     if (mode === 'hangar') drawGarage(now);
