@@ -57,7 +57,7 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 
 ## Life on the ship
 
-There's no title menu. The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
+The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
 
 **The ship menu.** Every room has a **☰ Ship menu** button (or press Escape). It lets you jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. Below the rooms are **Flight deck**, **Friends ♥**, **Badges**, your **pilot license**, **Settings**, **How to play** (the tutorial) and **Install app** where your browser supports it.
 
