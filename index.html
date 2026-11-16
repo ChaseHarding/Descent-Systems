@@ -3459,7 +3459,7 @@ details.act > .limits { margin: 0 0 8px; }
     const AMB = {
       bridge: { f: ['lowpass', 260], n: 0.035, hum: [55, 0.02] }, hall: { f: ['lowpass', 380], n: 0.022, hum: [60, 0.008] },
       garden: { f: ['bandpass', 900], n: 0.012, drip: true }, galley: { f: ['highpass', 4200], n: 0.02, hum: [50, 0.006] },
-      dome: { f: ['bandpass', 1400], n: 0.008, hum: [880, 0.004] }, garage: { f: ['lowpass', 220], n: 0.04, hum: [42, 0.016] }, engine: { f: ['lowpass', 300], n: 0.05, hum: [58.3, 0.03] },
+      dome: { f: ['bandpass', 1400], n: 0.008, hum: [880, 0.004] }, garage: { f: ['lowpass', 220], n: 0.04, hum: [42, 0.016] }, engine: { f: ['lowpass', 300], n: 0.05, hum: [58.3, 0.03] }, lift: { f: ['lowpass', 260], n: 0.02, hum: [73.4, 0.02] },
       quarters: { f: ['lowpass', 300], n: 0.016 }, bedroom: { f: ['lowpass', 260], n: 0.012 }, den: { f: ['lowpass', 260], n: 0.012 }
     };
     function setAmbience(kind) {
@@ -3558,6 +3558,8 @@ details.act > .limits { margin: 0 0 8px; }
       erupt(lava) { burst(0, 1.4, lava ? 0.45 : 0.25, lava ? 1400 : 4000, lava ? 120 : 900); if (lava) tone(55, 'sawtooth', 0, 0.8, 0.25, 30); },
       badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); },
       // a little fanfare, and the crew clapping along (a softer chime for hearts)
+      liftGo() { tone(98, 'triangle', 0, 1.3, 0.07); tone(147, 'sine', 0.05, 1.2, 0.04); },
+      ding() { tone(1318, 'sine', 0, 0.6, 0.13); tone(1046, 'sine', 0.2, 0.9, 0.13); },
       cheer(love) {
         const n = love ? [784, 988, 1175, 1568] : [523, 659, 784, 1047, 784, 1047, 1319];
         n.forEach((f, i) => tone(f, 'triangle', i * (love ? 0.07 : 0.085), i === n.length - 1 ? 0.7 : 0.22, love ? 0.1 : 0.16));
@@ -4167,10 +4169,10 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine'];
+  const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { applyEvening(m); } catch (e) {}
@@ -4238,7 +4240,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift') { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
@@ -4302,8 +4304,8 @@ details.act > .limits { margin: 0 0 8px; }
         </div>
         ${PWA && isIOS && !standalone() ? '<p class="limits" id="iosTip" hidden>In Safari, tap the Share button, then “Add to Home Screen”. The game then opens full-screen and works offline.</p>' : ''}`;
     } else if (m === 'shipmenu') {
-      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Hallway', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters', dome: 'The Dome', galley: 'The Galley', engine: 'Engine room' };
-      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', dome: 'the dome', galley: 'the galley', engine: 'the engine room', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
+      const ROOM_NAMES = { den: 'The Pad', lounge: 'Break room', hall: 'Corridors', bridge: 'The Bridge', garden: 'The Garden', garage: 'Hangar', quarters: 'Crew quarters', dome: 'The Dome', galley: 'The Galley', engine: 'Engine room', lift: 'The lift' };
+      const here = { den: 'your Pad', lounge: 'the break room', hall: 'the hallway', bridge: 'the Bridge', garden: 'the garden', garage: 'the hangar', quarters: 'the crew quarters', dome: 'the dome', galley: 'the galley', engine: 'the engine room', lift: 'the lift', bedroom: `${SIGN[bedroomOwner]}’s room` }[lastRoom];
       const roomNew = { lounge: newCards() || radioNew() || crumbNew(), den: denNew().length, garden: gardenReady(), bridge: newMissions().length, garage: crumbHome() && salvageReady() };
       const met = ROM_WHO.filter(w => romMet[w]()), crewNew = met.some(w => sceneReady(w));
       const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
@@ -4313,8 +4315,8 @@ details.act > .limits { margin: 0 0 8px; }
       let body = '';
       if (menuTab === 'ship') {
         const order = ['den', 'bridge', 'lounge', 'garden', 'galley', 'engine', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
-        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', engine: engState().done < ENGINE_JOBS ? `Gus has ${ENGINE_JOBS - engState().done} repair ${ENGINE_JOBS - engState().done === 1 ? 'job' : 'jobs'}` : 'Gus’s workshop and the core', hall: 'Every door on deck one' };
-        body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
+        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', engine: engState().done < ENGINE_JOBS ? `Gus has ${ENGINE_JOBS - engState().done} repair ${ENGINE_JOBS - engState().done === 1 ? 'job' : 'jobs'}` : 'Gus’s workshop and the core', hall: 'Three decks, joined by the lift' };
+        body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${ROOM_DECK[id] ? `Deck ${ROOM_DECK[id]} · ` : ''}${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
         const today = shipDayKey();
@@ -5385,12 +5387,14 @@ details.act > .limits { margin: 0 0 8px; }
     if (reduceMotion) { lounge.talking = null; drawRoom(); return; }
     p.textContent = '';
     let n = 0, tick = 0;
-    lounge.typer = setInterval(() => {
+    const L0 = lounge, id = setInterval(() => {
+      if (lounge !== L0) { clearInterval(id); return; }   // left the room mid-sentence
       n += 2; tick++;
       p.textContent = text.slice(0, n);
       if (tick % 3 === 0) drawFace(face, who, face.dataset.mood, (tick / 3) % 2 === 1, false);
-      if (n >= text.length) { clearInterval(lounge.typer); drawFace(face, who, face.dataset.mood, false, false); lounge.talking = null; }
+      if (n >= text.length) { clearInterval(id); drawFace(face, who, face.dataset.mood, false, false); lounge.talking = null; }
     }, 24);
+    lounge.typer = id;
   }
   function drawRoom(cv = $('room'), st = lounge) {
     if (!cv || !st || cv.classList.contains('walkroom')) return;
@@ -7188,7 +7192,7 @@ details.act > .limits { margin: 0 0 8px; }
     holder.stepT = (holder.stepT || 0) - dt;
     if (holder.stepT <= 0) { holder.stepT = 0.3; sfx.step(surface); }
   }
-  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete', engine: 'metal' };
+  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete', engine: 'metal', lift: 'metal' };
   // a little speech bubble over someone's head: heart, !, wave, dots, note
   function drawEmote(c, kind, x, y, t, t0) {
     const age = t0 == null ? 1 : (t - t0) / 1000;
@@ -7206,19 +7210,9 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- The ship: a hallway that links the rooms, and the bridge ----
   // Both are small walk-around rooms on a 2x canvas, like the hangar. The hallway is wider than the screen and scrolls.
   let deck = null;
-  const HALL_W = 520, SHIP_H = 160, VIEW_W = 256;
+  let HALL_W = 440; const SHIP_H = 160, VIEW_W = 256;
   // doors along the hallway's back wall: [centre x, label, where it goes (or null when it's sealed), sealed line]
-  const HALL_DOORS = [
-    [26, 'HANGAR', 'garage'],
-    [76, 'GARDEN', 'garden'],
-    [126, 'BREAK', 'lounge'],
-    [210, 'BRIDGE', 'bridge'],
-    [294, 'PAD', 'den'],
-    [344, 'DOME', null, ['G', 'The observation dome! It still leaks a little. Into space. Which is the bad direction. I’ve put a repair project up on the board by the bench.']],
-    [394, 'CREW', 'quarters'],
-    [444, 'GALLEY', 'galley'],
-    [494, 'ENGINE', 'engine']
-  ];
+  let HALL_DOORS = [];
   const HALL_SAY = [
     ['F', 'Dottie on the intercom. Bridge is straight ahead, break room’s on your left, your Pad’s on your right. Don’t run in the halls. I mean it this time.'],
     ['G', 'Gus here. The hallway lights flicker on Tuesdays. That’s not a bug, that’s the ship saying hi.'],
@@ -7234,12 +7228,14 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipTalk(who) { bondTalk(who); shipSay(who, chatLine(who)); }
   function renderShipRoom(kind) {
-    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom', dome = kind === 'dome', gal = kind === 'galley', eng = kind === 'engine';
+    const hall = kind === 'hall', gdn = kind === 'garden', qtr = kind === 'quarters', bed = kind === 'bedroom', dome = kind === 'dome', gal = kind === 'galley', eng = kind === 'engine', lift = kind === 'lift';
+    if (hall) setHallDeck(walkEnter);
     if (gal) { galleySel = null; cook = null; }
     if (eng) { pipe = null; engineSel = false; }
     if (gdn) gardenSel = null;
     const T = {
-      hall: ['Hallway', 'The ship’s main hallway: doors to the hangar, the garden, the break room, the bridge, your Pad and the crew quarters, and one sealed door. Crew members sometimes wander through. Tap to walk; walk up to a door to go through, or to someone to chat. With a keyboard, arrow keys walk and Enter uses the nearest thing.', 'Tap to walk · walk up to a door to go through it · tap the crew to chat'],
+      lift: ['The lift', 'The lift: a small steel car with a handrail, a floor display and a panel of three buttons, one for each deck. Pick a deck with the buttons below the picture, or walk up to the panel. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
+      hall: [DECKS[hallDeck].name, `${DECKS[hallDeck].name}: a corridor with doors to ${DECKS[hallDeck].doors.map(d => d[1].toLowerCase()).join(', ')}. The lift goes to the other decks. Crew members sometimes wander through. Tap to walk; walk up to a door to go through, or to someone to chat. With a keyboard, arrow keys walk and Enter uses the nearest thing.`, 'Tap to walk · walk up to a door to go through it · tap the crew to chat'],
       garden: ['The Garden', 'The garden: six planters under pink grow lamps, a tap with a watering can on the left and a seed cabinet on the right. Tap to walk; walk up to a planter to plant, water or harvest it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap a planter to plant or harvest · the tap waters everything · the seed cabinet has tips'],
       bridge: ['The Bridge', 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'],
       quarters: ['Crew quarters', 'The crew quarters: a carpeted corridor with a bedroom door for each crew member. Doors open once you have 3 hearts with that person; a warm light under a door means someone is home. Tap to walk; walk up to a door to knock or go in. With a keyboard, arrow keys walk and Enter uses the nearest door.', 'Walk up to a door to knock · rooms open at 3 hearts · a light under the door means someone’s home'],
@@ -7252,7 +7248,7 @@ details.act > .limits { margin: 0 0 8px; }
       <h1 class="good">${T[0]}</h1>
       <canvas class="room walkroom" id="shipCv" width="512" height="320" tabindex="0" role="application" aria-label="${T[1]}"></canvas>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
-      ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}
+      ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}${lift ? '<div class="gpanel" id="liftPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         <button class="btn ghost" id="back">☰ Menu</button>
@@ -7263,16 +7259,18 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley', engine: 'engine' }[from] || 'bridge'));
-      start = { x: d ? d[0] : 210, y: 72, dir: from === 'projects' ? 3 : 0 };
+      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley', engine: 'engine', bridge: 'bridge' }[from])) || HALL_DOORS.find(x => x[1] === 'LIFT');
+      start = { x: d ? d[0] : 120, y: 72, dir: from === 'projects' ? 3 : 0 };
+    } else if (lift) {
+      start = { x: 128, y: 132, dir: 3 };
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
     const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : [14, 98, 242, 152],
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
-      crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * 300 : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+      crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
@@ -7291,7 +7289,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw }[kind];
+    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -7304,7 +7302,10 @@ details.act > .limits { margin: 0 0 8px; }
     requestAnimationFrame(loop);
     if (hall) {
       const wand = deck.npcs.map(n => n.who);
-      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the hallway. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])(HALL_SAY.filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1]))))));
+      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the corridor. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])(DECK_SAYS[hallDeck].filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1]))))));
+    } else if (lift) {
+      shipSay(...LIFT_SAYS[Math.floor(Math.random() * LIFT_SAYS.length)]);
+      renderLiftPanel();
     } else if (gdn) {
       const first = store.get('ds-gardenSeen', '') !== '1'; store.set('ds-gardenSeen', '1');
       shipSay(...(first ? ['G', 'Welcome to the garden! I fixed the sprinklers. Mostly. Plant something, land a few times, and you’ll have homegrown gifts for the crew.']
@@ -7354,11 +7355,12 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'dome') { domeThings(L); return L; }
     if (deck.kind === 'galley') { galleyThings(L); return L; }
     if (deck.kind === 'engine') { engineThings(L); return L; }
+    if (deck.kind === 'lift') { liftThings(L); return L; }
     if (deck.kind === 'hall') {
-      L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
-      if (projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
+      if (hallDeck === 2) L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
+      if (hallDeck === 2 && projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
       for (const d of HALL_DOORS) { const [x, label, , sealed] = d, to = hallDoorTo(d);
-        const w = label === 'BRIDGE' ? 36 : 22;
+        const w = label === 'BRIDGE' ? 36 : label === 'LIFT' ? 30 : 22;
         L.push({ id: label, rect: [x - w / 2, 14, w, 52], go: () => [x, 70], at: () => ({ x, y: 30 }), act: () => {
           if (!to) { sfx.click(); shipSay(...sealed); return; }
           sfx.click(); walkEnter = 'hall'; if (to === 'garage') hangarOpenOn = null; setMode(to);
@@ -7460,73 +7462,236 @@ details.act > .limits { margin: 0 0 8px; }
   function shipTapRing(c, t) {
     if (deck.tap && t - deck.tap.t < 500) { const k = (t - deck.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(deck.tap.x, deck.tap.y, 3 + k * 4, 1.5 + k * 2, 0, 0, Math.PI * 2); c.stroke(); }
   }
+  // ---- Decks: the ship has three corridors, one per deck, joined by a lift ----
+  // doors along a corridor's back wall: [centre x, label, where it goes (or null when it's sealed), sealed line]
+  const DOME_SEALED = ['G', 'The observation dome! It still leaks a little. Into space. Which is the bad direction. I’ve put a repair project up on the board on deck two.'];
+  const DECKS = {
+    1: { name: 'Deck 1 · Command', short: 'Command', W: 320, style: 'cmd', doors: [
+      [70, 'BRIDGE', 'bridge'],
+      [150, 'DOME', null, DOME_SEALED],
+      [210, 'OFFICE', null, ['F', 'My office. It’s being repainted. It has been being repainted for two years. It’ll be lovely.']],
+      [276, 'LIFT', 'lift']] },
+    2: { name: 'Deck 2 · Living', short: 'Living', W: 440, style: 'live', doors: [
+      [30, 'GARDEN', 'garden'],
+      [80, 'GALLEY', 'galley'],
+      [130, 'BREAK', 'lounge'],
+      [214, 'LIFT', 'lift'],
+      [354, 'PAD', 'den'],
+      [404, 'CREW', 'quarters']] },
+    3: { name: 'Deck 3 · Engines', short: 'Engines', W: 360, style: 'eng', doors: [
+      [36, 'HANGAR', 'garage'],
+      [96, 'AIRLOCK', null, ['G', 'The airlock! The suits are in for cleaning. Apogee keeps trying to wear one. It does not fit. She disagrees.']],
+      [156, 'CARGO', null, ['K', '*beep beep* (Crumb is guarding the cargo bay door. It’s being tidied. By Crumb. Very slowly.)']],
+      [226, 'LIFT', 'lift'],
+      [306, 'ENGINE', 'engine']] }
+  };
+  const ROOM_DECK = { bridge: 1, dome: 1, garden: 2, galley: 2, lounge: 2, den: 2, quarters: 2, bedroom: 2, garage: 3, engine: 3 };
+  let hallDeck = Math.min(3, Math.max(1, +store.get('ds-hallDeck', '2') || 2));
+  // pick the corridor you're walking into: the deck of the room you came from, or the one the lift stopped at
+  function setHallDeck(from) {
+    const room = from === 'hangar' ? 'garage' : from === 'projects' ? 'lounge' : from;
+    if (ROOM_DECK[room]) hallDeck = ROOM_DECK[room];
+    store.set('ds-hallDeck', String(hallDeck));
+    HALL_W = DECKS[hallDeck].W; HALL_DOORS = DECKS[hallDeck].doors;
+  }
+  const DECK_SAYS = {
+    1: [['F', 'Deck one. Command. Quiet, please. The Bridge is at the front, and the dome’s up past it.'],
+      ['F', 'Dottie on the intercom. This is the tidy deck. Let’s keep it that way. That means you, Gus.'],
+      ['G', 'Gus here. Deck one gets the good lights. I asked for the good lights on deck three. I got a memo.']],
+    2: [['F', 'Dottie on the intercom. Deck two: garden, galley, break room, your Pad and the crew wing. Don’t run in the halls. I mean it this time.'],
+      ['G', 'Gus here. The hallway lights flicker on Tuesdays. That’s not a bug, that’s the ship saying hi.'],
+      ['F', 'Living deck. Somebody left a sock by the lift. I’m not saying it was Rex. I’m not not saying it.']],
+    3: [['G', 'Deck three! My favorite. Engines, the hangar, and the good kind of noise.'],
+      ['G', 'If you hear a clanking noise in the walls, that’s just Crumb. Unless Crumb is with you. Then I don’t know what it is.'],
+      ['F', 'Dottie on the intercom. Deck three is a hard hat area. We don’t have hard hats. Please just be careful.']]
+  };
+
+  // ---- The lift: step in, pick a deck, ride ----
+  const LIFT_SAYS = [['F', 'Lift. Pick a deck. Please hold the handrail. Nobody ever holds the handrail.'],
+    ['G', 'I fixed the lift music! It plays one song. It’s my song. I wrote it about the lift.'],
+    ['F', 'Dottie on the intercom. The lift has a weight limit. It’s written on the wall. Rex, I can see you reading it.']];
+  const LIFT_STOPS = { 1: 'Bridge · Dome', 2: 'Garden · Galley · Break room · Pad · Crew', 3: 'Hangar · Engine room' };
+  function liftThings(L) {
+    L.push({ id: 'panel', rect: [176, 26, 26, 44], go: () => [178, 100], at: () => ({ x: 190, y: 48 }), act: () => { sfx.click(); renderLiftPanel(); shipSay('F', 'Pick a deck. Any deck. Well, one of three.'); } });
+    L.push({ id: 'rail', rect: [60, 52, 110, 12], go: () => [deck.me.x, 100], at: () => ({ x: deck.me.x, y: 58 }), act: () => shipSay('F', 'Thank you for holding the handrail. You’re the first. I’m writing it down.') });
+    L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { if (deck.ride) return; sfx.click(); walkEnter = 'lift'; setMode('hall'); } });
+  }
+  function renderLiftPanel() {
+    const box = $('liftPanel'); if (!box) return;
+    const riding = deck && deck.ride;
+    box.innerHTML = `<h3>${riding ? `Going to deck ${riding.to}…` : `Lift · you’re on deck ${hallDeck}`}</h3>
+      <div class="seeds lift">${[1, 2, 3].map(n => `<button class="seed" data-deck="${n}"${n === hallDeck || riding ? ' disabled' : ''}><span aria-hidden="true">${n}</span><b>${DECKS[n].short}</b><small>${n === hallDeck ? 'You’re here' : LIFT_STOPS[n]}</small></button>`).join('')}</div>`;
+    box.querySelectorAll('[data-deck]').forEach(b => b.addEventListener('click', () => liftRide(+b.dataset.deck)));
+  }
+  function liftRide(to) {
+    if (!deck || deck.kind !== 'lift' || deck.ride || to === hallDeck) return;
+    deck.ride = { from: hallDeck, to, t0: performance.now() };
+    deck.me.goal = null; deck.target = null;
+    renderLiftPanel();
+    sfx.liftGo();
+    const ms = reduceMotion ? 300 : 1100 + Math.abs(to - hallDeck) * 500;
+    setTimeout(() => {
+      if (!deck || deck.kind !== 'lift') return;
+      sfx.ding();
+      hallDeck = to; store.set('ds-hallDeck', String(to));
+      setTimeout(() => { if (mode === 'lift') { walkEnter = 'lift'; setMode('hall'); } }, reduceMotion ? 50 : 450);
+    }, ms);
+  }
+  function liftDraw(t) {
+    const c = deck.c, W = 256, r = deck.ride;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    // a little shake while it moves
+    const p = r ? Math.min(1, (t - r.t0) / (reduceMotion ? 300 : 1100 + Math.abs(r.to - r.from) * 500)) : 0;
+    if (r && !reduceMotion && p < 1) c.translate(0, Math.round(Math.sin(t / 30) * 0.6));
+    px(c, 0, 0, W, SHIP_H, '#0a0d18');
+    // the car: brushed steel walls, a handrail, a floor-number display
+    px(c, 52, 0, 152, 92, '#5a6278'); for (let x = 56; x < 200; x += 6) px(c, x, 0, 1, 92, '#535b70');
+    px(c, 52, 0, 4, 152, '#3a4256'); px(c, 200, 0, 4, 152, '#3a4256');
+    px(c, 60, 56, 110, 3, '#c9cfdc'); px(c, 60, 59, 110, 1, '#8a93ab'); px(c, 62, 59, 2, 6, '#8a93ab'); px(c, 166, 59, 2, 6, '#8a93ab');
+    // ceiling light and a light strip that slides past while you ride
+    px(c, 96, 2, 64, 3, '#e6f2ff'); c.fillStyle = 'rgba(230,242,255,0.10)'; c.fillRect(70, 5, 116, 30);
+    if (r && p < 1) { const dir = r.to > r.from ? -1 : 1, y = ((t / 3) * dir % 92 + 92) % 92; px(c, 56, Math.round(y), 144, 1, 'rgba(255,255,255,0.18)'); }
+    // the floor display over the panel
+    const shown = r ? (p < 1 ? Math.round(r.from + (r.to - r.from) * p) : r.to) : hallDeck;
+    px(c, 110, 12, 36, 18, '#0a0e1a'); c.font = '700 12px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = '#ffb547'; c.fillText(String(shown), 122, 22);
+    c.font = '700 7px monospace'; c.fillText(r && p < 1 ? (r.to > r.from ? '▼' : '▲') : '•', 138, 22);
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    // the button panel
+    px(c, 178, 26, 22, 44, '#3a4256'); px(c, 180, 28, 18, 40, '#2a3150');
+    for (const n of [1, 2, 3]) { const on = (r ? r.to : hallDeck) === n, by = 30 + (n - 1) * 12; c.fillStyle = on ? '#ffb547' : '#8a93ab'; c.beginPath(); c.arc(189, by + 5, 4, 0, Math.PI * 2); c.fill(); c.fillStyle = on ? '#2a1d0a' : '#2a3150'; c.font = '700 6px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(n), 189, by + 5.5); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; }
+    // the weight-limit sign
+    px(c, 66, 22, 30, 14, '#e8e4d8'); px(c, 68, 25, 26, 1, '#5a5a6a'); px(c, 68, 28, 18, 1, '#5a5a6a'); px(c, 68, 31, 22, 1, '#5a5a6a');
+    // floor: rubber tread
+    px(c, 52, 92, 152, 60, '#2a3040'); for (let y = 96; y < 152; y += 5) for (let x = 56 + (y % 10 ? 0 : 3); x < 200; x += 6) px(c, x, y, 3, 1, '#343b4e');
+    // the doors at the front, open (or sliding shut while you ride)
+    const shut = r ? Math.min(1, (t - r.t0) / 300) * (p < 1 ? 1 : Math.max(0, 1 - (t - r.t0 - (reduceMotion ? 300 : 1100 + Math.abs(r.to - r.from) * 500)) / 400)) : 0;
+    px(c, 52, 150, 152, 10, '#3a4256');
+    px(c, 104 - 2, 150, 4 + Math.round(24 * shut), 10, '#8a93ab'); px(c, 152 - 2 - Math.round(24 * shut), 150, 4 + Math.round(24 * shut), 10, '#8a93ab');
+    if (!r) doorPlate(c, 128, 150, `DECK ${hallDeck}`, true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  // ---- Drawing a corridor: each deck has its own look ----
+  const DECK_LOOK = {
+    cmd: { ceil: '#16203c', wall: '#202c4e', seam: '#26335c', trim: '#3a4a78', lamp: '#e6f2ff', floor: '#1e2746', tile: '#243058', door: '#1a2442' },
+    live: { ceil: '#211b2a', wall: '#2c2436', seam: '#342a40', trim: '#4a3a50', lamp: '#ffe9b8', floor: '#3a2a22', tile: '#33251e', door: '#2a2234' },
+    eng: { ceil: '#141824', wall: '#1c2130', seam: '#232838', trim: '#2e3446', lamp: '#ffd27a', floor: '#1a1f2c', tile: '#151927', door: '#1b2030' }
+  };
   function hallDraw(t) {
-    const c = deck.c, v = deck.view;
+    const c = deck.c, v = deck.view, D = DECKS[hallDeck], S = D.style, K = DECK_LOOK[S], W = HALL_W;
     camT(c, v);
     c.imageSmoothingEnabled = false;
     // ceiling strip and back wall
-    px(c, 0, 0, HALL_W, 60, '#1c2646');
-    px(c, 0, 0, HALL_W, 5, '#141b33'); const lit = projDone('lights'); for (let x = 4; x < HALL_W; x += 24) px(c, x, 1, 14, 2, !lit && Math.floor(t / 2400 + x) % 17 === 0 ? '#8a7a56' : '#ffe9b8');
-    if (lit) { const g = c.createLinearGradient(0, 4, 0, 26); g.addColorStop(0, 'rgba(255,220,160,0.16)'); g.addColorStop(1, 'rgba(255,220,160,0)'); c.fillStyle = g; c.fillRect(0, 4, HALL_W, 22); }
-    for (let x = 0; x < HALL_W; x += 25) px(c, x, 5, 1, 50, '#212c50');
-    px(c, 0, 40, HALL_W, 2, '#26315a'); px(c, 0, 54, HALL_W, 2, '#2a3556'); px(c, 0, 56, HALL_W, 4, '#121933');
-    // portholes between the doors
-    for (const wx of [51, 101, 254, 319, 369, 419, 469]) {
-      c.fillStyle = '#3a4668'; c.beginPath(); c.arc(wx, 24, 9, 0, Math.PI * 2); c.fill();
-      c.fillStyle = '#060914'; c.beginPath(); c.arc(wx, 24, 7, 0, Math.PI * 2); c.fill();
-      for (let i = 0; i < 4; i++) { const a = (wx * 7 + i * 97 + t / 9000) % 12, sx = wx - 5 + a, sy = 19 + (i * 3) % 10; if (Math.hypot(sx - wx, sy - 24) < 6) px(c, Math.round(sx), sy, 1, 1, i % 2 ? '#8a93ab' : '#ffffff'); }
-      px(c, wx - 4, 19, 2, 1, 'rgba(255,255,255,0.35)');
+    px(c, 0, 0, W, 60, K.wall);
+    px(c, 0, 0, W, 5, K.ceil);
+    const lit = S !== 'live' || projDone('lights');
+    for (let x = 4; x < W; x += 24) px(c, x, 1, 14, 2, !lit && Math.floor(t / 2400 + x) % 17 === 0 ? '#8a7a56' : K.lamp);
+    if (lit) { const g = c.createLinearGradient(0, 4, 0, 26); g.addColorStop(0, S === 'cmd' ? 'rgba(200,225,255,0.14)' : 'rgba(255,220,160,0.16)'); g.addColorStop(1, 'rgba(255,220,160,0)'); c.fillStyle = g; c.fillRect(0, 4, W, 22); }
+    for (let x = 0; x < W; x += 25) px(c, x, 5, 1, 50, K.seam);
+    px(c, 0, 40, W, 2, K.trim); px(c, 0, 54, W, 2, K.trim); px(c, 0, 56, W, 4, K.ceil);
+    if (S === 'eng') {   // pipes along the top of the wall
+      px(c, 0, 7, W, 3, '#a8652a'); px(c, 0, 8, W, 1, '#d08a4a'); px(c, 0, 12, W, 2, '#5a6278');
+      for (let x = 30; x < W; x += 60) { px(c, x, 6, 3, 9, '#3a4256'); if (!reduceMotion && Math.floor(t / 900 + x) % 9 === 0) px(c, x + 6, 16 - Math.floor(t / 120) % 5, 2, 2, 'rgba(220,230,240,0.35)'); }
     }
-    // the project board over the bench
-    px(c, 152, 10, 30, 26, '#5a4636'); px(c, 153, 11, 28, 24, '#a47a4c');
-    PROJECTS.forEach((pj, i) => { const nx = 155 + (i % 3) * 9, ny = 13 + Math.floor(i / 3) * 11; px(c, nx, ny, 7, 9, projDone(pj.id) ? '#c9f0d8' : '#f4f1e8'); px(c, nx + 3, ny, 1, 1, '#ff6b5e'); if (projDone(pj.id)) px(c, nx + 2, ny + 4, 3, 2, '#3f8a58'); });
-    // a bench and a plant, and the ship plaque
-    px(c, 150, 46, 30, 3, '#7a5c44'); px(c, 152, 49, 2, 6, '#4a3a2c'); px(c, 176, 49, 2, 6, '#4a3a2c');
-    px(c, 236, 44, 10, 10, '#8a5a3a'); for (const [lx, ly] of [[237, 34], [241, 31], [244, 36], [238, 39]]) px(c, lx, ly, 3, 6, '#3f8a58');
+    // windows in the gaps between doors: a long view on deck one, portholes elsewhere
+    const busy = x => D.doors.some(d => Math.abs(d[0] - x) < (d[1] === 'BRIDGE' ? 32 : d[1] === 'LIFT' ? 28 : 22)) || (hallDeck === 2 && x > 144 && x < 190);
+    if (S === 'cmd') {
+      for (let x = 0; x < W; x += 4) {
+        if (busy(x) || busy(x + 4)) continue;
+        px(c, x, 16, 4, 20, '#04060f');
+        for (let i = 0; i < 2; i++) { const sx = (x * 13 + i * 37 + Math.floor(t / 90)) % 4, sy = 18 + (x * 7 + i * 11) % 16; if ((x + i) % 3 === 0) px(c, x + sx, sy, 1, 1, i ? '#8a93ab' : '#ffffff'); }
+      }
+      px(c, 0, 15, W, 1, K.trim); px(c, 0, 36, W, 1, K.trim);
+    } else {
+      for (let wx = 20; wx < W - 10; wx += 25) {
+        if (busy(wx)) continue;
+        c.fillStyle = S === 'live' ? '#5a4636' : '#3a4256'; c.beginPath(); c.arc(wx, 24, 9, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#060914'; c.beginPath(); c.arc(wx, 24, 7, 0, Math.PI * 2); c.fill();
+        for (let i = 0; i < 4; i++) { const a = (wx * 7 + i * 97 + t / 9000) % 12, sx = wx - 5 + a, sy = 19 + (i * 3) % 10; if (Math.hypot(sx - wx, sy - 24) < 6) px(c, Math.round(sx), sy, 1, 1, i % 2 ? '#8a93ab' : '#ffffff'); }
+        px(c, wx - 4, 19, 2, 1, 'rgba(255,255,255,0.35)');
+        wx += 25;   // keep them spaced out
+      }
+    }
+    if (hallDeck === 2) {
+      // the project board over the bench, and a plant by the lift
+      px(c, 152, 10, 30, 26, '#5a4636'); px(c, 153, 11, 28, 24, '#a47a4c');
+      PROJECTS.forEach((pj, i) => { const nx = 155 + (i % 3) * 9, ny = 13 + Math.floor(i / 3) * 11; px(c, nx, ny, 7, 9, projDone(pj.id) ? '#c9f0d8' : '#f4f1e8'); px(c, nx + 3, ny, 1, 1, '#ff6b5e'); if (projDone(pj.id)) px(c, nx + 2, ny + 4, 3, 2, '#3f8a58'); });
+      px(c, 150, 46, 30, 3, '#7a5c44'); px(c, 152, 49, 2, 6, '#4a3a2c'); px(c, 176, 49, 2, 6, '#4a3a2c');
+      px(c, 238, 44, 10, 10, '#8a5a3a'); for (const [lx, ly] of [[239, 34], [243, 31], [246, 36], [240, 39]]) px(c, lx, ly, 3, 6, '#3f8a58');
+    }
+    // the deck number painted big on the wall, next to the lift
+    const lift = D.doors.find(d => d[1] === 'LIFT');
+    if (lift) { c.font = '700 14px monospace'; c.fillStyle = S === 'eng' ? 'rgba(255,181,71,0.25)' : 'rgba(255,255,255,0.10)'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(hallDeck), lift[0] - 26, 48); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; }
     // doors
     for (const d of HALL_DOORS) {
-      const [x, label] = d, to = hallDoorTo(d), bridge = label === 'BRIDGE', w = bridge ? 36 : 22, x0 = x - w / 2, open = !!to;
-      px(c, x0 - 1, 15, w + 2, 41, '#2a3556'); px(c, x0, 16, w, 40, '#0e1428');
+      const [x, label] = d, to = hallDoorTo(d), bridge = label === 'BRIDGE', isLift = label === 'LIFT', w = bridge ? 36 : isLift ? 30 : 22, x0 = x - w / 2, open = !!to;
+      px(c, x0 - 1, 15, w + 2, 41, K.trim); px(c, x0, 16, w, 40, '#0e1428');
       if (bridge) {
         px(c, x0 + 2, 18, w / 2 - 3, 38, '#1f2c52'); px(c, x + 1, 18, w / 2 - 3, 38, '#1f2c52');
         px(c, x - 1, 18, 2, 38, '#121a33');
         const glow = 0.5 + 0.5 * Math.sin(t / 500);
         px(c, x0 + 4, 30, w / 2 - 7, 2, `rgba(127,214,255,${0.4 + glow * 0.5})`); px(c, x + 3, 30, w / 2 - 7, 2, `rgba(127,214,255,${0.4 + glow * 0.5})`);
         if (newMissions().length) px(c, x + 13, 20, 3, 3, Math.floor(t / 400) % 2 ? '#ff6b5e' : '#7a3a3a');
+      } else if (isLift) {
+        // brushed steel doors, with the call buttons beside them
+        px(c, x0 + 1, 17, w / 2 - 1, 39, '#8a93ab'); px(c, x, 17, w / 2 - 1, 39, '#8a93ab');
+        for (let k = 0; k < w - 2; k += 3) px(c, x0 + 1 + k, 17, 1, 39, '#7a8296');
+        px(c, x - 1, 17, 2, 39, '#4a5266');
+        px(c, x0 + w + 3, 28, 4, 10, '#2a3150'); px(c, x0 + w + 4, 29, 2, 3, '#58e0a0'); px(c, x0 + w + 4, 34, 2, 3, '#58e0a0');
       } else {
-        px(c, x0 + 2, 18, w - 4, 38, open ? '#1a2442' : '#1b1f30');
+        px(c, x0 + 2, 18, w - 4, 38, open ? K.door : '#1b1f30');
         px(c, x - 1, 18, 2, 38, '#121a33');
+        if (S === 'eng') { px(c, x0 + 2, 26, w - 4, 1, '#2e3446'); px(c, x0 + 2, 46, w - 4, 1, '#2e3446'); }
         px(c, x + 6, 36, 2, 2, open ? '#58e0a0' : '#ff6b5e');
         if (to === 'garden' && gardenReady() && (reduceMotion || Math.floor(t / 400) % 2)) px(c, x + 7, 18, 3, 3, '#ffe58a');
         if (!open) for (let yy = 22; yy < 54; yy += 8) { px(c, x0 + 2, yy, w - 4, 3, '#c9a24a'); for (let xx = x0 + 2; xx < x0 + w - 2; xx += 4) px(c, xx, yy, 2, 3, '#26304f'); }
       }
       doorPlate(c, x, 6, label, open);
     }
-    // floor: metal plates with a glowing guide stripe
-    px(c, 0, 60, HALL_W, SHIP_H - 60, '#1a2038');
-    for (let y = 72; y < SHIP_H; y += 14) px(c, 0, y, HALL_W, 1, '#202744');
-    for (let y = 60, k = 0; y < SHIP_H; y += 14, k++) for (let x = (k % 2) * 20; x < HALL_W; x += 40) px(c, x, y, 1, 14, '#202744');
-    for (let x = 4; x < HALL_W; x += 16) px(c, x, 108, 8, 2, Math.floor((t / 160 - x / 16)) % 12 === 0 ? '#ffe58a' : '#7a5a24');
+    // floor
+    px(c, 0, 60, W, SHIP_H - 60, K.floor);
+    if (S === 'live') {   // wooden boards with a long runner rug
+      for (let y = 66; y < SHIP_H; y += 8) px(c, 0, y, W, 1, K.tile);
+      for (let y = 60, k = 0; y < SHIP_H; y += 8, k++) for (let x = (k % 3) * 22; x < W; x += 66) px(c, x, y, 1, 8, K.tile);
+      px(c, 0, 100, W, 18, '#5a2e3a'); px(c, 0, 101, W, 1, '#7a4a3a'); px(c, 0, 116, W, 1, '#7a4a3a');
+      for (let x = 6; x < W; x += 14) px(c, x, 108, 4, 2, '#6a3a42');
+    } else if (S === 'eng') {   // grating, with a hazard stripe down the middle
+      for (let y = 64; y < SHIP_H; y += 6) px(c, 0, y, W, 1, K.tile);
+      for (let x = 0; x < W; x += 6) px(c, x, 60, 1, SHIP_H - 60, K.tile);
+      for (let x = 0; x < W; x += 12) { px(c, x, 106, 6, 4, '#c9a24a'); px(c, x + 6, 106, 6, 4, '#1a1f2c'); }
+    } else {   // polished tiles and a cool guide light
+      for (let y = 72; y < SHIP_H; y += 14) px(c, 0, y, W, 1, K.tile);
+      for (let y = 60, k = 0; y < SHIP_H; y += 14, k++) for (let x = (k % 2) * 20; x < W; x += 40) px(c, x, y, 1, 14, K.tile);
+      for (let x = 4; x < W; x += 16) px(c, x, 108, 8, 2, Math.floor((t / 160 - x / 16)) % 12 === 0 ? '#bfefff' : '#2a5a78');
+    }
     // door mats
-    for (const d of HALL_DOORS) if (hallDoorTo(d)) px(c, d[0] - 9, 60, 18, 3, '#26304f');
-    // the lounge corner, once it's built
-    if (projDone('lounge')) {
+    for (const d of HALL_DOORS) if (hallDoorTo(d)) px(c, d[0] - 9, 60, 18, 3, S === 'live' ? '#4a3a2c' : '#26304f');
+    // the lounge corner on deck two, once it's built
+    const sofa = hallDeck === 2 && projDone('lounge');
+    if (sofa) {
       c.fillStyle = '#3a2a4a'; c.beginPath(); c.ellipse(285, 140, 40, 9, 0, 0, Math.PI * 2); c.fill();
       c.strokeStyle = '#c9a24a'; c.lineWidth = 1; c.beginPath(); c.ellipse(285, 140, 36, 7, 0, 0, Math.PI * 2); c.stroke();
     }
     const things = shipFloorThings(c, t), me = deck.me;
-    if (projDone('lounge')) things.push([138, () => {
+    if (sofa) things.push([138, () => {
       px(c, 260, 118, 50, 10, '#3d6b63'); px(c, 260, 118, 50, 2, '#4f8a80'); px(c, 260, 128, 50, 9, '#2f5a54'); px(c, 256, 120, 6, 18, '#2f5a54'); px(c, 308, 120, 6, 18, '#2f5a54');
       px(c, 266, 129, 18, 3, '#4f8a80'); px(c, 286, 129, 18, 3, '#4f8a80'); px(c, 262, 137, 3, 3, '#1f3a36'); px(c, 305, 137, 3, 3, '#1f3a36');
       px(c, 320, 106, 2, 30, '#3a4668'); px(c, 315, 102, 12, 6, '#ffe9b8'); px(c, 316, 136, 10, 2, '#3a4668');
       c.fillStyle = 'rgba(255,233,184,0.12)'; c.beginPath(); c.arc(321, 108, 16, 0, Math.PI * 2); c.fill();
     }]);
+    if (S === 'eng') things.push([128, () => { px(c, 270, 112, 16, 14, '#4a5266'); px(c, 270, 112, 16, 2, '#6a7390'); px(c, 272, 117, 12, 1, '#c9a24a'); px(c, 64, 120, 10, 12, '#a8652a'); px(c, 64, 120, 10, 2, '#c97a3a'); }]);
     things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     shipTapRing(c, t);
     c.setTransform(1, 0, 0, 1, 0, 0);
-    hallArrows(c, v, HALL_W);
+    hallArrows(c, v, W);
   }
+
   function bridgeDraw(t) {
     const c = deck.c, W = 256;
     camT(c, deck.view);
@@ -7641,7 +7806,7 @@ details.act > .limits { margin: 0 0 8px; }
     return P;
   }
   const crewAt = who => crewPlaces()[who] || CREW_HOME[who];
-  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the hallway', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'Snacking in the galley', engine: 'Tinkering in the engine room' }[loc];
+  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the corridors', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'Snacking in the galley', engine: 'Tinkering in the engine room' }[loc];
   const roomOpen = who => heartsOf(who) >= 3 || bond.partner === who;
   const roomBusy = who => crewAt(who) === 'room' || Object.values(crewPlaces()).includes('visit:' + who);
 
@@ -9572,16 +9737,16 @@ details.act > .limits { margin: 0 0 8px; }
   const GUIDE = [
     { id: 'sleep', name: 'Sleep to end the day', where: 'Your Pad · 🌙 Sleep', what: 'A new ship day: chat and gift again, the crew move around, the garden can be watered.', open: () => true, tried: () => shipDay > 1, hi: ['F', 'When you’re done for the day, press 🌙 Sleep in your Pad. Everyone resets for a fresh day of chats and gifts.'] },
     { id: 'friends', name: 'Chat and give gifts', where: 'Anyone you meet · Menu → Crew ♥', what: 'One chat and one gift per person per day grows your hearts.', open: () => true, tried: () => Object.keys(bond.gift || {}).length > 0, hi: ['G', 'Psst! Tap anyone on the ship to chat, and bring them a gift from Menu → Crew ♥. Hearts unlock hangouts and their rooms.'] },
-    { id: 'garden', name: 'Grow crops', where: 'Hallway · GARDEN door', what: 'Plant seeds; they grow with every landing. Harvest them as gifts or cooking ingredients.', open: () => true, tried: () => store.get('ds-gardenSeen', '') === '1', hi: ['G', 'The garden’s open! Plant a few seeds, land a few times, and you’ll have homegrown gifts.'] },
-    { id: 'projects', name: 'Fund ship repairs', where: 'Hallway · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => true, tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
+    { id: 'garden', name: 'Grow crops', where: 'Deck 2 · GARDEN door', what: 'Plant seeds; they grow with every landing. Harvest them as gifts or cooking ingredients.', open: () => true, tried: () => store.get('ds-gardenSeen', '') === '1', hi: ['G', 'The garden’s open! Plant a few seeds, land a few times, and you’ll have homegrown gifts.'] },
+    { id: 'projects', name: 'Fund ship repairs', where: 'Deck 2 · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => true, tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
     { id: 'wardrobe', name: 'Dress your pilot', where: 'Menu → Journal → Wardrobe', what: 'Outfits and hats that show everywhere, from the hallway to your license.', open: () => stats.landings >= 3, tried: () => wardOwned.size > 0, hi: ['F', 'You’ve been wearing the same flight suit for days. The wardrobe is in Menu → Journal. Treat yourself.'] },
-    { id: 'galley', name: 'Cook meals', where: 'Hallway · GALLEY door', what: 'Two crops make a meal. Meals are the best gifts on the ship.', open: () => Object.keys(garden.basket).length > 0 || store.get('ds-galleySeen', '') === '1', tried: () => store.get('ds-galleySeen', '') === '1', hi: ['G', 'You’ve got crops in your basket! Take them to the galley at the end of the hallway and cook something. Meals are the best gifts there are.'] },
-    { id: 'engine', name: 'Fix things in the engine room', where: 'Hallway · ENGINE door, at the far end', what: 'Three pipe-puzzle repair jobs a day from Gus, paid in credits, with a bonus for tidy work.', open: () => true, tried: () => repairsTotal() > 0, hi: ['G', 'The engine room is at the far end of the hallway. I always have paid repair jobs for you!'] },
+    { id: 'galley', name: 'Cook meals', where: 'Deck 2 · GALLEY door', what: 'Two crops make a meal. Meals are the best gifts on the ship.', open: () => Object.keys(garden.basket).length > 0 || store.get('ds-galleySeen', '') === '1', tried: () => store.get('ds-galleySeen', '') === '1', hi: ['G', 'You’ve got crops in your basket! Take them to the galley at the end of the hallway and cook something. Meals are the best gifts there are.'] },
+    { id: 'engine', name: 'Fix things in the engine room', where: 'Deck 3 · ENGINE door (take the lift down)', what: 'Three pipe-puzzle repair jobs a day from Gus, paid in credits, with a bonus for tidy work.', open: () => true, tried: () => repairsTotal() > 0, hi: ['G', 'The engine room is down on deck three. Take the lift! I always have paid repair jobs for you.'] },
     { id: 'mining', name: 'Mine asteroids', where: 'Hangar · ⛏ Asteroid mining (or the flight deck)', what: 'Three pod runs a day for ore and gems.', open: () => stats.landings >= 2, tried: () => !!store.get('ds-mining', ''), hi: ['G', 'The mining pod’s fuelled! Hop in from the hangar: ore for credits, gems for gifts. Three runs a day.'] },
     { id: 'salvage', name: 'Send Crumb salvaging', where: 'Hangar · Crumb’s dock', what: 'Crumb digs up credits, gems and oddities while you fly.', open: () => crumbHome() && stats.worlds.length > 0, tried: () => !!salvage(), hi: ['K', '*hopeful beeping* (Crumb is parked by his dock in the hangar with his scoop out. He wants to go salvaging. Walk up to him!)'] },
-    { id: 'quarters', name: 'Visit the crew’s rooms', where: 'Hallway · CREW door', what: 'Rooms open at 3 hearts. A light under the door means they’re home.', open: () => ROM_WHO.some(w => romMet[w]() && roomOpen(w)), tried: () => ROM_WHO.some(w => store.get('ds-roomSeen-' + w, '') === '1'), hi: ['F', 'Somebody likes you enough to let you in. The crew quarters are behind the CREW door. Knock, knock.'] },
+    { id: 'quarters', name: 'Visit the crew’s rooms', where: 'Deck 2 · CREW door', what: 'Rooms open at 3 hearts. A light under the door means they’re home.', open: () => ROM_WHO.some(w => romMet[w]() && roomOpen(w)), tried: () => ROM_WHO.some(w => store.get('ds-roomSeen-' + w, '') === '1'), hi: ['F', 'Somebody likes you enough to let you in. The crew quarters are behind the CREW door. Knock, knock.'] },
     { id: 'hangout', name: 'Hang out', where: 'Menu → Crew ♥ → Gifts and hangouts', what: 'At 3, 6, 8 and 10 hearts, a little scene with someone.', open: () => ROM_WHO.some(w => romMet[w]() && sceneReady(w)) || bond.seen.length > 0, tried: () => bond.seen.length > 0, hi: ['F', 'Someone wants to hang out with you! Look for the Hang out ♥ tag in Menu → Crew ♥.'] },
-    { id: 'dome', name: 'Stargaze in the dome', where: 'Hallway · DOME door', what: 'The telescope, a bench, and the best view on the ship.', open: () => projDone('dome'), tried: () => store.get('ds-domeSeen', '') === '1', hi: ['G', 'The dome is open! Go and look up. Bring someone special, maybe.'] },
+    { id: 'dome', name: 'Stargaze in the dome', where: 'Deck 1 · DOME door', what: 'The telescope, a bench, and the best view on the ship.', open: () => projDone('dome'), tried: () => store.get('ds-domeSeen', '') === '1', hi: ['G', 'The dome is open! Go and look up. Bring someone special, maybe.'] },
     { id: 'events', name: 'Celebrate a ship event', where: 'Every 4th ship day · menu, Today tab', what: 'A holiday aboard: decorations everywhere, one small goal, then a party with the crew and a keepsake for your shelf.', open: () => true, tried: () => Object.keys(evDoneMap()).length > 0, hi: ['G', 'Every fourth ship day is a holiday! Check the Today tab to see what’s coming up.'] }
   ];
   let guideSaid = (() => { try { return JSON.parse(store.get('ds-guideSaid', '[]')); } catch (e) { return []; } })();
@@ -12584,7 +12749,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
-    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
     if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
     if (mode === 'wardrobe') { if (e.code === 'Escape') { wardUI.trying = null; setMode(wardFrom === 'license' ? 'license' : wardFrom === 'den' ? 'den' : 'title'); } return; }
