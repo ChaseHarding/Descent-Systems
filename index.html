@@ -358,6 +358,19 @@ kbd {
 .drama-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .drama-btns .btn { font-size: 12px; padding: 8px 6px; white-space: normal; }
 .fcard.ex { opacity: 0.75; border-style: dashed; }
+.drama.rival { border-color: #ffb547; background: rgba(255, 181, 71, 0.08); }
+.drama.rival b { color: #ffb547; }
+.crushes { margin: 10px 0; padding: 12px; border: 1px dashed rgba(255, 154, 213, 0.5); border-radius: 10px; text-align: left; display: grid; gap: 10px; }
+.crushes h3 { margin: 0; font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.06em; font-size: 13px; color: #ff9ad5; }
+.crush { display: grid; grid-template-columns: 34px 34px 1fr; gap: 6px; align-items: start; }
+.crush canvas.face { width: 34px; height: 34px; border-radius: 5px; image-rendering: pixelated; }
+.crush > div { min-width: 0; display: grid; gap: 4px; }
+.crush span { font-size: 12px; opacity: 0.85; }
+.crush em { font-size: 11px; color: #ffb547; font-style: normal; }
+.crush .btn { font-size: 11px; padding: 6px 8px; justify-self: start; }
+.crushbar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+.crushbar i { display: block; height: 100%; background: #ff9ad5; }
+.crush.together b { color: #ff9ad5; }
 /* Crew applications */
 .recruits { display: grid; gap: 8px; margin-top: 14px; }
 .recruits h3 { margin: 0; }
@@ -4807,8 +4820,7 @@ details.act > .limits { margin: 0 0 8px; }
         ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
         ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
         ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
-        ${row('setRomance', 'Romance', 'Ask a crewmate out once you’re close (Friends ♥ in the break room). Off keeps everyone as friends', romanceOn)}
-        ${romanceOn ? row('setMessy', 'Messy romance', 'Date more than one person at once. Jealousy, getting caught, exes, secret admirers and gossip. Chaos guaranteed', messyOn) : ''}
+        ${row('setRomance', 'Romance', 'Date the crew once you’re close (Friends ♥ in the break room). Date more than one at a time if you dare: jealousy, exes, rivals and gossip included. Off keeps everyone as friends', romanceOn)}
         ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
         ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
         ${row('setMusic', 'Music', 'A soundtrack generated as you play. It builds as you near the ground', sfx.musicOn)}
@@ -4836,15 +4848,9 @@ details.act > .limits { margin: 0 0 8px; }
     $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
     $('setRomance').addEventListener('click', () => {
       romanceOn = !romanceOn; store.set('ds-romance', romanceOn ? '1' : '0');
-      if (!romanceOn && datingAnyone()) { showToast(`Romance off: you and ${partnerNames()} are back to being friends.`, 2600); bond.partners.forEach(w => { hearts[w] = Math.min(hearts[w] || 0, 8 * HEART); }); bond.partners = []; bond.drama = null; syncPartner(); saveBond(); }
+      if (!romanceOn && datingAnyone()) { showToast(`Romance off: you and ${partnerNames()} are back to being friends.`, 2600); bond.partners.forEach(w => { hearts[w] = Math.min(hearts[w] || 0, 8 * HEART); }); bond.partners = []; bond.drama = null; bond.rival = null; syncPartner(); saveBond(); }
       renderSettings('setRomance');
     });
-    { const sm = $('setMessy'); if (sm) sm.addEventListener('click', () => {
-      messyOn = !messyOn; store.set('ds-messy', messyOn ? '1' : '0');
-      if (!messyOn && bond.partners.length > 1) { const keep = bond.partners[0]; bond.partners.slice(1).forEach(w => { hearts[w] = Math.min(hearts[w] || 0, 8 * HEART); }); bond.partners = [keep]; syncPartner(); showToast(`Messy romance off: you’re just dating ${SIGN[keep]} now.`, 2600); }
-      if (!messyOn) { bond.drama = null; bond.open = false; }
-      saveBond(); renderSettings('setMessy');
-    }); }
     $('setGhost').addEventListener('click', () => { showGhost = !showGhost; store.set('ds-ghost', showGhost ? '1' : '0'); renderSettings('setGhost'); });
     $('setSound').addEventListener('click', () => { toggleMute(); });
     $('setMusic').addEventListener('click', () => { toggleMusic(); });
@@ -6949,6 +6955,7 @@ details.act > .limits { margin: 0 0 8px; }
       denUI = { spot: 'wallL', trying: null, anim: 0, typer: 0, note: '', cat: denPickCat(denLook), catAwake: 0, visitor: null, talking: null, lastLine: '' };
       const guests = denGuests();
       if (Math.random() < 0.55) denUI.visitor = guests[Math.floor(Math.random() * guests.length)];
+      if (denUI.visitor) setTimeout(() => photoCheck(denLook), 0);
       denUI.say = denUI.visitor ? [denUI.visitor, denTalkFor(denUI.visitor, denLook)]
         : denUI.cat ? ['A', 'Mrrp. (Apogee let herself in again. Nobody knows how. The door was locked.)']
         : ['F', DEN_ALONE[Math.floor(Math.random() * DEN_ALONE.length)]];
@@ -7057,6 +7064,8 @@ details.act > .limits { margin: 0 0 8px; }
       denUI.visitor = who; sfx.knock();
       denUI.pendingSay = [who, denTalkFor(who, look())];
       renderDen(true);
+      if (isPartner(who) && doubleBook(who, 'pad')) return;
+      photoCheck(look());
     });
     card.querySelectorAll('[data-spot]').forEach(b => b.addEventListener('click', () => pick(b.dataset.spot)));
     card.querySelectorAll('[data-den]').forEach(b => b.addEventListener('click', () => {
@@ -7897,6 +7906,7 @@ details.act > .limits { margin: 0 0 8px; }
       const hosts = met.filter(h => h !== w && P[h] === 'room');
       P[w] = hosts.length ? 'visit:' + hosts[Math.floor(srand(w + 'v' + slot) * hosts.length)] : 'hall';
     }
+    try { coupleSpots(P, met, slot); } catch (e) {}
     if (P.C && kitTagging()) P.C = 'tag';
     crewCache = { key, P };
     return P;
@@ -8064,7 +8074,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (eveLevel() >= 0.5) L.push(['F', 'Evening, everyone. Lights are going warm. Quiet hours start whenever Gus stops playing the accordion.']);
     if (typeof salvageReady === 'function' && crumbHome() && salvageReady()) L.push(['K', '*beep boop beep* (Crumb has found the intercom. He’s back from salvage and very proud. Hangar, deck three.)']);
     if (zibMet()) L.push(['F', 'Attention all crew: whoever keeps rearranging the galley spoons, Zib, please stop. They were alphabetical.']);
-    L.push(...gossipLines());
+    L.push(...gossipLines()); if (romanceOn) L.push(...couplesGossip());
     return L;
   }
   function intercom() {
@@ -8599,7 +8609,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (denUI) { denUI.visitor = null; denUI.say = MORNING[Math.floor(Math.random() * MORNING.length)]; }
       if (mode === 'den') renderDen(true);
       eventHello();
-      try { dramaOvernight(); admirerOvernight(); } catch (e) {}
+      try { dramaOvernight(); admirerOvernight(); couplesOvernight(); } catch (e) {}
     };
     setTimeout(wake, reduceMotion ? 50 : 1300);
     setTimeout(() => fade.remove(), reduceMotion ? 1600 : 3000);
@@ -10790,8 +10800,7 @@ details.act > .limits { margin: 0 0 8px; }
   let bond = (() => { let b = {}; try { b = JSON.parse(store.get('ds-bond', '{}')) || {}; } catch (e) {} return { talk: {}, gift: {}, seen: [], partner: null, ...b }; })();
   const saveBond = () => { store.set('ds-hearts', JSON.stringify(hearts)); store.set('ds-bond', JSON.stringify(bond)); };
   // ---- Messy romance: date more than one person, jealousy, getting caught, exes and gossip ----
-  // Off by default (Settings → Messy romance). With it off, you date one person at a time, like before.
-  let messyOn = store.get('ds-messy', '0') === '1';
+  const messyOn = true;   // always on: dating is messy whenever Romance is on
   if (!Array.isArray(bond.partners)) bond.partners = bond.partner ? [bond.partner] : [];
   bond.sus = bond.sus || {};       // how much each partner suspects (0-100)
   bond.exes = bond.exes || {};     // who broke up with you, and on which ship day
@@ -10915,14 +10924,202 @@ details.act > .limits { margin: 0 0 8px; }
     if (!d) return '';
     const y = d.who, x = d.other;
     return `<div class="drama" role="alert">${faceTag(y, '')}
-      <div><b>${d.kind === 'gossip' ? `${SIGN[y]} heard about you and ${SIGN[x]}` : `${SIGN[y]} caught you with ${SIGN[x]}`}</b>
-      <p>${SIGN[y]} is waiting for an answer, and ${SIGN[x]} is listening. What do you say?</p>
-      <div class="btns drama-btns">
+      <div><b>${d.kind === 'gossip' ? `${SIGN[y]} heard about you and ${SIGN[x]}` : d.kind === 'photo' ? `${SIGN[y]} saw your photo with ${SIGN[x]}` : d.kind === 'double' ? `You double booked ${SIGN[x]} and ${SIGN[y]}` : `${SIGN[y]} caught you with ${SIGN[x]}`}</b>
+      <p>${d.kind === 'double' ? `They’re both standing there, waiting. Who gets the evening?` : `${SIGN[y]} is waiting for an answer${d.kind === 'photo' ? '' : `, and ${SIGN[x]} is listening`}. What do you say?`}</p>
+      <div class="btns drama-btns">${d.kind === 'double' ? `
+        <button class="btn ghost" data-drama="stay-${x}">Stay with ${SIGN[x]}</button>
+        <button class="btn ghost" data-drama="stay-${y}">Go with ${SIGN[y]}</button>
+        <button class="btn ghost" data-drama="both">“All three of us, then!”</button>` : `
         <button class="btn ghost" data-drama="lie">“It’s not what it looks like!”</button>
         <button class="btn ghost" data-drama="honest">“I’m seeing you both.”</button>
         <button class="btn ghost" data-drama="pick-${y}">Choose ${SIGN[y]}</button>
-        <button class="btn ghost" data-drama="pick-${x}">Choose ${SIGN[x]}</button>
+        <button class="btn ghost" data-drama="pick-${x}">Choose ${SIGN[x]}</button>`}
       </div></div></div>`;
+  }
+  // ---- Crew couples: the ship has a love life of its own ----
+  // Five pairs have a soft spot for each other. Left alone, a crush grows a little every night,
+  // you can play matchmaker from the Crew tab, and once it hits 100% they get together.
+  // With Messy romance on, a crush on someone you're dating turns into a rival.
+  bond.cp = bond.cp || {};          // crush progress per pair, 0-100
+  bond.couples = bond.couples || []; // pairs who are together
+  bond.rival = bond.rival || null;   // { who: your partner, by: the rival, day, win }
+  bond.nudge = bond.nudge || {};     // matchmaking: one good word per pair per day
+  const COUPLES = {
+    GJ: { a: 'G', b: 'J', crush: 'Gus keeps finding things to fix right next to Juno’s console.',
+      scene: ['Gus and Juno', [['G', 'Juno! Hi. The, um, the clamp on bay two was squeaking. I fixed it. It wasn’t squeaking. I just wanted to come up here.'],
+        ['J', 'Gus. I logged you visiting the dock fourteen times this week.'], ['G', '…Fifteen. You missed one. I hid behind the fern.'],
+        ['J', 'I didn’t miss it. Sit down. I’ll make the good tea.']]],
+      a2: 'Juno and I have tea on the dock every night now. She lets me fix stuff that isn’t broken. It’s the best.', b2: 'Gus brought me a fern he made out of spare wire. It’s hideous. It’s on my console.' },
+    FW: { a: 'F', b: 'W', crush: 'Dottie has rewritten Wren’s flight schedule three times so they’re on shift together.',
+      scene: ['Dottie and Wren', [['W', 'Dottie, dear, you’ve scheduled us on the same shift every day for a month.'],
+        ['F', 'That’s a coincidence. A statistically improbable, carefully planned coincidence.'], ['W', 'I flew solo for thirty years. I think I’m ready for a co-pilot.'],
+        ['F', 'I’ve already made a color for you on the schedule. It’s gold.']]],
+      a2: 'Wren and I color-code our evenings now. Hers are gold. Mine are a slightly different gold.', b2: 'Dottie reads me the schedule in bed. It’s more romantic than it sounds. Slightly.' },
+    VY: { a: 'V', b: 'Y', crush: 'Kael and Lyra keep “accidentally” sitting together at every meeting.',
+      scene: ['Kael and Lyra', [['V', 'Lyra. I’d like to open negotiations.'], ['Y', 'On what, envoy?'],
+        ['V', 'Dinner. Tonight. Just the two of us. No treaties.'], ['Y', 'Off the record? Yes. On the record? Also yes. Bring chocolate.']]],
+      a2: 'Lyra and I signed a treaty. It’s mostly about whose turn it is to pick the restaurant.', b2: 'Kael and I are together now. On the record. Don’t make it a whole thing. He already made it a whole thing.' },
+    ZN: { a: 'Z', b: 'N', crush: 'Zib and Nerri keep singing under-ice songs together in the garden.',
+      scene: ['Zib and Nerri', [['N', 'Zib! I wrote a fourth note for the song! It only works if two people sing it!'],
+        ['Z', 'Zib can be the second person! Zib has been practicing!'], ['N', 'On Europa, if two people sing the same song, it means… you know.'],
+        ['Z', 'Zib knows! Zib is turning pink! Pink is the happiest color!']]],
+      a2: 'Nerri and I sing every night! Gus says to sing quieter! We sing louder!', b2: 'Zib and I have a song now! It has four notes! That’s two more than I had!' },
+    RO: { a: 'R', b: 'O', crush: 'Ollo keeps fluttering near Rex’s mirror lights. Rex keeps leaving them on.',
+      scene: ['Rex and Ollo', [['R', 'Ollo. You’ve been hovering by my dressing room lights all week.'],
+        ['O', 'Forgive me. You shine so brightly, Rex. A moth cannot help it.'], ['R', '…Nobody has ever said anything that perfect to me. And I have a LOT of fans.'],
+        ['O', 'Then let me be the first fan who stays.']]],
+      a2: 'Ollo and I are together. Obviously. I’m very bright. He’s very drawn to me. It’s science.', b2: 'Rex leaves his mirror lights on for me every night now. I find this very romantic.' }
+  };
+  const pairMet = k => romMet[COUPLES[k].a] && romMet[COUPLES[k].a]() && romMet[COUPLES[k].b] && romMet[COUPLES[k].b]();
+  const coupleOf = w => { const k = bond.couples.find(k => COUPLES[k].a === w || COUPLES[k].b === w); return k ? (COUPLES[k].a === w ? COUPLES[k].b : COUPLES[k].a) : null; };
+  const pairOf = w => Object.keys(COUPLES).find(k => COUPLES[k].a === w || COUPLES[k].b === w);
+  const mateOf = w => { const k = pairOf(w); return k ? (COUPLES[k].a === w ? COUPLES[k].b : COUPLES[k].a) : null; };
+  // can this crush grow? not if either of them is with you (or just broke up with you)
+  const pairFree = k => pairMet(k) && !bond.couples.includes(k) && !isPartner(COUPLES[k].a) && !isPartner(COUPLES[k].b);
+  function formCouple(k, quiet) {
+    const C = COUPLES[k]; if (bond.couples.includes(k)) return;
+    bond.couples.push(k); bond.cp[k] = 100; saveBond(); crewCache = null;
+    if (quiet) return;
+    setTimeout(() => playDate(C.a, 'couple', C.scene[1], { label: `New couple · ${SIGN[C.a]} and ${SIGN[C.b]}`, title: 'Matchmaker!' }, () => {
+      setMode('friends'); setTimeout(() => celebrate('New couple ♥', `${SIGN[C.a]} and ${SIGN[C.b]}`, 'You played matchmaker', null, null, { love: true, n: 70 }), 300);
+    }, { bg: 'breaknight', guests: [C.b] }), 400);
+  }
+  // overnight: crushes grow, and rivals make their move
+  function couplesOvernight() {
+    if (!romanceOn) return;
+    for (const k in COUPLES) if (pairFree(k)) {
+      // on their own they only get so far; it takes a good word from you to get them together
+      if ((bond.cp[k] || 0) < 70) bond.cp[k] = Math.min(70, (bond.cp[k] || 0) + 4 + Math.floor(Math.random() * 6));
+    }
+    rivalOvernight();
+    saveBond();
+  }
+  // RIVALS (Messy romance): someone has a crush on the person you're dating
+  function rivalOvernight() {
+    if (!messyOn) return;
+    const r = bond.rival;
+    if (r) {
+      if (!isPartner(r.who)) { bond.rival = null; return; }
+      if (shipDay - r.day >= 2 && (r.win || 0) < 2) {   // too slow: they leave you for the rival
+        breakUp(r.who, false); bond.rival = null;
+        const k = pairOf(r.who); if (k) formCouple(k, true);
+        sfx.drama();
+        setTimeout(() => crewToast(r.who, `I’m sorry, pilot. ${SIGN[r.by]} was there for me when you weren’t. We’re together now. I hope we can still be friends.`, 'Heartbreak'), 3000);
+      }
+      return;
+    }
+    for (const w of bond.partners) {
+      const by = mateOf(w);
+      if (!by || !romMet[by] || !romMet[by]() || coupleOf(by) || isPartner(by) || bond.drama) continue;
+      if (heartsOf(w) >= 10 || Math.random() > 0.3) continue;
+      bond.rival = { who: w, by, day: shipDay, win: 0 };
+      setTimeout(() => crewToast('G', `Psst, pilot. Gossip corner exclusive: ${SIGN[by]} has been flirting with ${SIGN[w]}. A LOT. Just saying. (Crew ♥)`, 'Uh oh'), 3400);
+      return;
+    }
+  }
+  // time spent with your partner fends the rival off: chat and gift on separate days, or both today
+  function rivalHook(who, kind) {
+    const r = bond.rival; if (!r || r.who !== who) return null;
+    const d = shipDayKey(); if (r[kind] === d) return null;
+    r[kind] = d; r.win = (r.win || 0) + 1;
+    if (r.win >= 2) { bond.rival = null; addHearts(who, 40); saveBond(); return `${SIGN[r.by]}? ${SIGN[r.by]} who? I only have eyes for you, pilot.`; }
+    saveBond(); return null;
+  }
+  function confrontRival() {
+    const r = bond.rival; if (!r) return [];
+    bond.rival = null;
+    if (Math.random() < 0.6) { hearts[r.by] = Math.max(0, (hearts[r.by] || 0) - 150); addHearts(r.who, 30); saveBond();
+      return [[r.by, `Okay, okay! I’ll back off. I didn’t know you two were that serious.`], [r.who, `You stood up for us. That was kind of hot, pilot.`]]; }
+    hearts[r.who] = Math.max(0, (hearts[r.who] || 0) - 60); saveBond();
+    return [[r.who, `Excuse me? I can talk to whoever I want. You don’t own me, pilot.`], [r.by, 'Yikes. I’m going to go… elsewhere.']];
+  }
+  // matchmaking: put in a good word (once a day per pair)
+  function goodWord(k) {
+    const C = COUPLES[k], d = shipDayKey(); if (bond.nudge[k] === d || !pairFree(k)) return null;
+    bond.nudge[k] = d; bond.cp[k] = Math.min(100, (bond.cp[k] || 0) + 20 + Math.floor(Math.random() * 10));
+    addHearts(C.a, 10); addHearts(C.b, 10);
+    if (bond.cp[k] >= 100) { formCouple(k); return null; }
+    saveBond();
+    const L = [[C.a, `Wait, ${SIGN[C.b]} said WHAT about me? Say it again. Slower.`], [C.b, `${SIGN[C.a]} asked about me? …What exactly did they ask? Every word.`], [C.a, `You think I have a chance with ${SIGN[C.b]}? Really? Don’t mess with me, pilot.`]];
+    return L[Math.floor(Math.random() * L.length)];
+  }
+  // couples like to be in the same place
+  function coupleSpots(P, met, slot) {
+    for (const k of bond.couples) {
+      const { a, b } = COUPLES[k];
+      if (!met.includes(a) || !met.includes(b) || srand(k + slot) > 0.55) continue;
+      const loc = P[a];
+      if (loc === 'tag' || loc === 'engine' || !loc) continue;
+      P[b] = loc === 'room' ? 'visit:' + a : loc.startsWith('visit:') && loc.slice(6) === b ? 'room' : loc;
+    }
+  }
+  const couplesGossip = () => {
+    const L = [];
+    const k = bond.couples[bond.couples.length - 1]; if (k) L.push(['G', `Gus’s gossip corner: ${SIGN[COUPLES[k].a]} and ${SIGN[COUPLES[k].b]} were seen holding hands in the corridor. Get a room! You have rooms!`]);
+    const c = Object.keys(COUPLES).filter(k => pairFree(k) && (bond.cp[k] || 0) >= 50)[0]; if (c) L.push(['G', `Gus’s gossip corner: is something going on between ${SIGN[COUPLES[c].a]} and ${SIGN[COUPLES[c].b]}? Sources say yes. The source is me.`]);
+    if (bond.rival) L.push(['G', `Gus’s gossip corner: ${SIGN[bond.rival.by]} has been very friendly with ${SIGN[bond.rival.who]} lately. Very. Friendly.`]);
+    return L;
+  };
+  // the crushes and rival cards on the Crew tab
+  function couplesHtml() {
+    if (!romanceOn) return '';
+    let h = '';
+    const r = bond.rival;
+    if (r) h += `<div class="drama rival">${faceTag(r.by, '')}<div><b>${SIGN[r.by]} is making a move on ${SIGN[r.who]}</b>
+      <p>Spend time with ${SIGN[r.who]}: chat and give a gift (${Math.max(0, 2 - (r.win || 0))} to go) before ${shipDay - r.day >= 1 ? 'tomorrow' : 'the day after tomorrow'}, or you might lose them.</p>
+      <div class="btns drama-btns"><button class="btn ghost" data-rival="confront">Tell ${SIGN[r.by]} to back off</button></div></div></div>`;
+    const crush = Object.keys(COUPLES).filter(k => pairFree(k) && (bond.cp[k] || 0) >= 15);
+    const together = bond.couples.filter(k => pairMet(k));
+    if (crush.length || together.length) {
+      h += `<div class="crushes"><h3>Crew crushes</h3>`;
+      for (const k of together) h += `<div class="crush together">${faceTag(COUPLES[k].a, '')}${faceTag(COUPLES[k].b, '')}<div><b>${SIGN[COUPLES[k].a]} ♥ ${SIGN[COUPLES[k].b]}</b><span>Together</span></div></div>`;
+      for (const k of crush) { const C = COUPLES[k], done = bond.nudge[k] === shipDayKey();
+        h += `<div class="crush">${faceTag(C.a, '')}${faceTag(C.b, '')}<div><b>${SIGN[C.a]} &amp; ${SIGN[C.b]}</b><span>${C.crush}</span>
+          <div class="crushbar"><i style="width:${bond.cp[k] || 0}%"></i></div>
+          ${(bond.cp[k] || 0) >= 75 && !done ? `<em>One more good word and they’re together, and off the market for you.</em>` : ''}
+          <button class="btn ghost" data-match="${k}"${done ? ' disabled' : ''}>${done ? 'You put in a good word today' : 'Put in a good word'}</button></div></div>`; }
+      h += `</div>`;
+    }
+    return h;
+  }
+  // DOUBLE BOOKED (Messy romance): another partner turns up for your date
+  function doubleBook(x, where) {
+    if (!messyOn || bond.open || bond.drama || bond.partners.length < 2 || Math.random() > (where === 'pad' ? 0.25 : 0.3)) return false;
+    const others = bond.partners.filter(w => w !== x), y = others[Math.floor(Math.random() * others.length)];
+    bond.drama = { kind: 'double', who: y, other: x, day: shipDay }; saveBond(); sfx.drama();
+    if (where === 'pad') { setTimeout(() => playDate(x, 'double', [[x, 'Thanks for having me over. Just the two of us tonight, right?'], [y, '*knock knock* Hey! I brought snacks for our movie ni— oh.'],
+      [x, 'Movie night? We’re having a quiet night in. Just us. Right, pilot?'], ['P', 'I… may have invited you both. On the same night. By accident.'], [y, 'By accident. Sure.']],
+      { label: `Double booked · ${SIGN[x]} and ${SIGN[y]}`, title: 'Knock Knock' }, () => { friendsFrom = 'menu'; setMode('friends'); }, { bg: 'quiet', guests: [y] }), 900); return true; }
+    playDate(x, 'double', [[x, 'Okay, I booked us the best table on the whole ship. Just the two of us.'], [y, 'Hi! Sorry I’m late, I— wait. What’s ' + SIGN[x] + ' doing here?'],
+      [x, 'What am I doing here? This is MY date. What are YOU doing here?'], ['P', 'So… funny story. I may have double booked.'], [y, 'Double booked. Double. Booked.']],
+      { label: `Double booked · ${SIGN[x]} and ${SIGN[y]}`, title: 'Awkward' }, () => { friendsUI.say = null; setMode('friends'); }, { bg: 'obsdeck', guests: [y] });
+    return true;
+  }
+  function resolveDouble(choice) {
+    const d = bond.drama, y = d.who, x = d.other, out = [];
+    if (choice === 'stay-' + x || choice === 'stay-' + y) {
+      const keep = choice === 'stay-' + x ? x : y, left = keep === x ? y : x;
+      addHearts(keep, 40); hearts[left] = Math.max(0, (hearts[left] || 0) - 80); bond.sus[left] = Math.min(100, (bond.sus[left] || 0) + 50);
+      out.push([keep, 'Good choice. Now, about that table…']); out.push([left, 'Fine. Enjoy your dinner. I’ll be eating my feelings in the galley.']);
+      bond.drama = null; saveBond(); return out;
+    }
+    // all three of you: either it's weirdly lovely, or they both figure it out
+    if (Math.random() < 0.35) { addHearts(x, 30); addHearts(y, 30); bond.drama = null; saveBond();
+      return [[x, 'Okay, this is actually… kind of fun?'], [y, 'Don’t get used to it. …Pass the bread.']]; }
+    bond.drama = { kind: 'caught', who: y, other: x, day: shipDay }; saveBond();
+    return [[y, 'Hang on. Why do you two look so cozy? Are you… together?'], [x, 'Are YOU?']];
+  }
+  // THE PHOTO (Messy romance): a partner visits your Pad and sees the photo of you with someone else
+  function photoCheck(look) {
+    const v = denUI && denUI.visitor;
+    if (!messyOn || bond.open || bond.drama || bond.partners.length < 2 || !isPartner(v)) return;
+    const pic = bond.partners[0]; if (pic === v || !Object.values(look || {}).includes('couple') || Math.random() > 0.5) return;
+    setTimeout(() => {
+      if (mode !== 'den' || !denUI || denUI.visitor !== v) return;
+      bond.drama = { kind: 'photo', who: v, other: pic, day: shipDay }; saveBond(); sfx.drama();
+      playDate(v, 'photo', [[v, 'Cute photo on your wall. Who’s that with you?'], ['P', 'That? That’s my… cousin.'], [v, `That’s ${SIGN[pic]}. I know what ${SIGN[pic]} looks like, pilot.`], ['P', 'A cousin who looks a lot like ' + SIGN[pic] + '?'], [v, 'We’re going to talk about this. Right now.']],
+        { label: `The photo · ${SIGN[v]}`, title: 'Who’s That?' }, () => { friendsFrom = 'menu'; setMode('friends'); }, { bg: 'quiet' });
+    }, 2200);
   }
   const heartCap = who => (bond.partners || []).includes(who) ? 10 : 8;
   const heartsOf = who => Math.min(heartCap(who), Math.floor((hearts[who] || 0) / HEART));
@@ -11224,10 +11421,11 @@ details.act > .limits { margin: 0 0 8px; }
     if (messyOn && isEx(who)) return dramaLine(who, 'ex');
     const conf = messyOn && admirerConfess(who); if (conf) return conf;
     if (messyOn && isPartner(who) && !bond.open && (bond.sus[who] || 0) >= 40 && Math.random() < 0.5) return dramaLine(who, 'jealous');
+    if (romanceOn && coupleOf(who) && Math.random() < 0.35) { const C = COUPLES[pairOf(who)]; return C.a === who ? C.a2 : C.b2; }
     if (isPartner(who)) L = L.concat(ROM[who].date, ROM[who].date);
     return L[Math.floor(Math.random() * L.length)];
   }
-  const statusOf = who => isPartner(who) ? (bond.partners.length > 1 && !bond.open ? 'Dating ♥ (secretly)' : 'Dating ♥') : isEx(who) ? 'Ex · awkward' : heartsOf(who) >= 6 ? 'Close friend' : heartsOf(who) >= 3 ? 'Good friend' : 'Friend';
+  const statusOf = who => isPartner(who) ? (bond.partners.length > 1 && !bond.open ? 'Dating ♥ (secretly)' : 'Dating ♥') : isEx(who) ? 'Ex · awkward' : coupleOf(who) ? `With ${SIGN[coupleOf(who)]} ♥` : heartsOf(who) >= 6 ? 'Close friend' : heartsOf(who) >= 3 ? 'Good friend' : 'Friend';
   let friendsUI = { open: null, say: null, confirmBye: null };
   function renderFriends() {
     const today = shipDayKey();
@@ -11242,7 +11440,7 @@ details.act > .limits { margin: 0 0 8px; }
       ${met.map(who => {
         const scene = sceneReady(who), h = heartsOf(who), open = friendsUI.open === who;
         const talked = bond.talk[who] === today, gifted = bond.gift[who] === today;
-        const canAsk = romanceOn && (messyOn || !datingAnyone()) && !isPartner(who) && !isEx(who) && h >= 6 && bond.seen.includes(who + '6') && !FRIEND_ONLY.includes(who);
+        const canAsk = romanceOn && (messyOn || !datingAnyone()) && !isPartner(who) && !isEx(who) && !coupleOf(who) && h >= 6 && bond.seen.includes(who + '6') && !FRIEND_ONLY.includes(who);
         const say = friendsUI.say && friendsUI.say[0] === who ? friendsUI.say[1] : null;
         return `<div class="fcard${isPartner(who) ? ' dating' : ''}${isEx(who) ? ' ex' : ''}">
           <div class="fhead">${faceTag(who, SPEAKERS[who].name)}
@@ -11255,7 +11453,7 @@ details.act > .limits { margin: 0 0 8px; }
             <button class="btn ghost" data-gifts="${who}"${gifted ? ' disabled' : ''}>${gifted ? 'Gift given' : 'Give a gift'}</button>
             ${scene ? `<button class="btn" data-scene="${who}">Hang out ♥</button>` : ''}
             ${canAsk ? `<button class="btn" data-ask="${who}">Ask out</button>` : ''}
-            ${romanceOn && (messyOn || !datingAnyone()) && !isPartner(who) && !canAsk && h < 6 && !FRIEND_ONLY.includes(who) ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
+            ${romanceOn && (messyOn || !datingAnyone()) && !isPartner(who) && !coupleOf(who) && !canAsk && h < 6 && !FRIEND_ONLY.includes(who) ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
             ${isPartner(who) ? `<button class="btn ghost" data-bye="${who}">${friendsUI.confirmBye === who ? 'Tap again to be just friends' : 'Just friends'}</button>` : ''}
           </div>
           ${open && !gifted ? `<div class="gifts">${GIFTS.filter(g => !g.noShop || garden.basket[g.id]).sort((a, b) => (garden.basket[b.id] ? (b.meal ? 3 : b.src ? 2 : 1) : 0) - (garden.basket[a.id] ? (a.meal ? 3 : a.src ? 2 : 1) : 0)).map(g => { const home = garden.basket[g.id] || 0; return `<button class="gift${home ? ' homegrown' : ''}" data-give="${who}:${g.id}"${credits < g.price && !home ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${home ? `${g.src === 'mined' ? '💎 mined' : g.src === 'homemade' ? '🍳 homemade' : '🌱 homegrown'} ×${home}` : `${fmt(g.price)} cr`}</small></button>`; }).join('')}</div>` : ''}
@@ -11265,17 +11463,19 @@ details.act > .limits { margin: 0 0 8px; }
       ${recruitsHtml()}
       <div class="btns"><button class="btn ghost" id="back">${friendsFrom === 'lounge' ? 'Back to the break room' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
-    { const sub = card.querySelector('.sub'); if (sub && bond.drama) sub.insertAdjacentHTML('afterend', dramaHtml()); }
+    { const sub = card.querySelector('.sub'); if (sub) sub.insertAdjacentHTML('afterend', (bond.drama ? dramaHtml() : '') + couplesHtml()); }
     paintFaces(card);
     const rerender = () => { renderFriends(); };
+    card.querySelectorAll('[data-match]').forEach(b => b.addEventListener('click', () => { const say = goodWord(b.dataset.match); sfx.click(); if (say) { friendsUI.say = say; rerender(); } }));
+    card.querySelectorAll('[data-rival]').forEach(b => b.addEventListener('click', () => { const out = confrontRival(); sfx.click(); friendsUI.say = out[0] || null; out.slice(1).forEach(([w, t]) => crewToast(w, t, 'Drama')); rerender(); }));
     card.querySelectorAll('[data-drama]').forEach(b => b.addEventListener('click', () => {
-      const out = resolveDrama(b.dataset.drama) || [];
+      const out = (bond.drama && bond.drama.kind === 'double' ? resolveDouble(b.dataset.drama) : resolveDrama(b.dataset.drama)) || [];
       sfx.click(); friendsUI.say = out[0] || null; out.slice(1).forEach(([w, t]) => crewToast(w, t, 'Drama')); rerender();
     }));
     card.querySelectorAll('[data-chat]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.chat; friendsUI.say = [who, chatLine(who)]; friendsUI.confirmBye = null;
       if (who === 'J') sfx.radio(); else sfx.click();
-      bondTalk(who); witnessCheck(who, 10); rerender();
+      bondTalk(who); witnessCheck(who, 10); { const rv = rivalHook(who, 'chat'); if (rv) friendsUI.say = [who, rv]; } rerender();
     }));
     card.querySelectorAll('[data-gifts]').forEach(b => b.addEventListener('click', () => { const who = b.dataset.gifts; friendsUI.open = friendsUI.open === who ? null : who; sfx.click(); rerender(); }));
     card.querySelectorAll('[data-give]').forEach(b => b.addEventListener('click', () => {
@@ -11286,11 +11486,12 @@ details.act > .limits { margin: 0 0 8px; }
       if (home) { garden.basket[gid]--; if (!garden.basket[gid]) delete garden.basket[gid]; saveGarden(); }
       else { credits -= g.price; saveCosmetics(); }
       const [love, like] = GIFT_TASTE[who], k = g.meal || love.includes(gid) || (gid === 'gem' && GEM_FANS.includes(who)) ? 0 : like.includes(gid) || gid === 'gem' ? 1 : 2;
-      bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]]; eventHook('gift', { home, who }); witnessCheck(who, 20);
+      bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]]; eventHook('gift', { home, who }); witnessCheck(who, 20); { const rv = rivalHook(who, 'gift'); if (rv) friendsUI.say = [who, rv]; }
       sfx.coin(); addHearts(who, [80, 45, 20][k] + (home ? 15 : 0) + (g.meal ? 25 : 0)); if (home) showToast(g.meal ? 'Home-cooked! Extra ♥' : g.src === 'mined' ? 'You mined it yourself! A little extra ♥' : 'Homegrown! A little extra ♥', 2200); rerender();
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.scene, n = sceneReady(who), [title, lines] = ROM[who]['s' + n];
+      if (n >= 8 && isPartner(who) && doubleBook(who)) return;
       playDate(who, n, lines, { label: `${n >= 8 ? 'Date' : 'Hanging out'} · ${SIGN[who]} · ${n} ♥`, title }, () => {
         if (!bond.seen.includes(who + n)) bond.seen.push(who + n);
         saveBond(); friendsUI.say = null; setMode('friends');
