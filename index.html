@@ -6151,9 +6151,16 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'seat', pool: 'seat', name: 'Seating', x: 54, y: 46, w: 70, h: 34 },
     { id: 'wall', pool: 'wall', name: 'Walls', room: true },
     { id: 'floorStyle', pool: 'floorStyle', name: 'Flooring', room: true },
-    { id: 'light', pool: 'light', name: 'Lights', room: true }
+    { id: 'light', pool: 'light', name: 'Lights', room: true },
+    { id: 'bview', pool: 'bview', name: 'The view', balc: true, x: 40, y: 6, w: 120, h: 38 },
+    { id: 'brail', pool: 'brail', name: 'Railing', balc: true, x: 0, y: 56, w: RW, h: 18 },
+    { id: 'bplant1', pool: 'bplant', name: 'Left planter', balc: true, x: 0, y: 50, w: 36, h: 48 },
+    { id: 'bplant2', pool: 'bplant', name: 'Right planter', balc: true, x: 150, y: 40, w: 36, h: 48 },
+    { id: 'bseat', pool: 'bseat', name: 'Seating', balc: true, x: 40, y: 52, w: 96, h: 45 },
+    { id: 'btable', pool: 'btable', name: 'Side table', balc: true, x: 138, y: 64, w: 39, h: 33 },
+    { id: 'bdeck', pool: 'bdeck', name: 'Decking', balc: true, room: true }
   ];
-  const DEN_DEFAULT = { wallL: 'poster', window: 'last', wallR: 'clock', shelf1: 'cactus', shelf2: 'books', shelf3: 'none', shelf4: 'none', shelf5: 'none', shelf6: 'none', desk: 'lamp', floor: 'fern', rug: 'round', bed: 'crimson', seat: 'bench', wall: 'ivory', floorStyle: 'plush', light: 'amber' };
+  const DEN_DEFAULT = { bview: 'saturn', brail: 'none', bplant1: 'tomato', bplant2: 'none', bseat: 'deckchair', btable: 'none', bdeck: 'teak', wallL: 'poster', window: 'last', wallR: 'clock', shelf1: 'cactus', shelf2: 'books', shelf3: 'none', shelf4: 'none', shelf5: 'none', shelf6: 'none', desk: 'lamp', floor: 'fern', rug: 'round', bed: 'crimson', seat: 'bench', wall: 'ivory', floorStyle: 'plush', light: 'amber' };
   // the first Pad had wood and a pendant lamp; carry anything saved or bought over to the new cabin
   const DEN_RENAMED = { wall: { panels: 'navy', pinstripe: 'moon', plum: 'blush', wood: 'ivory' }, floorStyle: { carpet: 'plush', boards: 'plush', checker: 'panels' }, light: { lamp: 'amber', string: 'aurora' }, bed: { grey: 'crimson', flame: 'tangerine', pink: 'blush', plaid: 'crimson' } };
   const NOTHING = { id: 'none', name: 'Nothing', price: 0, blurb: 'A bit of breathing room. Very minimalist. Very you.', draw() {} };
@@ -6175,7 +6182,10 @@ details.act > .limits { margin: 0 0 8px; }
       { id: 'blush', name: 'Blush', price: 500, blurb: 'Soft pink panels. Wren says it’s “sunset on Mars”. Gus says it’s “salmon”.', cols: ['#ecc9c3', '#bf958f', '#dfb7b0', '#d9aea7'] },
       { id: 'graphite', name: 'Graphite', price: 500, blurb: 'Brushed dark metal. Very serious. Very mission control.', cols: ['#4a5266', '#262c3b', '#3d4457', '#353c4e'] },
       { id: 'navy', name: 'Navy bulkhead', price: 0, blurb: 'The classic Descent Systems navy. Smells faintly of rivets.', cols: ['#1d2647', '#121831', '#232d52', '#161d38'] },
-      { id: 'stars', name: 'Starfield', price: 900, blurb: 'Panels that show the night sky. For pilots who miss the view the second they land.', cols: ['#121838', '#070a1c', '#121838', '#0d122b'], stars: true }
+      { id: 'stars', name: 'Starfield', price: 900, blurb: 'Panels that show the night sky. For pilots who miss the view the second they land.', cols: ['#121838', '#070a1c', '#121838', '#0d122b'], stars: true },
+      { id: 'mint', name: 'Mint', price: 400, blurb: 'Pale green panels. Fresh, calm, and Dottie says it “lowers her blood pressure by eleven percent”.', cols: ['#cfe8dc', '#93b5a5', '#bdd9cc', '#b6d2c4'] },
+      { id: 'forest', name: 'Forest', price: 600, blurb: 'Deep green, like the inside of a pine forest on Earth. Nerri has never seen a tree. She keeps asking about this one.', cols: ['#3e5a48', '#22352a', '#344d3d', '#2d4435'] },
+      { id: 'sunset', name: 'Sunset', price: 700, blurb: 'Warm peach panels that glow at night. Wren swears it’s exactly the color of a Martian evening. It isn’t. Nobody tells her.', cols: ['#f2b48a', '#b9735a', '#e6a07a', '#df9672'] }
     ],
     floorStyle: [
       { id: 'plush', name: 'Plush carpet', price: 0, blurb: 'Thick, warm and quiet. Your socks will never be cold again.',
@@ -6187,7 +6197,11 @@ details.act > .limits { margin: 0 0 8px; }
       { id: 'rosecarpet', name: 'Rose carpet', price: 300, blurb: 'Soft pink and very fluffy. Apogee has claimed a corner of it.',
         draw(c) { px(c, 0, 78, RW, 22, '#9a5a66'); for (let i = 0; i < 170; i++) px(c, (i * 37) % RW, 80 + (i * 13) % 20, 1, 1, i % 2 ? '#ab6a76' : '#8a4e5a'); } },
       { id: 'grate', name: 'Deck grating', price: 0, blurb: 'Clangs when you walk on it. Hides dropped screws forever.',
-        draw(c) { px(c, 0, 78, RW, 22, '#10162c'); for (let x = 6; x < RW; x += 22) px(c, x, 86, 10, 1, '#161e3a'); for (let x = 17; x < RW; x += 22) px(c, x, 94, 10, 1, '#161e3a'); } }
+        draw(c) { px(c, 0, 78, RW, 22, '#10162c'); for (let x = 6; x < RW; x += 22) px(c, x, 86, 10, 1, '#161e3a'); for (let x = 17; x < RW; x += 22) px(c, x, 94, 10, 1, '#161e3a'); } },
+      { id: 'wood', name: 'Wood floor', price: 450, blurb: 'Real wood, shipped all the way from Earth. Gus says it cost more than his lander. It did.',
+        draw(c) { px(c, 0, 78, RW, 22, '#8a5a3a'); for (let r = 0; r < 4; r++) { px(c, 0, 78 + r * 6, RW, 1, '#6e452c'); for (let x = (r % 2) * 18; x < RW; x += 36) px(c, x, 79 + r * 6, 1, 5, '#6e452c'); } for (let i = 0; i < 40; i++) px(c, (i * 53) % RW, 80 + (i * 7) % 20, 3, 1, '#9a6a48'); } },
+      { id: 'tatami', name: 'Tatami mats', price: 500, blurb: 'Woven straw mats. Shoes off. Brix approves: “it is… very… patient… flooring.”',
+        draw(c) { px(c, 0, 78, RW, 22, '#c9b77a'); for (let i = 0; i < 120; i++) px(c, (i * 29) % RW, 79 + (i * 11) % 21, 2, 1, '#b8a668'); for (let x = 0; x < RW; x += 40) { px(c, x, 78, 2, 22, '#3a5a3a'); } px(c, 0, 88, RW, 1, '#3a5a3a'); } }
     ],
     // lights: the glowing strips along the ceiling, the bunk and under the desk
     light: [
@@ -6219,6 +6233,21 @@ details.act > .limits { margin: 0 0 8px; }
             const x = ((i * 47) + (reduceMotion ? 0 : t / 25 * (1 + (i % 3)))) % RW, y = 12 + (i * 23) % 84;
             px(c, Math.round(x), y, 2, 1, `hsla(${(i * 47) % 360},90%,72%,0.55)`);
           }
+        } },
+      { id: 'candle', name: 'Candlelight', price: 500, blurb: 'Lights down, candles flickering. Very romantic. Dottie has filed a fire safety form about it.',
+        strip: t => { const f = reduceMotion ? 0.5 : (Math.sin(t / 90) + Math.sin(t / 37)) / 4 + 0.5; return f > 0.5 ? '#ffb05a' : '#d98a3a'; },
+        fixture(c, t) { for (const [x, y] of [[22, 36], [170, 40], [128, 46]]) { px(c, x, y, 2, 4, '#f4ead6'); const f = reduceMotion ? 0 : Math.floor(t / 110 + x) % 2; px(c, x, y - 2 - f, 2, 2 + f, '#ffd27a'); } },
+        overlay(c, t) {
+          px(c, 0, 0, RW, RH, 'rgba(10,6,4,0.5)');
+          c.globalCompositeOperation = 'lighter'; const f = reduceMotion ? 1 : 0.9 + 0.1 * Math.sin(t / 70);
+          for (const [x, y] of [[23, 34], [171, 38], [129, 44]]) glow(c, x, y, 30 * f, 'rgba(255,170,80,0.22)');
+          c.globalCompositeOperation = 'source-over';
+        } },
+      { id: 'ocean', name: 'Ocean glow', price: 600, blurb: 'Rippling blue-green light, like being underwater. Nerri says it feels like home. Then she cries a little. Happy crying.',
+        strip: () => '#4ad6c4',
+        overlay(c, t) {
+          px(c, 0, 0, RW, RH, 'rgba(20,90,110,0.12)');
+          for (let i = 0; i < 18; i++) { const x = (i * 23 + (reduceMotion ? 0 : t / 60)) % (RW + 30) - 15, y = 10 + (i * 31) % 80; px(c, Math.round(x), y, 12, 1, 'rgba(160,255,240,0.12)'); px(c, Math.round(x) + 4, y + 1, 6, 1, 'rgba(160,255,240,0.08)'); }
         } }
     ],
     // the view out the big window (54 x 40)
@@ -6252,6 +6281,24 @@ details.act > .limits { margin: 0 0 8px; }
           px(c, x, y, 54, 40, '#120a24');
           for (const [a, b, r, col] of [[12, 12, 14, 'rgba(255,110,190,0.35)'], [34, 24, 16, 'rgba(120,90,255,0.35)'], [42, 9, 10, 'rgba(90,200,255,0.3)'], [18, 30, 11, 'rgba(255,180,90,0.25)']]) circ(c, x + a, y + b, r, col);
           denStars(c, x, y, 54, 40, t);
+        } },
+      { id: 'jupiter', name: 'Jupiter close-up', price: 700, blurb: 'So close you can watch the Great Red Spot turn. It has been turning for three hundred years. It is not in a hurry.',
+        draw(c, x, y, t) {
+          px(c, x, y, 54, 40, '#05070f'); denStars(c, x, y, 54, 40, t);
+          c.save(); c.beginPath(); c.arc(x + 40, y + 26, 30, 0, Math.PI * 2); c.clip();
+          const B = ['#d9a066', '#f0d6b0', '#c47a46', '#e8c08a', '#b86a3a', '#f0d6b0', '#d9a066'];
+          for (let i = 0; i < 14; i++) px(c, x + 8, y - 4 + i * 5, 64, 5, B[i % B.length]);
+          oval(c, x + 30 + (reduceMotion ? 0 : Math.sin(t / 4000) * 2), y + 34, 6, 3, '#b8402a');
+          circ(c, x + 52, y + 32, 30, 'rgba(0,0,0,0.3)'); c.restore();
+          circ(c, x + 9, y + 9, 2, '#e8e0c0');
+        } },
+      { id: 'comet', name: 'Comet flyby', price: 900, blurb: 'A comet sails past your window every few seconds. Make a wish. Gus wished for a bigger wrench. It didn’t work.',
+        draw(c, x, y, t) {
+          px(c, x, y, 54, 40, '#04060f'); denStars(c, x, y, 54, 40, t);
+          const k = reduceMotion ? 0.5 : (t / 5000) % 1, cx = x - 10 + k * 80, cy = y + 6 + k * 26;
+          for (let i = 0; i < 18; i++) px(c, Math.round(cx - i * 1.6), Math.round(cy - i * 0.55), 2, 1, `rgba(170,230,255,${(0.7 - i * 0.035).toFixed(2)})`);
+          circ(c, cx, cy, 1.6, '#ffffff'); glow(c, cx, cy, 6, 'rgba(170,230,255,0.4)');
+          circ(c, x + 12, y + 32, 6, '#7a6a9a'); circ(c, x + 14, y + 33, 6, 'rgba(0,0,0,0.35)');
         } }
     ],
     wallL: [
@@ -6301,6 +6348,22 @@ details.act > .limits { margin: 0 0 8px; }
           px(c, x + 6, y + 12, 6, 5, '#c9cfdc'); px(c, x + 5, y + 17, 1, 2, '#8a93ab'); px(c, x + 12, y + 17, 1, 2, '#8a93ab'); px(c, x + 8, y + 13, 2, 2, '#7fd6ff');
           px(c, x + 15, y + 15, 2, 4, '#ff9a3d'); px(c, x + 15, y + 13, 2, 2, '#d9a07a'); px(c, x + 14, y + 12, 4, 1, '#ff6b5e');
           px(c, x + 19, y + 16, 5, 2, '#e8edf5'); px(c, x + 19, y + 18, 1, 1, '#2a3045'); px(c, x + 23, y + 18, 1, 1, '#2a3045'); px(c, x + 20, y + 14, 1, 2, '#58e0a0');
+        } },
+      { id: 'aquarium', name: 'Wall aquarium', price: 800, blurb: 'A little fish tank built into the wall. Apogee watches it for hours. The fish watch her back. Nobody blinks.',
+        draw(c, x, y, t) {
+          px(c, x + 1, y + 3, 28, 22, '#3a4668'); px(c, x + 2, y + 4, 26, 20, '#1d6fa8'); px(c, x + 2, y + 4, 26, 3, '#4aa8d8');
+          px(c, x + 2, y + 21, 26, 3, '#d9c08a'); px(c, x + 5, y + 15, 1, 6, '#3fa86b'); px(c, x + 6, y + 13, 1, 8, '#3fa86b'); px(c, x + 23, y + 16, 1, 5, '#2e8a55');
+          const a = reduceMotion ? 0 : t / 900, f1 = x + 14 + Math.sin(a) * 9, f2 = x + 14 + Math.sin(a * 0.7 + 2) * 8;
+          px(c, Math.round(f1), y + 10, 4, 2, '#ff9a3d'); px(c, Math.round(f1) + (Math.cos(a) > 0 ? -1 : 4), y + 10, 1, 2, '#ffb547');
+          px(c, Math.round(f2), y + 16, 3, 2, '#ffe58a');
+          if (!reduceMotion) { const b = Math.floor(t / 200) % 16; px(c, x + 22, y + 20 - b, 1, 1, 'rgba(255,255,255,0.6)'); }
+        } },
+      { id: 'mirror', name: 'Round mirror', price: 300, blurb: 'A brass-rimmed mirror. Rex checks his hair in it every time he visits. He visits a lot.',
+        draw(c, x, y) { circ(c, x + 15, y + 13, 11, '#c9a24a'); circ(c, x + 15, y + 13, 9.5, '#a9c4d8'); circ(c, x + 15, y + 13, 9.5, 'rgba(255,255,255,0.15)'); px(c, x + 10, y + 7, 2, 6, 'rgba(255,255,255,0.6)'); px(c, x + 13, y + 6, 1, 3, 'rgba(255,255,255,0.5)'); } },
+      { id: 'vines', name: 'Hanging vines', price: 450, blurb: 'A trailing pothos that has slowly taken over this corner. It’s winning. Let it win.',
+        draw(c, x, y, t) {
+          px(c, x + 9, y + 1, 12, 5, '#c0603a'); px(c, x + 8, y, 14, 2, '#d9774f');
+          for (const [vx, len] of [[10, 22], [14, 26], [18, 18], [21, 24]]) for (let k = 0; k < len; k += 3) { const sw = reduceMotion ? 0 : Math.round(Math.sin(t / 1400 + vx + k / 6) * 0.6); px(c, x + vx + sw, y + 6 + k, 1, 3, '#2e8a55'); px(c, x + vx + sw + (k % 6 ? 1 : -2), y + 7 + k, 2, 2, '#3fa86b'); }
         } }
     ],
     wallR: [
@@ -6329,7 +6392,11 @@ details.act > .limits { margin: 0 0 8px; }
           const flick = !reduceMotion && Math.floor(t / 130) % 37 === 0;
           c.save(); c.shadowColor = '#ff9ad5'; c.shadowBlur = 4; c.fillStyle = '#ff9ad5'; c.font = 'bold 8px monospace'; c.textBaseline = 'alphabetic';
           c.fillText(flick ? 'LAN' : 'LAND', x + 3, y + 13); c.restore();
-        } }
+        } },
+      { id: 'dartboard', name: 'Dartboard', price: 250, blurb: 'Gus’s highest score is 3. Two of those points were from bouncing off the wall.',
+        draw(c, x, y) { circ(c, x + 15, y + 10, 9, '#2a2a2a'); for (const [r, col] of [[8, '#f4ead6'], [6, '#d94f43'], [4, '#f4ead6'], [2.5, '#3fa86b'], [1.2, '#d94f43']]) circ(c, x + 15, y + 10, r, col); px(c, x + 17, y + 6, 4, 1, '#c9cfdc'); px(c, x + 21, y + 5, 2, 1, '#ff6b5e'); } },
+      { id: 'records', name: 'Record wall', price: 400, blurb: 'Three framed records. One is Wren’s band from 1987. She won’t say which one. It’s the bad one.',
+        draw(c, x, y) { for (const [dx, lab] of [[1, '#ff9ad5'], [11, '#7fd6ff'], [21, '#ffe58a']]) { px(c, x + dx, y + 4, 9, 9, '#e8e0d0'); circ(c, x + dx + 4.5, y + 8.5, 3.6, '#14141c'); px(c, x + dx + 4, y + 8, 1, 1, lab); } } }
     ],
     shelf: [
       NOTHING,
@@ -6400,7 +6467,13 @@ details.act > .limits { margin: 0 0 8px; }
       { id: 's-ganymede', world: 'ganymede', name: 'Ganymede aurora bottle', price: 0, blurb: 'A bottle of Ganymede’s aurora. It glows in the dark and, now and then, plays polka.',
         draw(c, x, y, t) { px(c, x + 5, y + 3, 6, 9, 'rgba(207,227,255,0.3)'); px(c, x + 7, y + 1, 2, 2, 'rgba(207,227,255,0.5)'); px(c, x + 7, y, 2, 1, '#a5835a'); const h = Math.round(reduceMotion ? 150 : 120 + 80 * Math.sin(t / 900)); px(c, x + 6, y + 5, 4, 6, `hsl(${h},85%,62%)`); px(c, x + 6, y + 5, 4, 1, `hsl(${h + 60},85%,72%)`); } },
       { id: 's-eris', world: 'eris', name: 'Eris beacon lamp', price: 0, blurb: 'A little copy of the Senders’ beacons that Gus made from a jam jar. It glows softly and, every so often, blinks four times.',
-        draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 7, y + 4, 2, 6, '#5a6684'); const on = reduceMotion || Math.floor(t / 400) % 6 < 4; px(c, x + 5, y + 1, 6, 4, on ? '#c9b8ff' : '#6a6290'); if (on) px(c, x + 6, y + 2, 2, 1, '#ffffff'); px(c, x + 5, y + 5, 6, 1, '#8a93ab'); } }
+        draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 7, y + 4, 2, 6, '#5a6684'); const on = reduceMotion || Math.floor(t / 400) % 6 < 4; px(c, x + 5, y + 1, 6, 4, on ? '#c9b8ff' : '#6a6290'); if (on) px(c, x + 6, y + 2, 2, 1, '#ffffff'); px(c, x + 5, y + 5, 6, 1, '#8a93ab'); } },
+      { id: 'lavalamp', name: 'Lava lamp', price: 300, blurb: 'Blobs of orange goo, rising and falling forever. It’s hypnotic. Gus once watched it through a whole shift.',
+        draw(c, x, y, t) { px(c, x + 5, y + 10, 6, 2, '#6c7690'); px(c, x + 6, y + 2, 4, 8, '#5a2a7a'); px(c, x + 6, y + 1, 4, 1, '#6c7690'); const k = reduceMotion ? 3 : Math.floor(t / 400) % 7; px(c, x + 7, y + 8 - k % 6, 2, 2, '#ff9a3d'); px(c, x + 7, y + 3 + (k + 3) % 6, 2, 1, '#ffb547'); } },
+      { id: 'snowglobe', name: 'Snow globe', price: 250, blurb: 'A tiny Descent Systems base under glass. Shake it and it snows. It has never snowed on the Moon.',
+        draw(c, x, y, t) { px(c, x + 4, y + 9, 8, 3, '#7a4a2a'); circ(c, x + 8, y + 6, 4.5, 'rgba(200,230,255,0.45)'); px(c, x + 6, y + 6, 4, 3, '#f4f1e8'); px(c, x + 7, y + 5, 2, 1, '#ff6b5e'); for (let i = 0; i < 4; i++) { const k = reduceMotion ? i * 2 : (Math.floor(t / 300) + i * 3) % 8; px(c, x + 5 + (i * 2) % 6, y + 2 + k % 6, 1, 1, '#ffffff'); } } },
+      { id: 'plushie', name: 'Zib plushie', price: 200, blurb: 'A squishy purple Zib with button eyes. The real Zib bought six. Zib gives them to everyone.',
+        draw(c, x, y) { oval(c, x + 8, y + 6, 4.5, 3.5, '#b48ae8'); px(c, x + 6, y + 5, 1, 1, '#14141c'); px(c, x + 9, y + 5, 1, 1, '#14141c'); for (const dx of [4, 6, 8, 10, 12]) px(c, x + dx, y + 9, 1, 3, '#9a6ad0'); } }
     ],
     desk: [
       NOTHING,
@@ -6424,7 +6497,11 @@ details.act > .limits { margin: 0 0 8px; }
           if (!reduceMotion) { const ph = (t / 1500) % 1; c.fillStyle = `rgba(159,224,184,${(1 - ph).toFixed(2)})`; c.font = '6px monospace'; c.fillText('♪', x + 9 + ph * 6, y + 5 - ph * 5); }
         } },
       { id: 'model', name: 'Lander model', price: 900, blurb: 'A 1:100 scale model of your lander. The paint updates itself somehow.',
-        draw(c, x, y) { px(c, x + 6, y + 13, 14, 2, '#4a5578'); px(c, x + 12, y + 11, 2, 2, '#6c7690'); c.save(); c.translate(x + 6, y - 1); c.scale(0.75, 0.75); miniLander(c, 2, 0); c.restore(); } }
+        draw(c, x, y) { px(c, x + 6, y + 13, 14, 2, '#4a5578'); px(c, x + 12, y + 11, 2, 2, '#6c7690'); c.save(); c.translate(x + 6, y - 1); c.scale(0.75, 0.75); miniLander(c, 2, 0); c.restore(); } },
+      { id: 'fishbowl', name: 'Fishbowl', price: 350, blurb: 'One goldfish. His name is Captain. He outranks you.',
+        draw(c, x, y, t) { circ(c, x + 13, y + 9, 6, 'rgba(160,210,255,0.45)'); px(c, x + 8, y + 5, 10, 1, '#c9e6ff'); px(c, x + 9, y + 13, 8, 2, '#d9c08a'); const fx = x + 11 + (reduceMotion ? 0 : Math.round(Math.sin(t / 700) * 2)); px(c, fx, y + 9, 3, 2, '#ff9a3d'); px(c, fx + 3, y + 9, 1, 2, '#ffb547'); } },
+      { id: 'espresso', name: 'Espresso machine', price: 500, blurb: 'Makes one perfect espresso every forty minutes. Dottie has a standing appointment with it.',
+        draw(c, x, y, t) { px(c, x + 6, y + 3, 14, 12, '#c9cfdc'); px(c, x + 6, y + 3, 14, 2, '#8a93ab'); px(c, x + 11, y + 7, 4, 2, '#3a4668'); px(c, x + 11, y + 12, 4, 3, '#f4ead6'); px(c, x + 17, y + 6, 2, 2, '#ff6b5e'); if (!reduceMotion) { const k = Math.floor(t / 250) % 4; px(c, x + 12 + (k % 2), y + 9 - k, 1, 2, 'rgba(255,255,255,0.5)'); } } }
     ],
     floor: [
       NOTHING,
@@ -6456,7 +6533,13 @@ details.act > .limits { margin: 0 0 8px; }
           for (let i = 0; i < 16; i++) px(c, x + 4 + i, y + 13 + (i % 5 === 2 ? 0 : (i * 7) % 3 === 0 ? -1 : 1), 1, 1, '#c9cfdc');
           const ph = reduceMotion ? 0.4 : (t / 2600) % 1; px(c, x + 6 + Math.round(ph * 10), y + 7 + Math.round(ph * 4), 2, 2, '#ffb547');
           px(c, x + 3, y + 17, 18, 3, '#3a2a5a'); px(c, x + 6, y + 15, 1, 2, '#c9cfdc'); px(c, x + 14, y + 18, 2, 1, '#ff6b5e'); px(c, x + 17, y + 18, 2, 1, '#9fe0b8');
-        } }
+        } },
+      { id: 'floorlamp', name: 'Floor lamp', price: 350, blurb: 'A tall arched lamp that leans over like it’s listening. It’s a very good listener.',
+        draw(c, x, y) { glow(c, x + 18, y + 10, 14, 'rgba(255,214,140,0.25)'); px(c, x + 6, y + 27, 10, 2, '#3a4668'); px(c, x + 10, y + 4, 2, 23, '#6c7690'); px(c, x + 10, y + 3, 8, 2, '#6c7690'); px(c, x + 14, y + 4, 9, 5, '#ffe9b8'); px(c, x + 15, y + 9, 7, 1, '#fff6e0'); } },
+      { id: 'monstera', name: 'Monstera', price: 400, blurb: 'Big, glossy leaves with holes in them. Gus thinks a space moth got to it. Ollo is offended.',
+        draw(c, x, y) { px(c, x + 7, y + 22, 11, 7, '#e8e0d0'); px(c, x + 6, y + 21, 13, 2, '#fbf6ec'); for (const [a, b, w2, h2] of [[2, 8, 9, 7], [12, 4, 9, 8], [6, 13, 8, 6], [14, 13, 9, 6]]) { px(c, x + a, y + b, w2, h2, '#2e8a55'); px(c, x + a + 2, y + b + 2, 1, 2, '#1d5a38'); px(c, x + a + 5, y + b + 3, 1, 2, '#1d5a38'); } px(c, x + 12, y + 10, 1, 12, '#2e6a45'); } },
+      { id: 'speaker', name: 'Big speaker', price: 450, blurb: 'Bass so deep it rattles the hull. Juno has asked you to turn it down via official dock channels.',
+        draw(c, x, y, t) { px(c, x + 5, y + 6, 14, 23, '#22283a'); px(c, x + 5, y + 6, 14, 1, '#3a4668'); const p = reduceMotion ? 0 : Math.floor(t / 180) % 2; circ(c, x + 12, y + 21, 4.5 + p * 0.5, '#3a4060'); circ(c, x + 12, y + 21, 2, '#6c7690'); circ(c, x + 12, y + 11, 2, '#3a4060'); } }
     ],
     rug: [
       NOTHING,
@@ -6471,7 +6554,11 @@ details.act > .limits { margin: 0 0 8px; }
           oval(c, x + 37, y + 8, 28, 6, '#ff9a3d');
           c.fillStyle = '#ff9a3d'; c.beginPath(); c.moveTo(x + 15, y + 6); c.lineTo(x + 19, y - 1); c.lineTo(x + 25, y + 4); c.moveTo(x + 59, y + 6); c.lineTo(x + 55, y - 1); c.lineTo(x + 49, y + 4); c.fill();
           px(c, x + 28, y + 6, 4, 2, '#0a0e1c'); px(c, x + 42, y + 6, 4, 2, '#0a0e1c'); px(c, x + 36, y + 9, 2, 1, '#ff9ad5');
-        } }
+        } },
+      { id: 'shag', name: 'Shag rug', price: 300, blurb: 'Deep, fluffy and teal. You will lose at least one sock in it. Apogee has lost a whole toy mouse.',
+        draw(c, x, y) { c.fillStyle = '#2a9a90'; rrect(c, x + 3, y + 1, 68, 12, 5); c.fill(); for (let i = 0; i < 90; i++) px(c, x + 5 + (i * 17) % 64, y + 2 + (i * 7) % 10, 1, 1, i % 2 ? '#3ab8ac' : '#1f7a72'); } },
+      { id: 'galaxy', name: 'Galaxy rug', price: 600, blurb: 'A swirling galaxy, woven by hand on Titan. You are standing on four hundred billion stars. Wipe your feet.',
+        draw(c, x, y, t) { oval(c, x + 37, y + 7, 34, 6, '#1a1238'); oval(c, x + 37, y + 7, 22, 4, '#3a2a6a'); oval(c, x + 37, y + 7, 10, 2, '#8a6ad0'); oval(c, x + 37, y + 7, 3, 1, '#ffe9f4'); for (let i = 0; i < 14; i++) px(c, x + 10 + (i * 19) % 54, y + 3 + (i * 5) % 8, 1, 1, i % 3 ? '#ffffff' : '#ff9ad5'); } }
     ],
     bed: [
       { id: 'crimson', name: 'Crimson', price: 0, blurb: 'Deep red blankets and cushions. Classic spaceship lounge.', cols: ['#b8322a', '#e0483d'] },
@@ -6545,6 +6632,122 @@ details.act > .limits { margin: 0 0 8px; }
           px(c, 60, 70, 58, 1, '#c9cfdc'); px(c, 72, 71, 34, 1, '#7fd6ff');
           if (pat === 'stars') for (const x of [68, 88, 108]) px(c, x, 63, 1, 1, '#ffe58a');
         } }
+    ],
+    bview: [
+      { id: 'saturn', name: 'Saturn', price: 0, blurb: 'The ringed planet, hanging just past the railing. It never gets old. You’ve checked.',
+        draw(c, t) { px(c, 0, 0, RW, 76, '#05070f'); denStars(c, 0, 0, RW, 76, t);
+          c.save(); c.translate(132, 30); c.rotate(-0.28); c.strokeStyle = 'rgba(232,214,168,0.55)'; c.lineWidth = 3; c.beginPath(); c.ellipse(0, 0, 34, 7, 0, Math.PI, Math.PI * 2); c.stroke(); c.restore();
+          circ(c, 132, 30, 16, '#d9b77a'); for (const [dy, col] of [[-8, '#e8cf9a'], [-2, '#c49a5a'], [5, '#e8cf9a']]) px(c, 118, 30 + dy, 28, 2, col);
+          circ(c, 139, 34, 16, 'rgba(0,0,0,0.28)');
+          c.save(); c.translate(132, 30); c.rotate(-0.28); c.strokeStyle = 'rgba(232,214,168,0.8)'; c.lineWidth = 3; c.beginPath(); c.ellipse(0, 0, 34, 7, 0, 0, Math.PI); c.stroke(); c.restore();
+          circ(c, 40, 16, 2, '#c9cfdc'); } },
+      { id: 'earthrise', name: 'Earthrise', price: 600, blurb: 'Home, coming up over the grey edge of the Moon. Every astronaut who has seen it went quiet for a while.',
+        draw(c, t) { px(c, 0, 0, RW, 76, '#03050c'); denStars(c, 0, 0, RW, 62, t);
+          circ(c, 64, 30, 13, '#2a6fd6'); px(c, 56, 24, 8, 4, '#3fa86b'); px(c, 66, 32, 6, 5, '#3fa86b'); for (const [a, b, w2] of [[54, 21, 10], [60, 29, 12], [56, 36, 9]]) px(c, a, b, w2, 1, 'rgba(255,255,255,0.7)'); circ(c, 70, 33, 13, 'rgba(0,0,0,0.45)');
+          circ(c, 100, 204, 150, '#8a8f9c'); for (const [a, b, r] of [[40, 68, 4], [90, 60, 6], [150, 70, 3], [120, 65, 2]]) circ(c, a, b, r, '#767b88'); } },
+      { id: 'nebula', name: 'Nebula', price: 900, blurb: 'A cloud of pink and violet gas, a few light-years wide. Stars are being born in there right now. Say hi.',
+        draw(c, t) { px(c, 0, 0, RW, 76, '#0a0618');
+          for (const [x, y, r, col] of [[50, 30, 48, 'rgba(255,90,170,0.35)'], [120, 22, 44, 'rgba(140,80,255,0.35)'], [170, 40, 36, 'rgba(60,200,220,0.25)'], [90, 44, 30, 'rgba(255,160,90,0.2)']]) glow(c, x, y, r, col);
+          denStars(c, 0, 0, RW, 76, t); } },
+      { id: 'jupiter', name: 'Jupiter', price: 800, blurb: 'Jupiter fills half the sky. You could fit thirteen hundred Earths in there. Gus has done the math. Twice.',
+        draw(c, t) { px(c, 0, 0, RW, 76, '#05070f'); denStars(c, 0, 0, RW, 76, t);
+          c.save(); c.beginPath(); c.arc(166, 46, 50, 0, Math.PI * 2); c.clip();
+          const B = ['#d9a066', '#f0d6b0', '#c47a46', '#e8c08a', '#b86a3a', '#f0d6b0'];
+          for (let i = 0; i < 18; i++) px(c, 110, -6 + i * 6, 110, 6, B[i % B.length]);
+          oval(c, 150 + (reduceMotion ? 0 : Math.sin(t / 5000) * 3), 42, 9, 4, '#b8402a');
+          circ(c, 184, 52, 50, 'rgba(0,0,0,0.3)'); c.restore();
+          circ(c, 60, 20, 3, '#e8e0c0'); circ(c, 30, 40, 2, '#c9b07a'); } },
+      { id: 'aurora', name: 'Aurora', price: 1200, blurb: 'Green curtains of light ripple over an icy moon below. Zib says it’s the moon “dancing”. Zib is not wrong.',
+        draw(c, t) { px(c, 0, 0, RW, 76, '#030812'); denStars(c, 0, 0, RW, 76, t);
+          for (let x = 0; x < RW; x += 2) { const w = reduceMotion ? 0 : t / 900, y = 14 + Math.sin(x / 22 + w) * 6, h = 14 + Math.sin(x / 13 - w) * 5; px(c, x, Math.round(y), 2, Math.round(h), 'rgba(80,255,170,0.22)'); px(c, x, Math.round(y), 2, 2, 'rgba(160,255,210,0.4)'); if ((x / 2) % 5 === 0) px(c, x, Math.round(y - 4), 2, 4, 'rgba(200,120,255,0.18)'); }
+          circ(c, 100, 212, 150, '#cfe6f5'); circ(c, 100, 212, 150, 'rgba(120,200,255,0.12)'); } },
+      { id: 'binary', name: 'Twin suns', price: 1000, blurb: 'Two suns setting at once over a distant system. Rex wants to film a music video here. Rex wants to film a music video everywhere.',
+        draw(c, t) { const g = c.createLinearGradient(0, 0, 0, 76); g.addColorStop(0, '#1a0c2a'); g.addColorStop(0.6, '#8a3a5a'); g.addColorStop(1, '#ffb070'); c.fillStyle = g; c.fillRect(0, 0, RW, 76);
+          denStars(c, 0, 0, RW, 22, t);
+          glow(c, 80, 44, 26, 'rgba(255,230,170,0.5)'); circ(c, 80, 44, 7, '#fff1c7'); glow(c, 118, 50, 18, 'rgba(255,170,150,0.45)'); circ(c, 118, 50, 5, '#ffc2a8');
+          px(c, 0, 68, RW, 8, 'rgba(60,20,40,0.5)'); } }
+    ],
+    bplant: [
+      NOTHING,
+      { id: 'tomato', name: 'Tomato vine', price: 0, blurb: 'Climbing up a little stake. The tomatoes are tiny and very proud of themselves.',
+        draw(c, x, y) { px(c, x + 4, y + 24, 16, 8, '#c0603a'); px(c, x + 3, y + 23, 18, 2, '#d9774f'); px(c, x + 5, y + 31, 14, 1, '#8a4026'); px(c, x + 11, y + 4, 1, 20, '#8a6a4a'); for (const [a, b] of [[7, 6], [13, 9], [6, 13], [14, 16], [8, 19]]) px(c, x + a, y + b, 5, 3, '#3fa86b'); for (const [a, b] of [[9, 9], [15, 13], [8, 17], [13, 20]]) circ(c, x + a, y + b, 1.6, '#e8483a'); } },
+      { id: 'sunflower', name: 'Sunflowers', price: 300, blurb: 'Two sunflowers that turn to face the nearest star. Out here that takes them a while to decide.',
+        draw(c, x, y) { px(c, x + 4, y + 24, 16, 8, '#c0603a'); px(c, x + 3, y + 23, 18, 2, '#d9774f'); px(c, x + 5, y + 31, 14, 1, '#8a4026'); for (const [sx, sy] of [[8, 6], [16, 10]]) { px(c, x + sx, y + sy, 1, 24 - sy, '#3f8a3a'); px(c, x + sx + 1, y + sy + 8, 3, 2, '#3fa86b'); for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; px(c, Math.round(x + sx + Math.cos(a) * 3.5), Math.round(y + sy + Math.sin(a) * 3.5), 2, 2, '#ffcc33'); } circ(c, x + sx + 1, y + sy + 1, 2, '#6a3a1a'); } } },
+      { id: 'bonsai', name: 'Bonsai', price: 500, blurb: 'Four hundred years old, apparently. Brix thinks it’s “a… teenager”. Brix also wants to be its friend.',
+        draw(c, x, y) { px(c, x + 3, y + 27, 18, 5, '#4a6aa8'); px(c, x + 2, y + 26, 20, 2, '#6a8ad0'); px(c, x + 11, y + 16, 3, 11, '#6e452c'); px(c, x + 13, y + 14, 4, 3, '#6e452c'); px(c, x + 7, y + 18, 5, 2, '#6e452c'); for (const [a, b, r] of [[8, 14, 4.5], [17, 11, 5], [12, 9, 4], [5, 17, 3]]) circ(c, x + a, y + b, r, '#3f8a5a'); for (const [a, b] of [[7, 12], [16, 9], [12, 7]]) px(c, x + a, y + b, 2, 1, '#5ab878'); } },
+      { id: 'glowshroom', name: 'Glowing mushrooms', price: 600, blurb: 'Bioluminescent mushrooms from Ollo’s home world. They glow brighter when you’re nice to them. Be nice.',
+        draw(c, x, y, t) { px(c, x + 4, y + 24, 16, 8, '#3a2a4a'); px(c, x + 3, y + 23, 18, 2, '#4a3a5a'); const p = reduceMotion ? 0.8 : 0.6 + 0.4 * Math.sin(t / 700);
+          for (const [a, b, r] of [[8, 16, 4], [15, 12, 5], [11, 20, 3]]) { glow(c, x + a, y + b, r * 3, `rgba(90,255,220,${(0.18 * p).toFixed(3)})`); px(c, x + a, y + b, 1, 23 - b, '#d8f4ec'); oval(c, x + a, y + b, r, r * 0.6, '#5ae6d0'); px(c, x + a - 1, y + b - 1, 1, 1, '#ffffff'); } } },
+      { id: 'spacecactus', name: 'Space cactus', price: 250, blurb: 'A purple cactus from a Mars greenhouse. It has one pink flower and a lot of opinions.',
+        draw(c, x, y) { px(c, x + 4, y + 24, 16, 8, '#c0603a'); px(c, x + 3, y + 23, 18, 2, '#d9774f'); px(c, x + 5, y + 31, 14, 1, '#8a4026'); px(c, x + 9, y + 8, 6, 16, '#8a5ad0'); px(c, x + 5, y + 12, 3, 7, '#8a5ad0'); px(c, x + 5, y + 12, 4, 2, '#8a5ad0'); px(c, x + 16, y + 10, 3, 8, '#8a5ad0'); px(c, x + 14, y + 15, 4, 2, '#8a5ad0'); px(c, x + 11, y + 9, 1, 14, '#a87ae8'); circ(c, x + 12, y + 7, 2, '#ff9ad5'); px(c, x + 11, y + 6, 1, 1, '#ffe58a'); } },
+      { id: 'lemon', name: 'Lemon tree', price: 450, blurb: 'A little potted lemon tree. Bao keeps sneaking lemons off it. He thinks you haven’t noticed.',
+        draw(c, x, y) { px(c, x + 4, y + 24, 16, 8, '#c0603a'); px(c, x + 3, y + 23, 18, 2, '#d9774f'); px(c, x + 5, y + 31, 14, 1, '#8a4026'); px(c, x + 11, y + 14, 2, 10, '#6e452c'); circ(c, x + 12, y + 10, 8, '#3fa86b'); circ(c, x + 9, y + 8, 4, '#4ab878'); for (const [a, b] of [[7, 12], [15, 7], [16, 13], [10, 6]]) oval(c, x + a, y + b, 1.6, 1.2, '#ffe14a'); } }
+    ],
+    bseat: [
+      NOTHING,
+      { id: 'deckchair', name: 'Deck chairs', price: 0, blurb: 'Two striped deck chairs, angled toward the view. One for you, one for whoever wanders out.',
+        draw(c, x, y) { for (const [dx, col] of [[6, '#2a9ad6'], [36, '#ff6b5e']]) {
+          c.strokeStyle = '#8a6a4a'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x + dx + 2, y + 29); c.lineTo(x + dx + 8, y + 8); c.moveTo(x + dx + 6, y + 29); c.lineTo(x + dx + 17, y + 19); c.moveTo(x + dx + 22, y + 29); c.lineTo(x + dx + 20, y + 21); c.stroke();
+          const pts = [[8, 8], [9, 11], [10, 14], [11, 17], [12, 20], [15, 21], [18, 21], [21, 21]];
+          pts.forEach(([a, b], k) => px(c, x + dx + a - 1, y + b - 1, 3, 3, k % 2 ? '#f4f1e8' : col));
+          px(c, x + dx + 6, y + 6, 4, 2, '#a8784a'); px(c, x + dx + 20, y + 20, 3, 2, '#a8784a');
+        } } },
+      { id: 'hammock', name: 'Hammock', price: 600, blurb: 'Strung between two posts, perfectly placed for falling asleep to the stars. Gus has never made it to the second star.',
+        draw(c, x, y, t) { px(c, x + 2, y + 2, 3, 28, '#8a6a4a'); px(c, x + 59, y + 2, 3, 28, '#8a6a4a'); const s = reduceMotion ? 0 : Math.sin(t / 900) * 1.2;
+          c.fillStyle = '#ff9a3d'; c.beginPath(); c.moveTo(x + 5, y + 6); c.quadraticCurveTo(x + 32, y + 26 + s, x + 59, y + 6); c.quadraticCurveTo(x + 32, y + 20 + s, x + 5, y + 6); c.fill();
+          c.strokeStyle = '#f4f1e8'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 5, y + 6); c.quadraticCurveTo(x + 32, y + 23 + s, x + 59, y + 6); c.stroke(); } },
+      { id: 'swing', name: 'Porch swing', price: 800, blurb: 'A wooden swing bench that rocks gently. In zero-g it would just float off. Good thing the gravity works. Mostly.',
+        draw(c, x, y, t) { px(c, x + 2, y, 3, 30, '#6e452c'); px(c, x + 59, y, 3, 30, '#6e452c'); px(c, x + 2, y, 60, 3, '#6e452c'); const s = reduceMotion ? 0 : Math.round(Math.sin(t / 1100) * 1.5);
+          px(c, x + 14, y + 3, 1, 14, '#c9cfdc'); px(c, x + 49, y + 3, 1, 14, '#c9cfdc'); px(c, x + 12 + s, y + 9, 40, 2, '#a8784a'); px(c, x + 12 + s, y + 12, 40, 2, '#a8784a'); px(c, x + 12 + s, y + 17, 40, 4, '#a8784a'); px(c, x + 16 + s, y + 14, 14, 3, '#ff9ad5'); px(c, x + 34 + s, y + 14, 14, 3, '#7fd6ff'); } },
+      { id: 'hottub', name: 'Hot tub', price: 1500, blurb: 'Bubbling, steaming and frankly a terrible idea on a spaceship. Gus built it in a weekend. Dottie has filed eleven forms.',
+        draw(c, x, y, t) { c.fillStyle = '#8a5a3a'; rrect(c, x + 4, y + 12, 56, 18, 4); c.fill(); for (let k = 0; k < 6; k++) px(c, x + 6 + k * 9, y + 14, 1, 15, '#6e452c'); oval(c, x + 32, y + 13, 26, 4, '#5ad0e6'); oval(c, x + 32, y + 13, 20, 2.5, '#8ae6f4');
+          for (let i = 0; i < 7; i++) { const k = reduceMotion ? 0 : (Math.floor(t / 160) + i * 3) % 5; px(c, x + 12 + i * 6, y + 12 - (k % 2), 1, 1, '#ffffff'); }
+          for (let i = 0; i < 3; i++) { const k = reduceMotion ? 0.5 : ((t / 1600 + i / 3) % 1); px(c, x + 20 + i * 12 + Math.round(Math.sin(k * 6) * 2), y + 8 - Math.round(k * 10), 2, 2, `rgba(255,255,255,${(0.35 * (1 - k)).toFixed(2)})`); } } },
+      { id: 'beanbags', name: 'Beanbags', price: 500, blurb: 'Two huge beanbags. Once you sink in, you’re watching the stars until somebody pulls you out.',
+        draw(c, x, y) { for (const [dx, a, b] of [[6, '#ff6b5e', '#d94f43'], [36, '#ffb547', '#d9923a']]) { c.fillStyle = a; c.beginPath(); c.ellipse(x + dx + 11, y + 24, 12, 7, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.ellipse(x + dx + 12, y + 18, 8, 6, 0, 0, Math.PI * 2); c.fill(); px(c, x + dx + 8, y + 22, 8, 2, b); } } }
+    ],
+    btable: [
+      NOTHING,
+      { id: 'telescope', name: 'Telescope', price: 700, blurb: 'A brass telescope on a tripod. Point it anywhere. You will find Wren’s old ship. She will tell you about it. For an hour.',
+        draw(c, x, y) { c.strokeStyle = '#6c7690'; c.lineWidth = 1; c.beginPath(); c.moveTo(x + 13, y + 12); c.lineTo(x + 6, y + 22); c.moveTo(x + 13, y + 12); c.lineTo(x + 20, y + 22); c.moveTo(x + 13, y + 12); c.lineTo(x + 13, y + 22); c.stroke(); for (let k = 0; k < 7; k++) px(c, x + 6 + k * 2, y + 12 - k, 3, 3, k > 4 ? '#e8c06a' : '#c9a24a'); px(c, x + 19, y + 4, 2, 4, '#3a4668'); } },
+      { id: 'grill', name: 'Grill', price: 600, blurb: 'A little kettle grill. Bao has strong opinions about how you use it. Bao is right about all of them.',
+        draw(c, x, y, t) { px(c, x + 8, y + 15, 1, 7, '#3a3a3a'); px(c, x + 17, y + 15, 1, 7, '#3a3a3a'); oval(c, x + 13, y + 12, 8, 5, '#2a2a2a'); px(c, x + 5, y + 10, 16, 2, '#3a3a3a'); px(c, x + 7, y + 9, 12, 1, '#ff6b3a');
+          for (let i = 0; i < 3; i++) { const k = reduceMotion ? 0.5 : ((t / 1400 + i / 3) % 1); px(c, x + 10 + i * 3 + Math.round(Math.sin(k * 7) * 2), y + 7 - Math.round(k * 9), 2, 2, `rgba(200,200,210,${(0.5 * (1 - k)).toFixed(2)})`); } } },
+      { id: 'teaset', name: 'Tea table', price: 300, blurb: 'A round table with a teapot and two cups. Juno brings the good tea. Lyra brings the gossip.',
+        draw(c, x, y) { px(c, x + 12, y + 14, 2, 8, '#8a6a4a'); px(c, x + 8, y + 21, 10, 1, '#8a6a4a'); oval(c, x + 13, y + 13, 10, 2, '#a8784a'); px(c, x + 9, y + 7, 7, 5, '#f4f1e8'); px(c, x + 16, y + 8, 2, 1, '#f4f1e8'); px(c, x + 11, y + 6, 3, 1, '#ff9ad5'); px(c, x + 4, y + 10, 3, 2, '#f4f1e8'); px(c, x + 19, y + 10, 3, 2, '#f4f1e8'); } },
+      { id: 'firepit', name: 'Fire pit', price: 900, blurb: 'A real fire, safely contained in a very expensive bowl. Dottie has a fire extinguisher right behind it. Always.',
+        draw(c, x, y, t) { glow(c, x + 13, y + 12, 16, 'rgba(255,150,60,0.35)'); oval(c, x + 13, y + 18, 10, 3, '#3a3a40'); px(c, x + 5, y + 18, 16, 4, '#2a2a30'); const f = reduceMotion ? 0 : Math.floor(t / 120);
+          for (let i = 0; i < 6; i++) { const h = 4 + ((f + i * 5) % 5); px(c, x + 7 + i * 2, y + 17 - h, 2, h, i % 2 ? '#ffb547' : '#ff6b3a'); px(c, x + 7 + i * 2, y + 17 - h, 2, 1, '#ffe58a'); } } },
+      { id: 'record', name: 'Record player', price: 750, blurb: 'Plays Wren’s old vinyl collection. Mostly songs about flying. One song about a cat. It’s about Apogee.',
+        draw(c, x, y, t) { px(c, x + 6, y + 13, 1, 9, '#6e452c'); px(c, x + 19, y + 13, 1, 9, '#6e452c'); px(c, x + 4, y + 9, 18, 5, '#8a5a3a'); oval(c, x + 12, y + 9, 6, 1.6, '#14141c'); px(c, x + 12, y + 9, 1, 1, '#ff9ad5'); px(c, x + 18, y + 6, 1, 3, '#c9cfdc');
+          if (!reduceMotion) { const k = (t / 1200) % 1; px(c, x + 16 + Math.round(k * 4), y + 4 - Math.round(k * 6), 2, 2, `rgba(255,229,138,${(1 - k).toFixed(2)})`); px(c, x + 17 + Math.round(k * 4), y + 1 - Math.round(k * 6), 1, 2, `rgba(255,229,138,${(1 - k).toFixed(2)})`); } } }
+    ],
+    brail: [
+      NOTHING,
+      { id: 'lights', name: 'String lights', price: 400, blurb: 'Warm little bulbs looped along the railing. They make everything feel like a party. Even Tuesdays.',
+        draw(c, t) { for (let x = 0; x < RW; x++) { const seg = x % 40, y = 47 + Math.round(Math.sin(seg / 40 * Math.PI) * 4); px(c, x, y, 1, 1, '#3a3a2a'); if (x % 7 === 3) { const on = reduceMotion || (Math.floor(t / 500) + x) % 5 !== 0, col = ['#ffe58a', '#ff9ad5', '#7fd6ff', '#ffb547'][(x / 7 | 0) % 4]; if (on) glow(c, x, y + 2, 4, 'rgba(255,230,160,0.35)'); px(c, x, y + 1, 2, 2, on ? col : '#5a5a4a'); } } } },
+      { id: 'bunting', name: 'Bunting', price: 300, blurb: 'Little triangle flags in every color. Gus made them out of old flight suits. Some of them still have name tags.',
+        draw(c, t) { const cols = ['#ff6b5e', '#ffb547', '#ffe58a', '#3fa86b', '#7fd6ff', '#b48ae8'];
+          for (let x = 0; x < RW; x++) { const y = 47 + Math.round(Math.sin((x % 50) / 50 * Math.PI) * 3); px(c, x, y, 1, 1, '#c9cfdc'); }
+          for (let x = 4, i = 0; x < RW - 4; x += 8, i++) { const y = 48 + Math.round(Math.sin((x % 50) / 50 * Math.PI) * 3), sw = reduceMotion ? 0 : Math.round(Math.sin(t / 700 + i) * 0.6); for (let k = 0; k < 5; k++) px(c, x + k / 2 + sw, y + k, 5 - k, 1, cols[i % cols.length]); } } },
+      { id: 'flowerbox', name: 'Flower boxes', price: 500, blurb: 'Window boxes hooked over the railing, full of flowers in every color. The bees would love it. There are no bees.',
+        draw(c) { const cols = ['#ff6b5e', '#ffe58a', '#ff9ad5', '#b48ae8', '#ffffff']; for (const bx of [14, 84, 154]) { px(c, bx, 46, 32, 5, '#8a5a3a'); px(c, bx, 46, 32, 1, '#a8784a'); for (let k = 0; k < 10; k++) { px(c, bx + 2 + k * 3, 43 - (k % 2), 1, 3, '#3fa86b'); px(c, bx + 1 + k * 3, 42 - (k % 2), 2, 2, cols[(k + bx) % cols.length]); } } } },
+      { id: 'lanterns', name: 'Paper lanterns', price: 700, blurb: 'Round glowing lanterns from Ollo’s lantern festival. Ollo visits them. Ollo sits with them for a long time.',
+        draw(c, t) { for (const [lx, h, col] of [[24, 18, '#ff9a3d'], [62, 24, '#ff6b5e'], [100, 16, '#ffe58a'], [138, 22, '#ff9ad5'], [176, 19, '#ff9a3d']]) { const sw = reduceMotion ? 0 : Math.round(Math.sin(t / 1200 + lx) * 1); px(c, lx, -12, 1, h + 12, 'rgba(201,207,220,0.5)'); glow(c, lx + sw, h + 5, 12, 'rgba(255,190,110,0.3)'); oval(c, lx + sw + 0.5, h + 5, 4, 5, col); px(c, lx + sw - 1, h, 3, 1, '#3a2a1a'); px(c, lx + sw - 1, h + 10, 3, 1, '#3a2a1a'); px(c, lx + sw - 2, h + 4, 1, 3, 'rgba(255,255,255,0.35)'); } } },
+      { id: 'chimes', name: 'Wind chimes', price: 350, blurb: 'There’s no wind in space, so Gus rigged a tiny fan. It chimes every few minutes. Juno knows exactly how many.',
+        draw(c, t) { for (const cx of [40, 160]) { px(c, cx - 6, 20, 13, 2, '#8a6a4a'); px(c, cx, -12, 1, 32, 'rgba(201,207,220,0.5)'); for (let k = 0; k < 5; k++) { const sw = reduceMotion ? 0 : Math.round(Math.sin(t / 600 + k * 0.9) * 1.2); px(c, cx - 5 + k * 3 + sw, 22, 1, 8 + (k % 3) * 3, '#c9cfdc'); px(c, cx - 5 + k * 3 + sw, 22, 1, 1, '#ffffff'); } } } }
+    ],
+    bdeck: [
+      { id: 'teak', name: 'Teak decking', price: 0, blurb: 'Warm wooden planks, oiled and smooth. Barefoot recommended. Splinters not included.',
+        draw(c) { px(c, 0, 62, RW, 38, '#9a6a44'); for (let r = 0; r < 7; r++) { px(c, 0, 62 + r * 6, RW, 1, '#7a4e30'); for (let x = (r % 2) * 25; x < RW; x += 50) px(c, x, 63 + r * 6, 1, 5, '#7a4e30'); } for (let i = 0; i < 50; i++) px(c, (i * 47) % RW, 64 + (i * 11) % 34, 3, 1, '#a8784e'); } },
+      { id: 'grate', name: 'Steel grating', price: 300, blurb: 'Industrial grating with the stars showing through the gaps. Don’t drop anything small. It’s gone forever.',
+        draw(c, t) { px(c, 0, 62, RW, 38, '#05070f'); denStars(c, 0, 62, RW, 38, t); for (let x = 0; x < RW; x += 5) px(c, x, 62, 2, 38, '#4a5266'); for (let y = 62; y < 100; y += 6) px(c, 0, y, RW, 1, '#5a6276'); } },
+      { id: 'turf', name: 'Fake grass', price: 400, blurb: 'Bright green and almost convincing. Nerri lay on it for an hour and said it was “the best thing on the ship”.',
+        draw(c) { px(c, 0, 62, RW, 38, '#3fa86b'); for (let i = 0; i < 260; i++) px(c, (i * 37) % RW, 62 + (i * 13) % 38, 1, 2, i % 3 ? '#4ab878' : '#2e8a55'); } },
+      { id: 'tile', name: 'Terracotta tiles', price: 500, blurb: 'Warm clay tiles, like a little courtyard somewhere sunny on Earth. Wren says it reminds her of a holiday. She won’t say which.',
+        draw(c) { px(c, 0, 62, RW, 38, '#c8704a'); for (let y = 62; y < 100; y += 9) px(c, 0, y, RW, 1, '#9a4e30'); for (let r = 0; r < 5; r++) for (let x = (r % 2) * 9; x < RW; x += 18) px(c, x, 62 + r * 9, 1, 9, '#9a4e30'); for (let i = 0; i < 30; i++) px(c, (i * 61) % RW, 64 + (i * 7) % 34, 2, 1, '#d8845a'); } },
+      { id: 'glass', name: 'Glass floor', price: 1200, blurb: 'A clear glass floor with nothing but stars underneath. Gus stood on it once and has not been back.',
+        draw(c, t) { px(c, 0, 62, RW, 38, '#03050c'); denStars(c, 0, 62, RW, 38, t); for (let x = 0; x < RW; x += 40) px(c, x, 62, 1, 38, 'rgba(201,215,255,0.35)'); for (let y = 62; y < 100; y += 19) px(c, 0, y, RW, 1, 'rgba(201,215,255,0.35)'); for (let x = 10; x < RW; x += 40) px(c, x, 66, 6, 1, 'rgba(255,255,255,0.12)'); } }
     ]
   };
   function glow(c, x, y, r, col) { const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
@@ -6581,8 +6784,77 @@ details.act > .limits { margin: 0 0 8px; }
   function denStars(c, x, y, w, h, t) {
     for (let i = 0; i < Math.round(w * h / 60); i++) { const tw = reduceMotion ? 1 : 0.5 + 0.5 * Math.sin(t / 600 + i * 1.7); const r1 = Math.sin(i * 12.9898) * 43758.5453, r2 = Math.sin(i * 78.233) * 12543.123; px(c, x + Math.floor((r1 - Math.floor(r1)) * w), y + Math.floor((r2 - Math.floor(r2)) * h), 1, 1, `rgba(220,226,240,${(0.3 + 0.6 * tw).toFixed(2)})`); }
   }
+  // ---- The balcony: a glassed-in observation deck off the Pad, with its own decorations ----
+  // Opened by funding "Open the Pad balcony" on the repair board. Its spots live in DEN_SPOTS (balc: true)
+  // so buying, placing and previews all work the same as in the cabin.
+  const balcOpen = () => projDone('balcony');
+  const inBalc = () => !!(denUI && denUI.room === 'balc');
+  let denDrawRoom = null;   // forces drawDen to draw one room or the other (previews, the menu thumbnail)
+  const BALC_SAYS = { F: 'Oh, this is nice. I’m adding “sit on the balcony” to my schedule. Under “mandatory”.', G: 'I fixed this railing myself! Don’t lean on it. …Okay, you can lean on it a little.',
+    W: 'Now THIS is a view. Reminds me of my first solo flight. Less screaming, though.', R: 'The lighting out here is perfect. For me. Obviously.', J: 'Good sightlines. I can see three docking lanes from here. Very relaxing.',
+    M: 'Is that a planet? Can we go there? Can we go right now?', Z: 'Zib loves the balcony! Zib is turning the color of the sky!', O: 'So many stars. So many lights. I may stay out here forever.',
+    V: 'An excellent place for quiet diplomacy. Or a nap.', Y: 'Off the record, this might be my favorite spot on the ship.', N: 'It’s so BIG out here. And so dry. I love it.', S: 'I could… sit here… for a century. I might.',
+    C: 'Cadet Kit reporting: balcony is VERY cool, pilot. Sir. Pilot.', H: 'Perfect spot for a grill. Just saying. Just putting it out there.', D: 'Fresh air! Well, recycled air. Still. Doctor’s orders: sit out here more.', T: 'Don’t move. I’m sketching this.', X: 'Race you to the railing!' };
+  function drawBalc(cv, look, sel, t) {
+    if (!cv) return;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    const it = spot => denItem(spot, look[spot]), S = id => denSpot(id);
+    // the view beyond the glass
+    it('bview').draw(c, t);
+    // the glass canopy: ribs, a frame, a glint
+    px(c, 0, 0, RW, 3, '#2a2f45'); px(c, 0, 3, RW, 1, '#4a5266');
+    for (const x of [0, 66, 133, 198]) { px(c, x, 0, 2, 62, 'rgba(201,207,220,0.55)'); px(c, x + 2, 0, 1, 62, 'rgba(0,0,0,0.3)'); }
+    c.fillStyle = 'rgba(255,255,255,0.05)'; c.beginPath(); c.moveTo(20, 4); c.lineTo(34, 4); c.lineTo(10, 62); c.lineTo(-2, 62); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(150, 4); c.lineTo(156, 4); c.lineTo(136, 62); c.lineTo(132, 62); c.closePath(); c.fill();
+    // the deck
+    c.save(); c.translate(0, 12); it('bdeck').draw(c, t); c.restore();
+    px(c, 0, 74, RW, 1, 'rgba(255,255,255,0.15)');
+    // the railing, with whatever's hung on it
+    px(c, 0, 64, RW, 9, 'rgba(180,220,255,0.10)');
+    for (let x = 4; x < RW; x += 24) px(c, x, 62, 2, 12, '#aab2c2');
+    px(c, 0, 62, RW, 2, '#e3e8ef'); px(c, 0, 64, RW, 1, '#8a93ab'); px(c, 0, 72, RW, 1, '#aab2c2');
+    c.save(); c.translate(0, 12); it('brail').draw(c, t); c.restore();
+    // furniture, back to front
+    // furniture is drawn at 1.5x, the same scale as the people, so it feels like a real deck
+    for (const id of ['bplant2', 'bseat', 'btable', 'bplant1']) { const sp = S(id); c.save(); c.translate(sp.x, sp.y); c.scale(1.5, 1.5); it(id).draw(c, 0, 0, t); c.restore(); }
+    // a soft glow from the view
+    c.fillStyle = 'rgba(140,170,255,0.04)'; c.fillRect(0, 0, RW, RH);
+    if (!denNoRim) {
+      c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, RW, RH); rrectPath(c, 1, 1, RW - 2, RH - 2, 10); c.fill('evenodd');
+      c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 1; rrect(c, 1.5, 1.5, RW - 3, RH - 3, 10); c.stroke();
+    }
+    const s = sel && denSpot(sel);
+    if (s && !s.room && (reduceMotion || Math.floor(t / 400) % 2)) {
+      const x0 = s.x - 2, y0 = s.y - 2, x1 = s.x + s.w + 1, y1 = s.y + s.h + 1, k = '#ff6b5e';
+      for (const [cx, cy, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) { px(c, Math.min(cx, cx + dx * 3), cy, 4, 1, k); px(c, cx, Math.min(cy, cy + dy * 3), 1, 4, k); }
+    }
+  }
+  // step out onto the balcony, or back inside
+  function balcGo(on) {
+    if (!denUI) return;
+    denUI.room = on ? 'balc' : 'pad'; denUI.spot = on ? 'bseat' : 'wallL'; denUI.trying = null; denUI.note = '';
+    const pw = denUI.walk;
+    if (pw) {
+      Object.assign(pw.me, { x: on ? 172 : 22, y: 118, dir: on ? 1 : 2, goal: null }); pw.target = null;
+      if (pw.guest) Object.assign(pw.guest, { x: on ? 140 : 50, y: 108, goal: null, timer: 2 });
+    }
+    sfx.door ? sfx.door() : sfx.click();
+    if (on && denUI.visitor) denUI.pendingSay = [denUI.visitor, BALC_SAYS[denUI.visitor] || DEN_NICE[denUI.visitor]];
+    else if (on && !store.get('ds-balcSeen', '')) { store.set('ds-balcSeen', '1'); denUI.pendingSay = ['G', 'Welcome to your balcony! Tap Decorate to make it yours. I recommend a hot tub. Dottie does not recommend a hot tub.']; }
+    renderDen(true);
+  }
+  // the sliding glass door between the Pad and the balcony
+  function drawBalcDoor(c, x, kind) {   // kind: 'locked' | 'out' (from the Pad) | 'in' (from the balcony)
+    px(c, x, 90, 16, 50, '#c9b897'); px(c, x + 2, 92, 12, 48, '#2a3556');
+    if (kind === 'out') { px(c, x + 2, 92, 12, 48, '#05070f'); denStars(c, x + 2, 92, 12, 30, performance.now()); px(c, x + 2, 122, 12, 18, '#8a5a3a'); }
+    if (kind === 'in') { px(c, x + 2, 92, 12, 30, '#eadcc2'); px(c, x + 2, 108, 12, 2, '#ffb547'); px(c, x + 2, 122, 12, 18, '#5e4e42'); }
+    px(c, x + 2, 92, 12, 48, 'rgba(160,210,255,0.16)'); px(c, x + 4, 94, 2, 40, 'rgba(255,255,255,0.2)'); px(c, x + (kind === 'in' ? 11 : 4), 115, 1, 4, '#ffb547');
+    px(c, x + 2, 84, 12, 5, kind === 'locked' ? '#ff6b5e' : '#7fd6ff'); px(c, x + 3, 85, 10, 3, '#0a0e1c');
+    if (kind === 'locked') px(c, x + 6, 86, 4, 1, '#ff6b5e'); else for (const k of [0, 3, 6]) px(c, x + 4 + k, 86, 2, 1, '#7fd6ff');
+  }
   function drawDen(cv, look = denLook, sel = null, t = performance.now(), scene = null) {
     if (!cv) return;
+    if ((denDrawRoom || (denUI && denUI.room) || 'pad') === 'balc') return drawBalc(cv, look, sel, t);
     const c = cv.getContext('2d'), st = { faces: denFaces() };
     c.imageSmoothingEnabled = false;
     const it = spot => denItem(spot, look[spot]);
@@ -6682,7 +6954,7 @@ details.act > .limits { margin: 0 0 8px; }
   // a little crop of the room with one item tried in its spot, for the item tiles
   function denPreview(spot, id) {
     const off = document.createElement('canvas'); off.width = RW; off.height = RH;
-    drawDen(off, { ...denLook, [spot]: id }, null, 1000);
+    denDrawRoom = denSpot(spot).balc ? 'balc' : 'pad'; drawDen(off, { ...denLook, [spot]: id }, null, 1000); denDrawRoom = null;
     const s = denSpot(spot);
     const box = s.room ? { x: 0, y: 0, w: RW, h: RH } : { x: Math.max(0, s.x - 4), y: Math.max(0, s.y - 4), w: Math.min(RW, s.w + 8), h: Math.min(RH, s.h + 8) };
     const cv = document.createElement('canvas'); cv.width = box.w; cv.height = box.h;
@@ -6948,6 +7220,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
 
   function renderDen(keepSpot) {
+    if (walkEnter && denUI) denUI.room = 'pad';
     if (walkEnter) roomBack.den = walkEnter === 'hall' ? 'hall' : 'lounge';
     if (!intro && store.get('ds-nudge', '') === 'missions' && !shipNudged) { shipNudged = true; setTimeout(() => showToast('Dottie: Your first mission is waiting on the Bridge. Out your door and it’s right there.', 5200), 700); }
     let fresh = false;
@@ -6969,6 +7242,7 @@ details.act > .limits { margin: 0 0 8px; }
       denUI.say = ['G', intro.gift ? 'Welcome home! It’s a bit bare, so I brought you a housewarming gift. Pick one!' : 'Welcome home! Make yourself comfortable.'];
       intro.tour = intro.gift ? 0 : 1; fresh = true;
     }
+    if (!!(denSpot(denUI.spot) || {}).balc !== inBalc()) denUI.spot = inBalc() ? 'bseat' : 'wallL';
     if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
     if (!keepSpot && denUI) denUI.trying = null;
     if (intro && intro.step === 'den') denUI.edit = true;
@@ -6995,23 +7269,24 @@ details.act > .limits { margin: 0 0 8px; }
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
-      <h1 class="good">The Pad</h1>
-      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
+      <h1 class="good">${inBalc() ? 'The Balcony' : 'The Pad'}</h1>
+      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
           <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
-            ${denUI.cat ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
+            ${denUI.cat && !inBalc() ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
             ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
             <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
-            ${!editing && !(intro && intro.step === 'den') ? '<button class="btn ghost" id="denSleep">🌙 Sleep</button>' : ''}
+            ${!editing && !inBalc() && !(intro && intro.step === 'den') ? '<button class="btn ghost" id="denSleep">🌙 Sleep</button>' : ''}
+            ${balcOpen() && !(intro && intro.step === 'den') ? `<button class="btn ghost" id="denBalc">${inBalc() ? '← Back inside' : 'Balcony →'}</button>` : ''}
             <button class="btn ghost" id="denSnap">Take a photo</button>
-            ${denLook.floor === 'arcade' ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
+            ${denLook.floor === 'arcade' && !inBalc() ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
             ${intro && intro.step === 'den' ? '' : `<button class="btn${editing ? ' ghost' : ''}" id="denEdit">${editing ? 'Done decorating' : 'Decorate'}</button>`}
           </div>
-          ${editing ? `<div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}${x.pool !== pool && spotNew(x.id) ? '<i class="ndot" aria-label="new"></i>' : ''}</button>`).join('')}</div>
+          ${editing ? `<div class="spots" role="group" aria-label="Choose a spot to decorate">${DEN_SPOTS.filter(x => !!x.balc === inBalc()).map(x => `<button data-spot="${x.id}" aria-pressed="${x.id === spot}">${x.name}${x.pool !== pool && spotNew(x.id) ? '<i class="ndot" aria-label="new"></i>' : ''}</button>`).join('')}</div>
 ` : ''}
         </div>
         ${editing ? `<div class="col">
@@ -7057,6 +7332,7 @@ details.act > .limits { margin: 0 0 8px; }
       denUI.edit = !denUI.edit; denUI.trying = null; denUI.note = ''; sfx.click(); renderDen(true);
       const nb = $('denEdit'); if (nb) nb.focus({ preventScroll: true });
     });
+    const balB = $('denBalc'); if (balB) balB.addEventListener('click', () => balcGo(!inBalc()));
     const arcB = $('denArcade'); if (arcB) arcB.addEventListener('click', () => { sfx.click(); setMode('arcade'); });
     $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
@@ -8300,6 +8576,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Ship repair projects: fund them a bit at a time on the hallway board ----
   const PROJECTS = [
     { id: 'lights', name: 'Fix the hallway lights', who: 'G', cost: 800, blurb: 'The hallway lights flicker every Tuesday. And most Wednesdays. Gus has a theory, a ladder and a lot of tape.', what: 'Steady, warm lights all down the hallway.', done: 'Lights fixed! Steady and warm. I kind of miss the flicker. No I don’t.' },
+    { id: 'balcony', name: 'Open the Pad balcony', who: 'G', cost: 2500, blurb: 'There’s a sealed hatch on the side of your Pad. Behind it: an old observation balcony nobody has used in years. New glass, a new railing, and it’s all yours.', what: 'A balcony off your Pad, with a view and its own decorations.', done: 'The balcony is open! New glass, new railing, best seat on the ship. Go and see, through the glass door in your Pad!' },
     { id: 'sprinkler', name: 'Garden sprinklers', who: 'G', cost: 3000, blurb: 'A little sprinkler head on every planter, so the garden waters itself.', what: 'The garden waters itself every new day.', done: 'Sprinklers in! The garden waters itself every morning now. Don’t stand too close at six a.m.' },
     { id: 'lounge', name: 'Hallway lounge corner', who: 'F', cost: 4000, blurb: 'A couch, a rug and a lamp halfway down the hallway. Somewhere to sit that isn’t the break room. Or my desk.', what: 'A cosy corner in the hallway, near your Pad.', done: 'The lounge corner is done. It has a couch. I have already napped on it. Professionally.' },
     { id: 'jukebox', name: 'Break room jukebox', who: 'W', cost: 5000, blurb: 'There’s an old jukebox in storage. A new needle, some wiring and a polish, and the break room has music again.', what: 'A working jukebox in the break room.', done: 'Listen to that. Forty years old and it still plays. Just like me.' },
@@ -8871,13 +9148,17 @@ details.act > .limits { margin: 0 0 8px; }
     const L = [], look = pw.look();
     const g = pw.guest;
     if (g) L.push({ id: 'guest', rect: [g.x - 12, g.y - 38, 24, 39], go: () => clampP(g.x + (pw.me.x < g.x ? -15 : 15), g.y), at: () => g, act: () => { g.timer = 4; g.goal = null; g.dir = faceToward(g, pw.me); pw.acts.chat(); } });
-    if (pw.crumb) L.push({ id: 'crumb', rect: [pw.crumb.x - 2, pw.crumb.y - 8, 25, 22], go: () => clampP(pw.crumb.x + (pw.me.x < pw.crumb.x ? -10 : 22), pw.crumb.y + 6), at: () => ({ x: pw.crumb.x + 7, y: pw.crumb.y + 8 }), act: () => { pw.crumb.pause = 2.5; pw.acts.crumbTalk(); } });
-    if (denUI.cat) { const at = denCatSpot(denUI.cat, look); L.push({ id: 'cat', rect: [at.x - 6, at.y - 7, 23, 16], go: () => clampP(at.x + 5, at.y + 14), at: () => ({ x: at.x + 5, y: at.y }), act: () => pw.acts.pet() }); }
-    L.push({ id: 'door', rect: [184, 92, 16, 48], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode(roomBack.den); } });
+    if (pw.crumb && !inBalc()) L.push({ id: 'crumb', rect: [pw.crumb.x - 2, pw.crumb.y - 8, 25, 22], go: () => clampP(pw.crumb.x + (pw.me.x < pw.crumb.x ? -10 : 22), pw.crumb.y + 6), at: () => ({ x: pw.crumb.x + 7, y: pw.crumb.y + 8 }), act: () => { pw.crumb.pause = 2.5; pw.acts.crumbTalk(); } });
+    if (denUI.cat && !inBalc()) { const at = denCatSpot(denUI.cat, look); L.push({ id: 'cat', rect: [at.x - 6, at.y - 7, 23, 16], go: () => clampP(at.x + 5, at.y + 14), at: () => ({ x: at.x + 5, y: at.y }), act: () => pw.acts.pet() }); }
+    if (inBalc()) L.push({ id: 'door', rect: [184, 88, 16, 52], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => balcGo(false) });
+    else {
+      L.push({ id: 'door', rect: [184, 92, 16, 48], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode(roomBack.den); } });
+      if (!intro) L.push({ id: 'balc', rect: [0, 88, 18, 52], go: () => [10, 118], at: () => ({ x: 0, y: 118 }), act: () => { if (balcOpen()) balcGo(true); else { sfx.click(); denSay('G', 'That hatch opens onto an old observation balcony. It needs new glass first. Chip in on the repair board in the hallway: “Open the Pad balcony”.'); } } });
+    }
     // decorations are only tappable while decorating; otherwise a tap just walks you there (good for posing in photos)
     if (!denUI.edit) return L;
     // decorations: smallest first, so a shelf wins over the wall behind it
-    const spots = DEN_SPOTS.filter(d => !d.room).slice().sort((a, b) => a.w * a.h - b.w * b.h);
+    const spots = DEN_SPOTS.filter(d => !d.room && !!d.balc === inBalc()).slice().sort((a, b) => a.w * a.h - b.w * b.h);
     for (const d of spots) L.push({ id: d.id, rect: [d.x, d.y, d.w, d.h], go: () => clampP(d.x + d.w / 2, d.y + d.h + 10), at: () => ({ x: d.x + d.w / 2, y: d.y }), act: () => pw.acts.pick(d.id) });
     return L;
   }
@@ -8940,16 +9221,18 @@ details.act > .limits { margin: 0 0 8px; }
     if (!padOff) { padOff = document.createElement('canvas'); padOff.width = RW; padOff.height = RH; }
     // your cabin exactly as decorated, with the spot you're editing outlined
     denNoRim = true; drawDen(padOff, look, denUI.edit ? denUI.spot : null, t, null); denNoRim = false;
-    if (denUI.cat) { const oc = padOff.getContext('2d'); drawDenCat(oc, denCatSpot(denUI.cat, look), performance.now() < (denUI.catAwake || 0), t); }
+    if (denUI.cat && !inBalc()) { const oc = padOff.getContext('2d'); drawDenCat(oc, denCatSpot(denUI.cat, look), performance.now() < (denUI.catAwake || 0), t); }
     // the floor carries on toward you, in whatever flooring you picked
-    const fl = denItem('floorStyle', look.floorStyle);
-    for (let k = 1; k < 4; k++) { c.save(); c.translate(0, 22 * k); fl.draw(c, t); c.restore(); }
+    if (inBalc()) { const dk = denItem('bdeck', look.bdeck); for (const k of [36, 72]) { c.save(); c.translate(0, k); dk.draw(c, t); c.restore(); } }
+    else { const fl = denItem('floorStyle', look.floorStyle); for (let k = 1; k < 4; k++) { c.save(); c.translate(0, 22 * k); fl.draw(c, t); c.restore(); } }
     const fade = c.createLinearGradient(0, 100, 0, PH); fade.addColorStop(0, 'rgba(0,0,0,0.05)'); fade.addColorStop(1, 'rgba(0,0,0,0.28)');
     c.fillStyle = fade; c.fillRect(0, 100, PW, PH - 100);
     c.drawImage(padOff, 0, 0);
-    // the door back to the break room
+    // the door back to the break room (or, on the balcony, back inside), and the balcony door
+    if (inBalc()) drawBalcDoor(c, 184, 'in');
+    else { if (!intro) drawBalcDoor(c, 0, balcOpen() ? 'out' : 'locked');
     px(c, 186, 92, 14, 48, '#c9b897'); px(c, 188, 94, 12, 46, '#2a2f45'); px(c, 190, 96, 10, 42, '#3a4060'); px(c, 191, 117, 2, 3, '#ffb547');
-    px(c, 187, 86, 12, 5, '#ffb547'); px(c, 188, 87, 10, 3, '#2a1d0a'); px(c, 190, 88, 2, 1, '#ffb547'); px(c, 193, 88, 2, 1, '#ffb547'); px(c, 196, 88, 1, 1, '#ffb547');
+    px(c, 187, 86, 12, 5, '#ffb547'); px(c, 188, 87, 10, 3, '#2a1d0a'); px(c, 190, 88, 2, 1, '#ffb547'); px(c, 193, 88, 2, 1, '#ffb547'); px(c, 196, 88, 1, 1, '#ffb547'); }
     if (pw.tap && t - pw.tap.t < 500) { const k = (t - pw.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(pw.tap.x, pw.tap.y, 4 + k * 5, 2 + k * 2.5, 0, 0, Math.PI * 2); c.stroke(); }
     // people and rovers, back to front, drawn at 1.5x so they're the right size for the furniture
     const big = (wx, wy, ox, oy, fn) => { c.save(); c.setTransform(PS * 1.5, 0, 0, PS * 1.5, Math.round(PS * wx - ox * PS * 1.5), Math.round(PS * wy - oy * PS * 1.5)); fn(); c.restore(); };
@@ -8957,7 +9240,7 @@ details.act > .limits { margin: 0 0 8px; }
     things.push([me.y, () => big(me.x, me.y, 8, 24, () => drawPerson(c, 'P', 0, 0, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t))]);
     const g = pw.guest;
     if (g) { const bob = denUI.talking === g.who && Math.floor(t / 90) % 2 ? -1 : 0; things.push([g.y, () => big(g.x, g.y, 8, 24 - bob, () => drawPerson(c, g.who, 0, 0, g.dir, g.goal ? Math.floor(t / 150) % 4 : 0, t))]); }
-    if (pw.crumb) things.push([pw.crumb.y + 12, () => big(pw.crumb.x, pw.crumb.y + 12, 0, 10, () => drawCrumbSprite(c, 0, 0, pw.crumb.dir, t, pw.crumb.moving))]);
+    if (pw.crumb && !inBalc()) things.push([pw.crumb.y + 12, () => big(pw.crumb.x, pw.crumb.y + 12, 0, 10, () => drawCrumbSprite(c, 0, 0, pw.crumb.dir, t, pw.crumb.moving))]);
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     // the rim around the whole room
     c.setTransform(1, 0, 0, 1, 0, 0);
@@ -13873,7 +14156,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!thumbRoom) thumbRoom = { faces: crewFaces(), cat: CAT_SPOTS[Math.floor(Math.random() * CAT_SPOTS.length)], catAwake: 0, talking: null };
       drawRoom($('roomThumb'), thumbRoom);
       if (!denThumbScene) denThumbScene = { cat: denPickCat(denLook), catAwake: 0 };
-      drawDen($('denThumb'), denLook, null, now, denThumbScene);
+      denDrawRoom = 'pad'; drawDen($('denThumb'), denLook, null, now, denThumbScene); denDrawRoom = null;
     }
     updateHud();
     requestAnimationFrame(frame);
