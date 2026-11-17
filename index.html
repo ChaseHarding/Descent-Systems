@@ -350,6 +350,37 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* The phone: saved messages */
+.phone-btn { position: fixed; z-index: 60; right: max(6px, env(safe-area-inset-right, 0px)); top: 46%; width: 34px; height: 54px; padding: 4px 3px; border-radius: 9px; border: 2px solid #3a4668; background: #121a33; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45); cursor: pointer; }
+.phone-btn .ph-screen { display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%; border-radius: 5px; background: #0a0e1c; padding: 0 4px; box-sizing: border-box; }
+.phone-btn .ph-screen i { display: block; height: 4px; border-radius: 2px; background: rgba(201, 207, 220, 0.4); }
+.phone-btn .ph-screen i:nth-child(2) { width: 70%; margin-left: auto; background: rgba(255, 181, 71, 0.6); }
+.phone-btn .ph-screen i:nth-child(3) { width: 80%; }
+.phone-btn.ring { animation: phring 2.4s ease-in-out infinite; border-color: var(--flame); }
+@keyframes phring { 0%, 86%, 100% { transform: rotate(0); } 89% { transform: rotate(-9deg); } 92% { transform: rotate(9deg); } 95% { transform: rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .phone-btn.ring { animation: none; } }
+.ph-badge { position: absolute; top: -7px; left: -9px; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; background: var(--bad); color: #fff; font: 700 11px/18px var(--f-mono); text-align: center; }
+.phone-panel { position: fixed; z-index: 61; right: max(10px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); width: min(330px, calc(100vw - 24px)); height: min(600px, calc(100dvh - 40px)); }
+.ph-frame { position: relative; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; padding: 26px 10px 12px; border-radius: 34px; border: 3px solid #3a4668; background: #0a0e1c; box-shadow: 0 0 0 6px #121a33, 0 18px 50px rgba(0, 0, 0, 0.6); }
+.ph-notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 78px; height: 10px; border-radius: 6px; background: #121a33; }
+.ph-head { display: flex; align-items: center; gap: 8px; padding: 4px 6px 8px; border-bottom: 1px solid rgba(201, 207, 220, 0.12); }
+.ph-head b { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.06em; color: var(--flame); font-size: 15px; }
+.ph-head span { flex: 1; font-size: 11px; opacity: 0.6; }
+.ph-x { width: 32px; height: 32px; border-radius: 16px; border: 1px solid rgba(201, 207, 220, 0.25); background: transparent; color: inherit; font-size: 14px; cursor: pointer; }
+.ph-list { list-style: none; margin: 0; padding: 4px 2px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; -webkit-overflow-scrolling: touch; touch-action: pan-y; -webkit-user-select: text; user-select: text; }
+.ph-day { align-self: center; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; padding: 4px 0 0; }
+.ph-msg { display: flex; gap: 8px; align-items: flex-start; }
+.ph-msg canvas.face, .ph-sys { flex: none; width: 30px; height: 30px; border-radius: 6px; image-rendering: pixelated; }
+.ph-sys { display: grid; place-items: center; background: #121a33; color: var(--flame); }
+.ph-msg > div { min-width: 0; flex: 1; padding: 6px 9px; border-radius: 4px 12px 12px 12px; background: #121a33; }
+.ph-msg.new > div { box-shadow: inset 2px 0 0 var(--flame); }
+.ph-who { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; font-size: 11px; }
+.ph-who em { font-style: normal; opacity: 0.55; font-size: 10px; }
+.ph-msg p { margin: 2px 0 0; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.ph-empty { opacity: 0.6; font-size: 13px; padding: 20px 10px; text-align: center; }
+.ph-foot { text-align: center; padding-top: 6px; }
+.where { margin: 6px 0 0; font-size: 12px; opacity: 0.85; }
+.maphint { margin-top: 8px; }
 /* Co-pilot picker */
 .coppick { margin: 10px 0 4px; text-align: left; }
 .coprow { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
@@ -4527,6 +4558,8 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    try { if (phoneOpen && PHONE_HIDE.includes(m)) closePhone(); } catch (e) {}
+    setTimeout(() => { try { phoneButton(); } catch (e) {} }, 0);
     try { applyEvening(m); } catch (e) {}
     if (SHIP_ROOMS.includes(m) && !intro) {
       try { eventHello(); eventHook('room', { room: m }); castHello(m); recruitNudge(); } catch (e) {}
@@ -4666,10 +4699,7 @@ details.act > .limits { margin: 0 0 8px; }
       const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
       let body = '';
       if (menuTab === 'ship') {
-        const order = ['den', 'bridge', 'lounge', 'garden', 'galley', 'engine', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
-        const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', engine: engState().done < ENGINE_JOBS ? `Gus has ${ENGINE_JOBS - engState().done} repair ${ENGINE_JOBS - engState().done === 1 ? 'job' : 'jobs'}` : 'Gus’s workshop and the core', hall: 'Three decks, joined by the lift' };
-        body = shipMapHtml() + `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${ROOM_DECK[id] ? `Deck ${ROOM_DECK[id]} · ` : ''}${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
-          <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
+        body = shipMapHtml() + `<p class="limits maphint">Get around on foot: walk through the doors, and take the lift between decks. Missions and every flight mode are on the Bridge’s nav console (Deck 1).</p>`;
       } else if (menuTab === 'crew') {
         const today = shipDayKey();
         body = `<div class="crewlist">${met.map(who => {
@@ -4691,11 +4721,11 @@ details.act > .limits { margin: 0 0 8px; }
             ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
             <button class="btn ghost" id="reqBtn" data-menuret>Open crew requests</button></div>
           <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
-            <button class="btn ghost" data-room="garden">Go to the garden</button></div>
-          ${(() => { const nextP = PROJECTS.find(pj => !projDone(pj.id)); return `<div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><button class="btn ghost" id="projBtn" data-menuret>Open the project board</button></div>`; })()}
-          ${crumbHome() ? `<div class="tcard"><span class="eyebrow">Crumb</span><p>${salvageReady() ? 'Crumb is back from his salvage run and bursting to show you what he found.' : crumbOut() ? `Out salvaging on ${(WORLDS.find(w => w.id === salvage().world) || {}).name}. He’ll be back after your next flight.` : 'Home on his dock. Send him salvaging from the hangar.'} Mining runs left today: ${minePermits()} of ${MINE_PERMITS}.</p><button class="btn ghost" data-room="garage">Go to the hangar</button></div>` : ''}
+            <p class="where">📍 The Garden · Deck 2</p></div>
+          ${(() => { const nextP = PROJECTS.find(pj => !projDone(pj.id)); return `<div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><p class="where">📍 Project board · Deck 2 corridor</p></div>`; })()}
+          ${crumbHome() ? `<div class="tcard"><span class="eyebrow">Crumb</span><p>${salvageReady() ? 'Crumb is back from his salvage run and bursting to show you what he found.' : crumbOut() ? `Out salvaging on ${(WORLDS.find(w => w.id === salvage().world) || {}).name}. He’ll be back after your next flight.` : 'Home on his dock. Send him salvaging from the hangar.'} Mining runs left today: ${minePermits()} of ${MINE_PERMITS}.</p><p class="where">📍 The Hangar · Deck 3</p></div>` : ''}
           <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
-            <button class="btn ghost" id="flightsBtn">Open the flight deck</button></div>
+            <p class="where">📍 Nav console on the Bridge · Deck 1</p></div>
         </div>`;
       } else if (menuTab === 'guide') {
         body = `${guideHtml()}<div class="btns"><button class="btn ghost" data-mtab="journal">Back to the journal</button></div>`;
@@ -6177,8 +6207,9 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'poster', rect: [194, 6, 24, 30], stand: [206, 54], face: 3, act: () => setMode('log') });
     L.push({ id: 'box', rect: [198, 120, 28, 26], stand: [212, 152], face: 3, act: () => setMode('album') });
     L.push({ id: 'window', rect: [100, 6, 70, 30], stand: [135, 54], face: 3, act: () => loungeSay(...windowLine()) });
-    L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('garage'); } });
-    L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('den'); } });
+    // the old side doors are closets now: the ship has corridors, so you walk
+    L.push({ id: 'doorL', rect: [6, 12, 20, 38], stand: [16, 52], face: 3, act: () => { sfx.click(); loungeSay('G', 'Supply closet! Mops, spare fuses and Apogee’s secret stash of toy mice. The Hangar’s down on Deck 3 now: out the hall door and take the lift.'); } });
+    L.push({ id: 'doorR', rect: [230, 12, 20, 38], stand: [240, 52], face: 3, act: () => { sfx.click(); loungeSay('F', 'Linen closet. Fully alphabetized. Your Pad is down the corridor, past the lift. Walking is good for you.'); } });
     if (projDone('jukebox')) L.push({ id: 'jukebox', rect: [4, 62, 22, 38], stand: [34, 90], face: 1, act: () => { sfx.click(); const who = (walk.npcs.find(n => n.state === 'sit') || {}).who || 'F'; loungeSay(who, '♪ ' + JUKEBOX[Math.floor(Math.random() * JUKEBOX.length)]); } });
     L.push({ id: 'hall', rect: [106, 140, 44, 20], stand: [128, 152], face: 0, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('hall'); } });
     return L;
@@ -6325,8 +6356,8 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, dx - 1, 11, 22, 36, '#2a3556'); px(c, dx, 12, 20, 34, '#0e1428'); px(c, dx + 2, 14, 16, 32, '#1a2442');
       px(c, dx + 9, 14, 2, 32, '#121a33'); px(c, dx + 15, 30, 2, 2, '#ffb547');
       px(c, dx + 3, 2, 14, 8, '#ffb547'); px(c, dx + 4, 3, 12, 6, '#2a1d0a');
-      if (label === 'HANGAR') { px(c, dx + 8, 4, 4, 2, '#ffb547'); px(c, dx + 7, 6, 6, 1, '#ffb547'); px(c, dx + 7, 7, 1, 1, '#ffb547'); px(c, dx + 12, 7, 1, 1, '#ffb547'); }
-      else { px(c, dx + 6, 5, 8, 2, '#ffb547'); px(c, dx + 6, 4, 2, 1, '#ffb547'); px(c, dx + 6, 7, 1, 1, '#ffb547'); px(c, dx + 13, 7, 1, 1, '#ffb547'); }
+      // closet signs: a little box on each
+      px(c, dx + 7, 4, 6, 4, '#ffb547'); px(c, dx + 8, 5, 4, 1, '#2a1d0a'); px(c, dx + 9, 3, 2, 1, '#ffb547');
     }
     // window, looking out on whichever world you flew last
     const w = storedWorld();
@@ -8634,6 +8665,7 @@ details.act > .limits { margin: 0 0 8px; }
     let el = $('intercom');
     if (!el) { el = document.createElement('div'); el.id = 'intercom'; el.className = 'intercom'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
     el.innerHTML = `<span>📢 Intercom · ${esc(SIGN[who] || (who === 'K' ? 'Crumb' : 'Dottie'))}</span><p>${esc(text)}</p>`;
+    phoneAdd(SPEAKERS[who] ? who : 'F', text, 'Intercom');
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
     sfx.chime();
     clearTimeout(icT); icT = setTimeout(() => el.classList.remove('show'), 7000);
@@ -8667,17 +8699,17 @@ details.act > .limits { margin: 0 0 8px; }
     const dots = k => (where[k] || []).map(w => `<i class="cdot" style="--c:${SPEAKERS[w].color}" title="${esc(SIGN[w])}">${esc(SIGN[w][0])}</i>`).join('');
     const you = k => k === here ? '<i class="you" title="You">You</i>' : '';
     const open = id => id === 'dome' ? projDone('dome') : !['office', 'airlock', 'cargo'].includes(id);
-    return `<div class="shipmap" role="group" aria-label="Ship map: tap a room to go there">
-      <p class="maphead"><span>◀ Bow</span><span>Ship map · tap to go</span><span>Stern ▶</span></p>
+    return `<div class="shipmap" role="group" aria-label="Ship map: where you and the crew are">
+      <p class="maphead"><span>◀ Bow</span><span>Ship map · who’s where</span><span>Stern ▶</span></p>
       ${[1, 2, 3].map(d => `<div class="mdeck d${d}">
         <span class="mlabel">${d} · ${DECKS[d].short}</span>
         <div class="mrooms">${MAP_ROOMS[d].map(([id, name]) => {
           const ok = open(id), k = id === 'lift' ? 'lift' + d : id, cls = `mroom${id === 'lift' ? ' shaft' : ''}${ok ? '' : ' sealed'}${k === here || (id === 'lift' && here === 'lift' && hallDeck === d) ? ' here' : ''}`;
           const label = `${name}${ok ? '' : ' (sealed)'}${(where[id] || []).length ? `: ${where[id].map(w => SIGN[w]).join(', ')}` : ''}`;
-          return ok ? `<button class="${cls}" ${id === 'lift' ? `data-mapdeck="${d}"` : `data-room="${id}"`} aria-label="${esc(label)}"><b>${name}</b><span class="dots">${you(id === 'lift' ? (here === 'lift' && hallDeck === d ? 'lift' : '') : k)}${id === 'lift' ? '' : dots(id)}</span></button>`
+          return ok ? `<span class="${cls}" role="img" aria-label="${esc(label)}"><b>${name}</b><span class="dots">${you(id === 'lift' ? (here === 'lift' && hallDeck === d ? 'lift' : '') : k)}${id === 'lift' ? '' : dots(id)}</span></span>`
             : `<span class="${cls}" aria-label="${esc(label)}"><b>${name}</b><span class="dots">🔒</span></span>`;
         }).join('')}</div>
-        <button class="mhall" data-mapdeck="${d}" aria-label="Deck ${d} corridor${(where['hall' + d] || []).length ? `: ${where['hall' + d].map(w => SIGN[w]).join(', ')}` : ''}"><small>Corridor</small><span class="dots">${you('hall' + d)}${dots('hall' + d)}</span></button>
+        <span class="mhall" role="img" aria-label="Deck ${d} corridor${(where['hall' + d] || []).length ? `: ${where['hall' + d].map(w => SIGN[w]).join(', ')}` : ''}"><small>Corridor</small><span class="dots">${you('hall' + d)}${dots('hall' + d)}</span></span>
       </div>`).join('')}
     </div>`;
   }
@@ -9300,7 +9332,7 @@ details.act > .limits { margin: 0 0 8px; }
     const st = evState();
     return `<div class="tcard evcard" style="--ev:${ev.cols[0]}"><span class="eyebrow">Today · ${ev.name}</span>
       <p>${st.partied ? 'The party’s over. What a night. See you at the next one.' : st.done ? 'Goal done! The party’s waiting for you.' : `${ev.goal()}.${ev.n > 1 ? ` <b>${st.prog} of ${ev.n}</b>` : ''}`}</p>
-      ${st.done && !st.partied ? `<button class="btn" data-room="${ev.id === 'starfall' ? (projDone('dome') ? 'dome' : 'bridge') : 'lounge'}">Join the party</button>` : ''}</div>`;
+      ${st.done && !st.partied ? `<p class="where">📍 The party’s in ${ev.id === 'starfall' ? (projDone('dome') ? 'the Dome' : 'the Bridge') : 'the break room'}</p>` : ''}</div>`;
   }
 
   // ---- Decorations: bunting along the top of every room, and something floating about ----
@@ -11262,9 +11294,83 @@ details.act > .limits { margin: 0 0 8px; }
     arcade: 'Six hundred! NOT GUS is very impressed. NOT GUS is also not jealous. NOT GUS is fine.',
     bonus: 'All three done! I’ve added a bonus to your account and a gold star to your file. The star cost more.'
   };
+  // ---- Your phone: every crew message, radio call and intercom announcement, saved so you can read it later ----
+  // Messages still pop up as before; the phone on the right edge keeps them (the newest 120).
+  let phoneLog = []; try { phoneLog = JSON.parse(store.get('ds-phone', '[]')) || []; } catch (e) { phoneLog = []; }
+  let phoneSeen = +store.get('ds-phoneSeen', '0') || 0, phoneOpen = false;
+  const phoneSave = () => { if (phoneLog.length > 120) phoneLog = phoneLog.slice(-120); store.set('ds-phone', JSON.stringify(phoneLog)); };
+  function phoneAdd(who, text, tag) {
+    if (!text) return;
+    const last = phoneLog[phoneLog.length - 1];
+    if (last && last.text === text && last.who === who && Date.now() - last.at < 4000) return;   // the same line twice in a row
+    phoneLog.push({ who: who || null, text: String(text), tag: tag || '', day: shipDay, at: Date.now() });
+    phoneSave(); phoneButton();
+    if (phoneOpen) renderPhone();
+  }
+  // a toast that reads "NAME: line" is someone on the radio, so it goes in the phone too
+  function phoneFromToast(text) {
+    const m = /^([A-Za-z][A-Za-z .’'-]{1,24}): ([\s\S]+)$/.exec(String(text));
+    if (!m) return;
+    const name = m[1].trim().toUpperCase();
+    const who = Object.keys(SPEAKERS).filter(w => w !== 'P').find(w => {
+      const s = SPEAKERS[w], sig = (SIGN[w] || '').toUpperCase();
+      return sig === name || sig.split(' ').includes(name) || String(s.name || '').toUpperCase().split(/\s*·\s*/).includes(name);
+    });
+    if (who) phoneAdd(who, m[2], 'Radio');
+  }
+  const phoneUnread = () => phoneLog.filter(p => p.at > phoneSeen).length;
+  const PHONE_HIDE = ['flying', 'touchdown', 'paused', 'datescene', 'tutorial', 'intro', 'race'];
+  // the little phone on the right edge, with a count of unread messages
+  function phoneButton() {
+    let b = $('phoneBtn');
+    if (!b) {
+      b = document.createElement('button'); b.id = 'phoneBtn'; b.className = 'phone-btn'; b.type = 'button';
+      b.innerHTML = '<span class="ph-screen"><i></i><i></i><i></i></span><span class="ph-badge" hidden></span>';
+      b.addEventListener('click', () => { sfx.click(); phoneOpen ? closePhone() : openPhone(); });
+      document.body.appendChild(b);
+    }
+    const n = phoneUnread(), badge = b.querySelector('.ph-badge');
+    badge.hidden = !n; badge.textContent = n > 99 ? '99+' : n;
+    b.setAttribute('aria-label', `Phone: ${phoneLog.length} saved message${phoneLog.length === 1 ? '' : 's'}${n ? `, ${n} new` : ''}`);
+    b.hidden = PHONE_HIDE.includes(mode) || !!intro || !!tut;
+    b.classList.toggle('ring', n > 0);
+  }
+  function openPhone() {
+    phoneOpen = true; renderPhone();
+    phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton();
+    const close = $('phoneClose'); if (close) close.focus({ preventScroll: true });
+  }
+  function closePhone() {
+    phoneOpen = false; const p = $('phonePanel'); if (p) p.hidden = true;
+    const b = $('phoneBtn'); if (b && !b.hidden) b.focus({ preventScroll: true });
+  }
+  function renderPhone() {
+    let p = $('phonePanel');
+    if (!p) {
+      p = document.createElement('div'); p.id = 'phonePanel'; p.className = 'phone-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Messages');
+      document.body.appendChild(p);
+      p.addEventListener('click', e => { if (e.target.id === 'phoneClose') { sfx.click(); closePhone(); } if (e.target.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); } });
+    }
+    const list = phoneLog.slice().reverse();
+    let lastDay = null;
+    const rows = list.map(m => {
+      const sp = m.who && SPEAKERS[m.who], head = m.day !== lastDay ? `<li class="ph-day">Day ${m.day}</li>` : '';
+      lastDay = m.day;
+      const name = sp ? sp.name : 'Ship';
+      return `${head}<li class="ph-msg${m.at > phoneSeen ? ' new' : ''}">${m.who ? faceTag(m.who, '') : '<span class="ph-sys" aria-hidden="true">✦</span>'}
+        <div><span class="ph-who"><b style="color:${sp ? sp.color : 'var(--flame)'}">${esc(name)}</b>${m.tag && !name.toLowerCase().includes(String(m.tag).toLowerCase()) ? `<em>${esc(m.tag)}</em>` : ''}</span><p>${esc(m.text)}</p></div></li>`;
+    }).join('');
+    p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
+      <div class="ph-head"><b>Messages</b><span>${phoneLog.length ? `${phoneLog.length} saved` : ''}</span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
+      <ul class="ph-list">${rows || '<li class="ph-empty">No messages yet. Crew messages, radio calls and intercom announcements will be saved here.</li>'}</ul>
+      ${phoneLog.length ? '<div class="ph-foot"><button class="link" id="phoneClear">Clear all</button></div>' : ''}</div>`;
+    paintFaces(p);
+    p.hidden = false;
+  }
+  document.addEventListener('keydown', e => { if (phoneOpen && e.code === 'Escape') { e.stopPropagation(); e.preventDefault(); closePhone(); } }, true);
   // crew messages pop up one at a time at the bottom of the screen
   const crewQ = []; let crewBusy = false;
-  function crewToast(who, text, pay) { crewQ.push([who, text, pay]); if (!crewBusy) crewNext(); }
+  function crewToast(who, text, pay) { phoneAdd(who, text, pay); crewQ.push([who, text, pay]); if (!crewBusy) crewNext(); }
   function crewNext() {
     const n = crewQ.shift();
     if (!n) { crewBusy = false; return; }
@@ -13271,6 +13377,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   let toastTimer = 0;
   function showToast(text, ms = 1400) {
+    try { phoneFromToast(text); } catch (e) {}
     const t = $('toast');
     t.textContent = text; t.hidden = false;
     clearTimeout(toastTimer);
