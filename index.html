@@ -2432,24 +2432,35 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Side missions: optional jobs from the crew, each with its own twist ----
   const SIDES = [
     { id: 'spa-day', name: 'Biscuit’s Spa Day', side: true, giver: 'G', after: 'tranquility', world: 'moon', kind: 'cargo',
-      label: 'Fragile cargo', cargoName: 'spa crate', fragile: 1.2, mass: 0.85, fuel: 260, credits: 150,
-      brief: 'Gus booked Biscuit a spa day, which turns out to be a crate of polishing cloths and cucumber water. It’s fragile, and Gus will cry.',
-      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 50, time: 55 },
+      label: 'Fragile cargo', cargoName: 'spa crate', fragile: 1.2, mass: 0.85, fuel: 400, credits: 220,
+      brief: 'Gus booked Biscuit a spa day: a crate of polishing cloths, then the cucumber water he forgot in the crater. Both are fragile, and Gus will cry.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 60, time: 110 },
       ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }] },
+      legs: [
+        { name: 'Load the spa crate at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Set the crate down gently at DROP', say: 'ENGINEERING: Gently! The crate has feelings. The crate is very emotional.', goals: [{ type: 'drop', pad: 'DROP' }] },
+        { name: 'Fetch the cucumber water from the crater', say: 'ENGINEERING: Oh no. I left the cucumber water in the crater. Could you…? Thank you. Sorry. Thank you.', goals: [{ type: 'pickup', pad: 'WATER', what: 'cargo' }, { type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }, { id: 'WATER', x1: 100, x2: 116, y: 54 }] },
     { id: 'coffee-crisis', name: 'The Coffee Crisis', side: true, giver: 'F', after: 'dust-ledge', world: 'mars', kind: 'cargo',
-      label: 'Timed delivery', cargoName: 'coffee', timeLimit: 70, windMul: 0.6, mass: 0.85, fuel: 240, credits: 220,
-      brief: 'The coffee machine at the Mars office has died, and Dottie is staring at the empty pot. Get a fresh one across the dunes before it goes cold.',
-      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 60, time: 45 },
+      label: 'Timed delivery', cargoName: 'coffee', timeLimit: 125, windMul: 0.6, mass: 0.85, fuel: 360, credits: 330,
+      brief: 'The Mars office coffee machine is dead. Grab the fresh pot, drop a cup at Gus’s workshop on the way, and get the rest to Dottie before it goes cold. The dust is picking up.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 90, time: 75 },
       nags: [[40, 'FLIGHT: Pilot. I can feel the coffee getting colder.'], [20, 'FLIGHT: Twenty seconds. I am holding a mug. An empty mug.'], [8, 'FLIGHT: Faster. Please. Dottie Reyes does not beg.']],
       ground: [[0, 30], [12, 28], [40, 30], [55, 36], [70, 44], [90, 48], [110, 44], [130, 50], [150, 54], [165, 50], [180, 44], [195, 40], [226, 42], [240, 48]],
-      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 200, x2: 216, y: 38 }] },
+      legs: [
+        { name: 'Grab the fresh pot at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop a cup at Gus’s workshop', say: 'ENGINEERING: Is that coffee? Is some of it for me? Please say some of it is for me.', goals: [{ type: 'drop', pad: 'GUS', keep: true, busy: 'Pouring Gus a cup', done: 'Gus: bless you.' }] },
+        { name: 'Rush the rest to Dottie at DROP', say: 'FLIGHT: The wind is picking up. So is my headache. DROP. Now.', windMul: 0.8, goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 200, x2: 216, y: 38 }, { id: 'GUS', x1: 84, x2: 100, y: 47 }] },
     { id: 'stowaway', name: 'Stowaway', side: true, giver: 'G', after: 'haze-delivery', world: 'titan', kind: 'land',
-      label: 'Passenger', comfort: true, fuel: 200, credits: 180,
-      brief: 'Apogee, Dottie’s cat, snuck aboard during refueling. Bring her down gently: she gets queasy when you turn, tilt past 20°, or fly faster than 6 m/s.',
-      spawn: { x: 120, y: 100, vx: 0 }, stars: { fuel: 50, time: 65 },
+      label: 'Passenger', comfort: true, fuel: 400, credits: 270,
+      brief: 'Apogee snuck aboard during refueling. Stop at the vet station for a quick checkup, then bring her down gently at LZ: she gets queasy when you turn, tilt past 20°, or fly faster than 6 m/s.',
+      spawn: { x: 120, y: 100, vx: 0 }, stars: { fuel: 120, time: 85 },
       ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
-      pads: [{ id: 'LZ', x1: 182, x2: 200, y: 32 }] },
+      legs: [
+        { name: 'Quick checkup at the VET station', goals: [{ type: 'visit', pad: 'VET', text: 'Land at VET for Apogee’s checkup' }] },
+        { name: 'Bring Apogee home to LZ', say: 'ENGINEERING: Vet says she’s healthy, grumpy and “extremely judgmental”. Sounds right.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 182, x2: 200, y: 32 }, { id: 'VET', x1: 144, x2: 164, y: 45 }] },
     { id: 'long-way-round', name: 'The Long Way Round', side: true, giver: 'W', after: 'last-light', world: 'venus', kind: 'route',
       label: 'Survey route', fuel: 220, credits: 350,
       brief: 'Before Earth, Wren flew a survey route through the clouds of Venus. Her three old markers still glow down there. Fly through them in order, then land.',
@@ -2457,12 +2468,16 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 40], [20, 36], [40, 42], [60, 30], [80, 24], [100, 30], [120, 20], [140, 26], [160, 40], [180, 50], [196, 36], [226, 36], [240, 40]],
       pads: [{ id: 'LZ', x1: 205, x2: 222, y: 34 }] },
     { id: 'ice-cream', name: 'Ice Cream Social', side: true, giver: 'G', afterWorld: 'mercury', world: 'mercury', kind: 'cargo',
-      label: 'Melting cargo', cargoName: 'ice cream', melt: true, mass: 0.85, fuel: 260, credits: 260,
-      brief: 'Gus is throwing an ice cream social at the Mercury outpost. The ice cream is in a cooler in the shade. The party is in the shade on the other side. Between them: the Sun.',
-      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 70, time: 48 },
+      label: 'Melting cargo', cargoName: 'ice cream', melt: true, mass: 0.85, fuel: 380, credits: 390,
+      brief: 'Ice cream for the crew! Drop a scoop at the workshop, then race the rest to DROP. Sunlight melts it, shadows stop the melting.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 120, time: 60 },
       shade: [[6, 50], [104, 128], [184, 232]],
       ground: [[0, 34], [16, 30], [42, 32], [60, 40], [80, 46], [100, 42], [116, 48], [135, 44], [155, 40], [175, 36], [194, 34], [218, 36], [240, 42]],
-      pads: [{ id: 'PICKUP', x1: 18, x2: 38, y: 30 }, { id: 'DROP', x1: 196, x2: 214, y: 34 }] },
+      legs: [
+        { name: 'Load the ice cream at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop Gus’s scoop at the workshop', say: 'ENGINEERING: Mint chip for me! Mint chip! Hurry, it’s melting!', goals: [{ type: 'drop', pad: 'SCOOP', keep: true, busy: 'Scooping', done: 'One scoop delivered!' }] },
+        { name: 'Get the rest to DROP before it melts', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 18, x2: 38, y: 30 }, { id: 'DROP', x1: 196, x2: 214, y: 34 }, { id: 'SCOOP', x1: 104, x2: 118, y: 46 }] },
     { id: 'skipping-stones', name: 'Skipping Stones', side: true, giver: 'G', afterWorld: 'vesta', world: 'vesta', kind: 'route',
       label: 'Survey route', fuel: 300, credits: 240,
       brief: 'Gus wants to know if you can skip a lander across an asteroid like a stone. Fly through his four markers over Vesta, then land on the far side.',
@@ -2470,17 +2485,23 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 20], [30, 33], [60, 45], [90, 53], [120, 56], [150, 53], [175, 45], [188, 40], [204, 40], [240, 20]],
       pads: [{ id: 'LZ', x1: 188, x2: 204, y: 40 }] },
     { id: 'static', name: 'Static', side: true, giver: 'F', afterWorld: 'ganymede', world: 'ganymede', kind: 'land',
-      label: 'Blind landing', storm: 'always', fuel: 200, credits: 260,
-      brief: 'A magnetic storm has parked itself over the Ganymede relay, and Dottie needs it fixed. Your instruments will be scrambled the whole way down. Land by eye.',
-      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 50, time: 45 },
+      label: 'Blind landing', storm: 'always', fuel: 300, credits: 390,
+      brief: 'A storm has scrambled the landing beacons. Land at BEACON and reset it by hand, then use it to bring Biscuit down on LZ. Your instruments are useless the whole way.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 80, time: 60 },
       ground: [[0, 40], [20, 44], [40, 38], [60, 50], [80, 56], [100, 48], [120, 40], [140, 46], [160, 54], [180, 44], [200, 36], [226, 36], [240, 42]],
-      pads: [{ id: 'LZ', x1: 204, x2: 222, y: 34 }] },
+      legs: [
+        { name: 'Reset the storm beacon', goals: [{ type: 'visit', pad: 'BEACON', text: 'Land at BEACON to reset it' }] },
+        { name: 'Blind landing at LZ', say: 'FLIGHT: Beacon’s back. Instruments still scrambled. Trust your eyes, pilot.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 204, x2: 222, y: 34 }, { id: 'BEACON', x1: 112, x2: 128, y: 41 }] },
     { id: 'ride-along', name: 'Ride Along', side: true, giver: 'G', after: 'supply-run', world: 'moon', kind: 'land',
-      label: 'Moving pad', fuel: 200, credits: 200,
-      brief: 'Moonbase Pim’s supply rover can’t stop: its brakes are “on order.” Gus needs a part from it, so land on the rover while it drives.',
-      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 110, time: 30 },
+      label: 'Moving pad', fuel: 300, credits: 300,
+      brief: 'Gus wants a ride on the moon rover. Land on it while it rolls, let him hop aboard, then fly him back to BASE.',
+      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 110, time: 55 },
       ground: [[0, 40], [20, 44], [40, 38], [60, 34], [80, 32], [100, 30], [210, 30], [225, 36], [240, 40]],
-      pads: [{ id: 'LZ', x1: 100, x2: 114, y: 33, kind: 'rover', move: { lo: 100, hi: 210, w: 14, speed: 3, phase: 0 } }] },
+      legs: [
+        { name: 'Catch the moving rover', goals: [{ type: 'visit', pad: 'LZ', text: 'Land on the moving rover' }] },
+        { name: 'Fly Gus back to BASE', say: 'ENGINEERING: WHEEE! Okay, that was amazing. Now take me home, I left a soldering iron on.', goals: [{ type: 'land', pad: 'BASE' }] }],
+      pads: [{ id: 'LZ', x1: 100, x2: 114, y: 33, kind: 'rover', move: { lo: 100, hi: 210, w: 14, speed: 3, phase: 0 } }, { id: 'BASE', x1: 18, x2: 34, y: 42 }] },
     { id: 'swing-shift', name: 'Swing Shift', side: true, giver: 'G', after: 'lifeline', world: 'moon', kind: 'sling',
       label: 'Sling load', cargoName: 'telescope', sling: 9, fragile: 1.5, fuel: 440, credits: 240,
       brief: 'Gus built a telescope for the kids at Moonbase Pim. It’s too big for the cargo bay, so it rides on a 9-meter cable under Biscuit. Fly smooth, and set it down gently on DROP.',
@@ -2488,11 +2509,14 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
       pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
     { id: 'shooting-stars', name: 'Shooting Stars', side: true, giver: 'F', after: 'tranquility', world: 'moon', kind: 'land',
-      label: 'Meteor shower', fuel: 200, credits: 220, meteors: [1.6, 2.6, 2],
-      brief: 'A meteor shower is passing over the Moon tonight, and the survey team at the far LZ needs a ride before it gets worse. Red markers show where each meteor will land.',
-      spawn: { x: 24, y: 105, vx: 0 }, stars: { fuel: 90, time: 35 },
+      label: 'Meteor shower', fuel: 300, credits: 330, meteors: [2.2, 3.4, 2],
+      brief: 'Meteors are falling over the Moon. Grab a fresh fragment from the impact site for Dottie’s desk, then land on LZ in one piece.',
+      spawn: { x: 24, y: 105, vx: 0 }, stars: { fuel: 80, time: 70 },
       ground: [[0, 40], [20, 44], [44, 36], [70, 42], [96, 34], [120, 40], [146, 32], [170, 38], [192, 30], [216, 30], [240, 36]],
-      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 30 }] },
+      legs: [
+        { name: 'Collect a fragment at IMPACT', goals: [{ type: 'visit', pad: 'IMPACT', text: 'Land at IMPACT to grab a fragment' }] },
+        { name: 'Land on LZ, dodging meteors', say: 'FLIGHT: Got it? Good. More are coming. Move.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 30 }, { id: 'IMPACT', x1: 98, x2: 114, y: 36 }] },
     { id: 'hopscotch', name: 'Hopscotch', side: true, giver: 'R', after: 'edge-of-the-world', world: 'vesta', kind: 'hop',
       label: 'Pad hopping', fuel: 420, credits: 280, rexTime: 90,
       brief: 'Rex Valor has challenged you: touch down on pads 1, 2 and 3 on Vesta, in order. He claims he did it in 90 seconds.',
@@ -2530,18 +2554,25 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 40], [16, 38], [34, 38], [52, 44], [72, 50], [92, 52], [112, 52], [132, 48], [152, 42], [172, 42], [192, 46], [212, 40], [240, 44]],
       pads: [{ id: '1', x1: 16, x2: 34, y: 38 }, { id: '2', x1: 94, x2: 110, y: 52 }, { id: '3', x1: 154, x2: 170, y: 42 }] },
     { id: 'catnip-run', name: 'Catnip Run', side: true, giver: 'F', after: 'old-station', world: 'titan', kind: 'cargo',
-      label: 'Fragile cargo', cargoName: 'catnip', fragile: 1.3, mass: 0.85, fuel: 300, credits: 300,
-      brief: 'Apogee has been staring at Wren’s old tapes for three days and needs a break. Titan grows the best catnip in the system. Carry the crate from PICKUP to DROP, gently.',
-      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 60, time: 85 },
+      label: 'Fragile cargo', cargoName: 'catnip', fragile: 1.3, mass: 0.85, fuel: 420, credits: 450,
+      brief: 'A crate of premium catnip for Apogee. Leave a pouch at the cat flap, then deliver the rest to Dottie’s office. Fragile, and very, very important to one cat.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 90, time: 110 },
       ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+      legs: [
+        { name: 'Load the catnip at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Leave a pouch at the cat flap (DROP)', say: 'FLIGHT: One pouch at the cat flap. ONE. She’ll know if there’s more.', goals: [{ type: 'drop', pad: 'DROP', keep: true, busy: 'Leaving a pouch', done: 'Apogee: mrrrp!' }] },
+        { name: 'Deliver the rest to OFFICE', goals: [{ type: 'land', pad: 'OFFICE' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }, { id: 'OFFICE', x1: 202, x2: 218, y: 52 }] },
     { id: 'meteor-watch', name: 'Meteor Watch', side: true, giver: 'W', after: 'rex-shortcut', world: 'mercury', kind: 'land',
-      label: 'Meteor shower', fuel: 240, credits: 340, meteors: [2, 3, 3],
-      brief: 'Before the trip past Pluto, Wren wants to show you a meteor shower over Mercury. The best seat is in the shade by the LZ. Red markers show where each meteor will land.',
-      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 100, time: 45 },
+      label: 'Meteor shower', fuel: 340, credits: 510, meteors: [2, 3, 3],
+      brief: 'Wren wants the meteor shower on camera. Set her camera up on the ridge at CAM, then land on LZ and watch the show from somewhere safe.',
+      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 140, time: 60 },
       shade: [[8, 40], [100, 130], [182, 226]],
       ground: [[0, 40], [20, 36], [44, 40], [68, 48], [92, 44], [116, 50], [140, 46], [164, 40], [186, 36], [218, 36], [232, 40], [240, 42]],
-      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 36 }] },
+      legs: [
+        { name: 'Set up the camera at CAM', goals: [{ type: 'visit', pad: 'CAM', text: 'Land at CAM to set up the camera' }] },
+        { name: 'Watch from LZ', say: 'Wren: Recording! Beautiful. Now get somewhere safe, dear.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 194, x2: 214, y: 36 }, { id: 'CAM', x1: 92, x2: 108, y: 46 }] },
     { id: 'rock-collection', name: 'Rock Collection', side: true, giver: 'G', after: 'supply-run', world: 'moon', kind: 'trip',
       label: 'Round trip', fuel: 260, credits: 260, battery: 70, task: 'Grab the moon rocks',
       brief: 'Gus wants three moon rocks for the break room. Land on LZ and the rover rolls out. Drive to each glowing rock, drive back up the ramp, then launch and dock with the mothership.',
@@ -2616,11 +2647,15 @@ details.act > .limits { margin: 0 0 8px; }
       items: [{ x: 92, what: 'drawing' }, { x: 64, what: 'drawing' }, { x: 36, what: 'school', name: 'classroom window', line: 'The whole class is waving at Crumb! He’s doing his little spin. Now head home.' }],
       dock: { x: 120, y: 116 } },
     { id: 'zib-market', name: 'Zib’s Market', side: true, giver: 'Z', after: 'relay-run', world: 'ganymede', kind: 'cargo',
-      label: 'Delivery', cargoName: 'ice', fuel: 300, credits: 340, mass: 0.85,
-      brief: 'A floating jellyfish trader named Zib wants a crate of Ganymede ice delivered to its market stall across the valley. Zib says it is “very excited” and “very pink”. Carry it from PICKUP to DROP.',
-      spawn: { x: 180, y: 100, vx: 0 }, stars: { fuel: 45, time: 72 },
+      label: 'Delivery', cargoName: 'ice', fuel: 400, credits: 510, mass: 0.85,
+      brief: 'Zib needs ice for the market. Pick it up, drop a block at the fish stall on the way, and bring the rest to Zib’s stall at DROP.',
+      spawn: { x: 180, y: 100, vx: 0 }, stars: { fuel: 100, time: 85 },
       ground: [[0, 36], [14, 34], [40, 36], [58, 46], [76, 58], [96, 52], [116, 62], [136, 56], [156, 48], [176, 40], [196, 36], [222, 38], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 198, x2: 214, y: 34 }, { id: 'DROP', x1: 16, x2: 36, y: 32 }] },
+      legs: [
+        { name: 'Load the ice at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop a block at the fish stall', say: 'Zib: The fish stall gets one block! Zib promised! Zib keeps promises!', goals: [{ type: 'drop', pad: 'FISH', keep: true, busy: 'Unloading a block', done: 'Fish stall: thank you!' }] },
+        { name: 'Bring the rest to Zib at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 198, x2: 214, y: 34 }, { id: 'DROP', x1: 16, x2: 36, y: 32 }, { id: 'FISH', x1: 92, x2: 108, y: 54 }] },
     { id: 'moth-lights', name: 'Moth to a Flame', side: true, giver: 'O', after: 'methane-canyon', world: 'titan', kind: 'route',
       label: 'Lamp slalom', fuel: 300, credits: 320,
       brief: 'Captain Ollo, a moth pilot from very far away, has hung three lamps in Titan’s haze and challenges you to fly through them. He finds them very distracting. Fly through all three in order, then land on LZ.',
@@ -2638,37 +2673,57 @@ details.act > .limits { margin: 0 0 8px; }
               { x: 112, what: 'blip', line: '*biiip!* Got it! It climbed onto Crumb and refuses to get off. Now drive back to Biscuit.' }],
       dock: { x: 100, y: 120 } },
     { id: 'vip-pickup', name: 'VIP Pickup', side: true, giver: 'F', after: 'mayday', world: 'mars', kind: 'rescue',
-      label: 'Diplomatic rescue', fuel: 170, credits: 400, mass: 0.85,
-      brief: 'Two envoys from the Veyra fleet, an alien convoy passing through the solar system, are stuck on Mars after their shuttle overheated in a dust storm. Land at CREW, let them board, and fly them up to orbit. Best behavior, please. They’re very glamorous.',
-      spawn: { x: 30, vx: 3 }, stars: { fuel: 20, time: 42 },
+      label: 'Diplomatic rescue', fuel: 280, credits: 600, mass: 0.85,
+      brief: 'Two envoys are stranded in a Mars dust storm, and they got separated. Pick up Kael at CREW on the mesa, then double back for Lyra at LYRA, then climb to orbit.',
+      spawn: { x: 30, vx: 3 }, stars: { fuel: 40, time: 75 },
       ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
-      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }] },
+      legs: [
+        { name: 'Pick up Kael at CREW', goals: [{ type: 'pickup', pad: 'CREW', what: 'crew' }] },
+        { name: 'Pick up Lyra at LYRA', say: 'Kael: My sister is over the ridge. She will say she wasn’t worried. She was.', goals: [{ type: 'pickup', pad: 'LYRA', what: 'crew' }] },
+        { name: 'Climb to orbit', say: 'Lyra: Thank you. Kael, stop waving at the pilot.', goals: [{ type: 'exit' }] }],
+      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }, { id: 'LYRA', x1: 38, x2: 58, y: 41 }] },
     // ---- Meeting two aliens you can date ----
     { id: 'bubble-trouble', name: 'Bubble Trouble', side: true, giver: 'N', after: 'methane-canyon', world: 'europa', kind: 'cargo',
-      label: 'Fragile cargo', cargoName: 'water tank', fragile: 1.4, mass: 0.85, fuel: 320, credits: 260,
-      brief: 'Someone is waving from the ice on Europa: Nerri, who came up from the ocean underneath, and whose helmet is running low on water. Carry a fresh tank from PICKUP to DROP, touching down slower than 1.4 m/s.',
-      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 60, time: 85 },
+      label: 'Fragile cargo', cargoName: 'water tank', fragile: 1.4, mass: 0.85, fuel: 440, credits: 390,
+      brief: 'Nerri needs fresh water. Load the tank, top it up at the ice spring, then set it down gently at DROP. The tank is fragile.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 120, time: 90 },
       ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+      legs: [
+        { name: 'Load the water tank at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Top it up at the ice SPRING', say: 'Nerri: The spring water is the best water! It tastes like home! Fill it up!', goals: [{ type: 'drop', pad: 'SPRING', keep: true, busy: 'Filling the tank', done: 'Tank full!' }] },
+        { name: 'Bring it to Nerri at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }, { id: 'SPRING', x1: 78, x2: 94, y: 54 }] },
     { id: 'rock-steady', name: 'Rock Steady', side: true, giver: 'S', after: 'core-sample', world: 'vesta', kind: 'cargo',
-      label: 'Fragile cargo', cargoName: 'pet rock', fragile: 1.6, mass: 0.85, fuel: 420, credits: 340,
-      brief: 'A very large rock on Vesta turns out to be Brix, a stone poet, holding a very small rock: his four-thousand-year-old friend. Carry the little one from PICKUP to DROP, gently. The spin pushes you outward, so aim toward the middle.',
-      spawn: { x: 100, y: 90, vx: 0 }, stars: { fuel: 130, time: 120 },
+      label: 'Fragile cargo', cargoName: 'pet rock', fragile: 1.6, mass: 0.85, fuel: 460, credits: 510,
+      brief: 'Brix’s four-thousand-year-old pet rock wants to see the view before it moves aboard. Pick it up, take it up to VIEW, refuel at the depot there, and set it down at DROP.',
+      spawn: { x: 100, y: 90, vx: 0 }, stars: { fuel: 120, time: 170 },
       ground: [[0, 22], [20, 30], [44, 40], [62, 46], [80, 46], [100, 52], [120, 55], [140, 52], [160, 52], [186, 42], [210, 32], [240, 22]],
-      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }] },
+      legs: [
+        { name: 'Pick up the pet rock', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Show it the view (and refuel)', say: 'Brix: It has… never… seen… the sky… from up high.', goals: [{ type: 'visit', pad: 'VIEW', refuel: 80, text: 'Land at VIEW (fuel depot)' }] },
+        { name: 'Set it down gently at DROP', say: 'Brix: It… liked it. I can… tell.', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }, { id: 'VIEW', x1: 196, x2: 212, y: 35 }] },
     // ---- Crew auditions: pass one and that applicant moves aboard ----
     { id: 'house-call', name: 'House Call', side: true, giver: 'D', after: 'lifeline', world: 'moon', kind: 'cargo',
-      label: 'Audition', cargoName: 'med kit', fragile: 1.4, mass: 0.85, fuel: 260, credits: 200,
-      brief: 'Marisol Ibarra, a medic, wants to see how you fly before she joins. Carry her med kit from PICKUP to DROP, touching down slower than 1.4 m/s. There’s glass in it.',
-      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 50, time: 55 },
+      label: 'Audition', cargoName: 'med kit', fragile: 1.4, mass: 0.85, fuel: 400, credits: 300,
+      brief: 'Marisol’s audition. Carry her med kit out to a patient, dropping bandages at the first-aid post on the way. Fragile: touch down gently every time.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 100, time: 80 },
       ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }] },
+      legs: [
+        { name: 'Pick up the med kit', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop bandages at the AID post', say: 'Doc: First-aid post first. Then the patient. Gently, pilot.', goals: [{ type: 'drop', pad: 'AID', keep: true, busy: 'Unloading bandages', done: 'Bandages delivered.' }] },
+        { name: 'Get the kit to the patient at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }, { id: 'AID', x1: 100, x2: 116, y: 54 }] },
     { id: 'seedling-run', name: 'Seedling Run', side: true, giver: 'T', after: 'haze-delivery', world: 'titan', kind: 'cargo',
-      label: 'Audition', cargoName: 'seedlings', fragile: 1.3, mass: 0.85, fuel: 300, credits: 250,
-      brief: 'Tamsin Moss, a botanist, needs her comet-forest seedlings taken to the greenhouse on Titan. Carry them from PICKUP to DROP, touching down slower than 1.3 m/s.',
-      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 60, time: 85 },
+      label: 'Audition', cargoName: 'seedlings', fragile: 1.3, mass: 0.85, fuel: 440, credits: 380,
+      brief: 'Tamsin’s audition. Plant a tray of seedlings in the bed on the hill, then bring the rest to the greenhouse at DROP. They’re delicate.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 90, time: 120 },
       ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+      legs: [
+        { name: 'Load the seedlings', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Plant a tray in the hill BED', say: 'Tamsin: The hill bed gets the morning light. One tray there, please!', goals: [{ type: 'drop', pad: 'BED', keep: true, busy: 'Planting', done: 'Tamsin: perfect!' }] },
+        { name: 'The rest go to the greenhouse at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }, { id: 'BED', x1: 182, x2: 198, y: 52 }] },
     { id: 'express-lane', name: 'Express Lane', side: true, giver: 'X', after: 'storm-rescue', world: 'moon', kind: 'route',
       label: 'Audition', fuel: 240, credits: 250,
       brief: 'Dash Okoro, a courier, wants to know if you’re fast. Fly their three markers over the Moon, then land on the LZ. Quickly. They’re timing you.',
@@ -2677,11 +2732,15 @@ details.act > .limits { margin: 0 0 8px; }
       pads: [{ id: 'LZ', x1: 202, x2: 220, y: 36 }] },
     // ---- Act 4 side missions ----
     { id: 'dark-picnic', name: 'Dark Picnic', side: true, giver: 'G', after: 'first-light', world: 'eris', kind: 'cargo',
-      label: 'Fragile cargo', cargoName: 'picnic', fragile: 1.3, mass: 0.85, fuel: 280, credits: 360,
-      brief: 'Gus wants to hold the first picnic on Eris. Carry his basket from PICKUP to DROP, gently. The sandwiches are stacked very high.',
-      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 80, time: 80 },
+      label: 'Fragile cargo', cargoName: 'picnic', fragile: 1.3, mass: 0.85, fuel: 400, credits: 540,
+      brief: 'A picnic in the dark on Eris. Drop the blanket at the overlook, then land the basket at DROP. Mind the dark.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 100, time: 100 },
       ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+      legs: [
+        { name: 'Load the picnic', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Spread the blanket at the overlook (LOOK)', say: 'ENGINEERING: Blanket goes at the overlook! Best view on Eris. The only view on Eris.', goals: [{ type: 'drop', pad: 'LOOK', keep: true, busy: 'Spreading the blanket', done: 'Blanket down!' }] },
+        { name: 'Land the basket at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }, { id: 'LOOK', x1: 182, x2: 198, y: 52 }] },
     { id: 'ice-regatta', name: 'Ice Regatta', side: true, giver: 'Y', after: 'envoy-escort', world: 'europa', kind: 'route',
       label: 'Race route', fuel: 240, credits: 380,
       brief: 'Lyra says Kael talks better than he flies. Fly her three race markers over Europa’s ice, then land, and your time settles it.',
@@ -2703,7 +2762,50 @@ details.act > .limits { margin: 0 0 8px; }
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
   const missionOpen = i => i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
-  const goalsOf = d => d.goals ? d.goals : d.kind === 'sling' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'deliver', pad: 'DROP' }] : d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
+  // ---- Multi-stop missions ----
+  // A mission with `legs` is a chain of stops flown in one go. Each leg has a name, an optional radio line
+  // when it starts, and its own goals. Fuel carries over, so a sloppy stop makes the next one harder.
+  // Finishing a leg on a pad saves a checkpoint: crash later and you can retry from that stop.
+  // Goal types on top of the usual ones:
+  //   drop    land on the pad and hold while the load comes off (keep: true drops only part of it)
+  //   any pad goal can add refuel: kg (a fuel depot), text: '…' (what the HUD says) and done: '…' (a toast)
+  const legGoals = d => d._lg || (d._lg = d.legs.flatMap((l, li) => l.goals.map((g, gi) => ({ ...g, leg: li, end: gi === l.goals.length - 1 }))));
+  const legOf = () => { const g = mission && currentGoal(); return g && g.leg != null ? g.leg : null; };
+  const padUnder = () => pads.find(p => lander.x >= p.x1 - 1 && lander.x <= p.x2 + 1 && Math.abs(lander.y - p.y) < 6) || null;
+  function legStopText() {
+    const d = mission.def, li = legOf();
+    return li == null ? '' : `Stop ${li + 1}/${d.legs.length} · `;
+  }
+  // a goal was just finished (the stage has already moved on)
+  function afterGoal(g, pad) {
+    const d = mission.def, L = lander;
+    if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
+    if (!d.legs) return;
+    if (!g.end) { if (g.done) showToast(g.done, 2000); return; }
+    const next = d.legs[g.leg + 1];
+    if (!next) return;
+    mission.legWind = next.windMul;
+    if (pad && L.grounded && !pad.move)
+      mission.cp = { stage: mission.stage, padId: pad.id, x: L.x, fuel: L.fuel, t: flightT, carrying: mission.carrying, comfort: mission.comfort, melt: mission.melt, nagged: mission.nagged.slice(), legWind: mission.legWind, leg: g.leg + 1 };
+    sfx.coin();
+    showToast(`${g.done ? g.done + ' ' : ''}✓ Stop ${g.leg + 1} of ${d.legs.length} · Next: ${next.name}`, 2600);
+    if (next.say) setTimeout(() => { if (mission && mode === 'flying') { showToast(next.say, 3400); sfx.radio(); } }, 2700);
+  }
+  // after a crash: back on the last stop's pad, with the fuel and time you had there
+  function retryFromStop() {
+    const cp = mission.cp, d = mission.def;
+    startMission(null);
+    Object.assign(mission, { stage: cp.stage, carrying: cp.carrying, comfort: cp.comfort, melt: cp.melt, nagged: cp.nagged.slice(), legWind: cp.legWind, cp });
+    const pad = pads.find(p => p.id === cp.padId), L = lander;
+    Object.assign(L, { x: cp.x, vx: 0, vy: 0, a: 0, fuel: cp.fuel, firing: false });
+    L.y = pad.y + 10; const feet = FEET.map(([x, y]) => toWorld(x, y)); L.y += pad.y - Math.min(...feet.map(f => f[1]));
+    L.grounded = true; L.cargo = cp.carrying === 'cargo' && !d.sling; L.crew = cp.carrying === 'crew';
+    if (d.sling && cp.carrying) L.sling = { x: L.x, y: surfaceAt(L.x), vx: 0, vy: 0, len: d.sling, ground: true };
+    flightT = cp.t;
+    resetCamera();
+    showToast(`Back at ${pad.id} · ${legStopText()}${goalText()}`, 2600);
+  }
+  const goalsOf = d => d.legs ? legGoals(d) : d.goals ? d.goals : d.kind === 'sling' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'deliver', pad: 'DROP' }] : d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
     : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
@@ -2715,8 +2817,10 @@ details.act > .limits { margin: 0 0 8px; }
   function goalText() {
     const g = currentGoal();
     if (!g) return '';
-    if (mission.loading) return `${g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
-    if (g.type === 'pickup') return g.what === 'cargo' ? 'Land on PICKUP' : 'Land on CREW';
+    if (mission.loading) return `${g.type === 'drop' ? (g.busy || (mission.carrying === 'crew' ? 'Passenger getting off' : 'Unloading')) : g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
+    if (g.text) return g.text;
+    if (g.type === 'drop') return `Drop off at ${g.pad}`;
+    if (g.type === 'pickup') return `Land on ${g.pad}`;
     if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
     if (g.type === 'deliver') return `Lower the ${mission.def.cargoName || 'crate'} gently onto DROP`;
     if (g.type === 'collect') {
@@ -2726,13 +2830,13 @@ details.act > .limits { margin: 0 0 8px; }
     }
     if (g.type === 'board') return mission.rover && mission.rover.boardT != null ? 'Rover boarding…' : 'Drive back up the ramp into Biscuit';
     if (g.type === 'dock') return mission.docking != null ? 'Clamp locked. Docking…' : 'Launch and dock with the mothership ↑';
-    if (g.type === 'visit') return `Touch down on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})`;
-    if (g.type === 'land') return mission.carrying === 'cargo' ? `Deliver the ${mission.def.cargoName || 'crate'} to DROP` : mission.def.goals ? `Land on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})` : `Land on ${g.pad}`;
+    if (g.type === 'visit') return mission.def.legs ? `Touch down on ${g.pad}` : `Touch down on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})`;
+    if (g.type === 'land') return mission.carrying === 'cargo' ? `Deliver the ${mission.def.cargoName || 'crate'} to ${g.pad}` : mission.def.legs ? `Land on ${g.pad}` : mission.def.goals ? `Land on pad ${g.pad} (${mission.stage + 1} of ${mission.def.goals.length})` : `Land on ${g.pad}`;
     return 'Climb to orbit ↑';
   }
   function objectiveText() {
     const d = mission.def;
-    let t = goalText();
+    let t = (d.legs ? legStopText() : '') + goalText();
     if (d.timeLimit) {
       const left = Math.max(0, d.timeLimit - flightT);
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
@@ -3187,7 +3291,8 @@ details.act > .limits { margin: 0 0 8px; }
     touchdownFx(vy, g.type === 'land' && pad.id === g.pad && !g.rover);
     if (g.type === 'land' && pad.id === g.pad && g.rover) { deployRover(); return; }
     if (g.type === 'land' && pad.id === g.pad) { completeMission(pad); return; }
-    if (g.type === 'pickup' && pad.id === g.pad) { mission.loading = true; mission.loadT = 0; }
+    if ((g.type === 'pickup' || g.type === 'drop') && pad.id === g.pad) { mission.loading = true; mission.loadT = 0; }
+    else if (g.type === 'visit' && pad.id === g.pad && d.legs) { mission.stage++; sfx.coin(); afterGoal(g, pad); }
     else if (g.type === 'visit' && pad.id === g.pad) {
       mission.stage++;
       sfx.coin();
@@ -3198,6 +3303,13 @@ details.act > .limits { margin: 0 0 8px; }
   function finishPickup() {
     const g = currentGoal();
     mission.loading = false;
+    if (g.type === 'drop') {
+      if (!g.keep) { mission.carrying = null; lander.cargo = false; lander.crew = false; }
+      mission.stage++;
+      if (!g.end) showToast(g.done || 'Dropped off!', 1600);
+      afterGoal(g, padUnder());
+      return;
+    }
     mission.carrying = g.what;
     mission.stage++;
     lander.cargo = g.what === 'cargo' && !mission.def.sling;
@@ -3206,8 +3318,9 @@ details.act > .limits { margin: 0 0 8px; }
       lander.sling = { x: lander.x, y: surfaceAt(lander.x), vx: 0, vy: 0, len: mission.def.sling, ground: true };
     }
     lander.crew = g.what === 'crew';
-    showToast(mission.def.sling ? 'Cable attached. Lift off slowly!' : g.what === 'cargo' ? 'Cargo secured. Lift off!' : 'Crew aboard. Climb to orbit!');
+    if (!(mission.def.legs && g.end)) showToast(mission.def.sling ? 'Cable attached. Lift off slowly!' : g.what === 'cargo' ? 'Cargo secured. Lift off!' : currentGoal() && currentGoal().type !== 'exit' ? 'Aboard. Next stop!' : 'Crew aboard. Climb to orbit!');
     sfx.coin();
+    if (mission.def.legs) afterGoal(g, padUnder());
   }
   function completeMission(pad) {
     const d = mission.def, t = flightT, fuel = lander.fuel;
@@ -3902,7 +4015,7 @@ details.act > .limits { margin: 0 0 8px; }
     const shield = perk('shield') ? 0.5 : 1;
     const s = t + windSeed;
     const gust = 0.55 + 0.35 * Math.sin(s * 0.45) + 0.25 * Math.sin(s * 1.6 + 1.3);
-    return world.wind * windDir * gust * (mission && mission.def.windMul || 1) * shield;
+    return world.wind * windDir * gust * (mission && (mission.legWind ?? mission.def.windMul) || 1) * shield;
   }
 
   // ---- Lander ----
@@ -4594,6 +4707,7 @@ details.act > .limits { margin: 0 0 8px; }
             'Drive back up the ramp into Biscuit',
             'Launch and dock with the mothership above: get close and slow, and the clamp pulls you in']
         : ['Land on LZ'];
+      if (d.legs) { steps.length = 0; d.legs.forEach((l, i) => steps.push(`<b>Stop ${i + 1}:</b> ${l.name}`)); }
       if (d.sling) steps.push(`The ${what} hangs ${d.sling} m below you and swings when you turn or brake. Don’t drag it into the ground, and set it down slower than ${d.fragile.toFixed(1)} m/s`);
       else if (d.fragile) steps.push(`Fragile: with the crate aboard, touch down slower than ${d.fragile.toFixed(1)} m/s`);
       if (d.timeLimit) steps.push(d.limitText || `Deliver within ${d.timeLimit} seconds, before it goes cold`);
@@ -4605,6 +4719,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (world.hazard === 'heat') steps.push('Sunlight boils fuel out of your tank. In the shadows, it stops');
       if (world.dark) steps.push('It’s dark out here. Your landing light shows the ground right below you, and pad beacons shine through');
       if (world.hazard === 'spin') steps.push('Vesta’s spin pushes you away from the middle, harder near the edges');
+      if (d.legs) steps.push('One flight, several stops: fuel carries over. Crash after a stop and you can retry from the last stop you reached');
       html = `<span class="eyebrow">${missionLabel(missionSel)}${d.side ? '' : ` of ${MISSIONS.length}`} · ${world.name} · ${d.label || KIND_LABEL[d.kind]}</span>
         <h1 class="good">${d.name}</h1>
         <p>${d.brief}</p>
@@ -4654,11 +4769,11 @@ details.act > .limits { margin: 0 0 8px; }
           <p>${cap(lastResult.reasons.join(', '))}.</p>
           ${radioQuote(r.quip || FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)])}
           <div class="btns">
-            <button class="btn" id="go">Retry</button>
+            ${mission.cp ? `<button class="btn" id="go">Retry from stop ${mission.cp.leg + 1}</button><button class="btn ghost" id="restartM">Restart mission</button>` : '<button class="btn" id="go">Retry</button>'}
             ${replayBtn()}
             <button class="btn ghost" id="toMissions">All missions</button>
           </div>
-          <p class="limits">${showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
+          <p class="limits">${mission.cp ? `You’ll start back on ${mission.cp.padId} with the fuel you had there.` : showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
       }
     } else if (m === 'paused') {
       const where = tut ? 'Tutorial' : mission ? `${missionLabel(missionSel)} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
@@ -4769,6 +4884,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (cw2) cw2.addEventListener('click', () => openSetup('solo'));
     const tm = $('toMissions');
     if (tm) tm.addEventListener('click', () => setMode('missions'));
+    const rsm = $('restartM');
+    if (rsm) rsm.addEventListener('click', () => startMission(null));
     const nx = $('next');
     if (nx) nx.addEventListener('click', () => openMission(missionSel + 1));
     const ep = $('epilogue');
@@ -5031,7 +5148,7 @@ details.act > .limits { margin: 0 0 8px; }
       <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
       <span class="mnum">${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
       <b>${d.name}</b>
-      <span class="mtype">${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}</span>
+      <span class="mtype">${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}${d.legs ? ` · ${d.legs.length} stops` : ''}</span>
       <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${d.afterWorld ? `Land on ${WORLDS.find(x => x.id === d.afterWorld).name} in free flight` : `Unlocks after ${afterName(d)}`}</span>`}</span>
     </button>`;
   }
@@ -13055,6 +13172,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'brief') { startMission(null); return; }
     if (mode === 'tutFail') { startTutorial(); return; }
     if (mode === 'tutDone') { if (intro) { intro.step = 'lounge'; intro.tour = 0; setMode('lounge'); return; } openSetup('solo'); return; }
+    if (mode === 'missionEnd' && mission && mission.result && !mission.result.ok && mission.cp) { retryFromStop(); return; }
     if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
     if (mode === 'setup' || mode === 'over' || mode === 'matchEnd' || mode === 'dailyEnd') {
       if (playMode === 'daily') { startDaily(); return; }
