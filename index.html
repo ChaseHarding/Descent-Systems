@@ -5765,7 +5765,7 @@ details.act > .limits { margin: 0 0 8px; }
       P(5, 12, 6, 1, '#f0dca0');
     }
     if (L.acc === 'shades' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#15151f'); else { P(4, 6, 8, 2, '#15151f'); P(5, 6, 1, 1, '#7fd6ff'); P(9, 6, 1, 1, '#7fd6ff'); } }
-    if (L.acc === 'glasses' && dir !== 3) { if (side) P(X(3, 3), 7, 3, 1, '#c9cfdc'); else { P(4, 6, 3, 1, '#c9cfdc'); P(9, 6, 3, 1, '#c9cfdc'); P(7, 6, 2, 1, '#c9cfdc'); } }
+    if (L.acc === 'glasses' && dir !== 3) { const g = '#d9b45a'; if (side) { P(X(4, 3), 6, 3, 1, g); P(X(4, 1), 7, 1, 2, g); } else { P(4, 6, 3, 1, g); P(9, 6, 3, 1, g); P(4, 7, 1, 2, g); P(6, 7, 1, 2, g); P(9, 7, 1, 2, g); P(11, 7, 1, 2, g); P(7, 7, 2, 1, g); } }
     if (L.acc === 'goggles') { P(3, 3, 10, 1, '#5a4636'); if (dir === 0) { P(5, 2, 2, 2, '#7fd6ff'); P(9, 2, 2, 2, '#7fd6ff'); } else if (side) P(X(4, 2), 2, 2, 2, '#7fd6ff'); }
     if (L.acc === 'headset') { P(3, 4, 1, 5, '#3a4668'); P(12, 4, 1, 5, '#3a4668'); P(4, 2, 8, 1, '#3a4668'); if (dir === 0) P(4, 9, 2, 1, '#3a4668'); }
     if (L.hat && L.hat !== 'none' && L.acc !== 'helmet') drawSpriteHat(P, X, side, dir, L.hat);
@@ -12005,12 +12005,14 @@ details.act > .limits { margin: 0 0 8px; }
   FRIEND_ONLY.push('D', 'T', 'X');
   const hired = w => { const r = RECRUITS.find(x => x.who === w); return !!r && (missionStars[r.audition] || 0) > 0; };
   Object.assign(FACES, {
-    // Doc Marisol Ibarra: dark hair in a bun, round glasses, teal scrubs and a stethoscope
-    D: { bg: '#163038', skin: '#c68a5e', shade: '#a46c44', mouth: '#5a2a20', brow: '#2a1414',
-      back(c) { const h = '#2a1414'; px(c, 9, 5, 14, 5, h); px(c, 8, 8, 1, 8, h); px(c, 23, 8, 1, 8, h); px(c, 13, 1, 6, 4, h); px(c, 14, 0, 4, 1, h); },
-      body(c) { px(c, 4, 26, 24, 6, '#3f9a8e'); px(c, 6, 25, 20, 1, '#3f9a8e'); px(c, 13, 25, 6, 3, '#2f7a70'); px(c, 9, 25, 1, 5, '#c9cfdc'); px(c, 22, 25, 1, 5, '#c9cfdc'); px(c, 9, 30, 2, 2, '#8a93ab'); px(c, 21, 28, 3, 2, '#f4f1e8'); },
-      front(c) { const h = '#2a1414'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 2, 2, h); px(c, 20, 10, 2, 2, h); },
-      extra(c) { const g = '#c9cfdc'; outline(c, 11, 14, 4, 4, g); outline(c, 17, 14, 4, 4, g); px(c, 15, 15, 2, 1, g); } },
+    // Doc Marisol Ibarra: soft dark waves to the shoulder, side-swept bangs, thin gold glasses, teal scrubs and a stethoscope
+    D: { bg: '#163038', skin: '#c68a5e', shade: '#a8704a', mouth: '#7a3a30', brow: '#3a2218',
+      back(c) { const h = '#3a2218', l = '#55331f'; px(c, 9, 4, 14, 6, h); px(c, 11, 3, 10, 1, h); px(c, 8, 6, 2, 13, h); px(c, 22, 6, 2, 13, h); px(c, 7, 9, 2, 12, h); px(c, 23, 9, 2, 12, h);
+        px(c, 6, 15, 2, 7, h); px(c, 24, 15, 2, 7, h); px(c, 7, 21, 3, 2, h); px(c, 22, 21, 3, 2, h); px(c, 12, 4, 5, 1, l); px(c, 8, 11, 1, 6, l); px(c, 24, 12, 1, 5, l); },
+      body(c) { px(c, 4, 26, 24, 6, '#3f9a8e'); px(c, 6, 25, 20, 1, '#3f9a8e'); px(c, 13, 25, 6, 3, '#2f7a70'); px(c, 14, 25, 4, 1, '#c68a5e'); px(c, 9, 25, 1, 5, '#c9cfdc'); px(c, 22, 25, 1, 5, '#c9cfdc'); px(c, 9, 30, 2, 2, '#8a93ab'); px(c, 21, 28, 3, 2, '#f4f1e8'); },
+      front(c) { const h = '#3a2218', l = '#55331f'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 4, 1, h); px(c, 10, 11, 2, 1, h); px(c, 14, 10, 2, 1, h); px(c, 21, 10, 1, 2, h); px(c, 12, 8, 4, 1, l); },
+      extra(c) { const g = '#d9b45a'; px(c, 12, 14, 2, 1, g); px(c, 12, 17, 2, 1, g); px(c, 11, 15, 1, 2, g); px(c, 14, 15, 1, 2, g); px(c, 18, 14, 2, 1, g); px(c, 18, 17, 2, 1, g); px(c, 17, 15, 1, 2, g); px(c, 20, 15, 1, 2, g); px(c, 15, 15, 2, 1, g);
+        px(c, 11, 18, 1, 1, 'rgba(230,120,110,0.45)'); px(c, 20, 18, 1, 1, 'rgba(230,120,110,0.45)'); px(c, 8, 18, 1, 1, '#ffe58a'); } },
     // Tamsin Moss: a big cloud of curly red hair with a leaf in it, freckles, green overalls
     T: { bg: '#1e3018', skin: '#f0c8a0', shade: '#d4a47c', mouth: '#8a3a30', brow: '#a8521e',
       back(c) { const h = '#d9772e'; px(c, 6, 4, 20, 16, h); px(c, 5, 7, 1, 11, h); px(c, 26, 7, 1, 11, h); px(c, 8, 3, 16, 1, h); px(c, 7, 20, 4, 3, h); px(c, 21, 20, 4, 3, h); },
@@ -12025,13 +12027,13 @@ details.act > .limits { margin: 0 0 8px; }
       extra(c) { px(c, 9, 7, 14, 1, '#3a3a48'); px(c, 11, 4, 4, 3, '#3a3a48'); px(c, 17, 4, 4, 3, '#3a3a48'); px(c, 12, 5, 2, 1, '#ffb547'); px(c, 18, 5, 2, 1, '#ffb547'); px(c, 13, 19, 6, 1, '#f4f1e8'); } }
   });
   Object.assign(LOOKS, {
-    D: { skin: '#c68a5e', hair: '#2a1414', style: 'bun', top: '#3f9a8e', pants: '#3f9a8e', shoes: '#f4f1e8', acc: 'glasses' },
+    D: { skin: '#c68a5e', hair: '#3a2218', style: 'bun', top: '#3f9a8e', pants: '#3f9a8e', shoes: '#f4f1e8', acc: 'glasses' },
     T: { skin: '#f0c8a0', hair: '#d9772e', style: 'curly', top: '#5a8a3a', pants: '#4a6a2a', shoes: '#5a3a24' },
     X: { skin: '#6a3e28', hair: '#141018', style: 'short', top: '#ffcf3a', pants: '#1a1a24', shoes: '#ff6b5e', acc: 'goggles' }
   });
   Object.assign(SPEAKERS, { D: { name: 'Doc Marisol · Medic', color: '#5fd3c8' }, T: { name: 'Tamsin · Botanist', color: '#8fcf7e' }, X: { name: 'Dash · Courier', color: '#ffcf3a' } });
   Object.assign(SIGN, { D: 'Marisol', T: 'Tamsin', X: 'Dash' });
-  Object.assign(DEFAULT_MOOD, { D: 'deadpan', T: 'happy', X: 'happy' });
+  Object.assign(DEFAULT_MOOD, { D: 'happy', T: 'happy', X: 'happy' });
   ROM_WHO.push('D', 'T', 'X');
   Object.assign(romMet, { D: () => hired('D'), T: () => hired('T'), X: () => hired('X') });
   Object.assign(CREW_HOME, { D: 'room', T: 'garden', X: 'hall' });
