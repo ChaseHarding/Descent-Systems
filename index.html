@@ -350,6 +350,28 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* Ship map */
+.shipmap { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--space-2); border-radius: 10px; background: var(--panel); margin-bottom: 12px; }
+.shipmap .maphead { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 2px; font: 10px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--regolith-dim); }
+.mdeck { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 3px; align-items: stretch; }
+.mdeck .mlabel { display: flex; align-items: center; font: 700 10px var(--f-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--flame); }
+.mdeck .mrooms { display: flex; gap: 3px; min-width: 0; }
+.mroom { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 44px; padding: 4px 1px; border: 1px solid var(--space-2); border-radius: 6px; background: var(--space); color: var(--regolith); font: 10px var(--f-mono); cursor: pointer; }
+.mroom b { font-size: 9px; letter-spacing: -0.02em; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.mroom.shaft { flex: 0 0 1.9rem; background: repeating-linear-gradient(90deg, #3a4256 0 3px, #2a3150 3px 6px); color: #c9cfdc; }
+.mroom.sealed { opacity: 0.5; cursor: default; background: repeating-linear-gradient(135deg, var(--space) 0 6px, #2a2416 6px 9px); }
+.mroom.here { border-color: var(--flame); box-shadow: 0 0 0 1px var(--flame) inset; }
+.mdeck.d1 .mroom:not(.shaft):not(.sealed) { background: #16203c; } .mdeck.d2 .mroom:not(.shaft):not(.sealed) { background: #2a2234; } .mdeck.d3 .mroom:not(.shaft):not(.sealed) { background: #1c2130; }
+.mhall { display: flex; align-items: center; gap: 6px; min-height: 22px; padding: 2px 8px; border: 1px dashed var(--space-2); border-radius: 6px; background: transparent; color: var(--regolith-dim); font: 9px var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; }
+.shipmap .dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-height: 14px; }
+.cdot { display: inline-grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; background: var(--c); color: #0b0f1d; font: 700 8px var(--f-mono); font-style: normal; }
+.shipmap .you { font: 700 8px var(--f-mono); font-style: normal; color: #2a1d0a; background: var(--flame); border-radius: 3px; padding: 1px 3px; }
+/* Intercom announcements */
+.intercom { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 69; width: min(26rem, calc(100vw - 32px)); box-sizing: border-box; padding: 8px 12px; border: 1px solid #7fd6ff; border-radius: 10px; background: var(--space); color: var(--regolith); font-family: var(--f-mono); text-align: left; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); pointer-events: none; opacity: 0; transform: translate(-50%, -150%); transition: transform 0.35s ease, opacity 0.35s ease; }
+.intercom.show { opacity: 1; transform: translate(-50%, 0); }
+.intercom span { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #7fd6ff; }
+.intercom p { margin: 2px 0 0; font-size: 12px; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { .intercom { transition: none; } }
 /* Engine room pipe puzzle */
 .pipecv { display: block; width: 100%; max-width: 420px; margin: 8px auto; border-radius: 6px; touch-action: manipulation; cursor: pointer; }
 /* Ship events */
@@ -3559,6 +3581,7 @@ details.act > .limits { margin: 0 0 8px; }
       badge() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 'triangle', i * 0.09, 0.3, 0.18)); },
       // a little fanfare, and the crew clapping along (a softer chime for hearts)
       liftGo() { tone(98, 'triangle', 0, 1.3, 0.07); tone(147, 'sine', 0.05, 1.2, 0.04); },
+      chime() { tone(784, 'sine', 0, 0.35, 0.08); tone(587, 'sine', 0.22, 0.5, 0.08); },
       ding() { tone(1318, 'sine', 0, 0.6, 0.13); tone(1046, 'sine', 0.2, 0.9, 0.13); },
       cheer(love) {
         const n = love ? [784, 988, 1175, 1568] : [523, 659, 784, 1047, 784, 1047, 1319];
@@ -4316,7 +4339,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (menuTab === 'ship') {
         const order = ['den', 'bridge', 'lounge', 'garden', 'galley', 'engine', 'garage', 'quarters'].concat(projDone('dome') ? ['dome'] : [], ['hall']);
         const blurb = { den: 'Your cabin', bridge: 'Missions and every flight mode', lounge: 'The crew, postcards, the board', garden: ripe ? 'Something’s ready to pick' : 'Grow gifts for the crew', garage: crumbHome() && salvageReady() ? 'Crumb is back with salvage!' : 'Paint, upgrades, mining, the fleet', quarters: 'Everyone’s rooms', galley: 'Cook meals from your crops', dome: 'Stars, a telescope, quiet', engine: engState().done < ENGINE_JOBS ? `Gus has ${ENGINE_JOBS - engState().done} repair ${ENGINE_JOBS - engState().done === 1 ? 'job' : 'jobs'}` : 'Gus’s workshop and the core', hall: 'Three decks, joined by the lift' };
-        body = `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${ROOM_DECK[id] ? `Deck ${ROOM_DECK[id]} · ` : ''}${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
+        body = shipMapHtml() + `<nav class="rooms" aria-label="Rooms on the ship">${order.map(id => `<button class="mode${id === lastRoom ? ' here' : ''}" data-room="${id}"><b>${ROOM_NAMES[id]}</b><span>${ROOM_DECK[id] ? `Deck ${ROOM_DECK[id]} · ` : ''}${id === lastRoom ? 'You are here' : blurb[id]}</span>${roomNew[id] && id !== lastRoom ? '<i class="dot">New</i>' : ''}</button>`).join('')}</nav>
           <button class="mode wide" id="flightsBtn"><b>Flight deck</b><span>Missions, free flight, daily, hot-seat, endless run</span></button>`;
       } else if (menuTab === 'crew') {
         const today = shipDayKey();
@@ -4700,6 +4723,7 @@ details.act > .limits { margin: 0 0 8px; }
     { const pjb = $('projBtn'); if (pjb) pjb.addEventListener('click', () => { sfx.click(); projectsFrom = 'menu'; setMode('projects'); }); }
     for (const [id, to] of [['albumBtn2', 'album'], ['boardBtn2', 'board'], ['logBtn2', 'log']]) { const b2 = $(id); if (b2) b2.addEventListener('click', () => { sfx.click(); setMode(to); }); }
     card.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => { sfx.click(); walkEnter = null; setMode(b.dataset.room); }));
+    card.querySelectorAll('[data-mapdeck]').forEach(b => b.addEventListener('click', () => { sfx.click(); hallDeck = +b.dataset.mapdeck; store.set('ds-hallDeck', String(hallDeck)); walkEnter = null; setMode(b.classList.contains('shaft') ? 'lift' : 'hall'); }));
     const sbk = $('shipBack');
     if (sbk) sbk.addEventListener('click', () => { sfx.click(); if (m === 'flights' && flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); });
     const flb = $('flightsBtn');
@@ -7526,6 +7550,8 @@ details.act > .limits { margin: 0 0 8px; }
   function liftRide(to) {
     if (!deck || deck.kind !== 'lift' || deck.ride || to === hallDeck) return;
     deck.ride = { from: hallDeck, to, t0: performance.now() };
+    const rider = deck.npcs.find(n => n.rider);
+    if (rider) { if (crewCache && rider.haller) liftMoves[rider.who] = { key: crewCache.key, deck: to, fresh: true }; setTimeout(() => { if (deck && deck.kind === 'lift') shipSay(rider.who, RIDE_SAYS[Math.floor(Math.random() * RIDE_SAYS.length)]); }, 500); }
     deck.me.goal = null; deck.target = null;
     renderLiftPanel();
     sfx.liftGo();
@@ -7814,7 +7840,13 @@ details.act > .limits { margin: 0 0 8px; }
   function buildNpcs(kind) {
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
-    if (kind === 'hall') { const mx = deck ? deck.me.x : 200; who.filter(w => P[w] === 'hall').forEach((w, i) => add(w, i === 0 ? Math.max(40, Math.min(HALL_W - 40, mx + (mx > HALL_W / 2 ? -60 : 60))) : 40 + srand(w + i + 'x') * (HALL_W - 80), 92 + (i % 3) * 20, { wander: true })); }
+    if (kind === 'lift') {
+      // someone heading between decks, or now and then anyone popping out of a room for a minute
+      const hallers = who.filter(w => P[w] === 'hall' && !(liftMoves[w] && crewCache && liftMoves[w].key === crewCache.key));
+      const pool = hallers.length && Math.random() < 0.5 ? hallers : Math.random() < 0.3 ? who.filter(w => P[w] !== 'room' && !P[w].startsWith('visit:')) : [];
+      if (pool.length) { const w = pool[Math.floor(Math.random() * pool.length)]; add(w, 96, 118, { baseDir: 0, rider: true, haller: P[w] === 'hall' }); }
+    }
+    else if (kind === 'hall') { const mx = deck ? deck.me.x : 200, lx = (HALL_DOORS.find(d => d[1] === 'LIFT') || [200])[0]; who.filter(w => P[w] === 'hall' && crewHallDeck(w) === hallDeck).forEach((w, i) => liftMoves[w] && crewCache && liftMoves[w].key === crewCache.key && liftMoves[w].fresh ? (liftMoves[w].fresh = false, add(w, lx + 18 + i * 14, 80, { wander: true, pause: 3 })) : add(w, i === 0 ? Math.max(40, Math.min(HALL_W - 40, mx + (mx > HALL_W / 2 ? -60 : 60))) : 40 + srand(w + i + 'x') * (HALL_W - 80), 92 + (i % 3) * 20, { wander: true })); }
     else if (kind === 'bridge') {
       const here = who.filter(w => P[w] === 'bridge'), spare = [[70, 146], [190, 146], [100, 120]];
       for (const w of here) { const s = w === 'R' ? [24, 128] : w === 'O' ? [232, 128] : spare.shift(); if (s) add(w, s[0], s[1], { baseDir: s[0] < 128 ? 2 : 1 }); }
@@ -7859,6 +7891,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (n.visit && r < 0.6) line = pick(VISIT_SAYS.filter((f, i) => !(i === 0 && w === 'F')))(SIGN[n.visit]);
       else if (n.owner && guests.length && r < 0.5) line = pick(HOST_SAYS)(SIGN[pick(guests).who]);
       else if (deck.kind === 'hall' && r < 0.4) line = pick(HALL_SAYS);
+      else if (deck.kind === 'lift' && LIFT_CHAT[w] && r < 0.7) line = pick(LIFT_CHAT[w]);
       else if (deck.kind === 'garden' && r < 0.5) line = pick(GARDEN_SAYS);
     }
     shipSay(w, line || chatLine(w));
@@ -7871,8 +7904,14 @@ details.act > .limits { margin: 0 0 8px; }
       if (n.wander && Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 34 && !(n.greetT > now - 20000)) { n.greetT = now; n.emote = { k: 'wave', t0: now, until: now + 1600 }; n.notice = now + 1600; n.goal = null; n.pause = Math.max(n.pause, 1.6); continue; }
       if (n.pause > 0) { n.pause -= dt; if (!n.wander || n.pause > 2.5) { const near = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46; n.dir = near ? faceToward(n, deck.me) : n.baseDir; } continue; }
       if (!n.wander) { n.dir = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46 ? faceToward(n, deck.me) : n.baseDir; continue; }
+      if (!n.goal && deck.kind === 'hall' && !n.leaving && Math.random() < 0.18) { const ld = HALL_DOORS.find(d => d[1] === 'LIFT'); if (ld) { n.goal = [ld[0], 66]; n.leaving = true; } }
       if (!n.goal) n.goal = [30 + Math.random() * (deck.W - 60), 84 + Math.random() * 56];
       const dx = n.goal[0] - n.x, dy = n.goal[1] - n.y, d = Math.hypot(dx, dy);
+      if (d < 1.5 && n.leaving) {   // into the lift and off to another deck
+        const others = [1, 2, 3].filter(k => k !== hallDeck);
+        if (crewCache) liftMoves[n.who] = { key: crewCache.key, deck: others[Math.floor(Math.random() * 2)] };
+        deck.npcs = deck.npcs.filter(o => o !== n); sfx.ding(); return;
+      }
       if (d < 1.5) { n.goal = null; n.pause = 2 + Math.random() * 4; continue; }
       const s = Math.min(d, 22 * dt); n.x += dx / d * s; n.y += dy / d * s; n.moving = true;
       n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0);
@@ -7900,6 +7939,106 @@ details.act > .limits { margin: 0 0 8px; }
     if (k.follow <= 0) { k.sleep = true; return; }
     const dx = deck.me.x - 14 - k.x, dy = deck.me.y + 4 - k.y, d = Math.hypot(dx, dy);
     if (d > 16) { const s = Math.min(d - 16, 38 * dt); k.x += dx / d * s; k.y += dy / d * s; k.moving = true; }
+  }
+
+  // ---- Crew between decks: who's in which corridor, and who rode the lift ----
+  const liftMoves = {};   // crew who took the lift this slot: who -> { key, deck }
+  function crewHallDeck(w) {
+    const P = crewPlaces(), key = crewCache ? crewCache.key : '';
+    if (P[w] !== 'hall') return 0;
+    if (liftMoves[w] && liftMoves[w].key === key) return liftMoves[w].deck;
+    const r = srand(w + 'deck' + key);
+    return r < 0.5 ? 2 : r < 0.75 ? 1 : 3;
+  }
+  const LIFT_CHAT = {
+    F: ['Going up? Me too. I have a meeting with myself on deck one. It’s very important.', 'I hold the handrail. Every time. Somebody has to set an example.'],
+    G: ['Deck three, please! Wait, I’m already going to deck three. Carry on.', 'I wrote the lift music! You can’t hear it right now. It’s resting.'],
+    W: ['When I started flying, the ship had a ladder. Just a ladder. We were very fit.', 'Lifts are just very slow landers. Same rules: gentle at the bottom.'],
+    R: ['Don’t tell anyone, but this is the only place on the ship I can check my hair. The walls are very shiny.', 'Rex Valor, going down. Wait, that sounded bad. Rex Valor, going to a lower deck.'],
+    J: ['The lift sings a little when it stops. Did you hear it? Just a little.', 'I always count the decks out loud. One. Two. Three. It’s calming.'],
+    Z: ['Zib loves the lift! It is a tiny room that goes places!', 'Zib pressed all the buttons once. Dottie was very calm about it. Very, very calm.'],
+    O: ['In the lift, there is no hurry. Only the hum.', 'The lift light is warm. I sit under it sometimes. Like a lamp. You understand.'],
+    V: ['On our fleet, the lifts go sideways too. Yours are very… traditional.', 'Lyra and I race to the lift. I let her win. Don’t tell her.'],
+    Y: ['Kael says he lets me win the race to the lift. He does not.', 'I like this little room. Everyone is polite in a lift.']
+  };
+  const RIDE_SAYS = ['This is my stop too. After you, pilot.', 'Same deck! What are the odds. One in three, actually.', 'Oh, good, I was going this way anyway.'];
+
+  // ---- The intercom: Dottie (mostly) keeps the ship informed ----
+  const IC_LINES = [
+    ['F', 'Gus to the engine room. Gus to the engine room. Your coffee is boiling over. Again.'],
+    ['F', 'Reminder: the lift is not a racetrack. Rex.'],
+    ['G', 'This is Gus. If anyone sees a small wrench, it’s mine. If anyone sees a big wrench, also mine.'],
+    ['F', 'Dottie on the intercom. The cat is on the Bridge again. Nobody panic. She’s just sitting in the captain’s chair.'],
+    ['G', 'Ship status: all green. Except the coffee maker. The coffee maker is a sort of orange.'],
+    ['F', 'Lost and found: one sock, one spoon, one very small helmet. The helmet is Apogee’s. Everyone knows that.'],
+    ['F', 'A friendly reminder that the break room fridge is not a museum. Gus.'],
+    ['G', 'Gus here! Just testing the intercom. One, two, three. Is this thing on? It’s on. Hi, everyone.']
+  ];
+  let icNext = performance.now() + 45000, icT = 0;
+  function intercomLines() {
+    const L = [];
+    if (gardenReady()) L.push(['G', 'Garden update: something’s ripe and smells amazing. Deck two. Come and pick it before I eat it.']);
+    const left = ENGINE_JOBS - engState().done;
+    if (left > 0 && repairsTotal() > 0) L.push(['G', `Engine room here, deck three. ${left} ${left === 1 ? 'thing needs' : 'things need'} fixing. Bring your thinking cap. I lost mine.`]);
+    if (newMissions().length) L.push(['F', 'New jobs on the nav console, pilot. Bridge, deck one.']);
+    const ev = eventFor(); if (ev && !evState().done) L.push([evHost(ev), `Reminder, everyone: it’s ${ev.name} today! ${ev.goal()}.`]);
+    if (eveLevel() >= 0.5) L.push(['F', 'Evening, everyone. Lights are going warm. Quiet hours start whenever Gus stops playing the accordion.']);
+    if (typeof salvageReady === 'function' && crumbHome() && salvageReady()) L.push(['K', '*beep boop beep* (Crumb has found the intercom. He’s back from salvage and very proud. Hangar, deck three.)']);
+    if (zibMet()) L.push(['F', 'Attention all crew: whoever keeps rearranging the galley spoons, Zib, please stop. They were alphabetical.']);
+    return L;
+  }
+  function intercom() {
+    const ctx = intercomLines();
+    const pool = ctx.length && Math.random() < 0.6 ? ctx : IC_LINES;
+    const [who, text] = pool[Math.floor(Math.random() * pool.length)];
+    let el = $('intercom');
+    if (!el) { el = document.createElement('div'); el.id = 'intercom'; el.className = 'intercom'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.innerHTML = `<span>📢 Intercom · ${esc(SIGN[who] || (who === 'K' ? 'Crumb' : 'Dottie'))}</span><p>${esc(text)}</p>`;
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    sfx.chime();
+    clearTimeout(icT); icT = setTimeout(() => el.classList.remove('show'), 7000);
+  }
+  // check every few seconds: only aboard the ship, only now and then
+  setInterval(() => {
+    const now = performance.now();
+    if (document.hidden || intro || !SHIP_ROOMS.includes(mode) || now < icNext) return;
+    if (store.get('ds-intercom', '1') === '0') { icNext = now + 60000; return; }
+    icNext = now + 90000 + Math.random() * 70000;
+    try { intercom(); } catch (e) {}
+  }, 5000);
+
+  // ---- The ship map: a cross-section of the three decks, with everyone on it ----
+  const MAP_ROOMS = {
+    1: [['bridge', 'Bridge'], ['dome', 'Dome'], ['office', 'Office'], ['lift', 'Lift']],
+    2: [['garden', 'Garden'], ['galley', 'Galley'], ['lounge', 'Break'], ['lift', 'Lift'], ['den', 'Pad'], ['quarters', 'Crew']],
+    3: [['garage', 'Hangar'], ['airlock', 'Airlock'], ['cargo', 'Cargo'], ['lift', 'Lift'], ['engine', 'Engine']]
+  };
+  function shipMapHtml() {
+    const P = crewPlaces(), here = lastRoom === 'hall' ? 'hall' + hallDeck : lastRoom === 'bedroom' ? 'quarters' : lastRoom;
+    const where = {};   // map cell -> crew in it
+    const put = (k, w) => (where[k] = where[k] || []).push(w);
+    for (const w of Object.keys(P)) {
+      const loc = P[w];
+      if (loc === 'hall') put('hall' + crewHallDeck(w), w);
+      else if (loc === 'room' || loc.startsWith('visit:')) put('quarters', w);
+      else put(loc, w);
+    }
+    const dots = k => (where[k] || []).map(w => `<i class="cdot" style="--c:${SPEAKERS[w].color}" title="${esc(SIGN[w])}">${esc(SIGN[w][0])}</i>`).join('');
+    const you = k => k === here ? '<i class="you" title="You">You</i>' : '';
+    const open = id => id === 'dome' ? projDone('dome') : !['office', 'airlock', 'cargo'].includes(id);
+    return `<div class="shipmap" role="group" aria-label="Ship map: tap a room to go there">
+      <p class="maphead"><span>◀ Bow</span><span>Ship map · tap to go</span><span>Stern ▶</span></p>
+      ${[1, 2, 3].map(d => `<div class="mdeck d${d}">
+        <span class="mlabel">${d} · ${DECKS[d].short}</span>
+        <div class="mrooms">${MAP_ROOMS[d].map(([id, name]) => {
+          const ok = open(id), k = id === 'lift' ? 'lift' + d : id, cls = `mroom${id === 'lift' ? ' shaft' : ''}${ok ? '' : ' sealed'}${k === here || (id === 'lift' && here === 'lift' && hallDeck === d) ? ' here' : ''}`;
+          const label = `${name}${ok ? '' : ' (sealed)'}${(where[id] || []).length ? `: ${where[id].map(w => SIGN[w]).join(', ')}` : ''}`;
+          return ok ? `<button class="${cls}" ${id === 'lift' ? `data-mapdeck="${d}"` : `data-room="${id}"`} aria-label="${esc(label)}"><b>${name}</b><span class="dots">${you(id === 'lift' ? (here === 'lift' && hallDeck === d ? 'lift' : '') : k)}${id === 'lift' ? '' : dots(id)}</span></button>`
+            : `<span class="${cls}" aria-label="${esc(label)}"><b>${name}</b><span class="dots">🔒</span></span>`;
+        }).join('')}</div>
+        <button class="mhall" data-mapdeck="${d}" aria-label="Deck ${d} corridor${(where['hall' + d] || []).length ? `: ${where['hall' + d].map(w => SIGN[w]).join(', ')}` : ''}"><small>Corridor</small><span class="dots">${you('hall' + d)}${dots('hall' + d)}</span></button>
+      </div>`).join('')}
+    </div>`;
   }
 
   // ---- Crew quarters: a corridor of bedroom doors ----
