@@ -13302,6 +13302,7 @@ details.act > .limits { margin: 0 0 8px; }
 
     if (world.hazard === 'heat') drawSun(time);
     if (world.hazard === 'storm') drawAurora(time);
+    drawWorldSky(time);
 
     // wind-blown dust motes
     if (dust.length) {
@@ -13319,7 +13320,8 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.moveTo(sx(0), ch);
       for (const [x, y] of terrain) ctx.lineTo(sx(x), sy(y));
       ctx.lineTo(sx(W), ch); ctx.closePath();
-      ctx.fillStyle = world.ground; ctx.fill();
+      drawWorldGround(time);
+      drawRimGlow();
       ctx.beginPath();
       terrain.forEach(([x, y], i) => i ? ctx.lineTo(sx(x), sy(y)) : ctx.moveTo(sx(x), sy(y)));
       ctx.strokeStyle = world.rim; ctx.lineWidth = 1.5; ctx.stroke();
@@ -13952,6 +13954,136 @@ details.act > .limits { margin: 0 0 8px; }
     ctx.beginPath(); ctx.arc(x1 + 1.5 * u, top - 3.2 * u, 0.5 * u, 0, Math.PI * 2); ctx.fill();
   }
   // Mercury's Sun: huge, white-hot, hanging over the horizon
+  // ---- World visuals: what's in each sky, distant ridges, and a textured ground ----
+  // Everything here is decoration drawn around the flight: the terrain shape, pads and physics don't change.
+  const hx = h => { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const mixC = (a, b, t) => { const A = hx(a), B = hx(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
+  const rgba = (h, a) => `rgba(${hx(h).join(',')},${a})`;
+  // what hangs in each sky (x, y and r are fractions of the screen), the ridge style and the ground texture
+  const WFX = {
+    pluto: { bodies: [{ x: 0.24, y: 0.23, r: 0.075, col: '#b9ad9f', dark: '#5e554c', craters: 1 }, { x: 0.8, y: 0.2, r: 0.006, col: '#fff6dc', star: 1 }], ridge: 'jag', tex: 'craters' },
+    vesta: { bodies: [{ x: 0.22, y: 0.22, r: 0.008, col: '#fff6dc', star: 1 }], rocks: 1, ridge: 'soft', tex: 'craters' },
+    moon: { bodies: [{ x: 0.74, y: 0.2, r: 0.085, col: '#2a6fd6', dark: '#0b1f3f', earth: 1 }], ridge: 'jag', tex: 'craters' },
+    europa: { bodies: [{ x: 0.86, y: 0.28, r: 0.24, col: '#d9a066', dark: '#3a2414', bands: ['#f0d6b0', '#c47a46', '#e8c08a', '#b86a3a'], spot: 1 }], ridge: 'spike', tex: 'cracks' },
+    ganymede: { bodies: [{ x: 0.2, y: 0.23, r: 0.12, col: '#d9a066', dark: '#3a2414', bands: ['#f0d6b0', '#c47a46', '#e8c08a', '#b86a3a'], spot: 1 }], ridge: 'jag', tex: 'craters', grooves: 1 },
+    titan: { bodies: [{ x: 0.66, y: 0.22, r: 0.1, col: '#e8cf9a', dark: '#6e4518', bands: ['#d9b77a', '#f0dcae'], rings: 1, haze: 0.55 }], ridge: 'soft', tex: 'strata', haze: '#e0a85c' },
+    io: { bodies: [{ x: 0.2, y: 0.27, r: 0.2, col: '#d9a066', dark: '#3a2414', bands: ['#f0d6b0', '#c47a46', '#e8c08a', '#b86a3a'], spot: 1 }], ridge: 'cone', tex: 'lava' },
+    mercury: { bodies: [], ridge: 'jag', tex: 'craters', shimmer: 1 },
+    mars: { bodies: [{ x: 0.3, y: 0.2, r: 0.02, col: '#b8a090', dark: '#4a3a30', lumpy: 1 }, { x: 0.72, y: 0.22, r: 0.012, col: '#c8b4a0', dark: '#4a3a30', lumpy: 1 }], ridge: 'mesa', tex: 'strata', haze: '#e88a5c' },
+    earth: { bodies: [{ x: 0.26, y: 0.2, r: 0.04, col: '#e8ecf4', dark: 'rgba(0,0,0,0)', craters: 1, pale: 1 }], ridge: 'soft', tex: 'strata', clouds: '#ffffff', haze: '#cfe6ff' },
+    venus: { bodies: [], ridge: 'soft', tex: 'strata', clouds: '#fff0c8', haze: '#f0c070', sunGlow: 1 },
+    eris: { bodies: [{ x: 0.3, y: 0.2, r: 0.005, col: '#fff6dc', star: 1 }, { x: 0.74, y: 0.24, r: 0.03, col: '#8a93ab', dark: '#1a1d30', craters: 1 }], ridge: 'jag', tex: 'craters' }
+  };
+  let wfxCache = null;
+  // seeded so each world always looks the same
+  const wrand = seed => { let a = 0; for (const c of seed) a = (a * 31 + c.charCodeAt(0)) | 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+  function wfxPrep() {
+    if (wfxCache && wfxCache.world === world && wfxCache.terrain === terrain) return wfxCache;
+    const F = WFX[world.id] || {}, R = wrand(world.id), avg = terrain.length ? terrain.reduce((s, p) => s + p[1], 0) / terrain.length : 40;
+    const ridge = (k, amp, step) => {
+      const pts = []; let y = 0;
+      for (let x = -120; x <= W + 120; x += step) {
+        const r = R();
+        if (F.ridge === 'mesa') y = r < 0.25 ? amp * (0.4 + R() * 0.6) : y;
+        else if (F.ridge === 'cone') y = (x / step) % 5 === 2 ? amp * (0.8 + R() * 0.5) : amp * 0.15 * R();
+        else if (F.ridge === 'spike') y = amp * (0.15 + R() * 0.9) * (r < 0.5 ? 1 : 0.4);
+        else if (F.ridge === 'soft') y = amp * (0.5 + 0.35 * Math.sin(x / 23 + k * 3) + 0.15 * Math.sin(x / 9 + k));
+        else y = amp * (0.25 + r * 0.75);
+        pts.push([x, y]);
+        if (F.ridge === 'mesa') { pts.push([x + step * 0.92, y]); }
+      }
+      return pts;
+    };
+    const tex = [];
+    if (F.tex === 'craters') for (let i = 0; i < 26; i++) tex.push({ x: R() * W, d: 3 + R() * 40, r: 1.2 + R() * (i < 4 ? 6 : 3) });
+    if (F.tex === 'cracks') for (let i = 0; i < 14; i++) { const x = R() * W, d = 2 + R() * 30, L = []; let cx = x, cy = d; for (let k = 0; k < 5; k++) { L.push([cx, cy]); cx += (R() - 0.5) * 9; cy += 1 + R() * 4; } tex.push(L); }
+    if (F.tex === 'lava') for (let i = 0; i < 9; i++) { const x = R() * W, d = 4 + R() * 30, L = []; let cx = x, cy = d; for (let k = 0; k < 6; k++) { L.push([cx, cy]); cx += (R() - 0.5) * 12; cy += (R() - 0.3) * 3; } tex.push(L); }
+    const pebbles = Array.from({ length: 70 }, () => ({ x: R() * W, d: 0.6 + R() * 4, r: 0.25 + R() * 0.55 }));
+    const rocks = F.rocks ? Array.from({ length: 6 }, () => ({ x: R(), y: 0.05 + R() * 0.3, r: 0.004 + R() * 0.01, sp: 0.2 + R() * 0.6, ph: R() * 6 })) : [];
+    const clouds = F.clouds ? Array.from({ length: 7 }, () => ({ x: R(), y: 0.05 + R() * 0.32, w: 0.18 + R() * 0.3, h: 0.02 + R() * 0.025, sp: 0.004 + R() * 0.01 })) : [];
+    wfxCache = { world, terrain, F, avg, far: ridge(0, 22, 9), near: ridge(1, 12, 6), tex, pebbles, rocks, clouds };
+    return wfxCache;
+  }
+  // a planet or moon, lit from the upper right
+  function wfxBody(b, X, Y, R0, time) {
+    const c = ctx;
+    if (b.star) { const g = c.createRadialGradient(X, Y, 0, X, Y, R0 * 9); g.addColorStop(0, 'rgba(255,246,220,0.9)'); g.addColorStop(0.15, 'rgba(255,230,180,0.35)'); g.addColorStop(1, 'rgba(255,220,160,0)'); c.fillStyle = g; c.fillRect(X - R0 * 9, Y - R0 * 9, R0 * 18, R0 * 18); c.fillStyle = '#fffaf0'; c.beginPath(); c.arc(X, Y, Math.max(1.2, R0), 0, Math.PI * 2); c.fill(); return; }
+    c.save();
+    if (b.haze) c.globalAlpha = b.haze;
+    if (b.rings) { c.strokeStyle = 'rgba(232,214,168,0.55)'; c.lineWidth = R0 * 0.18; c.beginPath(); c.ellipse(X, Y, R0 * 2.1, R0 * 0.42, -0.3, Math.PI, Math.PI * 2); c.stroke(); }
+    // atmosphere rim
+    if (b.earth || b.bands) { const g = c.createRadialGradient(X, Y, R0 * 0.9, X, Y, R0 * 1.25); g.addColorStop(0, rgba(b.earth ? '#8fd3ff' : '#ffd9a0', 0.35)); g.addColorStop(1, rgba(b.earth ? '#8fd3ff' : '#ffd9a0', 0)); c.fillStyle = g; c.beginPath(); c.arc(X, Y, R0 * 1.25, 0, Math.PI * 2); c.fill(); }
+    c.beginPath(); c.arc(X, Y, R0, 0, Math.PI * 2); c.save(); c.clip();
+    c.fillStyle = b.col; c.fillRect(X - R0, Y - R0, R0 * 2, R0 * 2);
+    if (b.bands) { const n = 11; for (let i = 0; i < n; i++) { c.fillStyle = b.bands[i % b.bands.length]; c.globalAlpha = (b.haze || 1) * 0.85; c.fillRect(X - R0, Y - R0 + i * 2 * R0 / n + Math.sin(i * 1.7) * R0 * 0.03, R0 * 2, R0 * 0.11); } c.globalAlpha = b.haze || 1; }
+    if (b.spot) { c.fillStyle = '#b8402a'; c.beginPath(); c.ellipse(X - R0 * 0.25, Y + R0 * 0.32, R0 * 0.18, R0 * 0.09, 0, 0, Math.PI * 2); c.fill(); }
+    if (b.earth) { c.fillStyle = '#3fa86b'; for (const [a, d, s] of [[-0.3, -0.2, 0.35], [0.25, 0.25, 0.28], [-0.1, 0.45, 0.2]]) { c.beginPath(); c.ellipse(X + a * R0, Y + d * R0, s * R0, s * R0 * 0.6, 0.4, 0, Math.PI * 2); c.fill(); }
+      c.fillStyle = 'rgba(255,255,255,0.75)'; const t = reduceMotion ? 0 : time / 60000; for (let i = 0; i < 6; i++) c.fillRect(X - R0 + ((i * 0.37 + t) % 1) * R0 * 2, Y - R0 * 0.8 + i * R0 * 0.3, R0 * 0.55, R0 * 0.07); }
+    if (b.craters) { c.fillStyle = 'rgba(0,0,0,0.16)'; for (const [a, d, s] of [[-0.3, -0.3, 0.18], [0.35, 0.1, 0.12], [-0.05, 0.4, 0.15], [0.2, -0.45, 0.09]]) { c.beginPath(); c.arc(X + a * R0, Y + d * R0, s * R0, 0, Math.PI * 2); c.fill(); } }
+    if (b.lumpy) { c.fillStyle = 'rgba(0,0,0,0.2)'; c.beginPath(); c.arc(X + R0 * 0.3, Y + R0 * 0.2, R0 * 0.35, 0, Math.PI * 2); c.fill(); }
+    // night side
+    if (!b.pale) { const g = c.createLinearGradient(X + R0 * 0.6, Y - R0 * 0.6, X - R0, Y + R0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.45, 'rgba(0,0,0,0.05)'); g.addColorStop(1, 'rgba(0,0,0,0.72)'); c.fillStyle = g; c.fillRect(X - R0, Y - R0, R0 * 2, R0 * 2); }
+    c.restore();
+    if (b.rings) { c.strokeStyle = 'rgba(240,222,176,0.8)'; c.lineWidth = R0 * 0.18; c.beginPath(); c.ellipse(X, Y, R0 * 2.1, R0 * 0.42, -0.3, 0, Math.PI); c.stroke(); }
+    c.restore();
+  }
+  // the sky: planets and moons, clouds and haze, then two layers of distant ridges
+  function drawWorldSky(time) {
+    if (!terrain.length) return;
+    const P = wfxPrep(), F = P.F, c = ctx, m = Math.min(cw, ch * 0.6), par = (cam.x - W / 2) * scale;
+    for (const b of F.bodies || []) wfxBody(b, b.x * cw - par * 0.03, b.y * ch, b.r * m, time);
+    for (const r of P.rocks) { const X = ((r.x * cw - par * 0.06 + (reduceMotion ? 0 : time / 1000 * r.sp)) % (cw + 20)) - 10, R0 = r.r * m; c.fillStyle = '#5a5248'; c.beginPath(); c.ellipse(X, r.y * ch, R0 * 1.3, R0, r.ph, 0, Math.PI * 2); c.fill(); c.fillStyle = 'rgba(255,240,220,0.25)'; c.beginPath(); c.arc(X + R0 * 0.3, r.y * ch - R0 * 0.3, R0 * 0.5, 0, Math.PI * 2); c.fill(); }
+    if (F.sunGlow) { const g = c.createRadialGradient(cw * 0.7, ch * 0.08, 0, cw * 0.7, ch * 0.08, m * 0.7); g.addColorStop(0, 'rgba(255,240,190,0.35)'); g.addColorStop(1, 'rgba(255,220,150,0)'); c.fillStyle = g; c.fillRect(0, 0, cw, ch); }
+    for (const cl of P.clouds) { const X = ((cl.x + (reduceMotion ? 0 : time / 1000 * cl.sp)) % 1.4 - 0.2) * cw - par * 0.05, Y = cl.y * ch, w = cl.w * cw, h = cl.h * ch;
+      c.fillStyle = rgba(F.clouds, world.id === 'venus' ? 0.22 : 0.12); c.beginPath(); c.ellipse(X, Y, w / 2, h, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.ellipse(X + w * 0.15, Y - h * 0.6, w / 3, h * 0.9, 0, 0, Math.PI * 2); c.fill(); }
+    // ridges, with parallax
+    const layer = (pts, k, lift, col) => {
+      const ox = W / 2 + (cam.x - W / 2) * k, oy = H / 2 + (cam.y - H / 2) * k, X = x => cw / 2 + (x - ox) * scale, Y = y => ch / 2 - (y - oy) * scale;
+      c.beginPath(); c.moveTo(X(pts[0][0]), ch);
+      for (const [x, y] of pts) c.lineTo(X(x), Y(P.avg + lift + y));
+      c.lineTo(X(pts[pts.length - 1][0]), ch); c.closePath(); c.fillStyle = col; c.fill();
+    };
+    layer(P.far, 0.35, 2, mixC(world.sky[1], world.ground, 0.32));
+    if (F.ridge === 'cone') for (let i = 0; i < P.far.length; i++) { const [x, y] = P.far[i]; if (y > 15) { const ox = W / 2 + (cam.x - W / 2) * 0.35, oy = H / 2 + (cam.y - H / 2) * 0.35, X = cw / 2 + (x - ox) * scale, Y = ch / 2 - (P.avg + 2 + y - oy) * scale, t = reduceMotion ? 0 : time / 1000; for (let k = 0; k < 5; k++) { const kk = (t * 0.3 + k / 5) % 1; c.fillStyle = `rgba(242,209,74,${(0.18 * (1 - kk)).toFixed(3)})`; c.beginPath(); c.arc(X + Math.sin(kk * 4 + i) * 6 * scale * 0.2, Y - kk * 30 * scale * 0.35, (2 + kk * 6) * scale * 0.3, 0, Math.PI * 2); c.fill(); } } }
+    layer(P.near, 0.6, -2, mixC(world.sky[1], world.ground, 0.58));
+    if (F.haze) { const yH = ch / 2 - (P.avg + 18 - H / 2 - (cam.y - H / 2)) * scale; const g = c.createLinearGradient(0, yH - 80 * scale * 0.4, 0, yH + 30 * scale * 0.3); g.addColorStop(0, rgba(F.haze, 0)); g.addColorStop(1, rgba(F.haze, world.id === 'earth' ? 0.12 : 0.18)); c.fillStyle = g; c.fillRect(0, 0, cw, ch); }
+    if (F.shimmer && !reduceMotion) { c.fillStyle = 'rgba(255,220,170,0.035)'; const t = time / 300; for (let i = 0; i < 8; i++) c.fillRect(0, ch * (0.35 + i * 0.04) + Math.sin(t + i) * 3, cw, 2); }
+  }
+  // the ground: lit near the top and darker underneath, with layers, craters, ice cracks or lava
+  function drawWorldGround(time) {
+    const P = wfxPrep(), F = P.F, c = ctx;
+    let top = Infinity; for (const [, y] of terrain) top = Math.min(top, sy(y));
+    const g = c.createLinearGradient(0, top, 0, Math.max(ch, top + 10));
+    g.addColorStop(0, mixC(world.ground, world.rim, 0.2)); g.addColorStop(0.3, world.ground); g.addColorStop(1, mixC(world.ground, '#000000', 0.55));
+    c.fillStyle = g; c.fill();
+    c.save(); c.clip();
+    const surf = x => groundAt(Math.max(0, Math.min(W, x)));
+    // layers that follow the shape of the ground
+    for (const [d, a] of [[3, 0.13], [7, 0.1], [13, 0.08], [22, 0.07], [34, 0.06]]) {
+      c.beginPath(); terrain.forEach(([x, y], i) => i ? c.lineTo(sx(x), sy(y - d)) : c.moveTo(sx(x), sy(y - d)));
+      c.strokeStyle = rgba(F.tex === 'strata' ? world.rim : '#000000', F.tex === 'strata' ? a : a * 0.9); c.lineWidth = Math.max(1, (F.tex === 'strata' ? 1.6 : 1.2) * scale * 0.5); c.stroke();
+    }
+    if (F.tex === 'craters') for (const k of P.tex) {
+      const X = sx(k.x), Y = sy(surf(k.x) - k.d), r = k.r * scale;
+      c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(X, Y, r * 1.4, r * 0.55, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = rgba(world.rim, 0.16); c.lineWidth = Math.max(1, scale * 0.35); c.beginPath(); c.ellipse(X, Y, r * 1.4, r * 0.55, 0, 0.1, Math.PI - 0.1); c.stroke();
+    }
+    if (F.grooves) { c.strokeStyle = rgba(world.rim, 0.08); c.lineWidth = Math.max(1, scale * 0.6); for (let i = 0; i < 6; i++) { c.beginPath(); for (let x = 0; x <= W; x += 6) { const y = surf(x) - 8 - i * 6 + Math.sin(x / 17 + i) * 2; x ? c.lineTo(sx(x), sy(y)) : c.moveTo(sx(x), sy(y)); } c.stroke(); } }
+    if (F.tex === 'cracks') { c.lineWidth = Math.max(1, scale * 0.45); for (const L of P.tex) { c.strokeStyle = 'rgba(160,220,255,0.28)'; c.beginPath(); L.forEach(([x, d], i) => { const X = sx(x), Y = sy(surf(L[0][0]) - d); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); } }
+    if (F.tex === 'lava') { const p = reduceMotion ? 0.7 : 0.55 + 0.3 * Math.sin(time / 600); c.lineWidth = Math.max(1.2, scale * 0.7); c.lineCap = 'round';
+      for (const L of P.tex) { c.strokeStyle = `rgba(255,${Math.round(110 + 60 * p)},40,${(0.35 * p + 0.15).toFixed(2)})`; c.shadowColor = 'rgba(255,120,40,0.8)'; c.shadowBlur = 6 * p; c.beginPath(); L.forEach(([x, d], i) => { const X = sx(x), Y = sy(surf(L[0][0]) - d); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); }
+      c.shadowBlur = 0; c.lineCap = 'butt'; }
+    // pebbles just under the surface
+    c.fillStyle = rgba(world.rim, 0.22);
+    for (const pb of P.pebbles) { const X = sx(pb.x), Y = sy(surf(pb.x) - pb.d), r = pb.r * scale; c.fillRect(X - r, Y - r * 0.6, r * 2, r * 1.2); }
+    c.restore();
+  }
+  // a soft glow under the rim line
+  function drawRimGlow() {
+    const c = ctx;
+    c.beginPath(); terrain.forEach(([x, y], i) => i ? c.lineTo(sx(x), sy(y)) : c.moveTo(sx(x), sy(y)));
+    c.strokeStyle = rgba(world.rim, 0.16); c.lineWidth = 5; c.stroke();
+  }
   function drawSun(time) {
     const x = cw * 0.82, y = ch * 0.16, r = Math.min(cw, ch) * 0.075;
     const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 4.5);
