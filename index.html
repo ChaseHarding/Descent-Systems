@@ -350,6 +350,17 @@ kbd {
   .achv:not([hidden]) { animation: achv-in 0.25s ease-out; }
   @keyframes achv-in { from { transform: translate(-50%, -8px); opacity: 0; } }
 }
+/* Crew applications */
+.recruits { display: grid; gap: 8px; margin-top: 14px; }
+.recruits h3 { margin: 0; }
+.recruit { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 10px; border: 1px solid var(--space-2); border-radius: 10px; background: var(--panel); }
+.recruit.open { border-color: var(--flame); }
+.recruit.later { opacity: 0.7; }
+.recruit canvas.face, .recruit .face.unknown { flex: none; width: 44px; height: 44px; border-radius: 6px; image-rendering: pixelated; }
+.recruit .face.unknown { display: grid; place-items: center; background: var(--space); color: var(--regolith-dim); font: 700 18px var(--f-mono); }
+.recruit p { margin: 2px 0; font-size: 13px; }
+.recruit small { color: var(--flame); font-family: var(--f-mono); font-size: 11px; }
+.recruit.hired small { color: var(--ok); }
 /* Ship map */
 .shipmap { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--space-2); border-radius: 10px; background: var(--panel); margin-bottom: 12px; }
 .shipmap .maphead { display: flex; justify-content: space-between; gap: 8px; margin: 0 0 2px; font: 10px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--regolith-dim); }
@@ -2609,6 +2620,25 @@ details.act > .limits { margin: 0 0 8px; }
       spawn: { x: 30, vx: 3 }, stars: { fuel: 20, time: 42 },
       ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
       pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }] },
+    // ---- Crew auditions: pass one and that applicant moves aboard ----
+    { id: 'house-call', name: 'House Call', side: true, giver: 'D', after: 'lifeline', world: 'moon', kind: 'cargo',
+      label: 'Audition', cargoName: 'med kit', fragile: 1.4, mass: 0.85, fuel: 260, credits: 200,
+      brief: 'Marisol Ibarra, a medic, wants to see how you fly before she joins. Carry her med kit from PICKUP to DROP, touching down slower than 1.4 m/s. There’s glass in it.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 50, time: 55 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 34 }, { id: 'DROP', x1: 178, x2: 196, y: 34 }] },
+    { id: 'seedling-run', name: 'Seedling Run', side: true, giver: 'T', after: 'haze-delivery', world: 'titan', kind: 'cargo',
+      label: 'Audition', cargoName: 'seedlings', fragile: 1.3, mass: 0.85, fuel: 300, credits: 250,
+      brief: 'Tamsin Moss, a botanist, needs her comet-forest seedlings taken to the greenhouse on Titan. Carry them from PICKUP to DROP, touching down slower than 1.3 m/s.',
+      spawn: { x: 40, y: 95, vx: 0 }, stars: { fuel: 60, time: 85 },
+      ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
+      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 42 }, { id: 'DROP', x1: 140, x2: 160, y: 46 }] },
+    { id: 'express-lane', name: 'Express Lane', side: true, giver: 'X', after: 'storm-rescue', world: 'moon', kind: 'route',
+      label: 'Audition', fuel: 240, credits: 250,
+      brief: 'Dash Okoro, a courier, wants to know if you’re fast. Fly their three markers over the Moon, then land on the LZ. Quickly. They’re timing you.',
+      spawn: { x: 20, y: 80, vx: 0 }, rings: [[60, 84], [120, 100], [180, 84]], stars: { fuel: 90, time: 38 },
+      ground: [[0, 40], [22, 44], [44, 38], [66, 46], [90, 52], [114, 46], [138, 40], [160, 46], [184, 40], [200, 36], [222, 36], [240, 42]],
+      pads: [{ id: 'LZ', x1: 202, x2: 220, y: 36 }] },
     // ---- Act 4 side missions ----
     { id: 'dark-picnic', name: 'Dark Picnic', side: true, giver: 'G', after: 'first-light', world: 'eris', kind: 'cargo',
       label: 'Fragile cargo', cargoName: 'picnic', fragile: 1.3, mass: 0.85, fuel: 280, credits: 360,
@@ -4200,7 +4230,7 @@ details.act > .limits { margin: 0 0 8px; }
   function setMode(m) {
     try { applyEvening(m); } catch (e) {}
     if (SHIP_ROOMS.includes(m) && !intro) {
-      try { eventHello(); eventHook('room', { room: m }); } catch (e) {}
+      try { eventHello(); eventHook('room', { room: m }); castHello(m); recruitNudge(); } catch (e) {}
       if (eventPartyReady()) { startEventParty(m); return; }
     }
     // walking between rooms: a quick fade from black, with a door whoosh if you came through a door
@@ -5167,6 +5197,8 @@ details.act > .limits { margin: 0 0 8px; }
     const hull = findItem('hull', equip.hull);
     const L = [];
     const add = (cond, text) => { if (cond) L.push(text); };
+    if (who === 'C' || who === 'H') return castLines(who);
+    if (who === 'D' || who === 'T' || who === 'X') return recruitLines(who);
     if (who === 'F') {
       L.push('Break room rules: label your food, rinse your mug, and never, ever touch Gus’s yogurt. It’s an experiment.');
       L.push('Paperwork for a landing: four forms. Paperwork for a crash: eleven. Fly accordingly.');
@@ -6498,7 +6530,7 @@ details.act > .limits { margin: 0 0 8px; }
   function denFaces() {
     if (denFaceCache) return denFaceCache;
     denFaceCache = {};
-    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
     return denFaceCache;
   }
 
@@ -6669,7 +6701,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
+  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)));
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -7808,10 +7840,13 @@ details.act > .limits { margin: 0 0 8px; }
     if (intro) { const P = {}; met.forEach(w => { P[w] = CREW_HOME[w]; }); return P; }
     const slot = Math.floor(Date.now() / SLOT_MS) + (window.__crewShift || 0) + shipDay * 7919, key = slot + met.join('');
     if (crewCache && crewCache.key === key) return crewCache.P;
-    const P = {}, count = {}, cap = { hall: 3, garden: 2, bridge: 3 };
+    const P = {}, count = {}, cap = { hall: 4, garden: 3, bridge: 3 };
     for (const w of met) {
       const r = srand(w + slot), h = CREW_HOME[w];
       let loc = h === 'lounge' ? (r < 0.58 ? 'lounge' : r < 0.74 ? 'room' : r < 0.86 ? 'hall' : r < 0.92 ? 'garden' : 'visit')
+        : h === 'galley' ? (r < 0.62 ? 'galley' : r < 0.78 ? 'room' : r < 0.88 ? 'hall' : r < 0.94 ? 'garden' : 'visit')
+        : h === 'garden' ? (r < 0.6 ? 'garden' : r < 0.75 ? 'room' : r < 0.85 ? 'hall' : r < 0.92 ? 'galley' : 'visit')
+        : h === 'hall' ? (r < 0.55 ? 'hall' : r < 0.68 ? 'galley' : r < 0.78 ? 'bridge' : r < 0.9 ? 'room' : 'visit')
         : h === 'bridge' ? (r < 0.5 ? 'bridge' : r < 0.7 ? 'room' : r < 0.82 ? 'hall' : r < 0.88 ? 'garden' : 'visit')
         : (r < 0.42 ? 'room' : r < 0.6 ? 'hall' : r < 0.7 ? 'garden' : r < 0.78 ? 'bridge' : 'visit');
       if (cap[loc] != null && (count[loc] || 0) >= cap[loc]) loc = 'room';
@@ -7828,11 +7863,12 @@ details.act > .limits { margin: 0 0 8px; }
       const hosts = met.filter(h => h !== w && P[h] === 'room');
       P[w] = hosts.length ? 'visit:' + hosts[Math.floor(srand(w + 'v' + slot) * hosts.length)] : 'hall';
     }
+    if (P.C && kitTagging()) P.C = 'tag';
     crewCache = { key, P };
     return P;
   }
   const crewAt = who => crewPlaces()[who] || CREW_HOME[who];
-  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the corridors', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'Snacking in the galley', engine: 'Tinkering in the engine room' }[loc];
+  const placeName = loc => !loc ? '' : loc.startsWith('visit:') ? `Visiting ${SIGN[loc.slice(6)]}` : { tag: 'Tagging along with you', lounge: 'In the break room', bridge: 'On the Bridge', room: 'In their room', hall: 'Wandering the corridors', garden: 'In the garden', dome: 'Stargazing in the dome', galley: 'In the galley', engine: 'Tinkering in the engine room' }[loc];
   const roomOpen = who => heartsOf(who) >= 3 || bond.partner === who;
   const roomBusy = who => crewAt(who) === 'room' || Object.values(crewPlaces()).includes('visit:' + who);
 
@@ -7840,6 +7876,7 @@ details.act > .limits { margin: 0 0 8px; }
   function buildNpcs(kind) {
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
+    if (P.C === 'tag' && DECK_KINDS.includes(kind)) add('C', 110, 120, { follow: true, pause: 0 });
     if (kind === 'lift') {
       // someone heading between decks, or now and then anyone popping out of a room for a minute
       const hallers = who.filter(w => P[w] === 'hall' && !(liftMoves[w] && crewCache && liftMoves[w].key === crewCache.key));
@@ -7852,7 +7889,7 @@ details.act > .limits { margin: 0 0 8px; }
       for (const w of here) { const s = w === 'R' ? [24, 128] : w === 'O' ? [232, 128] : spare.shift(); if (s) add(w, s[0], s[1], { baseDir: s[0] < 128 ? 2 : 1 }); }
     } else if (kind === 'galley') {
       const spots = [[60, 118], [160, 124], [228, 120]];
-      who.filter(w => P[w] === 'galley').forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: i === 1 ? 3 : 0 }); });
+      who.filter(w => P[w] === 'galley').sort((a, b) => (b === 'H') - (a === 'H')).forEach((w, i) => { if (spots[i]) add(w, spots[i][0], spots[i][1], { baseDir: i === 1 ? 3 : 0 }); });
     } else if (kind === 'engine') {
       who.filter(w => P[w] === 'engine').forEach((w, i) => { const sp = [[56, 104], [180, 112]][i]; if (sp) add(w, sp[0], sp[1], { baseDir: 3 }); });
     } else if (kind === 'dome') {
@@ -7894,12 +7931,20 @@ details.act > .limits { margin: 0 0 8px; }
       else if (deck.kind === 'lift' && LIFT_CHAT[w] && r < 0.7) line = pick(LIFT_CHAT[w]);
       else if (deck.kind === 'garden' && r < 0.5) line = pick(GARDEN_SAYS);
     }
+    if (w === 'C' && n.follow && Math.random() < 0.6) line = KIT_TAG[deck.kind] || line;
     shipSay(w, line || chatLine(w));
   }
   function npcStep(dt) {
     const now = performance.now();
     for (const n of deck.npcs) {
       n.moving = false;
+      if (n.follow) {   // Kit, tagging along a step behind you
+        if (n.pause > 0) { n.pause -= dt; n.dir = faceToward(n, deck.me); continue; }
+        const tx = deck.me.x + (deck.me.x > deck.W - 40 ? 20 : -20), ty = Math.max(deck.me.y + 4, 0), dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy);
+        if (d > 6) { const sp = Math.min(d - 4, 44 * dt); n.x += dx / d * sp; n.y += dy / d * sp; n.moving = true; n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
+        else n.dir = faceToward(n, deck.me);
+        continue;
+      }
       if (n.notice > now) { n.dir = faceToward(n, deck.me); continue; }
       if (n.wander && Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 34 && !(n.greetT > now - 20000)) { n.greetT = now; n.emote = { k: 'wave', t0: now, until: now + 1600 }; n.notice = now + 1600; n.goal = null; n.pause = Math.max(n.pause, 1.6); continue; }
       if (n.pause > 0) { n.pause -= dt; if (!n.wander || n.pause > 2.5) { const near = Math.hypot(deck.me.x - n.x, deck.me.y - n.y) < 46; n.dir = near ? faceToward(n, deck.me) : n.baseDir; } continue; }
@@ -8019,7 +8064,8 @@ details.act > .limits { margin: 0 0 8px; }
     const put = (k, w) => (where[k] = where[k] || []).push(w);
     for (const w of Object.keys(P)) {
       const loc = P[w];
-      if (loc === 'hall') put('hall' + crewHallDeck(w), w);
+      if (loc === 'tag') put(here, w);
+      else if (loc === 'hall') put('hall' + crewHallDeck(w), w);
       else if (loc === 'room' || loc.startsWith('visit:')) put('quarters', w);
       else put(loc, w);
     }
@@ -8042,7 +8088,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
 
   // ---- Crew quarters: a corridor of bedroom doors ----
-  const QUARTERS_W = 460, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y'];
+  const QUARTERS_W = 680, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X'];
   const qDoorX = i => 76 + i * 42;
   let bedroomOwner = 'F';
   const SNACKS = ['Space crisps. They taste like stars. Stars taste like salt, apparently.', 'A Moonbase Pim pastry. Slightly squashed. Still perfect.',
@@ -9363,7 +9409,9 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'teacake', name: 'Moon tea cakes', icon: '🧁', price: 0, noShop: true, meal: true, src: 'homemade' },
     { id: 'fernsoup', name: 'Fern soup', icon: '🍲', price: 0, noShop: true, meal: true, src: 'homemade' },
     { id: 'tart', name: 'Chocolate flower tart', icon: '🥧', price: 0, noShop: true, meal: true, src: 'homemade' },
-    { id: 'breakfast', name: 'Breakfast plate', icon: '🍳', price: 0, noShop: true, meal: true, src: 'homemade' }
+    { id: 'breakfast', name: 'Breakfast plate', icon: '🍳', price: 0, noShop: true, meal: true, src: 'homemade' },
+    { id: 'dumplings', name: 'Garden dumplings', icon: '🥟', price: 0, noShop: true, meal: true, src: 'homemade' },
+    { id: 'spicedcocoa', name: 'Spiced cocoa', icon: '🫖', price: 0, noShop: true, meal: true, src: 'homemade' }
   ];
   const GEM_FANS = ['Z', 'R', 'Y'];
 
@@ -9501,12 +9549,15 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'teacake', needs: ['tea', 'flowers'], line: 'Moon tea cakes with a flower on top. Ollo might actually weep.' },
     { id: 'fernsoup', needs: ['plant', 'tea'], line: 'Fern soup. It sounds weird. It is weird. It’s also delicious.' },
     { id: 'tart', needs: ['choc', 'flowers'], line: 'A chocolate flower tart. Fancy enough for an embassy dinner.' },
-    { id: 'breakfast', needs: ['coffee', 'plant'], line: 'A proper breakfast. Coffee, greens, and something that might be toast.' }
+    { id: 'breakfast', needs: ['coffee', 'plant'], line: 'A proper breakfast. Coffee, greens, and something that might be toast.' },
+    { id: 'dumplings', needs: ['plant', 'flowers'], bao: 'H3', line: 'Bao’s garden dumplings. Fold, pinch, steam. Everybody’s favorite.' },
+    { id: 'spicedcocoa', needs: ['tea', 'choc'], bao: 'H6', line: 'Bao’s grandmother’s spiced cocoa. It warms you all the way down to your boots.' }
   ];
   let galleySel = null, cook = null;
   const giftName = id => (GIFTS.find(g => g.id === id) || {}).name || id;
   const giftIcon = id => (GIFTS.find(g => g.id === id) || {}).icon || '';
-  function canCook(r) { return r.needs.every(n => (garden.basket[n] || 0) > 0); }
+  const recipeLocked = r => r.bao && !bond.seen.includes(r.bao);
+  function canCook(r) { return !recipeLocked(r) && r.needs.every(n => (garden.basket[n] || 0) > 0); }
   function galleyThings(L) {
     L.push({ id: 'stove', rect: [76, 34, 44, 34], go: () => [98, 84], at: () => ({ x: 98, y: 50 }), act: () => { galleySel = 'stove'; sfx.click(); renderGalleyPanel(); } });
     L.push({ id: 'fridge', rect: [196, 18, 34, 52], go: () => [212, 84], at: () => ({ x: 212, y: 40 }), act: () => { const items = Object.entries(garden.basket).filter(([, n]) => n > 0).map(([id, n]) => `${giftIcon(id)}×${n}`).join(' '); shipSay('G', items ? `Fridge check! You’ve got ${items}. That’s a meal waiting to happen.` : 'The fridge is empty. Well, except my yogurt. Don’t touch my yogurt. Grow something in the garden first!'); } });
@@ -9518,7 +9569,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (cook) return;   // the stirring game owns the panel while it runs
     const have = n => garden.basket[n] || 0;
     box.innerHTML = `<h3>The stove</h3><p>Pick a recipe. Each one uses two crops from your basket. Meals are the best gifts on the ship: everyone loves a home-cooked meal.</p>
-      <div class="seeds">${RECIPES.map(r => `<button class="seed" data-cook="${r.id}"${canCook(r) ? '' : ' disabled'}><span aria-hidden="true">${giftIcon(r.id)}</span><b>${giftName(r.id)}</b><small>${r.needs.map(n => `${giftIcon(n)}${have(n) ? '' : ' ✗'}`).join(' + ')}</small></button>`).join('')}</div>
+      <div class="seeds">${RECIPES.map(r => `<button class="seed" data-cook="${r.id}"${canCook(r) ? '' : ' disabled'}><span aria-hidden="true">${giftIcon(r.id)}</span><b>${giftName(r.id)}</b><small>${recipeLocked(r) ? (baoMet() ? `Bao teaches you at ${r.bao.slice(1)} ♥` : 'A recipe from the new cook') : r.needs.map(n => `${giftIcon(n)}${have(n) ? '' : ' ✗'}`).join(' + ')}</small></button>`).join('')}</div>
       <p class="gbasket">${Object.values(garden.basket).some(n => n > 0) ? `Basket: ${Object.entries(garden.basket).filter(([, n]) => n > 0).map(([id, n]) => `${giftIcon(id)}×${n}`).join(' ')}` : 'Your basket is empty. Grow crops in the garden to cook with.'}</p>`;
     box.querySelectorAll('[data-cook]').forEach(b => b.addEventListener('click', () => { const r = RECIPES.find(x => x.id === b.dataset.cook); if (canCook(r)) startCooking(r); }));
   }
@@ -9551,7 +9602,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (cook.round < 3) { cook.zone = 0.2 + Math.random() * 0.6; cook.t0 = performance.now(); msg.textContent = `${ok ? 'Nice stir!' : 'Missed!'} Stir ${cook.round + 1} of 3`; return; }
       cook.done = true;
       const q = cook.hits, made = q === 3 ? 2 : q === 2 ? 1 : q === 1 ? 1 : 0, rr = cook.r;
-      if (made) { garden.basket[rr.id] = (garden.basket[rr.id] || 0) + made; saveGarden(); eventHook('cook'); }
+      if (made) { garden.basket[rr.id] = (garden.basket[rr.id] || 0) + made; saveGarden(); reqEvent('cook'); }
       const res = q === 3 ? `Perfect! You made two portions of ${giftName(rr.id)}.` : q >= 1 ? `${q === 2 ? 'Nicely done!' : 'A bit lumpy, but edible.'} One ${giftName(rr.id)} for your basket.` : 'Oh no. It’s… very crispy. Gus ate it anyway and said it was “structurally interesting”.';
       msg.textContent = res; showToast(made ? `${giftIcon(rr.id)} ×${made} into your basket` : 'Burnt! Gus ate it.', 2400);
       shipSay(made ? 'G' : 'G', made ? rr.line : 'I’d give that a solid… crunch out of ten. Try again! We’ve got more crops. Probably.');
@@ -9931,7 +9982,8 @@ details.act > .limits { margin: 0 0 8px; }
   // a hat (or the star shades) on the little walking sprite
   function drawSpriteHat(P, X, side, dir, hat) {
     const H = (a, b, w, h, col) => P(side ? X(a, w) : a, b, w, h, col);
-    if (hat === 'cap') { H(4, 0, 8, 3, '#ff6b5e'); H(5, -1, 6, 1, '#ff6b5e'); if (dir === 0) P(3, 3, 10, 1, '#b8322a'); else if (side) H(0, 2, 5, 1, '#b8322a'); }
+    if (hat === 'chef') { H(4, -5, 8, 6, '#f4f1e8'); H(3, -7, 4, 3, '#ffffff'); H(9, -7, 4, 3, '#ffffff'); H(4, 0, 8, 1, '#c9cfdc'); }
+    else if (hat === 'cap') { H(4, 0, 8, 3, '#ff6b5e'); H(5, -1, 6, 1, '#ff6b5e'); if (dir === 0) P(3, 3, 10, 1, '#b8322a'); else if (side) H(0, 2, 5, 1, '#b8322a'); }
     else if (hat === 'beanie') { H(4, -1, 8, 4, '#4fae8a'); H(3, 2, 10, 1, '#2f7a58'); H(7, -3, 2, 2, '#f4f1e8'); }
     else if (hat === 'antennae') { H(5, -2, 1, 3, '#3a4668'); H(10, -2, 1, 3, '#3a4668'); H(4, -4, 3, 2, '#ff9ad5'); H(9, -4, 3, 2, '#ff9ad5'); H(4, 1, 8, 1, '#3a4668'); }
     else if (hat === 'flower' && dir !== 3) { H(10, 1, 3, 3, '#ff9ad5'); H(11, 2, 1, 1, '#ffe58a'); }
@@ -10583,6 +10635,8 @@ details.act > .limits { margin: 0 0 8px; }
     pet: { who: 'A', n: 3, pay: 150, text: () => 'Mrrp. (Pet Apogee three times today, in the break room or your Pad. She has it in her calendar.)' },
     moon: { who: 'M', n: 2, pay: 250, text: () => 'Land on the Moon twice today! I’ll be at the canteen window waving. SO hard.', needs: () => pimMet() },
     dock: { who: 'J', n: 1, pay: 300, text: () => 'Dock with the mothership once today. Any round trip will do. The clamp gets lonely.', needs: () => junoMet() },
+    cook: { who: 'H', n: 1, pay: 250, text: () => 'Cook something in the galley today. Anything! I want to see your stirring technique.', needs: () => baoMet() },
+    kit: { who: 'C', n: 3, pay: 250, text: () => 'Land three times today, anywhere! I’m keeping a tally. It’s for science. Okay, it’s for me.', needs: () => kitMet() },
     arcade: { who: 'G', n: 1, pay: 300, text: () => 'Score 600 or more in Descent Systems Classic. NOT GUS believes in you. NOT GUS is not me.', needs: () => owned.has(denKey('floor', 'arcade')) }
   };
   // what each crew member says when their request is done
@@ -10600,6 +10654,8 @@ details.act > .limits { margin: 0 0 8px; }
     run: 'Site four! And the perk didn’t explode! I’m going to go lie down. Happily.',
     share: 'Gossip received. You won. Probably. I’m telling everyone either way.',
     pet: 'Mrrp. (She has marked the appointment as completed. You may go.)',
+    cook: 'Look at that stirring! My grandmother would have hired you. Then fired you twice. But hired you.',
+    kit: 'Three landings! I wrote them all down. I drew little pictures too. Can I keep them?',
     arcade: 'Six hundred! NOT GUS is very impressed. NOT GUS is also not jealous. NOT GUS is fine.',
     bonus: 'All three done! I’ve added a bonus to your account and a gold star to your file. The star cost more.'
   };
@@ -10660,6 +10716,7 @@ details.act > .limits { margin: 0 0 8px; }
         if (it.type === 'tilt' && d.ang < 2) add = 1;
         if (it.type === 'rover' && d.pad && d.pad.move) add = 1;
         if (it.type === 'site' && d.solo && d.level >= 3) add = 1;
+        if (it.type === 'kit') add = 1;
       }
       if (type === 'stars' && it.type === 'stars') add = d.n || 0;
       if (type === 'daily' && it.type === 'daily') add = 1;
@@ -10667,6 +10724,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (type === 'share' && it.type === 'share') add = 1;
       if (type === 'pet' && it.type === 'pet') add = 1;
       if (type === 'dock' && it.type === 'dock') add = 1;
+      if (type === 'cook' && it.type === 'cook') add = 1;
       if (type === 'arcade' && it.type === 'arcade' && d.score >= 600) add = 1;
       if (!add) continue;
       it.prog = Math.min(T.n, it.prog + add); changed = true;
@@ -11010,7 +11068,7 @@ details.act > .limits { margin: 0 0 8px; }
       ${met.map(who => {
         const scene = sceneReady(who), h = heartsOf(who), open = friendsUI.open === who;
         const talked = bond.talk[who] === today, gifted = bond.gift[who] === today;
-        const canAsk = romanceOn && !bond.partner && h >= 6 && bond.seen.includes(who + '6');
+        const canAsk = romanceOn && !bond.partner && h >= 6 && bond.seen.includes(who + '6') && !FRIEND_ONLY.includes(who);
         const say = friendsUI.say && friendsUI.say[0] === who ? friendsUI.say[1] : null;
         return `<div class="fcard${bond.partner === who ? ' dating' : ''}">
           <div class="fhead">${faceTag(who, SPEAKERS[who].name)}
@@ -11023,13 +11081,14 @@ details.act > .limits { margin: 0 0 8px; }
             <button class="btn ghost" data-gifts="${who}"${gifted ? ' disabled' : ''}>${gifted ? 'Gift given' : 'Give a gift'}</button>
             ${scene ? `<button class="btn" data-scene="${who}">Hang out ♥</button>` : ''}
             ${canAsk ? `<button class="btn" data-ask="${who}">Ask out</button>` : ''}
-            ${romanceOn && !bond.partner && !canAsk && h < 6 ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
+            ${romanceOn && !bond.partner && !canAsk && h < 6 && !FRIEND_ONLY.includes(who) ? `<button class="btn ghost" disabled>Ask out at 6 ♥</button>` : ''}
             ${bond.partner === who ? `<button class="btn ghost" data-bye="${who}">${friendsUI.confirmBye === who ? 'Tap again to be just friends' : 'Just friends'}</button>` : ''}
           </div>
           ${open && !gifted ? `<div class="gifts">${GIFTS.filter(g => !g.noShop || garden.basket[g.id]).sort((a, b) => (garden.basket[b.id] ? (b.meal ? 3 : b.src ? 2 : 1) : 0) - (garden.basket[a.id] ? (a.meal ? 3 : a.src ? 2 : 1) : 0)).map(g => { const home = garden.basket[g.id] || 0; return `<button class="gift${home ? ' homegrown' : ''}" data-give="${who}:${g.id}"${credits < g.price && !home ? ' disabled' : ''}><span aria-hidden="true">${g.icon}</span><b>${g.name}</b><small>${home ? `${g.src === 'mined' ? '💎 mined' : g.src === 'homemade' ? '🍳 homemade' : '🌱 homegrown'} ×${home}` : `${fmt(g.price)} cr`}</small></button>`; }).join('')}</div>` : ''}
         </div>`;
       }).join('')}
       <p class="limits">You have ${fmt(credits)} credits. Friendship tops out at 8 hearts${romanceOn ? '; dating opens the last two' : ''}. Pim, Crumb, Apogee and Blip are friends of the whole crew and aren’t part of this.</p>
+      ${recruitsHtml()}
       <div class="btns"><button class="btn ghost" id="back">${friendsFrom === 'lounge' ? 'Back to the break room' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
     paintFaces(card);
@@ -11112,6 +11171,325 @@ details.act > .limits { margin: 0 0 8px; }
     eris: ['W', 'Eris. Dark, cold and very quiet. The Sun is just a bright star from here. Somebody left the lights on for us.']
   };
   const SIGN = { P: 'You', F: 'Dottie', G: 'Gus', W: 'Wren', A: 'Apogee', R: 'Rex', K: 'Crumb', J: 'Juno', M: 'Pim', Z: 'Zib', O: 'Ollo', B: 'Blip', V: 'Kael', Y: 'Lyra' };
+  // ---- New crew: Kit the cadet and Bao the cook ----
+  // Kit (C) started the same week you did and tags along for a few days; Bao (H) runs the galley.
+  // Both are friends only: hearts, gifts and hangouts, but no dating.
+  const FRIEND_ONLY = ['C', 'H'];
+  Object.assign(FACES, {
+    // Kit Okafor, cadet: short dark hair under a team cap, freckles, a cadet jacket with orange trim
+    C: { bg: '#1a2a40', skin: '#b07a52', shade: '#8f5f3e', mouth: '#5a2e22', brow: '#2a1a12',
+      back(c) { const h = '#2a1a12'; px(c, 9, 6, 14, 4, h); px(c, 8, 8, 1, 5, h); px(c, 23, 8, 1, 5, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#3a6ea8'); px(c, 6, 25, 20, 1, '#3a6ea8'); px(c, 11, 25, 10, 1, '#ffb547'); px(c, 15, 26, 2, 6, '#2a5488'); px(c, 20, 28, 2, 2, '#ffd27a'); px(c, 8, 28, 4, 1, '#ffb547'); },
+      front(c) { const h = '#2a1a12'; px(c, 10, 9, 12, 1, h); px(c, 10, 10, 3, 1, h); px(c, 19, 10, 3, 1, h); },
+      extra(c) {
+        px(c, 9, 4, 14, 5, '#ff6b5e'); px(c, 10, 3, 12, 1, '#ff6b5e'); px(c, 8, 8, 16, 1, '#b8322a'); px(c, 15, 5, 2, 2, '#f4f1e8');
+        px(c, 12, 18, 1, 1, '#8f5f3e'); px(c, 13, 19, 1, 1, '#8f5f3e'); px(c, 19, 18, 1, 1, '#8f5f3e'); px(c, 18, 19, 1, 1, '#8f5f3e');
+      } },
+    // Bao, galley cook: a tall chef's hat, a big mustache, rosy cheeks, a white jacket and a red neckerchief
+    H: { bg: '#3a2418', skin: '#d9a27a', shade: '#b8825c', mouth: '#5a2a20', brow: '#1a1410',
+      back(c) { px(c, 8, 10, 1, 6, '#1a1410'); px(c, 23, 10, 1, 6, '#1a1410'); },
+      body(c) { px(c, 3, 26, 26, 6, '#f4f1e8'); px(c, 5, 25, 22, 1, '#f4f1e8'); px(c, 12, 27, 1, 1, '#8a93ab'); px(c, 12, 29, 1, 1, '#8a93ab'); px(c, 19, 27, 1, 1, '#8a93ab'); px(c, 19, 29, 1, 1, '#8a93ab'); px(c, 13, 24, 6, 2, '#c94236'); px(c, 15, 26, 2, 2, '#c94236'); },
+      front(c) {},
+      extra(c) {
+        px(c, 10, 0, 12, 2, '#ffffff'); px(c, 8, 2, 16, 4, '#f4f1e8'); px(c, 9, 1, 3, 2, '#f4f1e8'); px(c, 20, 1, 3, 2, '#f4f1e8'); px(c, 10, 6, 12, 2, '#f4f1e8'); px(c, 10, 8, 12, 1, '#c9cfdc');
+        px(c, 12, 19, 8, 1, '#1a1410'); px(c, 11, 20, 2, 1, '#1a1410'); px(c, 19, 20, 2, 1, '#1a1410');
+        px(c, 10, 17, 2, 1, '#e88a7a'); px(c, 20, 17, 2, 1, '#e88a7a');
+      } }
+  });
+  Object.assign(LOOKS, {
+    C: { skin: '#b07a52', hair: '#2a1a12', style: 'short', top: '#3a6ea8', pants: '#2a3a5a', shoes: '#15151f', trim: '#ffb547', hat: 'cap' },
+    H: { skin: '#d9a27a', hair: '#1a1410', style: 'short', top: '#f4f1e8', pants: '#3a3a48', shoes: '#2a1a12', scarf: '#c94236', hat: 'chef' }
+  });
+  Object.assign(SPEAKERS, { C: { name: 'Kit · Cadet', color: '#7fb8ff' }, H: { name: 'Bao · Galley', color: '#ffb08a' } });
+  Object.assign(SIGN, { C: 'Kit', H: 'Bao' });
+  Object.assign(DEFAULT_MOOD, { C: 'happy', H: 'happy' });
+  ROM_WHO.push('C', 'H');
+  const kitMet = () => store.get('ds-kitMet', '') !== '', baoMet = () => store.get('ds-baoMet', '') !== '';
+  Object.assign(romMet, { C: kitMet, H: baoMet });
+  // Kit follows you around for the first three ship days after you meet
+  const kitTagging = () => kitMet() && shipDay < (+store.get('ds-kitMet', '0') || 0) + 3;
+  Object.assign(CREW_HOME, { C: 'bridge', H: 'galley' });
+  Object.assign(GIFT_TASTE, { C: [['stars', 'pastry'], ['choc', 'tapes', 'tools']], H: [['tea', 'flowers'], ['plant', 'coffee', 'pastry']] });
+  Object.assign(GIFT_SAYS, {
+    C: ['Whoa. WHOA. For me? I’m keeping this forever. I’m going to be buried with this. Not soon! Eventually!', 'Oh, cool! Thanks! I’ve never had a gift from a real pilot before.', 'Thanks! I’ll put it on my bunk. My bunk is mostly study cards.'],
+    H: ['Ahh, now THIS. This is the good stuff. Come here, I’m hugging you. I’m a hugger. You knew that.', 'Lovely! This goes straight into tonight’s soup. Or on my shelf. Soup, probably.', 'Thank you, friend. Sit, sit. Eat something.']
+  });
+  Object.assign(DATE_BG, { C3: 'hangar', C6: 'obsdeck', H3: 'breaknight', H6: 'lanterns' });
+  Object.assign(ROM, {
+    C: {
+      s3: ['First Sim', [['C', 'Okay. Okay okay okay. My first simulator run. Dottie says I can have a co-pilot. I picked you. Is that weird? That’s weird.'],
+        ['P', 'Not weird. Breathe. Watch your speed, not the ground.'],
+        ['C', 'Watch the speed… gentle at the bottom… and… I LANDED IT! Ninety-one meters off the pad! But I landed it!'],
+        ['C', 'Can we do it again? Can we do it, like, nine more times?']]],
+      s6: ['Wings', [['C', 'Dottie gave me these today. Cadet wings. I’ve been staring at them for an hour. I think I broke them by staring.'],
+        ['C', 'I wanted you to see first. Everything I know about flying, I learned by watching you land.'],
+        ['P', 'You earned them, Kit. You’re going to be a great pilot.'],
+        ['C', 'I’m going to be a great pilot. Okay. Okay. I need to go tell Gus. And Apogee. And everyone. Bye! Thank you! Bye!']]],
+      date: []
+    },
+    H: {
+      s3: ['Taste Test', [['H', 'Sit. Close your eyes. Open your mouth. Not that wide. Okay, a little wider. Here.'],
+        ['P', '…Oh. Oh, that’s incredible. What is it?'],
+        ['H', 'Garden dumplings. My grandmother’s recipe, plus Gus’s greens. Nobody else has tasted them yet. You’re the first.'],
+        ['H', 'Ha! Look at your face. That’s the face. I cook for that face. Now I’ll teach you to fold them. Come, wash your hands.']]],
+      s6: ['Grandma’s Lantern', [['H', 'My grandmother ran a noodle stall on a freighter for forty years. Every pilot in the belt knew her soup.'],
+        ['H', 'She used to say: a ship with a good kitchen is a ship that comes home. So I came to cook for a ship.'],
+        ['P', 'She’d love this galley.'],
+        ['H', 'She’d say it needs more garlic. She was right about everything. Here, her lantern. And her spiced cocoa. That recipe is yours now.']]],
+      date: []
+    }
+  });
+  Object.assign(LIFT_CHAT, {
+    C: ['I love the lift. Do you think it gets tired? I said thank you to it. Just in case.', 'I’ve ridden the lift eleven times today. For practice. Practice for what? Don’t worry about it.'],
+    H: ['Going to the galley? Everyone’s always going to the galley. That’s how I know I’m doing my job.', 'I bring snacks in the lift for whoever’s in it. Today it’s you. Here, a rice ball.']
+  });
+  Object.assign(DEN_IDLE, {
+    C: ['Your cabin is SO cool. Mine used to be a supply cupboard. There’s still a mop in it. I named the mop.', 'Is that your actual bunk? Where you actually sleep? Sorry. It’s just, you’re kind of famous to me.',
+      'I brought my study cards. Can you quiz me? Mars: 3.71 meters per second squared. See? I know things.', 'I just came to say hi. Hi! Okay, bye. Wait, can I see the window first?'],
+    H: ['I brought you a little something. Soup. It’s always soup. Soup is love you can drink.', 'Nice cabin. Cozy. Needs a fruit bowl. I’ll bring a fruit bowl.',
+      'Gus says you eat cereal for dinner sometimes. We’re going to talk about that.', 'I can’t stay long, the bread is rising. Bread waits for no one. Except me. It waits for me.']
+  });
+  Object.assign(DEN_NICE, { C: 'Whoa, that’s so cool! Can I get one for my cupboard? My room. My cupboard room.', H: 'Very nice. Very homey. Now it just needs a fruit bowl.' });
+  Object.assign(ROOMS, {
+    C: { wall: '#203048', bed: '#3a6ea8', rug: '#2a4a6a', hello: 'Welcome to my room! It used to be a supply cupboard. Dottie says it builds character. It also builds mold. I clean it a lot.',
+      props: [['A', 'poster', '#ffb547', 'A poster of Biscuit landing on the Moon. I printed it myself. That little speck by the pad is you.'], ['B', 'shelf', ['#7fd6ff', '#ffb547', '#ff6b5e', '#58e0a0', '#c9b8ff'], 'Study cards. One for every world. Mars is dog-eared. Mars is hard.'],
+        ['C', 'desk', '#7fb8ff', 'My flight manual. I’ve read it four times. I underlined everything, so now none of it stands out.'], ['D', 'lamp', '#ffe58a', 'A night light. Shaped like a lander. It’s not for me. It’s for the mop.']] },
+    H: { wall: '#3a2a1c', bed: '#c94236', rug: '#5a3a24', hello: 'Come in, come in! Shoes off, appetite on. There’s tea on the shelf. There’s always tea on the shelf.',
+      props: [['A', 'photo', '#c9a24a', 'My grandmother at her noodle stall. Forty years on a freighter. She fed half the belt.'], ['B', 'shelf', ['#a8652a', '#c94236', '#3f8a58', '#ffd27a', '#e8dcb8'], 'Spice jars. Sorted by heat. That one on the end could power the engine. Gus asked. I said no.'],
+        ['C', 'teaset', '#c94236', 'My good teapot. It came from Earth. It’s older than the ship. It’s older than Wren. Don’t tell Wren.'], ['D', 'plant', '#3f8a58', 'Basil. I grow a little of my own. Gus pretends not to be jealous.']] }
+  });
+  // what Kit says while tagging along, depending on the room
+  const KIT_TAG = {
+    hall: 'So this is the corridor? It’s so long! Which door is the bathroom? Asking for me.',
+    bridge: 'The BRIDGE. I’m on the Bridge. Don’t mind me, I’m just going to stand here quietly and freak out.',
+    garden: 'Do the plants have names? I’m going to name that one Kevin. Hi, Kevin.',
+    galley: 'Bao gave me a dumpling and said “eat, you’re too thin”. I said I’m a normal amount of thin. He gave me two more.',
+    engine: 'Gus says don’t touch the big red lever. I wasn’t going to. Now I really, really want to.',
+    dome: 'Look at all those stars. I’m going to land near every single one. Okay, not near the stars. Near the planets.',
+    quarters: 'My room’s the little one at the end. It used to be a cupboard. It’s a very nice cupboard.',
+    lift: 'I love the lift. Do you think it gets tired? I said thank you to it. Just in case.'
+  };
+  const KIT_HELLO = 'Oh! Hi! You’re the pilot! I’m Kit, I’m the new cadet, I started this week too! Dottie said I should learn by watching you. So for the next few days I’m going to follow you around. Quietly. Mostly quietly. Is that okay? Great!';
+  const BAO_HELLO = 'Aha, a new face! I’m Bao. I run the galley now, which means I run the ship, but don’t tell Dottie. Sit, eat, tell me what you like. Come back when we’re friends and I’ll teach you my recipes.';
+  const KIT_BYE = 'Dottie says I’ve watched you enough and it’s time to study on my own. I’ll be on the Bridge, mostly. Come visit! Thanks for letting me tag along, pilot. Best three days ever.';
+  // the room-chat lines in the break room, the Pad and around the ship
+  function castLines(who) {
+    const lands = stats.landings, crashes = crashCount, ms = id => (missionStars[id] || 0) > 0, L = [];
+    const add = (cond, text) => { if (cond) L.push(text); };
+    if (who === 'C') {
+      L.push('I made flash cards for every world’s gravity. Quiz me. Wait, don’t. I left them in the lift.');
+      L.push('Is it true you can land with your eyes closed? Gus said you could. Gus also said the Moon is made of cheese.');
+      L.push('When I graduate I want a lander just like Biscuit. Maybe a little bigger. Maybe with cup holders.');
+      L.push('I asked Dottie what the best part of the job is. She said “the quiet”. Then Gus walked in.');
+      L.push('Apogee sat on my study guide for three hours today. I learned nothing. It was the best day.');
+      add(lands >= 20, `I counted your landings in the log. ${lands}! I’m at zero. Zero is a number too.`);
+      add(crashes >= 5, 'Crashing is part of learning. That’s what Gus says. He says it while fixing things very loudly.');
+      add(ms('last-light'), 'I watched the Last Light replay nine times. The bit at the end where you just float down? Chills.');
+      add(ms('unit-zero'), 'Unit Zero has Wren’s handwriting on it. That’s the coolest thing I’ve ever heard. Is it haunted? It’s not haunted.');
+      add(ms('first-light'), 'You landed on ERIS. In the DARK. I tried it in the sim and landed on a rock. Upside down.');
+      add(heartsOf('C') >= 6, 'I got my cadet wings! I sleep with them on my pillow. Is that weird? It’s a little weird.');
+    } else {
+      L.push('Eat something. You look like you’ve been flying. You have been flying. Eat something anyway.');
+      L.push('Gus asked for “something light”. I made him soup. Then a sandwich. Then a cake. That’s light, for Gus.');
+      L.push('Dottie drinks her coffee black, no sugar, standing up. I’m working on getting her to sit down.');
+      L.push('A kitchen is the heart of a ship. Gus says the engine room is the heart. We agree to disagree, loudly, over lunch.');
+      add(Object.values(garden.basket || {}).some(n => n > 0), 'You’ve got crops in your basket! Bring them to the stove. Food is for cooking, not for keeping in your pocket.');
+      add(ms('mayday'), 'Rex sends everything back “to the chef” with his compliments. I am the chef. I keep telling him.');
+      add(zibMet(), 'Zib tried to pay for lunch with a spoon. I accepted the spoon. It’s a very good spoon.');
+      add(eveLevel() >= 0.5, 'Evenings are my favorite. Lights low, pot simmering, everybody wandering in hungry.');
+      add(heartsOf('H') >= 2, 'You fold my dumplings better than Gus already. Don’t tell Gus. He’s sensitive about folding.');
+      add(projDone('jukebox'), 'The jukebox plays while I cook now. I chop in rhythm. Very fast rhythm. Stand back.');
+    }
+    return L;
+  }
+  // first meetings, and Kit heading off on his own after three days
+  const DECK_KINDS = ['hall', 'bridge', 'garden', 'galley', 'engine', 'dome', 'quarters', 'lift'];
+  function castHello(m) {
+    if (intro || store.get('ds-intro', '') !== 'done') return;
+    if (!kitMet() && DECK_KINDS.includes(m)) {
+      store.set('ds-kitMet', String(shipDay));
+      setTimeout(() => {
+        if (mode !== m || !deck) return;
+        deck.npcs = buildNpcs(m); shipSay('C', KIT_HELLO); sfx.pop();
+        setTimeout(() => { if (!baoMet()) crewToast('C', 'Oh! Also, there’s a new cook in the galley on deck two. Bao. He’s fed me three times already. Go say hi!', 'Tip'); }, 20000);
+      }, 700);
+      return;
+    }
+    if (m === 'galley' && !baoMet()) {
+      store.set('ds-baoMet', String(shipDay));
+      setTimeout(() => {
+        if (mode !== m || !deck) return;
+        if (!deck.npcs.some(n => n.who === 'H')) deck.npcs.push({ who: 'H', x: 100, y: 112, dir: 3, baseDir: 3, goal: null, pause: 3, moving: false });
+        shipSay('H', BAO_HELLO); sfx.pop();
+      }, 700);
+      return;
+    }
+    if (kitMet() && !kitTagging() && store.get('ds-kitBye', '') !== '1' && SHIP_ROOMS.includes(m)) {
+      store.set('ds-kitBye', '1');
+      setTimeout(() => crewToast('C', KIT_BYE, 'See you around'), 1500);
+    }
+  }
+  // ---- Recruits: crew who apply as you progress, audition with a side mission, then move in ----
+  // Doc Marisol (D), Tamsin the botanist (T) and Dash the courier (X). Friends only, like Kit and Bao.
+  const RECRUITS = [
+    { who: 'D', audition: 'house-call', role: 'Medic', blurb: 'Fifteen years as a rescue medic on the Mars ambulance runs. Wants somewhere quieter. Has clearly not met Gus.' },
+    { who: 'T', audition: 'seedling-run', role: 'Botanist', blurb: 'Grew a forest on a comet once. Says the garden “has potential” and “is crying out for love”.' },
+    { who: 'X', audition: 'express-lane', role: 'Courier', blurb: 'The fastest courier in the inner system. Has never been late. Has been early by up to a day.' }
+  ];
+  FRIEND_ONLY.push('D', 'T', 'X');
+  const hired = w => { const r = RECRUITS.find(x => x.who === w); return !!r && (missionStars[r.audition] || 0) > 0; };
+  Object.assign(FACES, {
+    // Doc Marisol Ibarra: dark hair in a bun, round glasses, teal scrubs and a stethoscope
+    D: { bg: '#163038', skin: '#c68a5e', shade: '#a46c44', mouth: '#5a2a20', brow: '#2a1414',
+      back(c) { const h = '#2a1414'; px(c, 9, 5, 14, 5, h); px(c, 8, 8, 1, 8, h); px(c, 23, 8, 1, 8, h); px(c, 13, 1, 6, 4, h); px(c, 14, 0, 4, 1, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#3f9a8e'); px(c, 6, 25, 20, 1, '#3f9a8e'); px(c, 13, 25, 6, 3, '#2f7a70'); px(c, 9, 25, 1, 5, '#c9cfdc'); px(c, 22, 25, 1, 5, '#c9cfdc'); px(c, 9, 30, 2, 2, '#8a93ab'); px(c, 21, 28, 3, 2, '#f4f1e8'); },
+      front(c) { const h = '#2a1414'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 2, 2, h); px(c, 20, 10, 2, 2, h); },
+      extra(c) { const g = '#c9cfdc'; outline(c, 11, 14, 4, 4, g); outline(c, 17, 14, 4, 4, g); px(c, 15, 15, 2, 1, g); } },
+    // Tamsin Moss: a big cloud of curly red hair with a leaf in it, freckles, green overalls
+    T: { bg: '#1e3018', skin: '#f0c8a0', shade: '#d4a47c', mouth: '#8a3a30', brow: '#a8521e',
+      back(c) { const h = '#d9772e'; px(c, 6, 4, 20, 16, h); px(c, 5, 7, 1, 11, h); px(c, 26, 7, 1, 11, h); px(c, 8, 3, 16, 1, h); px(c, 7, 20, 4, 3, h); px(c, 21, 20, 4, 3, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#e8dcb8'); px(c, 8, 26, 16, 6, '#5a8a3a'); px(c, 9, 25, 2, 2, '#5a8a3a'); px(c, 21, 25, 2, 2, '#5a8a3a'); px(c, 14, 28, 4, 3, '#4a7030'); },
+      front(c) { const h = '#d9772e'; px(c, 10, 8, 12, 2, h); px(c, 9, 10, 3, 3, h); px(c, 20, 10, 3, 3, h); px(c, 14, 9, 3, 1, h); },
+      extra(c) { px(c, 21, 5, 3, 2, '#58b860'); px(c, 22, 4, 1, 1, '#58b860'); px(c, 12, 18, 1, 1, '#c97a50'); px(c, 13, 19, 1, 1, '#c97a50'); px(c, 18, 19, 1, 1, '#c97a50'); px(c, 19, 18, 1, 1, '#c97a50'); } },
+    // Dash Okoro: close-cropped hair, racing goggles pushed up, a yellow-and-black courier jacket
+    X: { bg: '#2a2410', skin: '#6a3e28', shade: '#4f2c1c', mouth: '#2a1410', brow: '#141018',
+      back(c) { const h = '#141018'; px(c, 9, 5, 14, 4, h); px(c, 8, 7, 1, 4, h); px(c, 23, 7, 1, 4, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#ffcf3a'); px(c, 6, 25, 20, 1, '#ffcf3a'); px(c, 4, 28, 24, 2, '#1a1a24'); px(c, 15, 25, 2, 7, '#1a1a24'); px(c, 21, 26, 3, 2, '#ff6b5e'); },
+      front(c) { const h = '#141018'; px(c, 10, 8, 12, 1, h); },
+      extra(c) { px(c, 9, 7, 14, 1, '#3a3a48'); px(c, 11, 4, 4, 3, '#3a3a48'); px(c, 17, 4, 4, 3, '#3a3a48'); px(c, 12, 5, 2, 1, '#ffb547'); px(c, 18, 5, 2, 1, '#ffb547'); px(c, 13, 19, 6, 1, '#f4f1e8'); } }
+  });
+  Object.assign(LOOKS, {
+    D: { skin: '#c68a5e', hair: '#2a1414', style: 'bun', top: '#3f9a8e', pants: '#3f9a8e', shoes: '#f4f1e8', acc: 'glasses' },
+    T: { skin: '#f0c8a0', hair: '#d9772e', style: 'curly', top: '#5a8a3a', pants: '#4a6a2a', shoes: '#5a3a24' },
+    X: { skin: '#6a3e28', hair: '#141018', style: 'short', top: '#ffcf3a', pants: '#1a1a24', shoes: '#ff6b5e', acc: 'goggles' }
+  });
+  Object.assign(SPEAKERS, { D: { name: 'Doc Marisol · Medic', color: '#5fd3c8' }, T: { name: 'Tamsin · Botanist', color: '#8fcf7e' }, X: { name: 'Dash · Courier', color: '#ffcf3a' } });
+  Object.assign(SIGN, { D: 'Marisol', T: 'Tamsin', X: 'Dash' });
+  Object.assign(DEFAULT_MOOD, { D: 'deadpan', T: 'happy', X: 'happy' });
+  ROM_WHO.push('D', 'T', 'X');
+  Object.assign(romMet, { D: () => hired('D'), T: () => hired('T'), X: () => hired('X') });
+  Object.assign(CREW_HOME, { D: 'room', T: 'garden', X: 'hall' });
+  Object.assign(GIFT_TASTE, { D: [['tea', 'tapes'], ['coffee', 'plant', 'lamp']], T: [['plant', 'flowers'], ['tea', 'stars', 'pastry']], X: [['coffee', 'gel'], ['choc', 'tools', 'tapes']] });
+  Object.assign(GIFT_SAYS, {
+    D: ['Oh. That’s… really thoughtful. I don’t get gifts. I get thank-you cards, mostly from people who were unconscious when I met them.', 'Thank you. Doctor’s orders: I’m keeping it.', 'That’s kind. I’ll put it in my office. I don’t have an office. I’ll put it near me.'],
+    T: ['OH. Oh, it’s perfect. I’m going to talk to it every morning. It’s going to have the best life.', 'How lovely! Thank you! The garden says thank you too. I asked.', 'Thank you! I’ll find it a sunny spot.'],
+    X: ['No way! This is the best thing anyone’s given me in at least a week, which is like a year for me!', 'Nice! Thanks! I’m going to carry it everywhere. Fast.', 'Thanks! Gotta run! Not literally! Okay, literally.']
+  });
+  Object.assign(DATE_BG, { D3: 'quiet', D6: 'obsdeck', T3: 'fernery', T6: 'lanterns', X3: 'hangar', X6: 'station' });
+  Object.assign(ROM, {
+    D: { date: [],
+      s3: ['Rounds', [['D', 'I do rounds every evening. Everyone on the ship gets a check-up whether they want one or not. Mostly not.'],
+        ['D', 'Gus has a burn on his thumb he swears is from coffee. Rex asked for something for “too much handsome”. I gave him a mint.'],
+        ['P', 'And me?'],
+        ['D', 'You? Your heart rate goes up every time someone says the word “mission”. Medically, that’s called loving your job. Keep it up.']]],
+      s6: ['Night Shift', [['D', 'On the ambulance runs, we lost people sometimes. You learn to keep going. You don’t learn to stop thinking about them.'],
+        ['D', 'Out here, the worst thing I’ve treated is a sprained ankle from Polka Night. I didn’t know I needed that.'],
+        ['P', 'I’m glad you came aboard, Doc.'],
+        ['D', 'Me too. Don’t tell anyone I said something nice. I have a reputation. It’s very grumpy. I worked hard on it.']]] },
+    T: { date: [],
+      s3: ['Seed Swap', [['T', 'Every plant has a personality. The ferns are shy. The tomatoes are show-offs. The flowers are gossips. Terrible gossips.'],
+        ['T', 'I’m giving you a seed from my comet forest. It’s the only one. Plant it somewhere you’ll walk past every day.'],
+        ['P', 'What does it grow into?'],
+        ['T', 'No idea! That’s the best part. Something only it knows how to be.']]],
+      s6: ['The Comet Forest', [['T', 'Everyone said you can’t grow anything on a comet. Too cold, too dark, too far. I grew a forest anyway.'],
+        ['T', 'Then the comet swung back out past Neptune, and I had to leave it. It’s still out there. Growing in the dark, I hope.'],
+        ['P', 'Maybe we’ll fly out and see it someday.'],
+        ['T', 'You’d do that? Oh, the trees would love you. Trees can tell, you know. They can tell who’s kind.']]] },
+    X: { date: [],
+      s3: ['Race You', [['X', 'Okay, the corridor, end to end, first one to touch the lift door wins. Ready? Go! I already went. I win.'],
+        ['P', 'That doesn’t count!'],
+        ['X', 'Fine, fine, again. Three, two, — okay, I went on two. I always go on two. It’s a courier thing.'],
+        ['X', 'You know what, you’re the first person who’s actually tried to keep up. That’s… cool. That’s really cool.']]],
+      s6: ['Slow Down', [['X', 'I’ve delivered to every world. Never stayed on any of them longer than it takes to get a signature.'],
+        ['X', 'Somebody asked me once where I live. I said “the next stop”. I thought it was a cool answer. It isn’t, really.'],
+        ['P', 'You live here now, Dash.'],
+        ['X', 'Yeah. I do, huh? I unpacked yesterday. Took me four minutes. I’m going to unpack slower next time. On purpose.']]] }
+  });
+  Object.assign(LIFT_CHAT, {
+    D: ['Hold the handrail. That’s medical advice.', 'The lift is the only quiet place on this ship. Then Gus gets in.'],
+    T: ['I keep a tiny fern in the lift. Don’t tell Dottie. It likes the hum.', 'Going up is good for seedlings. That’s not science. It’s a feeling.'],
+    X: ['This lift is SO slow. I love it. It’s the only time I ever stand still.', 'I timed the lift. Deck one to three, four seconds. I could run it in three. There aren’t stairs. I checked.']
+  });
+  Object.assign(DEN_IDLE, {
+    D: ['House call. Just checking you’re eating, sleeping and not landing on your head. Two out of three, nice.', 'Your cabin’s tidy. Tidy cabin, tidy mind. Untidy mind, see me in the morning.'],
+    T: ['Your cabin needs a plant. I’ve brought one. It’s already decided it lives here.', 'Oh, your window gets wonderful starlight. Plants love starlight. Plants love you. I can tell.'],
+    X: ['Just passing! Super fast visit! I’m already gone! Okay, can I sit for a second?', 'Your cabin is so close to the lift. Prime location. I’m very jealous. I’m in the end room.']
+  });
+  Object.assign(DEN_NICE, { D: 'Good choice. Calming. I approve, medically.', T: 'Oh, lovely! The room feels happier already. Rooms have feelings too.', X: 'Ooh, nice! I would’ve picked it faster, but nice!' });
+  Object.assign(ROOMS, {
+    D: { wall: '#1e3a3a', bed: '#3f9a8e', rug: '#2a4a48', hello: 'Come in. Sit. Say “ahh”. Kidding. Mostly.',
+      props: [['A', 'poster', '#ff6b5e', 'A poster of the human skeleton. His name is Steve. Steve has been with me through everything.'], ['B', 'shelf', ['#f4f1e8', '#ff6b5e', '#5fd3c8', '#f4f1e8', '#ffe58a'], 'Bandages, burn cream, and one jar of jelly beans labelled “for bravery”. Gus gets a lot of jelly beans.'],
+        ['C', 'cabinet', '#c9cfdc', 'Medical supplies, sorted by how dramatic the injury. The bottom drawer is just for Rex.'], ['D', 'plant', '#3f8a58', 'An aloe plant. For burns. And for company.']] },
+    T: { wall: '#1e3018', bed: '#5a8a3a', rug: '#3a5a2a', hello: 'Welcome to the jungle! Mind the vines. And the other vines. They’re friendly. Mostly friendly.',
+      props: [['A', 'maps', '#58b860', 'A map of my comet forest. Every tree is marked, with its name. That one’s Gerald.'], ['B', 'shelf', ['#58b860', '#3f8a58', '#ff9ad5', '#8fcf7e', '#ffe58a'], 'Seed jars from every world I’ve visited. The pink ones glow at night. They’re showing off.'],
+        ['C', 'tank', '#58b860', 'A terrarium. There’s a moss in there older than the ship. It’s very wise. It doesn’t say much.'], ['D', 'plant', '#58b860', 'This one I grew from a seed in my pocket. It went everywhere with me. Now it lives here.']] },
+    X: { wall: '#2a2410', bed: '#ffcf3a', rug: '#3a3020', hello: 'Hi! Welcome! Sorry about the mess. There’s no mess. I unpacked in four minutes. Everything’s in one drawer.',
+      props: [['A', 'poster', '#ffcf3a', 'A map of every courier route in the system. The red ones are my records. They’re all red.'], ['B', 'trophy', '#ffd27a', 'Fastest Delivery, three years running. The fourth year I was early, which apparently doesn’t count.'],
+        ['C', 'bench', '#ff6b5e', 'For stretching. You have to stretch. Couriers who don’t stretch end up as cautionary tales.'], ['D', 'lamp', '#ffcf3a', 'A lamp. I don’t use it. I’m never here long enough for it to get dark.']] }
+  });
+  Object.assign(STORY, {
+    'house-call': {
+      intro: [['F', 'We’ve had a crew application. A medic. Marisol Ibarra, fifteen years on the Mars ambulance runs.'],
+        ['D', 'Hello, pilot. I’d like to see how you fly before I trust you with my patients. Carry my med kit from PICKUP to DROP. Gently. There’s glass in it.'],
+        ['G', 'If she joins, can she look at my thumb? It’s been purple since Thursday.']],
+      react: [['D', 'The kit arrived. Mostly. I’ll take the job. Somebody on this ship needs supervising, and it’s clearly everybody.'],
+        ['D', 'Smooth flying. I didn’t even reach for the seatbelt. I’ll take the job. I’m moving into the crew wing tonight.'],
+        ['D', 'Not one vial rattled. That’s the gentlest flying I’ve seen in years. I’m in. Gus, show me that thumb.']] },
+    'seedling-run': {
+      intro: [['F', 'Another application. A botanist, Tamsin Moss. She says our garden is “crying out for love”. Gus is offended.'],
+        ['T', 'Hi! Hello! I have seedlings from my comet forest, and they need to get to the greenhouse on Titan. PICKUP to DROP, please, very gently. They’re babies.'],
+        ['G', 'Our garden is NOT crying. It might be humming sadly. That’s different.']],
+      react: [['T', 'They made it! A little shaken. I’ve told them it’s an adventure. I’d love to join, if you’ll have me.'],
+        ['T', 'Lovely flying! The seedlings say thank you. I asked. I’m moving in. I hope the garden likes me.'],
+        ['T', 'Not one leaf bent. The seedlings think you’re wonderful. So do I. I’m moving in today. Hi, garden!']] },
+    'express-lane': {
+      intro: [['F', 'One more application. A courier, Dash Okoro, “fastest in the inner system”. Their words. In capital letters.'],
+        ['X', 'Heyyy pilot! Quick test, super quick: fly my three markers on the Moon, then land. Fast. Like, fast fast. I’ll be timing. I’m always timing.'],
+        ['R', 'Fastest in the inner system? I’ll believe it when I see it. I’m the fastest in the inner system. Spiritually.']],
+      react: [['X', 'Done! Not my time, but not bad! I’m in. I’ll be the fastest one aboard. Rex says he’ll race me. Rex is going to lose.'],
+        ['X', 'Ooh, quick! I like quick! Count me in. I’m moving in. Already done. I travel light.'],
+        ['X', 'WHOA. That was faster than me. Nobody’s faster than me. I need to live here and figure out how you did it.']] }
+  });
+  function recruitLines(who) {
+    const L = [], add = (cond, text) => { if (cond) L.push(text); };
+    if (who === 'D') {
+      L.push('Drink some water. You look like a person who forgets to drink water.', 'I’ve set up a clinic in the corner of my room. Office hours are whenever someone falls over.',
+        'Gus came in with a wrench stuck to his hand. Magnets. Don’t ask. I didn’t.', 'Polka Night produces more ankle injuries than any mission. I’ve written a paper about it.');
+      add(crashCount >= 5, `${crashCount} crashes in your logbook. Every one of them, you walked away. That’s the only number I care about.`);
+      add(kitMet(), 'Kit asked me if you can get dizzy from excitement. I said yes. He said “oh no”.');
+    } else if (who === 'T') {
+      L.push('The garden’s already happier. You can hear it, if you listen. Okay, you can’t. But I can.', 'I named all the ferns. Then Kit named them again. They have two names now. They’re very confused.',
+        'Plants grow better when you talk to them. I talk to them about you. They think you’re great.', 'Did you know moss is older than trees? It’s very patient. I’m trying to be more like moss.');
+      add(gardenReady(), 'Something in the garden is ripe! It’s practically waving at you. Go on, go pick it.');
+      add(baoMet(), 'Bao and I have a deal. I grow the herbs, he cooks the dinner, nobody touches the basil without asking.');
+    } else {
+      L.push('I ran the whole corridor on deck two in eleven seconds. Dottie says please don’t. I say watch me. She says please don’t.', 'Fastest delivery I ever did? A birthday cake to Io. Still warm. Still had the candles lit.',
+        'I timed Gus making coffee. Four minutes. Four! I could’ve flown to the Moon. Not really. Kind of.', 'Rex challenged me to a race. He showed up in his robe. He said it was aerodynamic. It was not.');
+      add(stats.landings >= 30, `${stats.landings} landings! You must be the busiest pilot out here. Second busiest. After me. Okay, you’re first.`);
+      add(kitMet(), 'Kit wants me to teach him to run fast. Step one: don’t trip on the runner rug. He’s still on step one.');
+    }
+    return L;
+  }
+  // the recruitment board: on the Crew tab, under your friends
+  function recruitsHtml() {
+    const rows = RECRUITS.map(r => {
+      const i = ALL.findIndex(m => m.id === r.audition), open = i >= 0 && missionOpen(i), got = hired(r.who), after = ALL[i] && ALL[i].after ? (ALL.find(m => m.id === ALL[i].after) || {}).name : '';
+      const status = got ? 'Hired · moved into the crew wing' : open ? 'Audition open · find it in Side missions on the Bridge' : `Applies after ${after}`;
+      return `<div class="recruit${got ? ' hired' : open ? ' open' : ' later'}">${open || got ? faceTag(r.who, '') : '<span class="face unknown" aria-hidden="true">?</span>'}
+        <div><b>${open || got ? `${SIGN[r.who]} · ${r.role}` : `New applicant · ${r.role}`}</b><p>${open || got ? r.blurb : 'Dottie has an application on her desk that she won’t open yet.'}</p><small>${status}</small></div></div>`;
+    }).join('');
+    return `<section class="recruits" aria-label="Crew applications"><h3>Crew applications</h3><p class="limits">New people apply to join the crew as you fly. Pass their audition (a side mission) and they move in.</p>${rows}</section>`;
+  }
+  // Dottie mentions each new application once
+  function recruitNudge() {
+    for (const r of RECRUITS) {
+      const i = ALL.findIndex(m => m.id === r.audition), key = 'ds-recruitSaid-' + r.who;
+      if (i < 0 || !missionOpen(i) || hired(r.who) || store.get(key, '') === '1') continue;
+      store.set(key, '1');
+      setTimeout(() => crewToast('F', `A new crew application just landed on my desk: ${SIGN[r.who]}, a ${r.role.toLowerCase()}. Their audition is in Side missions on the Bridge.`, 'Applicant'), 2500);
+      return;
+    }
+  }
   let cardsSeen;
   try { cardsSeen = JSON.parse(store.get('ds-cards-seen', '[]')) || []; } catch (e) { cardsSeen = []; }
   const newCards = () => stats.worlds.filter(id => POSTCARDS[id] && !cardsSeen.includes(id)).length;
