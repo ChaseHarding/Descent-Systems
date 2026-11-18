@@ -415,6 +415,14 @@ kbd {
 .ph-reply { padding: 9px 12px; border-radius: 16px; border: 1px solid rgba(47, 138, 85, 0.7); background: rgba(47, 138, 85, 0.12); color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .ph-reply.flirt { border-color: rgba(255, 154, 213, 0.7); background: rgba(255, 154, 213, 0.1); }
 .ph-reply.cold { border-color: rgba(201, 207, 220, 0.25); background: transparent; opacity: 0.75; }
+.ph-new { display: flex; justify-content: flex-end; padding: 6px 2px 2px; }
+.ph-new .btn { padding: 6px 12px; font-size: 12px; }
+.ph-say { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+.ph-typing { display: flex; gap: 4px; align-items: center; padding: 10px 12px !important; }
+.ph-typing i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.6); animation: phdot 1s infinite ease-in-out; }
+.ph-typing i:nth-child(2) { animation-delay: 0.15s; } .ph-typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes phdot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-3px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ph-typing i { animation: none; } }
 .ph-note { margin: 0; padding: 8px; text-align: center; font-size: 12px; opacity: 0.6; }
 /* Co-pilot picker */
 .coppick { margin: 10px 0 4px; text-align: left; }
@@ -981,6 +989,7 @@ details.act > .limits { margin: 0 0 8px; }
 .mtile.side { padding-right: 46px; }
 .mtile .face { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; image-rendering: pixelated; border-radius: 4px; }
 .objective.warn { border-color: var(--bad); color: var(--bad); }
+.toast.radio { border-left: 3px solid var(--flame); }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -4885,9 +4894,7 @@ details.act > .limits { margin: 0 0 8px; }
       const TABS = [['crew', 'Crew ♥', crewNew], ['journal', 'Journal', newCards() > 0]];
       if (menuTab === 'ship' || menuTab === 'today') menuTab = 'crew';
       let body = '';
-      if (menuTab === 'ship') {
-        body = shipMapHtml() + `<p class="limits maphint">Get around on foot: walk through the doors, and take the lift between decks. Missions and every flight mode are on the Bridge’s nav console (Deck 1).</p>`;
-      } else if (menuTab === 'crew') {
+      if (menuTab === 'crew') {
         const today = shipDayKey();
         body = `<div class="crewlist">${met.map(who => {
           const h = heartsOf(who), cap = heartCap(who);
@@ -4901,19 +4908,6 @@ details.act > .limits { margin: 0 0 8px; }
         }).join('')}</div>
           <p class="limits">${romanceOn ? (datingAnyone() ? `You’re dating ${partnerNames()} ♥` : 'Romance is on: reach 6 hearts and finish their 6-heart hangout to ask someone out.') : 'Chat and give a gift once a day. Sleep in your bunk in the Pad to start a new day.'}${(garden.basket && basketCount()) ? ` You have ${basketCount()} homegrown ${basketCount() === 1 ? 'gift' : 'gifts'} in your basket.` : ''}</p>
           <div class="btns"><button class="btn" id="friendsBtn2" data-menuret>Gifts and hangouts</button></div>`;
-      } else if (menuTab === 'today') {
-        body = `<div class="todaylist">
-          ${eventCard()}
-          <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
-            ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
-            <button class="btn ghost" id="reqBtn" data-menuret>Open crew requests</button></div>
-          <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
-            <p class="where">📍 The Garden · Deck 2</p></div>
-          ${(() => { const nextP = PROJECTS.find(pj => !projDone(pj.id)); return `<div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><p class="where">📍 Project board · Deck 2 corridor</p></div>`; })()}
-          ${crumbHome() ? `<div class="tcard"><span class="eyebrow">Crumb</span><p>${salvageReady() ? 'Crumb is back from his salvage run and bursting to show you what he found.' : crumbOut() ? `Out salvaging on ${(WORLDS.find(w => w.id === salvage().world) || {}).name}. He’ll be back after your next flight.` : 'Home on his dock. Send him salvaging from the hangar.'} Mining runs left today: ${minePermits()} of ${MINE_PERMITS}.</p><p class="where">📍 The Hangar · Deck 3</p></div>` : ''}
-          <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
-            <p class="where">📍 Nav console on the Bridge · Deck 1</p></div>
-        </div>`;
       } else if (menuTab === 'guide') {
         body = `${guideHtml()}<div class="btns"><button class="btn ghost" data-mtab="journal">Back to the journal</button></div>`;
       } else {
@@ -11568,16 +11562,25 @@ details.act > .limits { margin: 0 0 8px; }
   const bubble = m => m.text.startsWith('📷 ') ? `<div class="ph-photo"><span aria-hidden="true">📷</span>${esc(m.text.slice(2).trim())}</div>` : esc(m.text);
   function textsHtml() {
     const who = Object.keys(bond.texts).filter(w => bond.texts[w].length).sort((a, b) => { const la = bond.texts[a][bond.texts[a].length - 1], lb = bond.texts[b][bond.texts[b].length - 1]; return (pendingText(b) ? 1 : 0) - (pendingText(a) ? 1 : 0) || lb.day - la.day; });
-    if (!who.length) return '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions. Reply to grow closer.</li></ul>';
-    return `<ul class="ph-list ph-threads">${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
+    const newBtn = '<div class="ph-new"><button class="btn ghost" data-app="contacts">✏️ New text</button></div>';
+    if (!who.length) return newBtn + '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions, or start one yourself.</li></ul>';
+    return `${newBtn}<ul class="ph-list ph-threads">${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
       return `<li><button class="ph-thread${un ? ' new' : ''}" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${last.from === 'P' ? 'You: ' : ''}${esc(last.text.replace(/^📷\s*/, '📷 '))}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`; }).join('')}</ul>`;
+  }
+  function contactsHtml() {
+    const who = textWho();
+    return `<ul class="ph-list ph-threads">${who.map(w => `<li><button class="ph-thread" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${isEx(w) ? 'Not answering' : bond.textOut[w] === shipDay ? 'Texted today' : esc(SPEAKERS[w].name.includes(' · ') ? SPEAKERS[w].name.split(' · ').slice(-1)[0] === SIGN[w] ? SPEAKERS[w].name.split(' · ')[0] : SPEAKERS[w].name.split(' · ').slice(-1)[0] : 'Crew')}</small></span></button></li>`).join('') || '<li class="ph-empty">Nobody to text yet. Meet the crew first!</li>'}</ul>`;
   }
   function threadHtml(w) {
     const t = thread(w), m = pendingText(w);
     let lastDay = null;
     const rows = t.map(x => { const head = x.day !== lastDay ? `<li class="ph-day">Day ${x.day}</li>` : ''; lastDay = x.day; return `${head}<li class="ph-b ${x.from === 'P' ? 'me' : 'them'}">${x.from === 'P' ? '' : faceTag(w, '')}<div>${bubble(x)}</div></li>`; }).join('');
-    return `<ul class="ph-list ph-chat" id="phChat">${rows}</ul>
-      ${m ? `<div class="ph-replies">${m.choices.map(([r, tone], i) => `<button class="ph-reply ${tone}" data-reply="${i}">${esc(r)}</button>`).join('')}</div>` : isEx(w) ? '<p class="ph-note">They’re not answering right now.</p>' : '<p class="ph-note">They’ll text again soon.</p>'}`;
+    const dots = typing[w] ? `<li class="ph-b them">${faceTag(w, '')}<div class="ph-typing" aria-label="typing"><i></i><i></i><i></i></div></li>` : '';
+    const opener = !m && !typing[w] && !isEx(w) && bond.textOut[w] !== shipDay;
+    return `<ul class="ph-list ph-chat" id="phChat">${rows || '<li class="ph-empty">No messages yet. Say hi!</li>'}${dots}</ul>
+      ${m ? `<div class="ph-replies">${m.choices.map(([r, tone], i) => `<button class="ph-reply ${tone}" data-reply="${i}">${esc(r)}</button>`).join('')}</div>`
+        : opener ? `<div class="ph-replies"><span class="ph-say">Send a text</span><button class="ph-reply warm" data-open="warm">Hey! How’s your day going?</button><button class="ph-reply fun" data-open="fun">Saw something that made me think of you 😄</button>${canFlirt(w) ? '<button class="ph-reply flirt" data-open="flirt">Can’t stop thinking about you, honestly</button>' : ''}</div>`
+        : isEx(w) ? '<p class="ph-note">They’re not answering right now.</p>' : typing[w] ? '' : '<p class="ph-note">You’ve already texted today. They’ll text again soon.</p>'}`;
   }
   function renderPhone() {
     let p = $('phonePanel');
@@ -11587,7 +11590,8 @@ details.act > .limits { margin: 0 0 8px; }
       p.addEventListener('click', e => {
         const t = e.target.closest('button'); if (!t) return;
         if (t.id === 'phoneClose') { sfx.click(); closePhone(); return; }
-        if (t.id === 'phoneBack') { sfx.click(); phoneView = phoneView.startsWith('thread:') ? 'texts' : 'home'; renderPhone(); return; }
+        if (t.id === 'phoneBack') { sfx.click(); phoneView = phoneView.startsWith('thread:') || phoneView === 'contacts' ? 'texts' : 'home'; renderPhone(); return; }
+        if (t.dataset.open) { sfx.click(); startText(phoneView.slice(7), t.dataset.open); renderPhone(); return; }
         if (t.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); return; }
         if (t.id === 'phReq') { sfx.click(); closePhone(); reqFrom = 'title'; setMode('requests'); return; }
         if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
@@ -11597,9 +11601,9 @@ details.act > .limits { margin: 0 0 8px; }
     }
     const v = phoneView, tw = v.startsWith('thread:') ? v.slice(7) : null;
     const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0]];
-    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
+    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
     const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
-      : v === 'texts' ? textsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
+      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
       <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
       ${body}</div>`;
@@ -11884,6 +11888,22 @@ details.act > .limits { margin: 0 0 8px; }
   const thread = w => (bond.texts[w] = bond.texts[w] || []);
   const pendingText = w => { const t = bond.texts[w]; const m = t && t[t.length - 1]; return m && m.from === w && m.choices && m.picked == null ? m : null; };
   const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length;
+  bond.textOut = bond.textOut || {};   // who you texted first today
+  const typing = {};                   // who is typing a reply right now
+  // starting a conversation: once per person per ship day, a small hearts boost and a quick answer
+  const HI = { F: 'Hello. This is an unscheduled text. I’ll allow it. How are you?', G: 'HEY! I was just thinking about you! And engines! Mostly you!', W: 'Well hello, dear. You’ve brightened up an old pilot’s evening.', R: 'Rex Valor, replying personally. You should feel very special.', J: 'Copy that. It’s nice to hear from you. Really.', Z: 'ZIB GOT A TEXT!!! Zib is so happy!!!', O: 'Your message arrived like a little lamp in the dark. Thank you.', V: 'Hello! Always a pleasure. Lyra says hi. She didn’t, but she meant to.', Y: 'Off the record, I smiled when I saw your name.', N: 'HI!! HI HI HI!! I was just singing about you!', S: '…Hello. I… was hoping… you would text.', C: 'Pilot! Sir! Pilot! Hi! I’m saving this text forever!', H: 'Hungry? You sound hungry. Come by the galley.', D: 'Hello! Are you drinking water? I hope you’re drinking water.', T: 'Hi! I’m elbow-deep in compost. Happy elbow-deep, though!', X: 'YO! Race you to the galley! Kidding. Unless…?' };
+  const LOL = { F: 'That was… actually funny. Don’t tell anyone I laughed.', G: 'HAHAHA. I snorted. Bao looked at me. Worth it.', W: 'Ha! You remind me of my old co-pilot. He was a menace too.', R: 'Funny. Not as funny as me. But funny.', J: 'I laughed. Out loud. On the dock. People stared.', Z: 'Zib is laughing so hard Zib turned orange!', O: 'I do not fully understand. But I am laughing. Moth laughter.', V: 'Ha! I’m stealing that for my next treaty dinner.', Y: 'On the record: that was funny.', N: 'HAHA!! My helmet fogged up from laughing!!', S: '…Ha. …Ha. That… is my laugh.', C: 'HA! Writing that down! Page two: pilot is hilarious!', H: 'Ha. Okay. You get an extra dumpling.', D: 'Laughter is good medicine. I’ll allow it.', T: 'Ha! The tomatoes are laughing too. Probably.', X: 'LOL. LMAO even. Okay that was good.' };
+  function startText(w, tone) {
+    if (pendingText(w) || isEx(w) || bond.textOut[w] === shipDay) return;
+    const line = { warm: 'Hey! How’s your day going?', fun: 'Saw something that made me think of you 😄', flirt: 'Can’t stop thinking about you, honestly' }[tone];
+    thread(w).push({ from: 'P', text: line, day: shipDay });
+    bond.textOut[w] = shipDay;
+    addHearts(w, tone === 'flirt' && isPartner(w) ? 10 : 5);
+    if (tone === 'flirt' && !isPartner(w) && datingAnyone() && !bond.open) bond.partners.forEach(p => { bond.sus[p] = Math.min(100, (bond.sus[p] || 0) + 15); });
+    saveBond();
+    typing[w] = true;
+    setTimeout(() => { typing[w] = false; thread(w).push({ from: w, text: tone === 'flirt' ? FLIRT[w] : tone === 'fun' ? (LOL[w] || 'Ha!') : (HI[w] || 'Hi!'), day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 1400);
+  }
   const canFlirt = w => romanceOn && !FRIEND_ONLY.includes(w) && heartsOf(w) >= 4 && !isEx(w) && !coupleOf(w) && FLIRT[w];
   function sendText(w, text, choices, quiet) {
     if (!SPEAKERS[w]) return;
@@ -11916,7 +11936,8 @@ details.act > .limits { margin: 0 0 8px; }
     // flirting with someone else while you're secretly seeing someone
     if (tone === 'flirt' && !isPartner(w) && datingAnyone() && !bond.open) bond.partners.forEach(p => { bond.sus[p] = Math.min(100, (bond.sus[p] || 0) + 15); });
     saveBond();
-    setTimeout(() => { thread(w).push({ from: w, text: back, day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 900);
+    typing[w] = true;
+    setTimeout(() => { typing[w] = false; thread(w).push({ from: w, text: back, day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 1200);
   }
   // overnight: one or two people text you, and partners say goodnight
   function textsOvernight() {
@@ -13716,12 +13737,25 @@ details.act > .limits { margin: 0 0 8px; }
     c.restore();
   }
   let toastTimer = 0;
+  // Toasts. Radio lines ("NAME: …") stay up long enough to read and can't be stomped on for their first
+  // couple of seconds: anything that arrives meanwhile waits its turn. Everything else replaces as before.
+  let toastQ = [], toastLock = 0, toastLockTimer = null;
+  const isRadio = text => /^[A-Za-z][A-Za-z .’'-]{1,24}: /.test(text) && !/^(Refueled|Back at)\b/.test(text);
   function showToast(text, ms = 1400) {
     try { phoneFromToast(text); } catch (e) {}
+    const radio = isRadio(String(text));
+    if (radio) ms = Math.max(ms, Math.min(5500, 1800 + String(text).length * 35));
+    if (performance.now() < toastLock) { if (toastQ.length >= 4) toastQ.splice(toastQ.findIndex(q => !q[2]) >= 0 ? toastQ.findIndex(q => !q[2]) : 0, 1); toastQ.push([text, ms, radio]); return; }
+    toastShow(text, ms, radio);
+  }
+  function toastShow(text, ms, radio) {
     const t = $('toast');
-    t.textContent = text; t.hidden = false;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.hidden = true; }, ms);
+    t.textContent = text; t.hidden = false; t.classList.toggle('radio', radio);
+    clearTimeout(toastTimer); clearTimeout(toastLockTimer);
+    const lock = radio ? Math.min(ms, 2600) : 0;
+    toastLock = performance.now() + lock;
+    if (lock) toastLockTimer = setTimeout(() => { toastLock = 0; if (toastQ.length) toastShow(...toastQ.shift()); }, lock);
+    toastTimer = setTimeout(() => { t.hidden = true; if (toastQ.length) toastShow(...toastQ.shift()); }, ms);
   }
 
   function dailyBox() {
