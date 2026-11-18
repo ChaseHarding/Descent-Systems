@@ -381,6 +381,41 @@ kbd {
 .ph-foot { text-align: center; padding-top: 6px; }
 .where { margin: 6px 0 0; font-size: 12px; opacity: 0.85; }
 .maphint { margin-top: 8px; }
+.ph-home { display: flex; flex-direction: column; gap: 14px; padding: 14px 8px; flex: 1; overflow-y: auto; }
+.ph-clock { margin: 0; text-align: center; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+.ph-apps { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; }
+.ph-app { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.ph-app b { font-size: 12px; font-weight: 500; }
+.ph-ic { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; font-size: 28px; background: #26304f; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25); }
+.ph-ic.texts { background: #2f8a55; } .ph-ic.inbox { background: #3a5aa8; } .ph-ic.map { background: #7a4ab8; } .ph-ic.today { background: #c0603a; }
+.ph-badge2 { position: absolute; top: 0; right: calc(50% - 38px); min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: var(--bad); color: #fff; font: 700 11px/20px var(--f-mono); font-style: normal; }
+.ph-tip { margin: auto 0 0; text-align: center; font-size: 11px; opacity: 0.55; }
+.ph-head canvas.face { width: 26px; height: 26px; border-radius: 6px; image-rendering: pixelated; }
+.ph-scroll { flex: 1; overflow-y: auto; padding: 6px 2px; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.ph-scroll .shipmap { margin: 0; }
+.ph-scroll .limits { font-size: 12px; margin: 8px 4px; }
+.ph-scroll .tcard { font-size: 13px; }
+.ph-threads { gap: 4px; }
+.ph-thread { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px; border: 0; border-radius: 10px; background: #121a33; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ph-thread canvas.face { flex: none; width: 36px; height: 36px; border-radius: 8px; image-rendering: pixelated; }
+.ph-thread > span { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ph-thread b { font-size: 13px; }
+.ph-thread small { font-size: 12px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ph-thread.new small { opacity: 1; color: #fff; }
+.ph-dot { flex: none; width: 10px; height: 10px; border-radius: 5px; background: var(--bad); }
+.ph-chat { gap: 6px; }
+.ph-b { display: flex; gap: 6px; align-items: flex-end; max-width: 88%; }
+.ph-b canvas.face { flex: none; width: 24px; height: 24px; border-radius: 6px; image-rendering: pixelated; }
+.ph-b > div { padding: 7px 10px; border-radius: 14px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.ph-b.them > div { background: #26304f; border-bottom-left-radius: 4px; }
+.ph-b.me { align-self: flex-end; } .ph-b.me > div { background: #2f8a55; color: #fff; border-bottom-right-radius: 4px; }
+.ph-photo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px; margin: -2px -4px; border-radius: 10px; background: #0a0e1c; border: 1px dashed rgba(201, 207, 220, 0.3); font-size: 12px; font-style: italic; text-align: center; }
+.ph-photo span { font-size: 24px; font-style: normal; }
+.ph-replies { display: flex; flex-direction: column; gap: 6px; padding: 8px 2px 2px; border-top: 1px solid rgba(201, 207, 220, 0.12); }
+.ph-reply { padding: 9px 12px; border-radius: 16px; border: 1px solid rgba(47, 138, 85, 0.7); background: rgba(47, 138, 85, 0.12); color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.ph-reply.flirt { border-color: rgba(255, 154, 213, 0.7); background: rgba(255, 154, 213, 0.1); }
+.ph-reply.cold { border-color: rgba(201, 207, 220, 0.25); background: transparent; opacity: 0.75; }
+.ph-note { margin: 0; padding: 8px; text-align: center; font-size: 12px; opacity: 0.6; }
 /* Co-pilot picker */
 .coppick { margin: 10px 0 4px; text-align: left; }
 .coprow { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
@@ -3511,6 +3546,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
     mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked };
+    try { textsAfterMission(d, starsWon); } catch (e) {}
     reqEvent('stars', { n: starsWon });
     sfx.landed(starsWon === 3);
     award('mission1');
@@ -4553,7 +4589,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
-  let menuTab = 'ship', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
+  let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
@@ -4696,7 +4732,8 @@ details.act > .limits { margin: 0 0 8px; }
       const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
       const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
       const cardsGot = stats.worlds.filter(id => POSTCARDS[id]).length, cardsAll = Object.keys(POSTCARDS).length;
-      const TABS = [['ship', 'Ship', Object.entries(roomNew).some(([k, v]) => v && k !== lastRoom)], ['crew', 'Crew ♥', crewNew], ['today', 'Today', reqOpen > 0 || ripe > 0], ['journal', 'Journal', newCards() > 0]];
+      const TABS = [['crew', 'Crew ♥', crewNew], ['journal', 'Journal', newCards() > 0]];
+      if (menuTab === 'ship' || menuTab === 'today') menuTab = 'crew';
       let body = '';
       if (menuTab === 'ship') {
         body = shipMapHtml() + `<p class="limits maphint">Get around on foot: walk through the doors, and take the lift between decks. Missions and every flight mode are on the Bridge’s nav console (Deck 1).</p>`;
@@ -4745,6 +4782,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
       html = `<h1 class="good">Menu</h1>
         <p class="tagline">Day ${shipDay}${eventFor() ? ` · ${eventFor().name}` : ''}${eveLevel() > 0 ? ` · ${eveName()}` : ''} · You’re in ${here} · ${fmt(credits)} credits</p>
+        <p class="limits">The ship map and today’s jobs are on your phone 📱 (right edge).</p>
         <div class="mtabs menutabs" role="tablist">${TABS.map(([id, name, dot]) => `<button role="tab" class="mtab${id === menuTab || (id === 'journal' && menuTab === 'guide') ? ' on' : ''}" data-mtab="${id}" aria-selected="${id === menuTab}"><b>${name}${id !== menuTab && dot ? '<i class="tdot" aria-label="new"></i>' : ''}</b></button>`).join('')}</div>
         <div class="menubody">${body}</div>
         <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
@@ -9193,6 +9231,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (mode === 'den') renderDen(true);
       eventHello();
       try { dramaOvernight(); admirerOvernight(); couplesOvernight(); } catch (e) {}
+      try { textsOvernight(); } catch (e) {}
     };
     setTimeout(wake, reduceMotion ? 50 : 1300);
     setTimeout(() => fade.remove(), reduceMotion ? 1600 : 3000);
@@ -11318,7 +11357,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     if (who) phoneAdd(who, m[2], 'Radio');
   }
-  const phoneUnread = () => phoneLog.filter(p => p.at > phoneSeen).length;
+  const phoneUnread = () => { let t = 0; try { t = textsUnread(); } catch (e) {} return phoneLog.filter(p => p.at > phoneSeen).length + t; };
   const PHONE_HIDE = ['flying', 'touchdown', 'paused', 'datescene', 'tutorial', 'intro', 'race'];
   // the little phone on the right edge, with a count of unread messages
   function phoneButton() {
@@ -11336,36 +11375,86 @@ details.act > .limits { margin: 0 0 8px; }
     b.classList.toggle('ring', n > 0);
   }
   function openPhone() {
-    phoneOpen = true; renderPhone();
-    phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton();
+    phoneOpen = true; phoneView = 'home'; renderPhone(); phoneButton();
     const close = $('phoneClose'); if (close) close.focus({ preventScroll: true });
   }
   function closePhone() {
     phoneOpen = false; const p = $('phonePanel'); if (p) p.hidden = true;
     const b = $('phoneBtn'); if (b && !b.hidden) b.focus({ preventScroll: true });
   }
-  function renderPhone() {
-    let p = $('phonePanel');
-    if (!p) {
-      p = document.createElement('div'); p.id = 'phonePanel'; p.className = 'phone-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Messages');
-      document.body.appendChild(p);
-      p.addEventListener('click', e => { if (e.target.id === 'phoneClose') { sfx.click(); closePhone(); } if (e.target.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); } });
-    }
-    const list = phoneLog.slice().reverse();
+  let phoneView = 'home';
+  // today at a glance: requests, garden, projects, Crumb and flights (each says where to go)
+  function todayHtml() {
+    const st = reqToday(), reqOpen = st.items.filter(i => !i.done).length;
+    const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
+    const nextP = PROJECTS.find(pj => !projDone(pj.id));
+    return `<div class="todaylist">
+      ${eventCard()}
+      <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
+        ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
+        <button class="btn ghost" id="phReq">Open crew requests</button></div>
+      <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
+        <p class="where">📍 The Garden · Deck 2</p></div>
+      <div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><p class="where">📍 Project board · Deck 2 corridor</p></div>
+      ${crumbHome() ? `<div class="tcard"><span class="eyebrow">Crumb</span><p>${salvageReady() ? 'Crumb is back from his salvage run and bursting to show you what he found.' : crumbOut() ? `Out salvaging on ${(WORLDS.find(w => w.id === salvage().world) || {}).name}. He’ll be back after your next flight.` : 'Home on his dock. Send him salvaging from the hangar.'} Mining runs left today: ${minePermits()} of ${MINE_PERMITS}.</p><p class="where">📍 The Hangar · Deck 3</p></div>` : ''}
+      <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
+        <p class="where">📍 Nav console on the Bridge · Deck 1</p></div>
+    </div>`;
+  }
+  const inboxUnread = () => phoneLog.filter(p => p.at > phoneSeen).length;
+  function inboxHtml() {
     let lastDay = null;
-    const rows = list.map(m => {
+    const rows = phoneLog.slice().reverse().map(m => {
       const sp = m.who && SPEAKERS[m.who], head = m.day !== lastDay ? `<li class="ph-day">Day ${m.day}</li>` : '';
       lastDay = m.day;
       const name = sp ? sp.name : 'Ship';
       return `${head}<li class="ph-msg${m.at > phoneSeen ? ' new' : ''}">${m.who ? faceTag(m.who, '') : '<span class="ph-sys" aria-hidden="true">✦</span>'}
         <div><span class="ph-who"><b style="color:${sp ? sp.color : 'var(--flame)'}">${esc(name)}</b>${m.tag && !name.toLowerCase().includes(String(m.tag).toLowerCase()) ? `<em>${esc(m.tag)}</em>` : ''}</span><p>${esc(m.text)}</p></div></li>`;
     }).join('');
+    return `<ul class="ph-list">${rows || '<li class="ph-empty">No messages yet. Crew messages, radio calls and intercom announcements will be saved here.</li>'}</ul>
+      ${phoneLog.length ? '<div class="ph-foot"><button class="link" id="phoneClear">Clear all</button></div>' : ''}`;
+  }
+  const bubble = m => m.text.startsWith('📷 ') ? `<div class="ph-photo"><span aria-hidden="true">📷</span>${esc(m.text.slice(2).trim())}</div>` : esc(m.text);
+  function textsHtml() {
+    const who = Object.keys(bond.texts).filter(w => bond.texts[w].length).sort((a, b) => { const la = bond.texts[a][bond.texts[a].length - 1], lb = bond.texts[b][bond.texts[b].length - 1]; return (pendingText(b) ? 1 : 0) - (pendingText(a) ? 1 : 0) || lb.day - la.day; });
+    if (!who.length) return '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions. Reply to grow closer.</li></ul>';
+    return `<ul class="ph-list ph-threads">${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
+      return `<li><button class="ph-thread${un ? ' new' : ''}" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${last.from === 'P' ? 'You: ' : ''}${esc(last.text.replace(/^📷\s*/, '📷 '))}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`; }).join('')}</ul>`;
+  }
+  function threadHtml(w) {
+    const t = thread(w), m = pendingText(w);
+    let lastDay = null;
+    const rows = t.map(x => { const head = x.day !== lastDay ? `<li class="ph-day">Day ${x.day}</li>` : ''; lastDay = x.day; return `${head}<li class="ph-b ${x.from === 'P' ? 'me' : 'them'}">${x.from === 'P' ? '' : faceTag(w, '')}<div>${bubble(x)}</div></li>`; }).join('');
+    return `<ul class="ph-list ph-chat" id="phChat">${rows}</ul>
+      ${m ? `<div class="ph-replies">${m.choices.map(([r, tone], i) => `<button class="ph-reply ${tone}" data-reply="${i}">${esc(r)}</button>`).join('')}</div>` : isEx(w) ? '<p class="ph-note">They’re not answering right now.</p>' : '<p class="ph-note">They’ll text again soon.</p>'}`;
+  }
+  function renderPhone() {
+    let p = $('phonePanel');
+    if (!p) {
+      p = document.createElement('div'); p.id = 'phonePanel'; p.className = 'phone-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Phone');
+      document.body.appendChild(p);
+      p.addEventListener('click', e => {
+        const t = e.target.closest('button'); if (!t) return;
+        if (t.id === 'phoneClose') { sfx.click(); closePhone(); return; }
+        if (t.id === 'phoneBack') { sfx.click(); phoneView = phoneView.startsWith('thread:') ? 'texts' : 'home'; renderPhone(); return; }
+        if (t.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); return; }
+        if (t.id === 'phReq') { sfx.click(); closePhone(); reqFrom = 'title'; setMode('requests'); return; }
+        if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
+        if (t.dataset.thread) { sfx.click(); phoneView = 'thread:' + t.dataset.thread; renderPhone(); return; }
+        if (t.dataset.reply != null) { sfx.click(); replyText(phoneView.slice(7), +t.dataset.reply); renderPhone(); phoneButton(); return; }
+      });
+    }
+    const v = phoneView, tw = v.startsWith('thread:') ? v.slice(7) : null;
+    const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0]];
+    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
+    const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
+      : v === 'texts' ? textsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
-      <div class="ph-head"><b>Messages</b><span>${phoneLog.length ? `${phoneLog.length} saved` : ''}</span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
-      <ul class="ph-list">${rows || '<li class="ph-empty">No messages yet. Crew messages, radio calls and intercom announcements will be saved here.</li>'}</ul>
-      ${phoneLog.length ? '<div class="ph-foot"><button class="link" id="phoneClear">Clear all</button></div>' : ''}</div>`;
+      <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
+      ${body}</div>`;
     paintFaces(p);
     p.hidden = false;
+    const chat = $('phChat'); if (chat) chat.scrollTop = chat.scrollHeight;
   }
   document.addEventListener('keydown', e => { if (phoneOpen && e.code === 'Escape') { e.stopPropagation(); e.preventDefault(); closePhone(); } }, true);
   // crew messages pop up one at a time at the bottom of the screen
@@ -11599,6 +11688,106 @@ details.act > .limits { margin: 0 0 8px; }
         <button class="btn ghost" data-drama="pick-${x}">Choose ${SIGN[x]}</button>`}
       </div></div></div>`;
   }
+  // ---- Texts: the crew messages you on your phone, and you pick a reply ----
+  // A warm reply grows hearts a little, a funny one a little less, a cold one costs you. Flirting is there once you're close,
+  // and if you're secretly dating someone, flirting by text with someone else makes your partner suspicious.
+  // Texts arrive overnight and after missions. Your partner says goodnight. An ex doesn't text at all.
+  // Each text: [message, [[reply, tone, their answer], ...]]. Lines starting with 📷 are photos.
+  const TEXTS = {
+    F: [['Reminder: you are scheduled for “fun” at 1900. I made a calendar entry. It’s mandatory fun.', [['I’ll be there. Fun is my middle name.', 'fun', 'Your middle name is on file as “Maybe”. But I appreciate the enthusiasm.'], ['Thanks for keeping us all organized, Dottie.', 'warm', 'Oh. Well. Somebody has to. …Thank you for noticing.']]],
+      ['Who left a wrench in the coffee machine. I’m not angry. I’m documenting.', [['Definitely Gus.', 'fun', 'I KNEW it. I’m adding it to his file. His file is getting thick.'], ['Want me to bring you a fresh cup from the galley?', 'warm', 'That would be… actually lovely. Two sugars. Don’t tell anyone I take sugar.']]],
+      ['Your landing today was within tolerances. That’s a compliment. From me, that’s basically a parade.', [['I’ll take the parade!', 'fun', 'No floats. No balloons. Just a nod. 🙂 There. That was the parade.'], ['Means a lot coming from you.', 'warm', 'Don’t let it go to your head. …It can go to your head a little.']]]],
+    G: [['📷 Biscuit in a tiny party hat', [['😂 she looks so proud', 'fun', 'SHE IS PROUD. She’s the best lander in the whole fleet and she knows it.'], ['Okay that’s adorable. Frame it.', 'warm', 'Already did! It’s next to my bunk. Next to the photo of my other favorite lander. Also Biscuit.']]],
+      ['Hypothetically. If someone took apart the toaster to make it go faster. Would that be bad.', [['Gus. What did you do.', 'fun', 'The toast is VERY fast now. It launches. Bao is not happy. Bao is ducking.'], ['Depends. Does it make better toast?', 'warm', 'It makes toast in 0.4 seconds! It’s also slightly on fire. I’m working on it!']]],
+      ['📷 a wrench wearing googly eyes, captioned “me when the engine makes a new noise”', [['lol accurate', 'fun', 'It’s my most relatable photo. I have six more. Do you want six more.'], ['You should start a meme page for the crew.', 'warm', 'Oh no. Oh YES. “Gus’s Grease Memes”. Dottie is going to hate it. I’m doing it.']]]],
+    W: [['Couldn’t sleep, dear, so I watched the stars from the dome. Reminded me of my first solo flight. Hope you’re resting.', [['Tell me about your first solo flight sometime?', 'warm', 'I’d love to. Bring cocoa. It’s a long story and I tell it slowly on purpose.'], ['Go to bed, Wren 😄', 'fun', 'Yes, captain. Bossy. I like that in a pilot.']]],
+      ['Found an old photo of my crew from the Kepler run. We were so young. We had so much hair.', [['Send it!', 'fun', '📷 Five pilots in matching jumpsuits, all with enormous hair. Wren is in the middle, grinning.'], ['I bet you all were amazing.', 'warm', 'We were a disaster, dear. A beautiful disaster. Like you on your first landing.']]]],
+    R: [['📷 Rex, mid-hair-flip, in front of the ship’s mirror. No caption needed.', [['Iconic.', 'fun', 'I KNOW. I’m printing it. Large format. For the hallway.'], ['Looking good, Rex!', 'warm', 'Finally. Someone with taste. I’m sending you three more.']]],
+      ['My fans are asking who my “mystery pilot friend” is. Should I tell them?', [['Keep them guessing 😏', 'fun', 'Ooh. Mysterious. I love it. The rumor mill is going to explode.'], ['Tell them! I’d love to say hi.', 'warm', 'Okay but you’re doing my hair for the video. Non-negotiable.']]]],
+    J: [['Docking log: you, 14 approaches, 0 scrapes. I logged that. Then I logged that I logged it.', [['That’s very meta.', 'fun', 'Everything is meta at 2am. Go to sleep, pilot.'], ['Thanks for always watching my back.', 'warm', 'It’s my job. …It’s also not just my job. Goodnight.']]],
+      ['The ferns on my console are thriving. I talk to them. Is that weird. Don’t answer that.', [['Not weird. Plants like that.', 'warm', 'They do! Tamsin said so. I feel validated. The ferns feel validated.'], ['What do you talk about?', 'fun', 'Docking lanes, mostly. They’re very good listeners. Better than Gus.']]]],
+    Z: [['ZIB HAS LEARNED TO TEXT!!!! 🟣🟣🟣', [['Welcome to texting, Zib!', 'warm', 'Zib is so happy! Zib will text you every day! Many times! Too many times!'], ['Why are you shouting', 'fun', 'ZIB DOES NOT KNOW HOW TO MAKE THE LETTERS SMALL. Zib is trying. zib. zib did it!']]],
+      ['📷 Zib holding six Zib plushies, beaming', [['That’s a lot of Zibs.', 'fun', 'Not enough Zibs! There can never be enough Zibs!'], ['They’re adorable. Like you.', 'warm', 'Zib is turning pink! Pink means very happy and a little shy!']]]],
+    O: [['The lamps in the galley flicker at 3:14 each night. I have been watching them. I think they are trying to tell me something.', [['What do you think they’re saying?', 'warm', 'Perhaps “goodnight”. Perhaps “replace the bulb”. Both are beautiful.'], ['Ollo. Go to sleep.', 'fun', 'Moths do not sleep at night, pilot. We are busy. Looking at lamps.']]],
+      ['I wrote a poem about the light from your landing thrusters. It is short. It is mostly the word “glow”.', [['Read it to me sometime?', 'warm', 'I will. It goes: “Glow.” …I am still working on the second line.'], ['Glow glow glow?', 'fun', 'You have written the second verse. We are co-authors now.']]]],
+    V: [['Treaty negotiations went well today. I only made one person cry. It was me. I was moved by the catering.', [['What was on the menu?', 'fun', 'Tiny sandwiches. With the crusts off. I respect a civilization that removes crusts.'], ['Proud of you, Kael.', 'warm', 'That’s… thank you. Lyra never says that. Lyra says “you were adequate”.']]],
+      ['Lyra and I are arguing about who’s the better pilot. You’re the tiebreaker. Choose wisely.', [['Me. I’m the better pilot.', 'fun', 'Wow. Bold. Correct, but bold.'], ['You’re both great at different things!', 'warm', 'A diplomatic answer. You’d do well in our family.']]]],
+    Y: [['Off the record: Kael cried at a treaty dinner. On the record: he didn’t.', [['My lips are sealed 🤐', 'fun', 'Good. You’re learning. We’ll make a diplomat of you yet.'], ['That’s sweet, actually.', 'warm', 'It is. Don’t tell him I said that. Off the record.']]],
+      ['I have exactly one chocolate left. I’m thinking about you. Unrelated. Completely unrelated.', [['Save it for me?', 'warm', '…Fine. Half. That’s a generous treaty. Sign here.'], ['Eat it before Kael finds it.', 'fun', 'Too late. He found it. He’s eating it. I am filing a formal complaint.']]]],
+    N: [['I found a puddle in the garden and sat in it for an hour!! It was the BEST HOUR!!', [['Living your best life 💦', 'fun', 'YES!! I’m going back! Tamsin says it’s “drainage”. I say it’s a spa!'], ['That sounds really relaxing, Nerri.', 'warm', 'It WAS. You should come next time! Bring a towel! Or don’t! Puddles are for everyone!']]],
+      ['I tried to sing you a song but my helmet fogged up. Can I send it as a text? ♪ ♫ ♪♪ ♫', [['That was beautiful.', 'warm', 'You could HEAR it?? Through the little notes?? This is the best day.'], ['♫ ♪ ♫ (singing back)', 'fun', 'A DUET!! We have a duet!! I’m telling everyone on Europa!']]]],
+    S: [['…Good… morning.', [['Good morning, Brix!', 'warm', 'I… wrote that… yesterday. It arrived… on time. I am… very proud.'], ['It’s nighttime.', 'fun', 'Ah. I… started typing… this morning. Time… is fast… on this ship.']]],
+      ['📷 a smooth grey rock, sitting on a tiny pillow', [['Is that your pet rock?', 'fun', 'His name… is Pebble. He… says hello. Slowly.'], ['He looks very comfortable.', 'warm', 'He… is. I… knitted… the pillow. It took… a season.']]]],
+    C: [['Cadet Kit reporting: I reorganized the supply closet by color. Then by size. Then by color again.', [['Great work, cadet!', 'warm', 'THANK YOU, PILOT! I’m framing this text! Can you frame a text?'], ['How many times did you reorganize it?', 'fun', 'Eleven. Dottie said “stop”. I am pretending I didn’t hear her.']]]],
+    H: [['Dumplings tomorrow. I’m saving you the crispy ones. Don’t tell Gus. Gus eats the crispy ones.', [['You’re the best, Bao.', 'warm', 'I know. Now go to sleep. Growing pilots need sleep. And dumplings.'], ['Gus will find out.', 'fun', 'Gus can try. I have hidden them in the spice drawer. Nobody opens the spice drawer.']]]],
+    D: [['Medical reminder: drink water. That’s it. That’s the text. Drink water.', [['Drinking water right now 💧', 'warm', 'Good. I’m proud of you. Medically.'], ['What if I drink coffee instead?', 'fun', 'Then I will be texting you again. Every hour. With pictures of water.']]]],
+    T: [['The moonflower in bed three bloomed! It only blooms at night. I stayed up to see it. Worth it!', [['Send a picture!', 'fun', '📷 a pale glowing flower, wide open under the grow lamps'], ['That sounds magical.', 'warm', 'It was. Come by the garden tomorrow night? It might bloom again.']]]],
+    X: [['RACE ME TOMORROW. Engine room to the bridge. Loser buys cocoa.', [['You’re on.', 'fun', 'YESSS. I’ve been stretching. Since yesterday. Prepare to lose.'], ['How about we walk there together instead?', 'warm', 'Walk?? …Okay fine. Slowly. I will be vibrating the whole time.']]]]
+  };
+  // flirting and goodnights (romance on, close enough), and how they react to a cold reply
+  const FLIRT = { F: 'Oh. Oh! I’m… adding that to my calendar. Under “thinking about it”. Which I am.', G: 'Wait. WAIT. Are you flirting with me? Over TEXT? My face is so red. My whole face.', W: 'Well, aren’t you a charmer. I haven’t blushed since 1987. Until now.', R: 'Obviously. Everyone thinks about me. But it’s nice when YOU do.', J: 'Logged. Under “very good news”. I don’t have a folder for that. I’m making one.', Z: 'Zib is turning pink!!! Very pink!!! The pinkest!!!', O: 'You have made my antennae curl. That is the moth word for “I like you too”.', V: 'Smooth. I’d expect nothing less from you. …I’m smiling at my phone like an idiot.', Y: 'Off the record? Same. On the record? …Also same.', N: 'My helmet is FOGGING UP. That’s the GOOD fog!!', S: '…I have… read that… eleven times. I… like it.' };
+  const GOODNIGHT = { F: 'Goodnight. I’ve scheduled you a good dream. Eight hours. Mandatory.', G: 'Night! I’m dreaming about you. And engines. Mostly you. Some engines.', W: 'Sleep well, dear. The stars are out, and so am I. That’s a pilot joke. Goodnight.', R: 'Goodnight, gorgeous. Second most gorgeous. After me. Goodnight.', J: 'Lights out. All lanes clear. Goodnight, pilot. ♥', Z: 'Goodnight from Zib!!! Zib will dream of you!!! Pink dreams!!!', O: 'I have dimmed my lamp so I can think of you in the dark. Goodnight.', V: 'Goodnight. Lyra says I’m being “disgustingly cute”. I don’t care.', Y: 'Off the record: goodnight. On the record: also goodnight. ♥', N: 'Night night!! I’m sleeping in my tank tonight. Thinking about you!!', S: 'Goodnight. I… will see you… in the morning. Or… a bit after.' };
+  const COLD = { F: 'Noted.', G: 'Oh. Okay. Sorry. I’ll go.', W: 'I see. Well. Goodnight then.', R: 'Excuse me? Do you know who I am?', J: 'Copy. Logging off.', Z: 'Zib is a little blue now.', O: 'I see. I shall fly elsewhere.', V: 'Ouch. Noted.', Y: 'Off the record: rude.', N: 'Oh. Okay. My song got shorter.', S: '…Oh.', C: 'Yes, sir. Pilot. Sorry.', H: 'Fine. No crispy dumplings for you.', D: 'Rude. Also, drink water.', T: 'Oh. Okay. Bye then.', X: 'Wow. Okay. Rude AND slow.' };
+  bond.texts = bond.texts || {};   // who -> [{ from, text, day, choices, picked }]
+  const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'].filter(w => romMet[w] && romMet[w]());
+  const thread = w => (bond.texts[w] = bond.texts[w] || []);
+  const pendingText = w => { const t = bond.texts[w]; const m = t && t[t.length - 1]; return m && m.from === w && m.choices && m.picked == null ? m : null; };
+  const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length;
+  const canFlirt = w => romanceOn && !FRIEND_ONLY.includes(w) && heartsOf(w) >= 4 && !isEx(w) && !coupleOf(w) && FLIRT[w];
+  function sendText(w, text, choices, quiet) {
+    if (!SPEAKERS[w]) return;
+    thread(w).push({ from: w, text, day: shipDay, choices: choices || null, picked: null });
+    if (thread(w).length > 40) bond.texts[w] = thread(w).slice(-40);
+    saveBond(); phoneButton(); if (phoneOpen) renderPhone();
+    if (!quiet) { setTimeout(() => { showToast(`📱 New text from ${SIGN[w]}`, 1800); sfx.radio(); }, 400); }
+  }
+  // build the reply options: the text's own two, plus flirty (when it fits) and cold
+  function textChoices(w, base) {
+    const ch = base.map(([r, tone, back]) => [r, tone, back]);
+    if (canFlirt(w)) ch.push([isPartner(w) ? 'Miss you already ♥' : 'Honestly? I was just thinking about you 😏', 'flirt', FLIRT[w]]);
+    ch.push(['k.', 'cold', COLD[w] || 'Oh. Okay.']);
+    return ch;
+  }
+  function textFrom(w) {
+    if (pendingText(w) || isEx(w)) return false;
+    const bank = TEXTS[w]; if (!bank) return false;
+    const seen = thread(w).map(m => m.text), fresh = bank.filter(([t]) => !seen.includes(t)), pool = fresh.length ? fresh : bank;
+    const [t, base] = pool[Math.floor(Math.random() * pool.length)];
+    sendText(w, t, textChoices(w, base));
+    return true;
+  }
+  function replyText(w, i) {
+    const m = pendingText(w); if (!m) return;
+    const [r, tone, back] = m.choices[i]; m.picked = i;
+    thread(w).push({ from: 'P', text: r, day: shipDay });
+    const pts = { warm: 15, fun: 10, flirt: isPartner(w) ? 20 : 12, cold: -25 }[tone] || 0;
+    if (pts > 0) addHearts(w, pts); else hearts[w] = Math.max(0, (hearts[w] || 0) + pts);
+    // flirting with someone else while you're secretly seeing someone
+    if (tone === 'flirt' && !isPartner(w) && datingAnyone() && !bond.open) bond.partners.forEach(p => { bond.sus[p] = Math.min(100, (bond.sus[p] || 0) + 15); });
+    saveBond();
+    setTimeout(() => { thread(w).push({ from: w, text: back, day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 900);
+  }
+  // overnight: one or two people text you, and partners say goodnight
+  function textsOvernight() {
+    const who = textWho().filter(w => !isEx(w) && !pendingText(w));
+    for (const p of bond.partners) if (who.includes(p) && GOODNIGHT[p]) { sendText(p, GOODNIGHT[p], [['Goodnight ♥', 'warm', 'Sleep well. ♥'], ['Already asleep 💤', 'fun', 'Liar. Cute liar. Goodnight.']], true); }
+    const others = who.filter(w => !bond.partners.includes(w)).sort(() => Math.random() - 0.5).sort((a, b) => heartsOf(b) - heartsOf(a)).slice(0, 4);
+    const n = Math.random() < 0.5 ? 1 : 2;
+    others.sort(() => Math.random() - 0.5).slice(0, n).forEach(w => textFrom(w));
+    // someone you left on read nudges you, once
+    for (const w of Object.keys(bond.texts)) { const m = pendingText(w); if (m && m.day < shipDay - 1 && !m.nudged) { m.nudged = true; thread(w).push({ from: w, text: 'Hello?? You left me on read 😢', day: shipDay }); } }
+    saveBond(); phoneButton();
+  }
+  // after a mission, sometimes someone saw it
+  function textsAfterMission(d, stars) {
+    if (Math.random() > 0.4) return;
+    const who = textWho().filter(w => !isEx(w) && !pendingText(w)); if (!who.length) return;
+    const w = who[Math.floor(Math.random() * who.length)], wn = (WORLDS.find(x => x.id === d.world) || {}).name || 'out there';
+    const t = stars >= 3 ? `Just watched your ${d.name} run on ${wn}. Three stars?! Show-off. 😄` : `Saw you finished ${d.name}. Nice flying out on ${wn}!`;
+    setTimeout(() => sendText(w, t, textChoices(w, [['Thanks! It was a tricky one.', 'warm', 'You made it look easy. Annoyingly easy.'], ['I know, I’m amazing.', 'fun', 'Humble too. Truly a pilot of the people.']])), 2500);
+  }
+  // a first text from Dottie, so the app isn't empty
+  setTimeout(() => { try { if (!Object.keys(bond.texts).length && store.get('ds-intro', '') === 'done') sendText('F', 'Your phone is set up. Crew texts land here. Reply to them. Replying is polite. Not replying is noted.', textChoices('F', [['Got it, Dottie!', 'warm', 'Excellent. You are now 4% more organized. Keep it up.'], ['Noted that you noted it.', 'fun', 'Don’t get clever. …That was a little clever.']]), true); } catch (e) {} }, 2500);
   // ---- Crew couples: the ship has a love life of its own ----
   // Five pairs have a soft spot for each other. Left alone, a crush grows a little every night,
   // you can play matchmaker from the Crew tab, and once it hits 100% they get together.
