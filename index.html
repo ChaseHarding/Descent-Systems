@@ -424,6 +424,7 @@ kbd {
 @keyframes phdot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-3px); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ph-typing i { animation: none; } }
 .ph-note { margin: 0; padding: 8px; text-align: center; font-size: 12px; opacity: 0.6; }
+.datescene .narr { margin: 0; font-style: italic; opacity: 0.85; text-align: center; padding: 6px 4px; }
 /* Co-pilot picker */
 .coppick { margin: 10px 0 4px; text-align: left; }
 .coprow { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
@@ -2870,7 +2871,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (pad && L.grounded && !pad.move)
       mission.cp = { stage: mission.stage, padId: pad.id, x: L.x, fuel: L.fuel, t: flightT, carrying: mission.carrying, comfort: mission.comfort, melt: mission.melt, nagged: mission.nagged.slice(), legWind: mission.legWind, leg: g.leg + 1,
         pk: mission.pk && mission.pk.map(p => p.got), bonus: mission.bonus, grades: mission.grades.slice(), gusUsed: mission.gusUsed, baoUsed: mission.baoUsed, saved: mission.saved,
-        surp: mission.surp, redirect: mission.redirect, altPaid: mission.altPaid, sat: mission.sat && { ...mission.sat }, sos: mission.sos && { ...mission.sos }, sputter: mission.sputter && { ...mission.sputter }, reroute: mission.reroute && { ...mission.reroute } };
+        surp: mission.surp, redirect: mission.redirect, altPaid: mission.altPaid, sat: mission.sat && { ...mission.sat }, sos: mission.sos && { ...mission.sos }, sputter: mission.sputter && { ...mission.sputter }, reroute: mission.reroute && { ...mission.reroute }, metShower: mission.metShower && { ...mission.metShower } };
     sfx.coin();
     showToast(`${g.done ? g.done + ' ' : ''}✓ Stop ${g.leg + 1} of ${d.legs.length} · Next: ${next.name}`, 2600);
     if (next.say) setTimeout(() => { if (mission && mode === 'flying') { showToast(next.say, 3400); sfx.radio(); } }, 2700);
@@ -2880,7 +2881,7 @@ details.act > .limits { margin: 0 0 8px; }
     const cp = mission.cp, d = mission.def;
     surpForce = cp.surp || null;
     startMission(null);
-    Object.assign(mission, { redirect: cp.redirect, altPaid: cp.altPaid, sat: cp.sat && { ...cp.sat }, sos: cp.sos && { ...cp.sos }, sputter: cp.sputter && { ...cp.sputter, on: null, done: true }, reroute: cp.reroute && { ...cp.reroute } });
+    Object.assign(mission, { redirect: cp.redirect, altPaid: cp.altPaid, sat: cp.sat && { ...cp.sat }, sos: cp.sos && { ...cp.sos }, sputter: cp.sputter && { ...cp.sputter, on: null, done: true }, reroute: cp.reroute && { ...cp.reroute }, metShower: cp.metShower && { ...cp.metShower, state: cp.metShower.state === 'wait' ? 'wait' : 'done' } });
     if (mission.sat && mission.sat.state === 'fall') mission.sat.state = 'lost';
     Object.assign(mission, { stage: cp.stage, carrying: cp.carrying, comfort: cp.comfort, melt: cp.melt, nagged: cp.nagged.slice(), legWind: cp.legWind, cp, bonus: cp.bonus || 0, grades: (cp.grades || []).slice(), gusUsed: cp.gusUsed, baoUsed: cp.baoUsed, saved: cp.saved });
     if (mission.pk && cp.pk) mission.pk.forEach((p, i) => { p.got = cp.pk[i]; });
@@ -3251,7 +3252,7 @@ details.act > .limits { margin: 0 0 8px; }
   //   sos        a crewmate is stuck at the SOS pad and would love a lift (+50 and hearts)
   // The first three campaign missions never get surprises. A checkpoint retry keeps the same surprises.
   let surpForce = null;
-  const SURP_NAMES = { reroute: 'Change of plans', sputter: 'Engine trouble', satellite: 'Falling satellite', sos: 'SOS call' };
+  const SURP_NAMES = { reroute: 'Change of plans', sputter: 'Engine trouble', satellite: 'Falling satellite', sos: 'SOS call', meteors: 'Meteor shower' };
   const REROUTE_WHY = ['a dust devil is parked on it', 'Crumb’s cousin is napping on it', 'the pad lights just failed', 'someone left a crate on it. It was Gus', 'a crack opened up right across it', 'there’s a very confused rover on it'];
   const rawGround = (d, x) => { const g = d.ground; for (let i = 1; i < g.length; i++) if (x <= g[i][0]) { const [x0, y0] = g[i - 1], [x1, y1] = g[i]; return y0 + (y1 - y0) * (x - x0) / Math.max(1e-6, x1 - x0); } return g[g.length - 1][1]; };
   // somewhere flat-ish and out of the way for an extra pad
@@ -3274,6 +3275,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (ALL.indexOf(d) < 3 || window.__noSurprise || d.kind === 'trip' || Math.random() > 0.55) return plan;
     const padOK = !d.ceilings && !['hop', 'route', 'sling', 'dock'].includes(d.kind) && !d.pads.some(p => p.move);
     const pool = [['sputter', 3], ['satellite', 3]];
+    if (!d.meteors && !d.ceilings) pool.push(['meteors', 3]);
     if (padOK && goalsOf(d).some(g => g.type === 'land' || g.type === 'drop')) pool.push(['reroute', 3]);
     if (padOK && textWho().length) pool.push(['sos', 2]);
     const pick = () => { const tot = pool.reduce((s, [, w]) => s + w, 0); let r = Math.random() * tot; for (const [k, w] of pool) { if ((r -= w) <= 0) return k; } return pool[0][0]; };
@@ -3288,7 +3290,7 @@ details.act > .limits { margin: 0 0 8px; }
     plan.why = REROUTE_WHY[Math.floor(Math.random() * REROUTE_WHY.length)];
     plan.who = (() => { const w = textWho().filter(x => x !== copilot); return w[Math.floor(Math.random() * w.length)] || 'G'; })();
     plan.satX = 30 + Math.random() * (W - 60); plan.satAt = 5 + Math.random() * 14;
-    plan.spAt = 8 + Math.random() * 16; plan.sosAt = 3 + Math.random() * 8;
+    plan.spAt = 8 + Math.random() * 16; plan.sosAt = 3 + Math.random() * 8; plan.metAt = 6 + Math.random() * 14;
     return plan;
   }
   function setupSurprises(plan) {
@@ -3298,8 +3300,10 @@ details.act > .limits { margin: 0 0 8px; }
     if (has('satellite')) mission.sat = { x: plan.satX, y: H + 8, vx: (Math.random() - 0.5) * 1.2, at: plan.satAt, state: 'wait' };
     if (has('sos')) mission.sos = { who: plan.who, at: plan.sosAt, state: 'wait' };
     if (has('reroute')) mission.reroute = { from: plan.from, state: 'wait' };
+    if (has('meteors')) mission.metShower = { at: plan.metAt, state: 'wait', end: 0 };
   }
   const radio = (who, text, ms = 3200, byName) => { showToast(`${!byName && who === 'F' ? 'FLIGHT' : !byName && who === 'G' ? 'ENGINEERING' : (SIGN[who] || who).toUpperCase()}: ${text}`, ms); sfx.radio(); };
+  const surpHappened = k => k === 'sputter' ? mission.sputter.on != null : k === 'reroute' ? !!mission.redirect : k === 'satellite' ? mission.sat.state !== 'wait' : k === 'meteors' ? mission.metShower.state !== 'wait' : mission.sos.state !== 'wait';
   const sputtering = () => !!(mission && mission.sputter && mission.sputter.on != null && !mission.sputter.done);
   function surpriseTick(dt) {
     const L = lander, t = flightT;
@@ -3329,6 +3333,18 @@ details.act > .limits { margin: 0 0 8px; }
         } else if (s.y <= groundAt(s.x) + 1) { s.state = 'lost'; spawnDust(s.x, groundAt(s.x), 14, 1.2); radio('F', '…and it’s down. Oh well. It was mostly weather data.', 2400); }
       }
     }
+    // a meteor shower: rocks fall for about fifteen seconds, some of them near you
+    const ms = mission.metShower;
+    if (ms && ms.state === 'wait' && t >= ms.at) {
+      ms.state = 'on'; let last = simT;
+      for (let k = simT + 3, i = 0; k < simT + 18; k += 0.8 + Math.random() * 0.8, i++) {
+        const x = i % 3 === 0 ? Math.max(6, Math.min(W - 6, L.x + (Math.random() - 0.5) * 50)) : 6 + Math.random() * (W - 12);
+        meteors.push({ t: k, x, ang: 0.45 + Math.random() * 0.4, dir: Math.random() < 0.5 ? -1 : 1 }); last = k;
+      }
+      ms.end = last + 0.5;
+      radio('F', 'Meteor shower incoming! Watch for the marked impact spots and keep moving.', 3400); sfx.static(); addShake(3);
+    }
+    if (ms && ms.state === 'on' && simT > ms.end) { ms.state = 'done'; mission.bonus += 40; popText('Dodged them all! +40', '#ffe58a', L.x, L.y + 6, true); radio('F', 'That’s the last of them. Nice dodging, pilot.', 2400); }
     // a crewmate calls for a lift
     const so = mission.sos;
     if (so && so.state === 'wait' && t >= so.at) { so.state = 'active'; radio(so.who, `Help! I’m stuck at the SOS pad. Could you swing by on your way? I’ll make it worth it!`, 3600, true); }
@@ -5119,7 +5135,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.grades.length ? `<span>Landings: ${['butter', 'clean', 'bumpy'].map(g => [g, mission.grades.filter(x => x === g).length]).filter(([, n]) => n).map(([g, n]) => `${GRADES[g][0].replace('!', '')}${n > 1 ? ' ×' + n : ''}`).join(' · ')}</span>` : ''}
             ${mission.pk ? `<span>Pickups: ${mission.pk.filter(p => p.got).length} of ${mission.pk.length}</span>` : ''}
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
-            ${mission.surp && mission.surp.kinds.filter(k => k === 'sputter' ? mission.sputter.on != null : k === 'reroute' ? !!mission.redirect : k === 'satellite' ? mission.sat.state !== 'wait' : mission.sos.state !== 'wait').length ? `<span>Surprise: ${mission.surp.kinds.filter(k => k === 'sputter' ? mission.sputter.on != null : k === 'reroute' ? !!mission.redirect : k === 'satellite' ? mission.sat.state !== 'wait' : mission.sos.state !== 'wait').map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : '')).join(' · ')}</span>` : ''}
+            ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
@@ -9494,9 +9510,8 @@ details.act > .limits { margin: 0 0 8px; }
   function startEventParty(back) {
     const ev = eventFor(), st = evState(), host = evHost(ev);
     st.partied = true; saveEv();
-    const guests = ['F', 'G', 'W', 'R'].filter(w => w !== host && evPresent(w)).slice(0, 3);
-    const lines = ev.party.filter(([w]) => w === 'P' || w === 'A' || w === host || guests.includes(w));
-    playDate(host, 'ev', lines, { label: `Ship event · Day ${shipDay}`, title: ev.name }, () => { eventReward(ev); setMode(back); }, { bg: ev.bg, guests, ev });
+    const { guests, lines } = eventCast(ev, host);
+    playDate(host, 'ev', lines, { label: `Ship event · Day ${shipDay}`, title: ev.name }, () => { eventReward(ev); setMode(back); }, { bg: ev.bg, guests, ev, stage: true });
   }
   function eventReward(ev) {
     const dm = evDoneMap(), first = !dm[ev.id];
@@ -9517,6 +9532,198 @@ details.act > .limits { margin: 0 0 8px; }
     return `<div class="tcard evcard" style="--ev:${ev.cols[0]}"><span class="eyebrow">Today · ${ev.name}</span>
       <p>${st.partied ? 'The party’s over. What a night. See you at the next one.' : st.done ? 'Goal done! The party’s waiting for you.' : `${ev.goal()}.${ev.n > 1 ? ` <b>${st.prog} of ${ev.n}</b>` : ''}`}</p>
       ${st.done && !st.partied ? `<p class="where">📍 The party’s in ${ev.id === 'starfall' ? (projDone('dome') ? 'the Dome' : 'the Bridge') : 'the break room'}</p>` : ''}</div>`;
+  }
+
+  // ---- Event scenes: the whole crew on a little stage ----
+  // Longer scripts with stage directions. Lines are [who, text, cue]. who '*' is narration, 'A' is Apogee.
+  // A cue can make people walk (to: x), dance, cheer, jump or spin (act, who: 'all' | [list] | speaker),
+  // pop an emote over their head (♪ ♥ ! ? …), bring the cat on (cat: x), or burst confetti (fx: 'confetti').
+  // The camera glides toward whoever is talking, and the speaker steps forward a little.
+  const EV_SCENES = {
+    harvest: [
+      ['*', 'Gourds hang from every hook in the break room. The long table groans under bowls of everything the garden grew.'],
+      ['G', 'Welcome, welcome! To the Descent Systems Harvest Feast! Second annual. Third? Annual!', { act: 'cheer', emote: '!' }],
+      ['F', 'I counted the gourds, Gus. There are forty-one. Some of them have faces.', { emote: '?' }],
+      ['G', 'Every gourd deserves a face, Dottie.'],
+      ['T', 'The tomatoes came in perfect this year. I talked to every single one.', { emote: '♥' }],
+      ['H', 'And I turned them into soup. Then more soup. Then a pie. Don’t ask what kind.'],
+      ['W', 'When I started flying, the harvest was one potato and a lot of singing.'],
+      ['Z', 'Zib brought jelly! Zib grew it! Zib did not grow it! Zib bought it!', { act: 'jump' }],
+      ['R', 'I brought a store-bought salad and nobody can prove it.', { emote: '…' }],
+      ['F', 'We can all prove it, Rex. It still has the sticker on.'],
+      ['N', 'What’s a potato? Can you sing to it? I’m going to sing to it.', { emote: '♪' }],
+      ['P', 'To the garden, and everyone who waters it!', { act: 'cheer', who: 'all', fx: 'confetti' }],
+      ['G', 'To the garden! Who wants the first slice? Don’t all rush at once. Please rush a little.', { act: 'dance', who: 'all' }]],
+    polka: [
+      ['*', 'The lights go warm. Gus wheels out something with bellows, buttons and a vacuum hose.'],
+      ['G', 'Ladies, gentlemen and cats: welcome to Polka Night! The accordion is real. I made it out of a vacuum cleaner.', { emote: '♪' }],
+      ['F', 'I said I wouldn’t dance this year. I’m writing that down so I remember.'],
+      ['*', 'Gus plays the first note. It sounds like a goose falling down a staircase. It is wonderful.', { act: 'dance', who: ['G'], emote: '♪' }],
+      ['R', 'This is the Rex Valor Shuffle. It’s trademarked. Don’t copy it. Okay, you can copy it.', { act: 'dance' }],
+      ['W', 'I won the Titan polka championship in ’82. Watch the footwork, pilot.', { act: 'spin' }],
+      ['X', 'Polka is just running in circles with music! I was BORN for this!', { act: 'dance', emote: '!' }],
+      ['O', 'The lights are swaying. I am swaying. Is this polka?', { act: 'dance', emote: '♪' }],
+      ['F', '…Fine. One song.', { act: 'dance' }],
+      ['G', 'DOTTIE IS DANCING! Somebody write it down!', { act: 'jump', emote: '!' }],
+      ['P', 'I think I’ve got it! Left, right, spin, spin…', { act: 'spin' }],
+      ['*', 'Everyone dances. Even Apogee flicks her tail in time.', { act: 'dance', who: 'all', cat: 100, emote: '♪' }],
+      ['G', 'You’ve got it! Polka is in your blood now. There’s no cure.', { act: 'dance', who: 'all' }]],
+    apogee: [
+      ['*', 'A cake shaped like a fish sits on the table. Everyone is crouched behind the couch.'],
+      ['F', 'Everyone, quiet. Here she comes. Act natural.', { emote: '!' }],
+      ['G', 'I’m acting SO natural right now.'],
+      ['*', 'Apogee strolls in, tail up, and stops. Her eyes narrow.', { cat: 100 }],
+      ['G', 'SURPRISE! Happy birthday, Apogee!', { act: 'jump', who: 'all', fx: 'confetti' }],
+      ['A', 'Mrrp?! (Apogee looks at the cake. Apogee looks at you. Apogee sits in the cake box instead.)'],
+      ['W', 'She likes the box better than the cake. Every single year.'],
+      ['Z', 'Zib made her a hat! Zib made her six hats!', { emote: '♥' }],
+      ['R', 'I got her a tiny crown. She ate the crown.', { emote: '…' }],
+      ['D', 'Medically speaking, crowns are not food. She seems fine, though.'],
+      ['C', 'Cadet Kit, presenting Apogee with a medal! For excellence in napping!', { act: 'jump' }],
+      ['P', 'Happy birthday, Apogee. Best crew member on this ship.', { emote: '♥' }],
+      ['F', 'Don’t tell Gus. …Happy birthday, you ridiculous cat.', { act: 'cheer', who: 'all' }]],
+    launch: [
+      ['*', 'Someone has hung a banner: HAPPY LAUNCH DAYY. Nobody will admit to the second Y.'],
+      ['F', 'Years ago today, one lander and one very nervous pilot made the first Descent Systems landing.'],
+      ['W', 'That pilot was me. I bounced twice and landed on my own toolbox.', { emote: '!' }],
+      ['G', 'And now look at us! Five landers! A garden! A disco ball, nearly!', { act: 'cheer' }],
+      ['J', 'I logged that first landing. The whole report just says “oof”.'],
+      ['R', 'Apex has thirty landers, for the record. But ours are… cozier. There. I said something nice.'],
+      ['V', 'On my homeworld we celebrate beginnings with tiny sandwiches.'],
+      ['Y', 'That’s not a tradition, Kael. You just like tiny sandwiches.', { emote: '…' }],
+      ['X', 'Can I light the candles? Can I light ALL the candles?', { act: 'jump' }],
+      ['F', 'Gus piped a little Biscuit on the cake. Pilot, it’s yours to cut.'],
+      ['P', 'To Descent Systems: the smallest landing agency in the solar system!', { act: 'cheer', who: 'all', fx: 'confetti' }],
+      ['F', 'And the best. To Descent Systems.', { emote: '♥' }]],
+    starfall: [
+      ['*', 'The lights are off. Everyone gathers under the glass and looks up.'],
+      ['W', 'There. Look. That’s the first one.', { emote: '!' }],
+      ['G', 'I’m making a wish on every single one. I’m up to forty. Most are about sandwiches.'],
+      ['N', 'On Europa the ice is too thick to see the sky. I didn’t know it could do THIS.', { emote: '♥' }],
+      ['O', 'So many lights, all falling at once. I may cry. I am crying.'],
+      ['F', 'I come up here every year and pretend I’m not crying. I am not crying.'],
+      ['S', 'A star… takes so long… to fall. Only a moment… to see. I… like that.'],
+      ['R', 'That one was pink! Did you see that? That was a pink one!', { act: 'jump', emote: '!' }],
+      ['P', 'I didn’t know the sky could do that.'],
+      ['W', 'It always could. You just have to stop and look up.', { emote: '♥' }]],
+    cocoa: [
+      ['*', 'The heating is down, the blankets are out, and the whole deck smells like chocolate.'],
+      ['F', 'Blankets on, lights low, cocoa up. That’s the only rule on Cocoa Night.'],
+      ['G', 'I put fourteen marshmallows in mine. It’s mostly marshmallow now. A marshmallow with a cocoa problem.', { emote: '♥' }],
+      ['H', 'I made the cocoa from scratch. If anyone adds powder, I will know.'],
+      ['W', 'On Pluto we melted snow for cocoa. It tasted like Pluto. Which is to say, not great.'],
+      ['R', 'I brought my own mug. It has my face on it. You can borrow it. No, you can’t.'],
+      ['Z', 'Zib put jelly in the cocoa! Zib regrets nothing!', { act: 'jump' }],
+      ['T', 'Cocoa beans are seeds, you know. You’re all drinking a garden.'],
+      ['P', 'This is the coziest night of the year.', { emote: '♥' }],
+      ['*', 'Apogee climbs into the middle of the blanket pile and refuses to leave.', { cat: 100 }],
+      ['F', 'Nobody move. She’s asleep on all of our feet. We live here now.']]
+  };
+  const STAGE_CREW = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
+  const onShip = w => (w === 'W' || w === 'R') ? evPresent(w) : !!(romMet[w] && romMet[w]());
+  // who's at the party, and the script trimmed to the people who are there
+  function eventCast(ev, host) {
+    const script = EV_SCENES[ev.id] || ev.party;
+    const speakers = [...new Set(script.map(l => l[0]).filter(w => STAGE_CREW.includes(w) && w !== host && onShip(w)))];
+    const extra = bond.partners.filter(w => onShip(w) && w !== host && !speakers.includes(w));
+    const guests = speakers.concat(extra).slice(0, 7);
+    let lines = script.filter(([w]) => w === '*' || w === 'P' || w === 'A' || w === host || guests.includes(w)).map(l => l.slice());
+    // your partner finds you, and an ex keeps their distance
+    const p = bond.partners.find(w => w === host || guests.includes(w));
+    if (p) lines.splice(Math.max(1, lines.length - 2), 0, [p, 'Come stand with me. Best spot at the party. ♥', { emote: '♥', to: 'P' }]);
+    const ex = guests.find(w => typeof isEx === 'function' && isEx(w));
+    if (ex) lines.splice(Math.min(lines.length - 1, 3), 0, [ex, 'I’m only here for the snacks.', { emote: '…' }]);
+    return { guests, lines };
+  }
+  // ---- the stage itself ----
+  const SLOTS = [78, 122, 36, 164, 56, 144, 16, 184, 100];
+  // emotes as tiny pixel icons (no font needed)
+  const EMOTE_PX = { '♥': ['.x.x.', 'xxxxx', 'xxxxx', '.xxx.', '..x..'], '♪': ['..xx', '..x.', '..x.', 'xxx.', 'xx..'], '!': ['x', 'x', 'x', '.', 'x'], '?': ['.xx.', 'x..x', '..x.', '....', '..x.'], '…': ['.....', '.....', '.....', '.....', 'x.x.x'] };
+  function stageInit(s) {
+    const cast = ['P', s.who].concat(s.guests || []);
+    s.actors = {};
+    cast.forEach((w, i) => { const x = SLOTS[i] ?? 100; s.actors[w] = { x: w === 'P' ? -12 : x, tx: x, home: x, back: i >= 6, act: null, actT: 0, emote: null, emoteT: 0, dir: x < 100 ? 2 : 1 }; });
+    s.cam = { x: 100, z: 1.12 }; s.cat = null; s.bits = [];
+  }
+  function stageCue(s, line) {
+    const [who, , cue] = line;
+    const now = performance.now();
+    for (const a of Object.values(s.actors)) if (a.act !== 'dance') a.act = null;
+    if (!cue) return;
+    const list = cue.who === 'all' ? Object.keys(s.actors) : Array.isArray(cue.who) ? cue.who.filter(w => s.actors[w]) : s.actors[who] ? [who] : [];
+    if (cue.act) for (const w of list) { s.actors[w].act = cue.act; s.actors[w].actT = now; }
+    if (cue.emote) for (const w of (cue.who && cue.who !== 'all' ? list : s.actors[who] ? [who] : list)) { s.actors[w].emote = cue.emote; s.actors[w].emoteT = now; }
+    if (cue.to != null && s.actors[who]) { const t = cue.to === 'P' ? s.actors.P.x + (s.actors.P.x < 100 ? 14 : -14) : cue.to; s.actors[who].tx = Math.max(10, Math.min(190, t)); }
+    if (cue.cat != null) s.cat = s.cat || { x: cue.cat, t: now };
+    if (cue.fx === 'confetti' && !reduceMotion) for (let i = 0; i < 60; i++) s.bits.push({ x: 100 + (Math.random() - 0.5) * 60, y: 30, vx: (Math.random() - 0.5) * 70, vy: -30 - Math.random() * 40, c: (s.ev && s.ev.cols || ['#ffb547'])[i % 4], life: 2 + Math.random() });
+  }
+  function drawStage(t) {
+    const cv = $('dateCv'); if (!cv || !dateS) return;
+    const c = cv.getContext('2d'), s = dateS, el = t - s.t0;
+    if (!s.actors) stageInit(s);
+    const dt = Math.min(0.05, (t - (s.lastT || t)) / 1000); s.lastT = t;
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    const line = s.phase === 'talk' ? s.lines[s.i] : null, speaker = line ? line[0] : null;
+    const spk = speaker === 'A' ? (s.cat ? { x: s.cat.x } : null) : s.actors[speaker];
+    // camera: glide toward the speaker
+    const tz = s.phase === 'intro' ? 1 : spk ? 1.3 : 1, tx = spk ? spk.x : 100;
+    s.cam.z += (tz - s.cam.z) * Math.min(1, dt * 3); s.cam.x += (tx - s.cam.x) * Math.min(1, dt * 3);
+    const half = DW / (2 * s.cam.z), cx = Math.max(half, Math.min(DW - half, s.cam.x));
+    c.save(); c.translate(DW / 2, FY - 24); c.scale(s.cam.z, s.cam.z); c.translate(-cx, -(FY - 24));
+    dateBg(c, s.bg, t);
+    // people walk to their marks; the player walks in at the start
+    for (const [w, a] of Object.entries(s.actors)) {
+      const d = a.tx - a.x;
+      if (Math.abs(d) > 0.4) { a.x += Math.sign(d) * Math.min(Math.abs(d), 34 * dt); a.walking = true; a.dir = d > 0 ? 2 : 1; } else a.walking = false;
+    }
+    const order = Object.entries(s.actors).sort((a, b) => (b[1].back ? 1 : 0) - (a[1].back ? 1 : 0));
+    for (const [w, a] of order) {
+      let hop = 0, dir = a.dir, frame = a.walking ? Math.floor(t / 140) % 4 : 0;
+      const k = (t - a.actT) / 1000;
+      if (!a.walking) {
+        if (spk && speaker !== w && speaker !== 'A') dir = spk.x > a.x ? 2 : 1;   // listeners look at the speaker
+        else if (speaker === w) dir = a.x < 100 ? 2 : 1;
+        else if (!spk) dir = 0;
+      }
+      if (!reduceMotion) {
+        if (a.act === 'dance') { hop = Math.abs(Math.sin(t / 170 + a.home)) * 3; dir = Math.floor(t / 380 + a.home) % 2 ? 1 : 2; frame = Math.floor(t / 170) % 4; }
+        else if (a.act === 'cheer' && k < 1.6) hop = Math.abs(Math.sin(k * 9)) * 4;
+        else if (a.act === 'jump' && k < 0.6) hop = Math.sin(k / 0.6 * Math.PI) * 6;
+        else if (a.act === 'spin' && k < 1.2) dir = [0, 2, 3, 1][Math.floor(k * 8) % 4];
+      }
+      const talking = speaker === w && s.phase === 'talk', step = talking ? 3 : 0, bob = talking && Math.floor(t / 160) % 2 ? -1 : 0;
+      const sc = a.back ? 1.15 : 1.3, y = FY - (a.back ? 8 : 0) + step + bob - hop;
+      c.save(); c.translate(Math.round(a.x), Math.round(y)); c.scale(sc, sc);
+      if (w === 'P') drawSprite(c, lookFor(lic), -8, -24, dir, frame, false); else drawPerson(c, w, -8, -24, dir, frame, t);
+      c.restore();
+      // emote bubble
+      if (a.emote && t - a.emoteT < 2400) {
+        const bx = Math.round(a.x), by = Math.round(y - 24 * sc - 8), up = Math.min(1, (t - a.emoteT) / 200);
+        c.globalAlpha = Math.min(1, (2400 - (t - a.emoteT)) / 400) * up;
+        px(c, bx - 5, by - 7, 11, 9, '#f4f1e8'); px(c, bx - 1, by + 2, 2, 2, '#f4f1e8');
+        const E = EMOTE_PX[a.emote] || EMOTE_PX['!'], col = a.emote === '♥' ? '#ff6b9a' : a.emote === '♪' ? '#3a5aa8' : '#14182a';
+        E.forEach((row, ry) => { for (let rx = 0; rx < row.length; rx++) if (row[rx] === 'x') px(c, bx - Math.floor(row.length / 2) + rx, by - 6 + ry, 1, 1, col); });
+        c.globalAlpha = 1;
+      } else if (talking) for (let q = 0; q < 3; q++) if (Math.floor(t / 250) % 3 >= q) px(c, Math.round(a.x) - 4 + q * 4, Math.round(y - 24 * sc - 6), 2, 2, '#ffffff');
+    }
+    // Apogee
+    if (s.cat) { const kx = s.cat.x + Math.sin(t / 900) * 2; c.save(); c.translate(Math.round(kx), FY + 2); c.scale(1.3, 1.3); drawDenCat(c, { x: -6, y: -6 }, true, t); c.restore();
+      if (speaker === 'A') for (let q = 0; q < 3; q++) if (Math.floor(t / 250) % 3 >= q) px(c, Math.round(kx) - 4 + q * 4, FY - 16, 2, 2, '#ffffff'); }
+    // confetti
+    for (const b of s.bits) { b.vy += 60 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt; px(c, Math.round(b.x), Math.round(b.y), 2, 1, b.c); }
+    s.bits = s.bits.filter(b => b.life > 0 && b.y < DH + 4);
+    c.restore();
+    // title card, fades
+    if (s.phase === 'intro') {
+      const bar = 10 * (1 - Math.max(0, (el - 1800) / 600));
+      px(c, 0, 0, DW, Math.max(0, bar), '#000'); px(c, 0, DH - Math.max(0, bar), DW, Math.max(0, bar), '#000');
+      const a = Math.min(1, el / 500) * (el > 1900 ? Math.max(0, 1 - (el - 1900) / 500) : 1);
+      c.globalAlpha = a; c.fillStyle = '#ffb547'; c.font = '700 9px "Chakra Petch", sans-serif'; c.textAlign = 'center'; c.fillText(s.chapter.title.toUpperCase(), DW / 2, 30);
+      c.fillStyle = '#e8edf5'; c.font = '6px "IBM Plex Mono", monospace'; c.fillText(s.chapter.label, DW / 2, 40); c.textAlign = 'left'; c.globalAlpha = 1;
+    }
+    const fin = Math.max(0, 1 - el / 600); if (fin > 0) { c.fillStyle = `rgba(0,0,0,${fin})`; c.fillRect(0, 0, DW, DH); }
+    if (s.phase === 'outro') { const o = Math.min(1, (t - s.outroAt) / 1300); c.fillStyle = `rgba(0,0,0,${o})`; c.fillRect(0, 0, DW, DH); }
+    c.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   // ---- Decorations: bunting along the top of every room, and something floating about ----
@@ -9999,7 +10206,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DW = 200, DH = 112, FY = 100;   // backdrop size and where feet stand
   let dateS = null;
   function playDate(who, key, lines, chapter, after, opts = {}) {
-    dateS = { who, key, bg: opts.bg || (key === 'ask' ? 'domebg' : DATE_BG[who + key] || 'quiet'), guests: opts.guests || [], ev: opts.ev || null, lines, chapter, after, i: 0, phase: 'intro', t0: performance.now(), typer: 0, outroAt: 0, romantic: key === 'ask' || +key >= 8 };
+    dateS = { who, key, bg: opts.bg || (key === 'ask' ? 'domebg' : DATE_BG[who + key] || 'quiet'), guests: opts.guests || [], ev: opts.ev || null, stage: !!opts.stage, lines, chapter, after, i: 0, phase: 'intro', t0: performance.now(), typer: 0, outroAt: 0, romantic: key === 'ask' || +key >= 8 };
     setMode('datescene');
   }
   // a pixel star field
@@ -10186,7 +10393,7 @@ details.act > .limits { margin: 0 0 8px; }
     const loop = () => { if (mode !== 'datescene' || dateS !== s) return; const t = performance.now();
       if (s.phase === 'intro' && t - s.t0 > 2500) { s.phase = 'talk'; dateLine(); }
       if (s.phase === 'outro' && t - s.outroAt > 1350) { dateEnd(); return; }
-      drawDateScene(t); requestAnimationFrame(loop); };
+      (s.stage ? drawStage : drawDateScene)(t); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
     $('dateCv').addEventListener('pointerdown', () => { if (s.phase === 'intro') { s.t0 = performance.now() - 2500; } });
     $('dateNext').addEventListener('click', dateNext);
@@ -10197,9 +10404,10 @@ details.act > .limits { margin: 0 0 8px; }
     const s = dateS, box = $('dateSay'); if (!box || !s.lines[s.i]) return;
     const [who, text] = s.lines[s.i];
     clearInterval(s.typer);
-    box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
+    if (s.stage && s.actors) stageCue(s, s.lines[s.i]);
+    box.innerHTML = who === '*' ? `<p class="narr">${esc(text)}</p>` : radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
     paintFaces(box);
-    if (who !== 'P') sfx.radio();
+    if (who !== 'P' && who !== '*') sfx.radio();
     const p = box.querySelector('p'); $('dateNext').textContent = s.i === s.lines.length - 1 ? 'Continue' : 'Next';
     if (reduceMotion || !p) return;
     p.textContent = ''; let n = 0;
