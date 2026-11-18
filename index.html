@@ -11818,7 +11818,7 @@ details.act > .limits { margin: 0 0 8px; }
     const opener = !m && !typing[w] && !isEx(w) && bond.textOut[w] !== shipDay;
     return `<ul class="ph-list ph-chat" id="phChat">${rows || '<li class="ph-empty">No messages yet. Say hi!</li>'}${dots}</ul>
       ${m ? `<div class="ph-replies">${m.choices.map(([r, tone], i) => `<button class="ph-reply ${tone}" data-reply="${i}">${esc(r)}</button>`).join('')}</div>`
-        : opener ? `<div class="ph-replies"><span class="ph-say">Send a text</span><button class="ph-reply warm" data-open="warm">Hey! How’s your day going?</button><button class="ph-reply fun" data-open="fun">Saw something that made me think of you 😄</button>${canFlirt(w) ? '<button class="ph-reply flirt" data-open="flirt">Can’t stop thinking about you, honestly</button>' : ''}</div>`
+        : opener ? `<div class="ph-replies"><span class="ph-say">Send a text</span>${openerOptions(w).map(([tone, txt]) => `<button class="ph-reply ${tone === 'topic' ? 'warm' : tone}" data-open="${tone}">${esc(txt)}</button>`).join('')}</div>`
         : isEx(w) ? '<p class="ph-note">They’re not answering right now.</p>' : typing[w] ? '' : '<p class="ph-note">You’ve already texted today. They’ll text again soon.</p>'}`;
   }
   function renderPhone() {
@@ -12132,16 +12132,150 @@ details.act > .limits { margin: 0 0 8px; }
   // starting a conversation: once per person per ship day, a small hearts boost and a quick answer
   const HI = { F: 'Hello. This is an unscheduled text. I’ll allow it. How are you?', G: 'HEY! I was just thinking about you! And engines! Mostly you!', W: 'Well hello, dear. You’ve brightened up an old pilot’s evening.', R: 'Rex Valor, replying personally. You should feel very special.', J: 'Copy that. It’s nice to hear from you. Really.', Z: 'ZIB GOT A TEXT!!! Zib is so happy!!!', O: 'Your message arrived like a little lamp in the dark. Thank you.', V: 'Hello! Always a pleasure. Lyra says hi. She didn’t, but she meant to.', Y: 'Off the record, I smiled when I saw your name.', N: 'HI!! HI HI HI!! I was just singing about you!', S: '…Hello. I… was hoping… you would text.', C: 'Pilot! Sir! Pilot! Hi! I’m saving this text forever!', H: 'Hungry? You sound hungry. Come by the galley.', D: 'Hello! Are you drinking water? I hope you’re drinking water.', T: 'Hi! I’m elbow-deep in compost. Happy elbow-deep, though!', X: 'YO! Race you to the galley! Kidding. Unless…?' };
   const LOL = { F: 'That was… actually funny. Don’t tell anyone I laughed.', G: 'HAHAHA. I snorted. Bao looked at me. Worth it.', W: 'Ha! You remind me of my old co-pilot. He was a menace too.', R: 'Funny. Not as funny as me. But funny.', J: 'I laughed. Out loud. On the dock. People stared.', Z: 'Zib is laughing so hard Zib turned orange!', O: 'I do not fully understand. But I am laughing. Moth laughter.', V: 'Ha! I’m stealing that for my next treaty dinner.', Y: 'On the record: that was funny.', N: 'HAHA!! My helmet fogged up from laughing!!', S: '…Ha. …Ha. That… is my laugh.', C: 'HA! Writing that down! Page two: pilot is hilarious!', H: 'Ha. Okay. You get an extra dumpling.', D: 'Laughter is good medicine. I’ll allow it.', T: 'Ha! The tomatoes are laughing too. Probably.', X: 'LOL. LMAO even. Okay that was good.' };
+  // ---- More variety for texting ----
+  // Extra comebacks for every crewmate, openers that change each day, a personal topic opener per person,
+  // rotating flirty and cold reply options, and more texts for everyone.
+  const MORE_FLIRT = {
+    F: ['I have… rescheduled my whole evening to keep reading that.', 'Inappropriate for work hours. Appropriate for after. It’s after.'],
+    G: ['I just walked into a door. Because of your text. The door is fine. I’m not.', 'You can’t just SAY things like that! …Say more things like that.'],
+    W: ['Careful, dear. I was quite the heartbreaker in my day. My day might be today.', 'You’ve made an old pilot blush twice in one week. That’s a record.'],
+    R: ['You have excellent taste. In people. Specifically me.', 'Stop. No, keep going. I’m recording this for my memoirs.'],
+    J: ['Filed under “top priority”. Everything else just got bumped.', 'Approach is… very welcome. Cleared to land, pilot.'],
+    Z: ['ZIB IS SO PINK RIGHT NOW!!! The pinkest Zib has ever been!!!', 'Zib is hugging the phone! The phone is hugging Zib back! Probably!'],
+    O: ['My wings are fluttering. I have not told them to.', 'You glow, pilot. Even through a screen.'],
+    V: ['I’ve been in a lot of negotiations. None went this well.', 'Lyra is reading over my shoulder and making a face. I don’t care.'],
+    Y: ['Off the record: you’re trouble. On the record: I like trouble.', 'That is the most undiplomatic thing anyone’s said to me. Do it again.'],
+    N: ['My tank is BUBBLING. That only happens when I’m very happy!!', 'Is this what land-people call butterflies?? I HAVE BUTTERFLIES!!'],
+    S: ['…I will keep… this text… for a thousand years.', 'My heart… is a rock… and you… have moved it.']
+  };
+  const MORE_COLD = {
+    F: ['Understood. Adjusting expectations.', 'I see. I’ll make a note of your tone.'], G: ['Oh. Right. I’ll just… fix something. Alone.', 'Did I do something? I probably did something.'],
+    W: ['Rough day, dear? I’ll leave you be.', 'Well. That was brief.'], R: ['Rude. I’m telling my fans.', 'Wow. Okay. Rex Valor has been left on a “k”.'],
+    J: ['Message received. Tone noted.', 'Copy. Not great copy, but copy.'], Z: ['Zib does not understand “k”. Zib is sad anyway.', 'Oh. Zib will go be blue in the corner.'],
+    O: ['Ah. The lamp has dimmed.', 'I see. I shall flutter elsewhere.'], V: ['That’s a short treaty.', 'Diplomatically speaking: ouch.'],
+    Y: ['On the record: noted.', 'Off the record: that stung a bit.'], N: ['Oh. Okay. I’ll go sit in my tank.', 'My helmet fogged up. The sad kind.'],
+    S: ['…I see.', '…That… was a small text.'], C: ['Understood, pilot! Standing down!', 'Yes sir. Sorry sir.'],
+    H: ['Fine. More dumplings for me.', 'Somebody skipped lunch. I can tell.'], D: ['You sound tired. Drink water and sleep.', 'Noted. Medically concerning, but noted.'],
+    T: ['Oh. Okay. The plants still like me.', 'That’s fine! I’ll just talk to the ferns.'], X: ['Wow. Slow AND rude.', 'Okay, grumpy. Race you later anyway.']
+  };
+  const MORE_HI = {
+    F: ['Good timing. I just finished color-coding the week. You’re in orange.', 'You texted. I appreciate unscheduled kindness.'],
+    G: ['PILOT! Guess what I fixed. Everything. I fixed everything. Mostly.', 'Hi hi hi! I was literally just talking about you to Biscuit.'],
+    W: ['How lovely. I was just looking at old flight maps and thinking of you.', 'Hello, dear. Have you eaten? You never eat.'],
+    R: ['Oh, it’s you. My favorite. Don’t tell my other favorites.', 'You’ve reached Rex Valor. He’s delighted. That’s me. I’m delighted.'],
+    J: ['Nice to hear from you. Lanes are quiet tonight.', 'Hey. The ferns say hi. I say hi too.'],
+    Z: ['PILOT!!! Zib was just thinking about texting you!!! Zib is psychic!!!', 'Zib is doing great! Zib sold a spoon today! A big spoon!'],
+    O: ['Hello, pilot. The galley lamp is especially lovely tonight.', 'Your name lit up my screen. I enjoyed that very much.'],
+    V: ['Hello! I’m between meetings. You’re much better than the meetings.', 'Good to hear from you. Lyra says hello. Lyra is lying, she’s asleep.'],
+    Y: ['Hello. I was hoping it was you. Don’t quote me.', 'Good timing. Kael is singing. I needed a distraction.'],
+    N: ['HI!!! I found a new puddle!!! I’ll show you!!!', 'Hello hello hello! Do you want to hear my new song? It’s two notes!'],
+    S: ['…Hello. I was… thinking of you. For… several hours.', 'Your text… arrived… like rain. Gentle. Welcome.'],
+    C: ['Pilot! Reporting in! Everything is great! I organized your boots!', 'Hi! Is this an official text? I’m treating it like an official text.'],
+    H: ['Hey. I’m making soup. Thinking of you. Not in a soup way.', 'Hello. The galley is warm and the kettle’s on.'],
+    D: ['Hello! Quick check: sleeping enough? Eating vegetables? Good.', 'Hi! I’m between patients. By patients I mean Gus.'],
+    T: ['Hi! The sunflowers turned toward the window today. Big moment.', 'Hello! I smell like soil and I’m very happy about it.'],
+    X: ['YO. I just did a lap of the ship in ninety seconds. New record.', 'Hey hey! What’s up? Bored? Race?']
+  };
+  const MORE_LOL = {
+    F: ['I made a noise. A laughing noise. I’m disappointed in myself.', 'That’s going on the fridge. The fridge of good jokes.'],
+    G: ['I laughed so hard I dropped a wrench on my foot. Worth it. Ow.', 'Okay that was GOOD. Telling it to Biscuit. She’ll love it.'],
+    W: ['Oh, you’re a menace. My favorite kind of menace.', 'I haven’t laughed like that since the Kepler run.'],
+    R: ['Funny. I’m stealing it. I’ll credit you. Probably.', 'Ha! Okay, you’re allowed in my next movie. Small part.'],
+    J: ['Juno: laughing. Logged.', 'You’re terrible. That was great.'],
+    Z: ['Zib laughed so hard Zib fell off the stool!', 'HAHAHA!!! Zib is telling everyone!!! Even the spoons!!!'],
+    O: ['My antennae twitched. That is a moth giggle.', 'Ha. Ha ha. I am learning to laugh. You are a good teacher.'],
+    V: ['I laughed during a briefing. Everyone stared. Your fault.', 'Ha! Lyra didn’t laugh. Lyra never laughs. I laughed twice.'],
+    Y: ['I don’t laugh in public. I laughed in public.', 'On the record: hilarious. Off the record: also hilarious.'],
+    N: ['HAHAHAHA!! Bubbles came out of my nose!!', 'I don’t get it but I’m laughing anyway!! Is that allowed??'],
+    S: ['…Ha. Ha. …Ha. That was… three. A lot… for me.', 'I am… smiling. Slowly. But… a lot.'],
+    C: ['HAHA! Can I tell that one at the next briefing?', 'Ha! That’s going in my notebook! The funny section!'],
+    H: ['Ha. Okay. That one gets a dumpling.', 'Heh. You’re funnier than Gus. Don’t tell him.'],
+    D: ['Laughing is great for the lungs. Prescription: more of that.', 'Ha! Okay. That one made my day.'],
+    T: ['Ha! I laughed and scared a bee. We don’t have bees. I scared the idea of a bee.', 'That’s so silly. I love it.'],
+    X: ['LOL!! Okay fine, you’re funny.', 'HA! I laughed so hard I tripped. Mid-lap.']
+  };
+  // the generic openers, a fresh three each day
+  const OPENERS = {
+    warm: ['Hey! How’s your day going?', 'Just wanted to say hi 🙂', 'How are you holding up today?', 'Thinking of you. Hope today’s good.', 'You doing okay? Haven’t seen you around much.', 'Morning! Sleep well?', 'Hey, thanks for being on the crew. Seriously.', 'What are you up to?', 'Save me a seat at dinner?'],
+    fun: ['Saw something that made me think of you 😄', 'Quick, rate my last landing out of ten', 'Biscuit made a weird noise again. Your fault?', 'If you were a planet, which one would you be?', 'Gus just tried to fix the toaster with a magnet. Again.', 'Dare you to beat my time on the daily challenge', 'I named a crater after you. It’s a small crater.', 'Hot take: space cocoa is better than Earth cocoa', 'What’s the weirdest thing on this ship? Go.'],
+    flirt: ['Can’t stop thinking about you, honestly', 'Is it weird that I miss you already?', 'You looked good today. Just saying 😏', 'Save me a spot next to you tonight?', 'Every landing feels better knowing you’re on board', 'Are you free later? Asking for me.', 'I keep finding excuses to walk past your door', 'Space is big, but you’re the best thing in it']
+  };
+  // a personal topic opener for each crewmate, with their answer
+  const TOPIC = {
+    F: [['Need any help with the schedule?', 'You’re offering? Voluntarily? I might cry. Yes. Tuesday at 0900.'], ['How’s the coffee machine today?', 'Gerald? Making new noises. Gus says they’re “features”. I say they’re crimes.']],
+    G: [['Fixed anything fun today?', 'I upgraded the vending machine! It now dispenses snacks AND compliments!'], ['How’s Biscuit doing?', 'She’s perfect. I gave her a wash and a little pep talk. She’s ready for anything.']],
+    W: [['Tell me a flying story?', 'Once I landed on Europa in a blizzard with one engine and a sandwich. Ask me about the sandwich sometime.'], ['Any landing tips for me?', 'Land like you’re setting down a sleeping cat. Slow, steady, and don’t make eye contact.']],
+    R: [['How’s the movie going?', 'Pre-production. Which means I’ve chosen my outfits. Forty-two outfits.'], ['Any new fans today?', 'Seven! One was Zib. Zib counts for three. Zib is very enthusiastic.']],
+    J: [['How are the ferns?', 'Thriving. One grew a new frond. I named it Frond. I panicked.'], ['Busy day on the dock?', 'Fourteen arrivals, zero scrapes, one Gus incident. A good day.']],
+    Z: [['How’s the market?', 'Zib sold a jar of jelly to a man who said “why”! Zib does not know why! Zib sold it anyway!'], ['What’s your favorite color today?', 'PURPLE! No! Pink! No! All of them! Zib is many colors!']],
+    O: [['Found any good lamps lately?', 'The new one in the engine room hums. I sat with it for an hour. We are friends now.'], ['What’s moth culture like?', 'We dance around light and write very short poems. It is a good culture.']],
+    V: [['How was the treaty meeting?', 'We agreed on the snack table. That took four hours. The real treaty took ten minutes.'], ['Does Lyra ever relax?', 'Once. In 2041. We don’t talk about it.']],
+    Y: [['Any good gossip?', 'Off the record? Gus and Juno have been having tea every night. You didn’t hear it from me.'], ['How’s the chocolate supply?', 'Critically low. This is a diplomatic emergency.']],
+    N: [['Sing me something?', '♪ La la laaa ♫ That one is called “Pilot”. It’s new!'], ['What do you miss about Europa?', 'The dark. The cold. The whales singing under the ice. But I like it here too!']],
+    S: [['How’s Pebble?', 'Pebble… is well. He… has moved… one centimeter. A big week.'], ['What are you writing?', 'A poem… about you. It is… three words… so far. Two… are “the”.']],
+    C: [['How’s cadet training?', 'I can do forty push-ups! Twenty-two in a row! Then I rest!'], ['What are you studying?', 'Everything! Navigation! Engines! How to make Dottie smile! (Hard!)']],
+    H: [['What’s on the menu tomorrow?', 'Dumplings. Then more dumplings. Then a surprise. The surprise is dumplings.'], ['Teach me a recipe?', 'Rule one: taste everything. Rule two: don’t let Gus near the stove.']],
+    D: [['Anyone sick on the ship?', 'Gus has a splinter he refuses to let me remove. He’s been brave about it for three days.'], ['How do you stay so calm?', 'Tea, deep breaths, and knowing where all the bandages are.']],
+    T: [['What’s growing right now?', 'Strawberries! Tiny, but very determined. Like you.'], ['Any plant advice?', 'Talk to them. Water them. Don’t let Zib sing to them, they wilt from joy.']],
+    X: [['Fastest you’ve ever flown?', 'Mars to Phobos in four minutes. Don’t tell Dottie. She has a whole form for it.'], ['Wanna race later?', 'ALWAYS. Loser buys cocoa. I never buy cocoa.']]
+  };
+  // more texts for everyone
+  const MORE_TEXTS = {
+    F: [['I have reviewed your flight logs. Your landings have improved 12%. I made a graph. Would you like the graph?', [['Yes please, send the graph!', 'warm', '📷 a neat bar graph labeled “PILOT IMPROVEMENT”, every bar going up, one gold star stuck at the top'], ['Only 12%?', 'fun', 'Twelve percent is very good. I’ve been at 100% since birth.']]],
+        ['Gus has set the break room on fire. Small fire. Controlled fire. Mostly controlled.', [['Is everyone okay?!', 'warm', 'Everyone is fine. The toast is not. Thank you for asking.'], ['Classic Gus.', 'fun', 'I’m adding a new category to his file: “Flammable”.']]]],
+    G: [['📷 a selfie of Gus covered in engine grease, grinning, with a thumbs up', [['Did you fall IN the engine?', 'fun', 'Only partway! The engine and I are closer now. Spiritually and physically.'], ['You look happy!', 'warm', 'I AM! I fixed the thing! The thing that was broken! Don’t ask which thing.']]],
+        ['Can I name the next lander? I’m thinking “Biscuit Two: The Re-Biscuiting”.', [['Perfect. No notes.', 'fun', 'YES. I’m painting it on the side tonight. In glitter.'], ['What about something new?', 'warm', 'Ooh. “Muffin”? “Scone”? “Crumpet”? I’m only thinking of baked goods now. Help.']]]],
+    W: [['Do you ever look out the window and forget to breathe? I still do. Forty years of flying.', [['Every single time.', 'warm', 'Good. Never lose that, dear. The day space stops amazing you is the day to stop flying.'], ['Only when Gus is cooking.', 'fun', 'Ha! Fair. That smell could stop a rocket.']]],
+        ['I baked something. I don’t bake. It’s either bread or a weapon.', [['I’ll try it!', 'warm', 'Brave pilot. It’s bread. Probably. Bring a glass of water.'], ['Weapon. Definitely weapon.', 'fun', 'It bounced when I dropped it. I’m leaning toward weapon too.']]]],
+    R: [['Be honest. Is my hair too much today? It’s not. But be honest.', [['It’s perfect, Rex.', 'warm', 'I KNEW it. You have taste. Rare, on this ship.'], ['It’s… a lot.', 'fun', 'A lot of what? A lot of GLORY? Yes. Thank you.']]],
+        ['Fans keep asking if I’m “seeing anyone”. What should I tell them?', [['Tell them you’re focused on your career.', 'warm', 'Mysterious. Professional. I love it.'], ['Tell them you’re dating your mirror.', 'fun', 'How dare you. …It’s a very good mirror, though.']]]],
+    J: [['Saw your approach tonight. Smooth. I nodded. You couldn’t see. But I nodded.', [['I felt the nod.', 'warm', 'Good. I’ll nod harder next time.'], ['Nod louder next time.', 'fun', 'I’ll get Gus to wire a nod alarm. He’d love that.']]],
+        ['Do you think the ferns know they’re in space?', [['They definitely know.', 'warm', 'That’s what I think too. They seem proud of it.'], ['Don’t tell them. They’ll panic.', 'fun', 'Too late. I told the big one. It’s handling it well.']]]],
+    Z: [['ZIB HAS A QUESTION. Do you like spoons?', [['I love spoons.', 'warm', 'ZIB KNEW IT!!! Zib is sending you a spoon!!! A shiny one!!!'], ['Depends on the spoon.', 'fun', 'A WISE answer! Zib respects this! Zib will bring a selection!']]],
+        ['📷 Zib wearing a tiny captain’s hat, saluting', [['Captain Zib!', 'fun', 'CAPTAIN ZIB REPORTING FOR DUTY! Zib has no duties! Zib is captain anyway!'], ['That hat suits you!', 'warm', 'Zib is turning gold! Gold is the proud color!']]]],
+    O: [['I found a dead bulb in the hallway. I held a small ceremony. It was a good bulb.', [['Rest in peace, bulb.', 'warm', 'Thank you. It shone bravely for nine hundred hours.'], ['Did Gus attend?', 'fun', 'He brought snacks. He did not understand the ceremony. He enjoyed the snacks.']]],
+        ['What is your favorite light, pilot?', [['The glow of a landing pad.', 'warm', 'Ah. A guiding light. A pilot’s answer. I like it.'], ['The fridge light at 2am.', 'fun', 'A forbidden light. A secret light. You are wiser than you seem.']]]],
+    V: [['I just successfully negotiated who gets the last tiny sandwich. It was me. I’m very proud.', [['A true diplomat.', 'warm', 'Thank you. It was a hard-fought sandwich.'], ['Did you share?', 'fun', 'I offered Lyra half. She said “no”. Diplomacy works.']]],
+        ['Lyra says I talk too much. Do I talk too much?', [['I like how much you talk.', 'warm', 'See? SEE? I’m forwarding this to Lyra.'], ['A little bit, yeah.', 'fun', 'Traitor. Lovable traitor.']]]],
+    Y: [['Off the record: I’m bored. On the record: I’m doing important diplomacy.', [['Want company?', 'warm', 'Off the record: yes. Bring cocoa.'], ['Diplomacy looks hard.', 'fun', 'It is. I’ve been staring at the same document for an hour. Very hard.']]],
+        ['Kael is trying to cook. Send help. Or a fire extinguisher.', [['On my way!', 'warm', 'My hero. Off the record.'], ['Grab popcorn and watch.', 'fun', 'I already am. It’s the best show on the ship.']]]],
+    N: [['Is it normal for land-people to sleep in BEDS? It’s so dry!', [['You get used to it!', 'warm', 'I’m trying! I put a wet towel on my pillow. Is that cheating?'], ['Try the bathtub.', 'fun', 'THE BATHTUB!! Why didn’t I think of that!! Genius!!']]],
+        ['📷 Nerri pressing her face against the dome glass, stars behind her', [['Beautiful view!', 'warm', 'It is!! I come up here every night now!! The stars are like ice crystals!!'], ['You left a face print.', 'fun', 'I left SIX. It’s art. Dottie disagrees.']]]],
+    S: [['…I tried… to text faster. This took… only… twenty minutes.', [['Huge improvement!', 'warm', '…Thank you. I am… very proud. Next time… nineteen.'], ['Worth the wait.', 'fun', '…That is… what everyone says… about me.']]],
+        ['📷 Brix sitting very still in the garden, a ladybug on his shoulder', [['You made a friend!', 'warm', '…She has been there… two days. I… am honored.'], ['Are you okay? You look frozen.', 'fun', '…I am… resting. For… a while. It is… nice.']]]],
+    C: [['Pilot! I got a gold star from Dottie! Real gold star! A sticker!', [['That’s amazing, Kit!', 'warm', 'I’m putting it on my locker! No, my forehead! No, my locker!'], ['What did you do?', 'fun', 'I alphabetized her pens. By ink color. Then alphabetically. She cried a little.']]]],
+    H: [['Someone keeps eating the dumplings I save for you. I suspect Gus. I have proof. Crumbs.', [['Catch him in the act!', 'fun', 'I’ve set a trap. It’s a decoy dumpling. Filled with hot sauce.'], ['You’re sweet to save them.', 'warm', 'Don’t tell anyone. I have a reputation for being grumpy.']]]],
+    D: [['Medical update: Gus finally let me remove the splinter. He screamed. It was a very small splinter.', [['Poor Gus!', 'warm', 'He’s fine. I gave him a lollipop. He’s telling everyone he was brave.'], ['Was it really that small?', 'fun', 'Microscopic. I needed a magnifying glass. He needed a hug.']]]],
+    T: [['I think the garden likes music. I played polka. The tomatoes grew. Coincidence? Science?', [['Science, definitely.', 'warm', 'I’m writing a paper! “Polka and Tomatoes: A Study”. You’re co-author.'], ['Try heavy metal next.', 'fun', 'I did. The lettuce wilted. Too much for the lettuce.']]]],
+    X: [['GUESS WHO JUST BEAT THEIR OWN RECORD. Me. It was me.', [['Congrats, speedster!', 'warm', 'THANK YOU. Now I need a new record to beat. Help.'], ['By how much?', 'fun', 'Point two seconds. That’s a LOT. In racing. Shut up.']]]]
+  };
+  const FLIRT_REPLY = ['Honestly? I was just thinking about you 😏', 'You’re cute when you text like that', 'Wish you were here right now', 'Thinking about you, actually', 'Is it hot in here or is it just you? (It’s space. It’s cold.)', 'You always make my day better', 'Can I see you later? 😊'];
+  const COLD_REPLY = ['k.', 'ok', 'busy', 'cool.', '👍', 'can’t talk'];
+  const GN_REPLY = [['Goodnight ♥', 'warm', 'Sleep well. ♥'], ['Sweet dreams 💫', 'warm', 'You too. Dream about me. That’s an order.'], ['Already asleep 💤', 'fun', 'Liar. Cute liar. Goodnight.'], ['Night! See you at breakfast', 'fun', 'Save me the good mug. Night!']];
+  // merge it all in
+  for (const w in MORE_TEXTS) TEXTS[w] = (TEXTS[w] || []).concat(MORE_TEXTS[w]);
+  const pickOf = (arr, seed) => arr[Math.abs(seed) % arr.length];
+  const anyOf = arr => arr[Math.floor(Math.random() * arr.length)];
+  const lineFor = (base, more, w) => { const a = [base[w]].concat(more[w] || []).filter(Boolean); return a.length ? anyOf(a) : null; };
+  const textSeed = w => shipDay * 31 + w.charCodeAt(0) * 7;
+  // today's opener options for someone: a warm one, a funny one, their personal topic, and (if close) a flirty one
+  function openerOptions(w) {
+    const sd = textSeed(w), o = [['warm', pickOf(OPENERS.warm, sd)], ['fun', pickOf(OPENERS.fun, sd + 3)]];
+    if (TOPIC[w]) o.push(['topic', pickOf(TOPIC[w], sd)[0]]);
+    if (canFlirt(w)) o.push(['flirt', pickOf(OPENERS.flirt, sd + 5)]);
+    return o;
+  }
   function startText(w, tone) {
     if (pendingText(w) || isEx(w) || bond.textOut[w] === shipDay) return;
-    const line = { warm: 'Hey! How’s your day going?', fun: 'Saw something that made me think of you 😄', flirt: 'Can’t stop thinking about you, honestly' }[tone];
-    thread(w).push({ from: 'P', text: line, day: shipDay });
+    const opt = openerOptions(w).find(([t]) => t === tone); if (!opt) return;
+    thread(w).push({ from: 'P', text: opt[1], day: shipDay });
     bond.textOut[w] = shipDay;
-    addHearts(w, tone === 'flirt' && isPartner(w) ? 10 : 5);
+    addHearts(w, tone === 'flirt' && isPartner(w) ? 10 : tone === 'topic' ? 7 : 5);
     if (tone === 'flirt' && !isPartner(w) && datingAnyone() && !bond.open) bond.partners.forEach(p => { bond.sus[p] = Math.min(100, (bond.sus[p] || 0) + 15); });
     saveBond();
+    const back = tone === 'topic' ? pickOf(TOPIC[w], textSeed(w))[1] : tone === 'flirt' ? lineFor(FLIRT, MORE_FLIRT, w) : tone === 'fun' ? (lineFor(LOL, MORE_LOL, w) || 'Ha!') : (lineFor(HI, MORE_HI, w) || 'Hi!');
     typing[w] = true;
-    setTimeout(() => { typing[w] = false; thread(w).push({ from: w, text: tone === 'flirt' ? FLIRT[w] : tone === 'fun' ? (LOL[w] || 'Ha!') : (HI[w] || 'Hi!'), day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 1400);
+    setTimeout(() => { typing[w] = false; thread(w).push({ from: w, text: back, day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 1400);
   }
   const canFlirt = w => romanceOn && !FRIEND_ONLY.includes(w) && heartsOf(w) >= 4 && !isEx(w) && !coupleOf(w) && FLIRT[w];
   function sendText(w, text, choices, quiet) {
@@ -12154,8 +12288,8 @@ details.act > .limits { margin: 0 0 8px; }
   // build the reply options: the text's own two, plus flirty (when it fits) and cold
   function textChoices(w, base) {
     const ch = base.map(([r, tone, back]) => [r, tone, back]);
-    if (canFlirt(w)) ch.push([isPartner(w) ? 'Miss you already ♥' : 'Honestly? I was just thinking about you 😏', 'flirt', FLIRT[w]]);
-    ch.push(['k.', 'cold', COLD[w] || 'Oh. Okay.']);
+    if (canFlirt(w)) ch.push([isPartner(w) ? anyOf(['Miss you already ♥', 'Can’t wait to see you ♥', 'You’re the best part of my day ♥'].concat(FLIRT_REPLY)) : anyOf(FLIRT_REPLY), 'flirt', lineFor(FLIRT, MORE_FLIRT, w)]);
+    ch.push([anyOf(COLD_REPLY), 'cold', lineFor(COLD, MORE_COLD, w) || 'Oh. Okay.']);
     return ch;
   }
   function textFrom(w) {
@@ -12181,7 +12315,7 @@ details.act > .limits { margin: 0 0 8px; }
   // overnight: one or two people text you, and partners say goodnight
   function textsOvernight() {
     const who = textWho().filter(w => !isEx(w) && !pendingText(w));
-    for (const p of bond.partners) if (who.includes(p) && GOODNIGHT[p]) { sendText(p, GOODNIGHT[p], [['Goodnight ♥', 'warm', 'Sleep well. ♥'], ['Already asleep 💤', 'fun', 'Liar. Cute liar. Goodnight.']], true); }
+    for (const p of bond.partners) if (who.includes(p) && GOODNIGHT[p]) { sendText(p, GOODNIGHT[p], GN_REPLY.slice().sort(() => Math.random() - 0.5).sort((a, b) => (a[1] === 'warm' ? 0 : 1) - (b[1] === 'warm' ? 0 : 1)).filter((x, i, a) => a.findIndex(y => y[1] === x[1]) === i), true); }
     const others = who.filter(w => !bond.partners.includes(w)).sort(() => Math.random() - 0.5).sort((a, b) => heartsOf(b) - heartsOf(a)).slice(0, 4);
     const n = Math.random() < 0.5 ? 1 : 2;
     others.sort(() => Math.random() - 0.5).slice(0, n).forEach(w => textFrom(w));
