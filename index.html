@@ -2860,7 +2860,8 @@ details.act > .limits { margin: 0 0 8px; }
     mission.legWind = next.windMul;
     if (pad && L.grounded && !pad.move)
       mission.cp = { stage: mission.stage, padId: pad.id, x: L.x, fuel: L.fuel, t: flightT, carrying: mission.carrying, comfort: mission.comfort, melt: mission.melt, nagged: mission.nagged.slice(), legWind: mission.legWind, leg: g.leg + 1,
-        pk: mission.pk && mission.pk.map(p => p.got), bonus: mission.bonus, grades: mission.grades.slice(), gusUsed: mission.gusUsed, baoUsed: mission.baoUsed, saved: mission.saved };
+        pk: mission.pk && mission.pk.map(p => p.got), bonus: mission.bonus, grades: mission.grades.slice(), gusUsed: mission.gusUsed, baoUsed: mission.baoUsed, saved: mission.saved,
+        surp: mission.surp, redirect: mission.redirect, altPaid: mission.altPaid, sat: mission.sat && { ...mission.sat }, sos: mission.sos && { ...mission.sos }, sputter: mission.sputter && { ...mission.sputter }, reroute: mission.reroute && { ...mission.reroute } };
     sfx.coin();
     showToast(`${g.done ? g.done + ' ' : ''}✓ Stop ${g.leg + 1} of ${d.legs.length} · Next: ${next.name}`, 2600);
     if (next.say) setTimeout(() => { if (mission && mode === 'flying') { showToast(next.say, 3400); sfx.radio(); } }, 2700);
@@ -2868,7 +2869,10 @@ details.act > .limits { margin: 0 0 8px; }
   // after a crash: back on the last stop's pad, with the fuel and time you had there
   function retryFromStop() {
     const cp = mission.cp, d = mission.def;
+    surpForce = cp.surp || null;
     startMission(null);
+    Object.assign(mission, { redirect: cp.redirect, altPaid: cp.altPaid, sat: cp.sat && { ...cp.sat }, sos: cp.sos && { ...cp.sos }, sputter: cp.sputter && { ...cp.sputter, on: null, done: true }, reroute: cp.reroute && { ...cp.reroute } });
+    if (mission.sat && mission.sat.state === 'fall') mission.sat.state = 'lost';
     Object.assign(mission, { stage: cp.stage, carrying: cp.carrying, comfort: cp.comfort, melt: cp.melt, nagged: cp.nagged.slice(), legWind: cp.legWind, cp, bonus: cp.bonus || 0, grades: (cp.grades || []).slice(), gusUsed: cp.gusUsed, baoUsed: cp.baoUsed, saved: cp.saved });
     if (mission.pk && cp.pk) mission.pk.forEach((p, i) => { p.got = cp.pk[i]; });
     const pad = pads.find(p => p.id === cp.padId), L = lander;
@@ -2885,7 +2889,7 @@ details.act > .limits { margin: 0 0 8px; }
     : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
     : [{ type: 'land', pad: 'LZ' }];
-  const currentGoal = () => mission ? goalsOf(mission.def)[mission.stage] : null;
+  const currentGoal = () => { if (!mission) return null; const g = goalsOf(mission.def)[mission.stage]; const rd = mission.redirect; return g && rd && g.pad === rd.from && (g.type === 'land' || g.type === 'drop') ? { ...g, pad: rd.to } : g; };
   const isGoalPad = p => { const g = currentGoal(); return !!g && g.pad === p.id; };
   const thrustMul = () => (mission && mission.carrying && !mission.def.sling && !ship().hauler ? (mission.def.mass || 0.8) : 1) * (mission && mission.cop === 'X' ? 1.12 : 1);
   const rotMul = () => mission && mission.carrying && !mission.def.sling && !ship().hauler ? 0.8 : 1;
@@ -2930,6 +2934,7 @@ details.act > .limits { margin: 0 0 8px; }
     const d = mission.def, L = lander;
     if (mission.pk && !mission.rover) pickupsTick();
     copTick();
+    if (!mission.rover && mission.docking == null) surpriseTick(dt);
     if (d.timeLimit) {
       const left = d.timeLimit - flightT;
       for (const [at, line] of d.nags || []) {
@@ -3159,8 +3164,9 @@ details.act > .limits { margin: 0 0 8px; }
       const k = (time - p.t0) / 1600;
       ctx.globalAlpha = Math.min(1, (1 - k) * 2);
       ctx.font = `700 ${Math.round((p.big ? 18 : 14) * Math.min(1.4, Math.max(0.8, scale / 3)))}px ${C('--f-display')}`;
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText(p.text, sx(p.x) + 1, sy(p.y + k * 6) + 1);
-      ctx.fillStyle = p.colr; ctx.fillText(p.text, sx(p.x), sy(p.y + k * 6));
+      const tw = ctx.measureText(p.text).width / 2 + 8, X = Math.max(tw, Math.min(cw - tw, sx(p.x))), Y = sy(p.y + k * 6);
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText(p.text, X + 1, Y + 1);
+      ctx.fillStyle = p.colr; ctx.fillText(p.text, X, Y);
     }
     ctx.globalAlpha = 1;
   }
@@ -3229,13 +3235,155 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="coprow"><button class="copb${cur ? '' : ' on'}" data-cop="" aria-pressed="${!cur}" aria-label="Fly solo">Solo</button>${av.map(w => `<button class="copb${w === cur ? ' on' : ''}" data-cop="${w}" aria-pressed="${w === cur}" aria-label="${SIGN[w]}">${faceTag(w, '')}</button>`).join('')}</div>
       <p class="copwhat">${C ? `<b>${SIGN[cur]} · ${C.perk}:</b> ${C.what}` : 'Flying solo. Pick a crewmate to bring a perk along.'}</p></div>`;
   }
+  // ---- Mission surprises: something unexpected happens on about half of all flights ----
+  //   reroute    Dottie diverts you to the ALT pad on approach (+30 when you land there)
+  //   sputter    the engine coughs out for a couple of seconds; you glide (only when there's room to recover)
+  //   satellite  a comms satellite drifts down on a parachute: catch it before it lands (+80)
+  //   sos        a crewmate is stuck at the SOS pad and would love a lift (+50 and hearts)
+  // The first three campaign missions never get surprises. A checkpoint retry keeps the same surprises.
+  let surpForce = null;
+  const SURP_NAMES = { reroute: 'Change of plans', sputter: 'Engine trouble', satellite: 'Falling satellite', sos: 'SOS call' };
+  const REROUTE_WHY = ['a dust devil is parked on it', 'Crumb’s cousin is napping on it', 'the pad lights just failed', 'someone left a crate on it. It was Gus', 'a crack opened up right across it', 'there’s a very confused rover on it'];
+  const rawGround = (d, x) => { const g = d.ground; for (let i = 1; i < g.length; i++) if (x <= g[i][0]) { const [x0, y0] = g[i - 1], [x1, y1] = g[i]; return y0 + (y1 - y0) * (x - x0) / Math.max(1e-6, x1 - x0); } return g[g.length - 1][1]; };
+  // somewhere flat-ish and out of the way for an extra pad
+  function spotForPad(d, extra) {
+    const cs = d.pads.map(p => p.move ? null : (p.x1 + p.x2) / 2).filter(c => c != null).concat(extra.map(p => (p.x1 + p.x2) / 2));
+    const bad = x => cs.some(c => Math.abs(c - x) < 24) || Math.abs(x - d.spawn.x) < 12 || (d.water || []).some(w => x > (w.x1 ?? w[0]) - 10 && x < (w.x2 ?? w[1]) + 10) || (d.vents || []).some(([vx]) => Math.abs(vx - x) < 14);
+    const ok = [];
+    for (let x = 22; x <= W - 22; x += 4) {
+      if (bad(x)) continue;
+      const ys = [-9, -4, 0, 4, 9].map(dx => rawGround(d, x + dx));
+      if (Math.max(...ys) - Math.min(...ys) < 9) ok.push([x, Math.round(ys.reduce((a, b) => a + b) / ys.length)]);
+    }
+    if (!ok.length) return null;
+    const [x, y] = ok[Math.floor(Math.random() * ok.length)];
+    return { x1: x - 9, x2: x + 9, y };
+  }
+  function planSurprises(d) {
+    if (surpForce) { const f = surpForce; surpForce = null; return f; }
+    const plan = { kinds: [], pads: [] };
+    if (ALL.indexOf(d) < 3 || window.__noSurprise || d.kind === 'trip' || Math.random() > 0.55) return plan;
+    const padOK = !d.ceilings && !['hop', 'route', 'sling', 'dock'].includes(d.kind) && !d.pads.some(p => p.move);
+    const pool = [['sputter', 3], ['satellite', 3]];
+    if (padOK && goalsOf(d).some(g => g.type === 'land' || g.type === 'drop')) pool.push(['reroute', 3]);
+    if (padOK && textWho().length) pool.push(['sos', 2]);
+    const pick = () => { const tot = pool.reduce((s, [, w]) => s + w, 0); let r = Math.random() * tot; for (const [k, w] of pool) { if ((r -= w) <= 0) return k; } return pool[0][0]; };
+    const kinds = [pick()];
+    if (Math.random() < 0.2) { const k2 = pick(); if (k2 !== kinds[0]) kinds.push(k2); }
+    for (const k of kinds) {
+      if (k === 'reroute' || k === 'sos') { const sp = spotForPad(d, plan.pads); if (!sp) continue; plan.pads.push({ id: k === 'reroute' ? 'ALT' : 'SOS', ...sp }); }
+      plan.kinds.push(k);
+    }
+    const goalPads = goalsOf(d).filter(g => g.type === 'land' || g.type === 'drop').map(g => g.pad);
+    plan.from = goalPads[goalPads.length - 1];
+    plan.why = REROUTE_WHY[Math.floor(Math.random() * REROUTE_WHY.length)];
+    plan.who = (() => { const w = textWho().filter(x => x !== copilot); return w[Math.floor(Math.random() * w.length)] || 'G'; })();
+    plan.satX = 30 + Math.random() * (W - 60); plan.satAt = 5 + Math.random() * 14;
+    plan.spAt = 8 + Math.random() * 16; plan.sosAt = 3 + Math.random() * 8;
+    return plan;
+  }
+  function setupSurprises(plan) {
+    mission.surp = plan;
+    const has = k => plan.kinds.includes(k);
+    if (has('sputter')) mission.sputter = { at: plan.spAt, on: null, done: false };
+    if (has('satellite')) mission.sat = { x: plan.satX, y: H + 8, vx: (Math.random() - 0.5) * 1.2, at: plan.satAt, state: 'wait' };
+    if (has('sos')) mission.sos = { who: plan.who, at: plan.sosAt, state: 'wait' };
+    if (has('reroute')) mission.reroute = { from: plan.from, state: 'wait' };
+  }
+  const radio = (who, text, ms = 3200, byName) => { showToast(`${!byName && who === 'F' ? 'FLIGHT' : !byName && who === 'G' ? 'ENGINEERING' : (SIGN[who] || who).toUpperCase()}: ${text}`, ms); sfx.radio(); };
+  const sputtering = () => !!(mission && mission.sputter && mission.sputter.on != null && !mission.sputter.done);
+  function surpriseTick(dt) {
+    const L = lander, t = flightT;
+    if (!mission || !mission.surp) return;
+    // the engine coughs, but only when you're high enough to recover
+    const sp = mission.sputter;
+    if (sp && !sp.done) {
+      if (sp.on == null && t >= sp.at && !L.grounded) {
+        const alt = L.y - groundAt(L.x);
+        if (alt > 15 && L.vy > -4.5 && L.fuel > 15) { sp.on = t; sp.dur = copHas('G') ? 1.2 : 2.4; radio('G', copHas('G') ? 'Engine’s coughing! Hang on, I’m kicking it!' : 'Uh oh. Engine’s coughing! Give it a second, don’t panic!'); sfx.static(); addShake(4); }
+        else sp.at = t + 1;
+      }
+      if (sp.on != null) {
+        if (Math.random() < 0.4) spawnDust(L.x, L.y - 2, 1, 0.6);
+        if (t - sp.on >= sp.dur) { sp.done = true; radio('G', 'Aaand she’s back! Good girl, Biscuit.', 2000); popText('Engine back!', '#8fe3b0', L.x, L.y + 5); }
+      }
+    }
+    // a satellite on a parachute
+    const s = mission.sat;
+    if (s) {
+      if (s.state === 'wait' && t >= s.at) { s.state = 'fall'; radio('F', `A comms satellite is coming down${s.x < W / 2 ? ' on your left' : ' on your right'}! Catch it before it lands: +80 credits.`); }
+      if (s.state === 'fall') {
+        s.y -= 2.4 * dt; s.x += (s.vx + Math.sin(t * 0.8) * 0.6) * dt; s.x = Math.max(6, Math.min(W - 6, s.x));
+        if (Math.hypot(L.x - s.x, L.y + 1 - s.y) < (copHas('Z') ? 7 : 4.5)) {
+          s.state = 'caught'; mission.bonus += 80; popText('Caught it! +80', '#7fd6ff', s.x, s.y + 3, true); spawnSpark(s.x, s.y, '#7fd6ff'); sfx.coin();
+          radio('F', 'You caught it! That’s going in my report. With a gold star.');
+        } else if (s.y <= groundAt(s.x) + 1) { s.state = 'lost'; spawnDust(s.x, groundAt(s.x), 14, 1.2); radio('F', '…and it’s down. Oh well. It was mostly weather data.', 2400); }
+      }
+    }
+    // a crewmate calls for a lift
+    const so = mission.sos;
+    if (so && so.state === 'wait' && t >= so.at) { so.state = 'active'; radio(so.who, `Help! I’m stuck at the SOS pad. Could you swing by on your way? I’ll make it worth it!`, 3600, true); }
+    // Dottie diverts you on approach
+    const rr = mission.reroute, g = goalsOf(mission.def)[mission.stage];
+    if (rr && rr.state === 'wait' && g && g.pad === rr.from && (g.type === 'land' || g.type === 'drop') && !L.grounded && !mission.loading) {
+      const p = pads.find(q => q.id === rr.from);
+      if (p) {
+        const dx = Math.abs(L.x - (p.x1 + p.x2) / 2), alt = L.y - p.y;
+        if (dx < 70 && dx > 14 && alt > 14) {
+          rr.state = 'on'; mission.redirect = { from: rr.from, to: 'ALT' };
+          radio('F', `Change of plans! ${rr.from} is out: ${mission.surp.why}. Divert to ALT!`, 3600); sfx.static();
+        }
+      }
+    }
+  }
+  // touchdowns on the surprise pads
+  function surpriseTouchdown(pad) {
+    if (pad.id === 'ALT' && mission.redirect && !mission.altPaid) { mission.altPaid = true; mission.bonus += 30; popText('Rerouted +30', '#ffe58a', lander.x, lander.y + 8); }
+    const so = mission.sos;
+    if (pad.id === 'SOS' && so && so.state === 'active') {
+      so.state = 'done'; mission.bonus += 50; addHearts(so.who, 30); popText(`${SIGN[so.who]} aboard! +50`, '#ff9ad5', lander.x, lander.y + 8, true); sfx.coin();
+      setTimeout(() => radio(so.who, 'My hero! Okay, I’m strapped in. Carry on, I’ll be very quiet. Mostly.', 3200, true), 600);
+    }
+  }
+  // after the flight, the SOS crewmate has something to say
+  function surpriseAfter() {
+    const so = mission && mission.sos; if (!so || so.state === 'wait') return;
+    try {
+      if (so.state === 'done') sendText(so.who, 'Thanks for the lift today! You’re the best pilot on this ship. Don’t tell Wren I said that.', textChoices(so.who, [['Anytime!', 'warm', 'I’m holding you to that. I get stuck a LOT.'], ['That’ll be 50 credits.', 'fun', 'Put it on my tab. My very long tab.']]));
+      else sendText(so.who, 'So… you flew right past me. I waved. I waved a LOT.', textChoices(so.who, [['Sorry! I was on a tight schedule.', 'warm', 'Fine. You owe me a cocoa. A big one.'], ['I thought you were waving hello!', 'fun', 'I was waving “PLEASE COME GET ME”. It’s a very different wave.']]));
+    } catch (e) {}
+  }
+  // drawing: the satellite, and a beacon over the SOS pad
+  function drawSurprises(time) {
+    if (!mission || !mission.surp) return;
+    const s = mission.sat, c = ctx, k = scale;
+    if (s && s.state === 'fall') {
+      const X = sx(s.x), Y = sy(s.y);
+      c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 1; c.beginPath(); c.moveTo(X - 3 * k, Y - 5.5 * k); c.lineTo(X, Y - 1 * k); c.lineTo(X + 3 * k, Y - 5.5 * k); c.stroke();
+      c.fillStyle = '#ff6b5e'; c.beginPath(); c.arc(X, Y - 6 * k, 3.4 * k, Math.PI, 0); c.fill(); c.fillStyle = '#f4f1e8'; c.fillRect(X - 0.6 * k, Y - 9.4 * k, 1.2 * k, 3.4 * k);
+      c.fillStyle = '#c9cfdc'; c.fillRect(X - 1 * k, Y - 1 * k, 2 * k, 2 * k);
+      c.fillStyle = '#3a5aa8'; c.fillRect(X - 3.6 * k, Y - 0.6 * k, 2.4 * k, 1.2 * k); c.fillRect(X + 1.2 * k, Y - 0.6 * k, 2.4 * k, 1.2 * k);
+      if (Math.floor(time / 300) % 2) { c.fillStyle = '#ff6b5e'; c.fillRect(X - 0.4 * k, Y + 1 * k, 0.8 * k, 0.8 * k); }
+      const g = c.createRadialGradient(X, Y, 0, X, Y, 6 * k); g.addColorStop(0, 'rgba(127,214,255,0.25)'); g.addColorStop(1, 'rgba(127,214,255,0)'); c.fillStyle = g; c.fillRect(X - 6 * k, Y - 6 * k, 12 * k, 12 * k);
+    }
+    const so = mission.sos;
+    if (so && so.state === 'active') {
+      const p = pads.find(q => q.id === 'SOS'); if (!p) return;
+      const X = sx((p.x1 + p.x2) / 2), Y = sy(p.y), pulse = 0.5 + 0.5 * Math.sin(time / 250);
+      c.fillStyle = `rgba(255,107,94,${(0.25 + 0.4 * pulse).toFixed(2)})`; c.beginPath(); c.arc(X, Y - 4 * k, (1.2 + pulse) * k, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = `rgba(255,107,94,${(0.5 * (1 - pulse)).toFixed(2)})`; c.lineWidth = 1.5; c.beginPath(); c.arc(X, Y - 4 * k, (2 + pulse * 6) * k, 0, Math.PI * 2); c.stroke();
+    }
+  }
   function startMission(ghostRun) {
-    const d = ALL[missionSel];
+    let d = ALL[missionSel];
     world = WORLDS.find(w => w.id === d.world);
     match = null; daily = null;
     mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null, comfort: 100, melt: 0, nagged: [],
       items: (d.items || []).map(it => ({ ...it, done: false, t: 0 })), rover: null, docking: null, docked: false,
       cop: copAvail().includes(copilot) ? copilot : null, grades: [], bonus: 0, pops: [], pk: null };
+    const plan = planSurprises(d);
+    if (plan.pads.length) { d = { ...d, pads: d.pads.concat(plan.pads) }; mission.def = d; }
+    setupSurprises(plan);
     rng = mulberry32(hashStr('mission:' + d.id));
     buildMissionTerrain(d);
     mission.pk = makePickups(d);
@@ -3494,6 +3642,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     onLanded(pad, vy, vx, ang, L.fuel);
     gradeLanding(pad, vy, ang);
+    surpriseTouchdown(pad);
     const g = currentGoal();
     touchdownFx(vy, g.type === 'land' && pad.id === g.pad && !g.rover);
     if (g.type === 'land' && pad.id === g.pad && g.rover) { deployRover(); return; }
@@ -3547,6 +3696,7 @@ details.act > .limits { margin: 0 0 8px; }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
     mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked };
     try { textsAfterMission(d, starsWon); } catch (e) {}
+    surpriseAfter();
     reqEvent('stars', { n: starsWon });
     sfx.landed(starsWon === 3);
     award('mission1');
@@ -4270,7 +4420,7 @@ details.act > .limits { margin: 0 0 8px; }
                        : Math.max(-Math.PI / 2, Math.min(Math.PI / 2, na));
         if (!perk('gyro') && !ship().freeRcs) L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
-      L.firing = keys.thrust && L.fuel > 0;
+      L.firing = keys.thrust && L.fuel > 0 && !sputtering();
       let ax = windNow * ship().wind - world.drag * L.vx;
       let ay = -world.g - world.drag * L.vy;
       if (L.firing) {
@@ -4947,7 +5097,7 @@ details.act > .limits { margin: 0 0 8px; }
           <span>★ Finish within ${d.stars.time} seconds</span>
         </div>
         <p class="limits">Fuel ${d.fuel} kg · Gravity ${world.g.toFixed(2)} m/s² · ${effectText(world)} · ${fmt(d.credits)} credits per new star</p>
-        <p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare.</p>
+        <p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare. Expect surprises: reroutes, engine trouble, falling satellites, SOS calls.</p>
         ${copPickerHtml()}
         ${best ? `<p class="mstars">${starHtml(best)}</p>` : ''}
         <div class="btns">
@@ -4975,6 +5125,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.grades.length ? `<span>Landings: ${['butter', 'clean', 'bumpy'].map(g => [g, mission.grades.filter(x => x === g).length]).filter(([, n]) => n).map(([g, n]) => `${GRADES[g][0].replace('!', '')}${n > 1 ? ' ×' + n : ''}`).join(' · ')}</span>` : ''}
             ${mission.pk ? `<span>Pickups: ${mission.pk.filter(p => p.got).length} of ${mission.pk.length}</span>` : ''}
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
+            ${mission.surp && mission.surp.kinds.filter(k => k === 'sputter' ? mission.sputter.on != null : k === 'reroute' ? !!mission.redirect : k === 'satellite' ? mission.sat.state !== 'wait' : mission.sos.state !== 'wait').length ? `<span>Surprise: ${mission.surp.kinds.filter(k => k === 'sputter' ? mission.sputter.on != null : k === 'reroute' ? !!mission.redirect : k === 'satellite' ? mission.sat.state !== 'wait' : mission.sos.state !== 'wait').map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
@@ -13805,7 +13956,7 @@ details.act > .limits { margin: 0 0 8px; }
         ctx.fillText(p.label || `×${p.mult}`, sx((p.x1 + p.x2) / 2), p.move ? sy(p.y) - off * 0.55 - 4.5 * scale : sy(p.y) + off);
         ctx.globalAlpha = 1;
       }
-      if (mission) { drawMissionProps(time); drawPickups(time); drawGuide(); }
+      if (mission) { drawMissionProps(time); drawPickups(time); drawSurprises(time); drawGuide(); }
       if (vents.length) drawVents(time);
       if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
     }
