@@ -1155,6 +1155,14 @@ details.act > .limits { margin: 0 0 8px; }
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
   };
+  // the story was rebuilt from scratch, so saves from before it are wiped once (save version 2)
+  try {
+    if (localStorage.getItem('ds-saveVer') !== '2') {
+      const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
+      kill.forEach(k => localStorage.removeItem(k));
+      localStorage.setItem('ds-saveVer', '2');
+    }
+  } catch (e) {}
   let world = WORLDS.find(w => w.id === store.get('ds-world', 'moon')) || WORLDS[1];
   const bestFor = w => +store.get('ds-best-' + w.id, 0) || 0;
 
@@ -1318,11 +1326,11 @@ details.act > .limits { margin: 0 0 8px; }
       blurb: 'The lander that started it all. Balanced, forgiving and slightly dented.',
       gus: 'Good old Biscuit. Reliable, cheerful, slightly dented. She’s family.' },
     { id: 'apex', name: 'Apex Vector', by: 'Rex’s racer', thrust: 1.22, rot: 1.45, burn: 1.4, tank: 0.85, legs: -0.2, wind: 1.15, bars: [5, 5, 2, 2],
-      price: 6000, story: 'mayday', storyText: 'Rescue Rex in Mayday and he’ll give it to you',
+      price: 6000, story: 'star-client', storyText: 'Fly Rex in Star Client and he’ll give it to you',
       blurb: 'Fast, twitchy and thirsty. A strong engine, quick turns, a small tank and stiff legs.',
       gus: 'Rex’s Apex Vector. It’s fast, it’s twitchy, and it drinks fuel like Dottie drinks coffee.', look: { hull: 'vector', flame: 'standard', flag: 'pennant' } },
     { id: 'lark', name: 'Lark', by: 'Wren’s old surveyor', thrust: 0.88, rot: 0.7, burn: 0.85, tank: 1.45, legs: 0.4, wind: 0.6, bars: [2, 1, 5, 5],
-      price: 3000, story: 'last-light', storyText: 'Bring Wren home in Last Light and she’ll hand you the keys',
+      price: 3000, story: 'the-neighbor', storyText: 'Help Wren in The Neighbor and she’ll hand you the keys',
       blurb: 'Slow, heavy and steady. A huge tank, soft legs, and wind barely moves it.',
       gus: 'Wren’s old Lark! Slow, heavy, steady as a rock, with a tank the size of a swimming pool.', look: { hull: 'lark', flame: 'standard', flag: 'pennant' } },
     { id: 'workhorse', name: 'Workhorse', by: 'Dottie’s cargo hauler', thrust: 1.05, rot: 0.85, burn: 1.1, tank: 1.25, legs: 0.2, wind: 0.85, bars: [4, 2, 4, 4], hauler: true,
@@ -1417,13 +1425,13 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'collector', name: 'Collector', desc: 'Buy 10 items in the hangar.', prog: () => [Math.min(boughtCount(), 10), 10] },
     { id: 'saver', name: 'Saver', desc: 'Hold 5,000 credits at once.', prog: () => [Math.min(credits, 5000), 5000] },
     { id: 'mission1', name: 'Mission ready', desc: 'Complete your first mission.' },
-    { id: 'campaign', name: 'Campaign hero', desc: 'Complete the original 12 missions.', reward: 'hull:pathfinder', prog: () => [completedCount(0, ACT1), ACT1] },
+    { id: 'campaign', name: 'Campaign hero', desc: 'Finish Act 1: Grounded.', reward: 'hull:pathfinder', prog: () => [completedCount(0, ACT1), ACT1] },
     { id: 'stars24', name: 'Star collector', desc: 'Earn 24 mission stars.', reward: 'flame:comet', prog: () => [Math.min(totalStars(), 24), 24] },
-    { id: 'flawless', name: 'Flawless', desc: 'Earn all 36 stars in the original 12 missions.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
-    { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: New Frontiers.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
-    { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Beyond Pluto.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2, ACT3), ACT3 - ACT2] },
+    { id: 'flawless', name: 'Flawless', desc: 'Earn all 27 stars in Act 1.', reward: 'flag:patch', prog: () => [totalStars(0, ACT1), ACT1 * 3] },
+    { id: 'frontier', name: 'Frontier hero', desc: 'Finish Act 2: Lift Off.', reward: 'hull:apex', prog: () => [completedCount(ACT1, ACT2), ACT2 - ACT1] },
+    { id: 'outer', name: 'Signal chaser', desc: 'Finish Act 3: Adrift.', reward: 'hull:unitzero', prog: () => [completedCount(ACT2, ACT3), ACT3 - ACT2] },
     { id: 'mechanic', name: 'Grease monkey', desc: 'Finish 10 repair jobs in the engine room.', prog: () => [Math.min(10, +store.get('ds-repairs', '0') || 0), 10] },
-    { id: 'senders', name: 'Kind words', desc: 'Finish Act 4: The Senders.', reward: 'hull:senders', prog: () => [completedCount(ACT3), MISSIONS.length - ACT3] },
+    { id: 'senders', name: 'Kind words', desc: 'Finish Act 4: The Slingshot.', reward: 'hull:senders', prog: () => [completedCount(ACT3), STORY_TOTAL - ACT3] },
     { id: 'offroad', name: 'Off-roader', desc: 'Finish every round trip.', reward: 'hull:fieldkit', prog: () => [SIDES.filter(d => d.kind === 'trip' && missionStars[d.id] > 0).length, SIDES.filter(d => d.kind === 'trip').length] },
     { id: 'beatrex', name: 'Beat Rex', desc: 'Finish Hopscotch faster than Rex’s 90 seconds.', reward: 'flag:racing' },
     { id: 'gentle', name: 'Spa treatment', desc: 'Deliver Biscuit’s spa crate without a crack.', reward: 'hull:spa' },
@@ -1543,200 +1551,74 @@ details.act > .limits { margin: 0 0 8px; }
   // ground: [x, y] keypoints (metres). pads: flat landing pads. ceilings: rock hanging from above.
   // stars: one for finishing, one for fuel left, one for time.
   const MISSIONS = [
-    { id: 'first-steps', name: 'First Steps', world: 'pluto', kind: 'land', fuel: 180, credits: 100,
-      brief: 'Your first descent. Pluto pulls gently, so you have time to think. Set down on the marked pad.',
-      spawn: { x: 60, vx: 0 }, stars: { fuel: 80, time: 41 },
-      ground: [[0, 35], [20, 40], [45, 32], [70, 38], [95, 30], [120, 26], [180, 30], [200, 42], [220, 38], [240, 45]],
-      pads: [{ id: 'LZ', x1: 135, x2: 165, y: 24 }] },
-    { id: 'tranquility', name: 'Tranquility', world: 'moon', kind: 'land', fuel: 90, credits: 120,
-      brief: 'A classic Moon landing. Kill your sideways drift early, then come straight down onto the pad.',
-      spawn: { x: 30, vx: 2.5 }, stars: { fuel: 45, time: 18 },
+    // ---- Act 1 · Grounded: odd jobs around the Moon, each one paying for a repair on the Second Wind ----
+    { id: 'final-notice', name: 'Final Notice', world: 'moon', kind: 'land', fuel: 110, credits: 120,
+      brief: 'A survey team needs a ride down to Tranquility, and the bank needs paying. Kill your sideways drift early, then come straight down onto the pad.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 55, time: 20 },
       ground: [[0, 50], [15, 45], [30, 52], [45, 40], [60, 30], [75, 34], [90, 20], [130, 22], [145, 40], [160, 55], [175, 48], [195, 60], [215, 50], [240, 58]],
       pads: [{ id: 'LZ', x1: 100, x2: 118, y: 18 }] },
-    { id: 'supply-run', name: 'Supply Run', world: 'moon', kind: 'cargo', fuel: 290, credits: 150, mass: 0.8,
-      brief: 'The base over the ridge needs supplies. Land on PICKUP and hold still while the crate loads, then fly it to DROP. The crate makes you heavier.',
-      spawn: { x: 26, y: 100, vx: 0 }, stars: { fuel: 135, time: 50 },
+    { id: 'scrap-run', name: 'Scrap Run', world: 'moon', kind: 'cargo', label: 'Multi-stop', cargoName: 'hull plating', mass: 0.85, fuel: 400, credits: 150,
+      brief: 'Three old wrecks out on the plain have good hull plating. Load up at WRECK1, top up at WRECK2, then bring it all home to the HANGAR. It gets heavy, so leave room to stop.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 110, time: 95 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      legs: [
+        { name: 'Load plating at WRECK1', goals: [{ type: 'pickup', pad: 'WRECK1', what: 'cargo' }] },
+        { name: 'Grab more plating at WRECK2', say: 'ENGINEERING: There’s a whole panel down in that crater. Land on WRECK2 and I’ll talk you through it. Mostly by saying “ooh”.', goals: [{ type: 'visit', pad: 'WRECK2', text: 'Touch down on WRECK2 for more plating', done: 'More plating aboard. Biscuit feels heavier.' }] },
+        { name: 'Set it all down at the HANGAR', say: 'FLIGHT: Bring it home. Gently. That plating is going on the ship we live in. Well. Will live in.', goals: [{ type: 'land', pad: 'HANGAR' }] }],
+      pads: [{ id: 'WRECK1', x1: 16, x2: 36, y: 34 }, { id: 'HANGAR', x1: 178, x2: 196, y: 34 }, { id: 'WRECK2', x1: 100, x2: 116, y: 54 }] },
+    { id: 'the-neighbor', name: 'The Neighbor', world: 'moon', kind: 'cargo', cargoName: 'engine bell', mass: 0.9, fuel: 300, credits: 160,
+      brief: 'Wren next door is lending you her old engine bell. Pick it up at PICKUP and fly it over the ridge to the hangar at DROP. It’s heavy, and it’s hers, so no scratches.',
+      spawn: { x: 26, y: 100, vx: 0 }, stars: { fuel: 130, time: 52 },
       ground: [[0, 48], [12, 44], [44, 46], [60, 55], [80, 64], [100, 72], [115, 75], [130, 68], [150, 55], [170, 42], [185, 34], [218, 36], [232, 44], [240, 48]],
       pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 40 }, { id: 'DROP', x1: 192, x2: 210, y: 30 }] },
-    { id: 'lifeline', name: 'Lifeline', world: 'moon', kind: 'rescue', fuel: 175, credits: 150, mass: 0.85,
-      brief: 'Three surveyors are stranded at CREW. Land beside them and hold still while they board, then burn up and out of the top of the screen.',
-      spawn: { x: 50, vx: 1.5 }, stars: { fuel: 80, time: 26 },
+    { id: 'star-client', name: 'Star Client', world: 'moon', kind: 'land', label: 'Passenger', comfort: true, comfortWho: 'Rex', comfortRate: 0.5, fuel: 300, credits: 200,
+      brief: 'Movie star Rex Valor needs a ride to his commercial shoot on the crater RIM, then down to LZ. He gets queasy when you turn, tilt past 20°, or fly faster than 6 m/s.',
+      sickReason: 'Rex Valor got space-sick on his costume', sickQuip: ['R', 'My stunt double never has to deal with this. That’s why I have a stunt double.'],
+      spawn: { x: 128, y: 64, vx: 0 }, stars: { fuel: 150, time: 75 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      legs: [
+        { name: 'Drop Rex at the RIM for his shoot', goals: [{ type: 'visit', pad: 'RIM', text: 'Land at RIM for the commercial shoot', done: 'Rex: “And… action!”' }] },
+        { name: 'Bring Rex down to LZ', say: 'REX: That’s a wrap! Take me down slowly, darling. I just had my hair done. Again.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 180, x2: 202, y: 32 }, { id: 'RIM', x1: 140, x2: 166, y: 45 }] },
+    { id: 'dark-side', name: 'Dark Side', world: 'moon', kind: 'trip', label: 'Rover trip', fuel: 260, credits: 220, battery: 70, task: 'Collect the satellite parts',
+      brief: 'A dead satellite on the far side still has a navigation computer inside. Land on LZ and Crumb rolls out. Drive to all three pieces, back up the ramp, then launch and dock.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 100, time: 100 },
+      ground: [[0, 40], [20, 38], [40, 34], [60, 30], [78, 30], [96, 34], [110, 38], [130, 38], [150, 36], [170, 42], [190, 46], [210, 44], [240, 48]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 38 }],
+      items: [{ x: 96, what: 'sample' }, { x: 150, what: 'sample' }, { x: 174, what: 'sample' }],
+      dock: { x: 150, y: 118 } },
+    { id: 'moonquake', name: 'Moonquake', world: 'moon', kind: 'rescue', mass: 0.85, fuel: 180, credits: 240,
+      brief: 'A quake has trapped three miners at the bottom of a crater. Land beside them at CREW, hold still while they board, then burn up and out of the top of the screen.',
+      spawn: { x: 50, vx: 1.5 }, stars: { fuel: 80, time: 28 },
       ground: [[0, 60], [20, 55], [40, 62], [60, 50], [80, 40], [95, 34], [125, 40], [145, 55], [165, 66], [185, 60], [205, 70], [225, 64], [240, 68]],
       pads: [{ id: 'CREW', x1: 100, x2: 118, y: 34 }] },
-    { id: 'haze-delivery', name: 'Haze Delivery', world: 'titan', kind: 'cargo', fuel: 220, credits: 170, mass: 0.85,
-      brief: 'Titan’s thick air slows everything down. Let the haze hold you up while you carry a crate from PICKUP to DROP.',
-      spawn: { x: 30, y: 90, vx: 0 }, stars: { fuel: 90, time: 53 },
-      ground: [[0, 40], [15, 36], [48, 40], [60, 46], [72, 50], [84, 46], [96, 40], [126, 46], [140, 60], [160, 70], [180, 64], [200, 74], [220, 68], [240, 72]],
-      pads: [{ id: 'PICKUP', x1: 20, x2: 40, y: 34 }, { id: 'DROP', x1: 100, x2: 118, y: 38 }] },
-    { id: 'methane-canyon', name: 'Methane Canyon', world: 'titan', kind: 'canyon', fuel: 210, credits: 180,
-      brief: 'The landing zone sits under a rock overhang. Drop into the canyon on the left, then creep sideways beneath the roof. Touch the rock and it’s over.',
-      spawn: { x: 40, vx: 0 }, stars: { fuel: 85, time: 67 },
-      ground: [[0, 70], [20, 72], [40, 68], [55, 66], [62, 40], [70, 20], [90, 16], [110, 14], [130, 16], [175, 18], [190, 30], [200, 60], [215, 80], [240, 85]],
-      ceilings: [[[100, 60], [120, 45], [140, 40], [170, 38], [200, 60]]],
-      pads: [{ id: 'LZ', x1: 150, x2: 168, y: 14 }] },
-    { id: 'dust-ledge', name: 'Dust Ledge', world: 'mars', kind: 'land', fuel: 210, credits: 200,
-      brief: 'The survey team wants a beacon on top of the spire. The pad is tiny and gusts keep shoving you sideways. Watch the wind gauge.',
-      spawn: { x: 60, vx: 0 }, stars: { fuel: 85, time: 46 },
-      ground: [[0, 20], [20, 24], [40, 18], [60, 22], [80, 30], [100, 45], [115, 70], [125, 88], [146, 70], [160, 40], [180, 25], [200, 18], [220, 22], [240, 16]],
-      pads: [{ id: 'LZ', x1: 128, x2: 140, y: 92 }] },
-    { id: 'valles-run', name: 'Valles Run', world: 'mars', kind: 'canyon', fuel: 155, credits: 220,
-      brief: 'Fly the length of the valley. Two rock overhangs hang over the route, and the landing zone sits beneath the second.',
-      spawn: { x: 20, vx: 0 }, stars: { fuel: 65, time: 35 },
-      ground: [[0, 90], [25, 92], [35, 88], [40, 60], [50, 30], [70, 25], [90, 28], [110, 22], [130, 26], [150, 20], [170, 24], [204, 28], [215, 50], [225, 80], [240, 95]],
-      ceilings: [[[70, 95], [85, 62], [100, 55], [115, 60], [125, 95]], [[140, 100], [155, 58], [170, 52], [185, 50], [205, 58], [215, 100]]],
-      pads: [{ id: 'LZ', x1: 180, x2: 196, y: 22 }] },
-    { id: 'storm-rescue', name: 'Storm Rescue', world: 'mars', kind: 'rescue', fuel: 150, credits: 230, mass: 0.85,
-      brief: 'A dust storm is closing in on a stranded crew. Get down to CREW, take them aboard, and climb out before the wind gets you.',
-      spawn: { x: 30, vx: 3 }, stars: { fuel: 60, time: 29 },
-      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
-      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 22 }] },
-    { id: 'heavy-lift', name: 'Heavy Lift', world: 'earth', kind: 'cargo', fuel: 225, credits: 260, mass: 0.8,
-      brief: 'Earth gravity is unforgiving. Lift a crate from PICKUP to DROP using short bursts, and never let your speed build up.',
-      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 85, time: 41 },
-      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 170, x2: 188, y: 28 }] },
-    { id: 'the-needle', name: 'The Needle', world: 'earth', kind: 'canyon', fuel: 140, credits: 280,
-      brief: 'Thread the gap beneath the rock shelf and land on the pad at the far end. There’s just enough room to fly level.',
-      spawn: { x: 30, vx: 0 }, stars: { fuel: 55, time: 31 },
-      ground: [[0, 60], [20, 62], [35, 58], [45, 40], [55, 22], [75, 20], [95, 22], [115, 20], [135, 24], [150, 22], [178, 24], [190, 40], [205, 70], [220, 80], [240, 82]],
-      ceilings: [[[95, 100], [105, 50], [125, 44], [145, 46], [180, 46], [195, 100]]],
-      pads: [{ id: 'LZ', x1: 158, x2: 172, y: 20 }] },
-    { id: 'last-light', name: 'Last Light', world: 'earth', kind: 'rescue', fuel: 135, credits: 300, mass: 0.85,
-      brief: 'The final mission. A crew is stranded on Earth at sunset and only you can reach them. Land at CREW, take them aboard, and fly them home to orbit.',
-      spawn: { x: 30, vx: 2 }, stars: { fuel: 55, time: 25 },
-      ground: [[0, 50], [25, 56], [45, 48], [65, 40], [85, 34], [112, 38], [130, 52], [150, 64], [170, 58], [190, 70], [210, 62], [240, 66]],
-      pads: [{ id: 'CREW', x1: 90, x2: 106, y: 32 }] },
-    // ---- Act 2: New Frontiers ----
-    { id: 'core-sample', name: 'Core Sample', world: 'vesta', kind: 'cargo', fuel: 400, credits: 320, mass: 0.85,
-      brief: 'Descent Systems’ first real contract: a mining survey on Vesta needs a core drill. The asteroid’s spin pushes you toward the edges, so aim a little toward the middle.',
-      spawn: { x: 100, y: 90, vx: 0 }, stars: { fuel: 130, time: 120 },
-      ground: [[0, 22], [20, 30], [44, 40], [62, 46], [80, 46], [100, 52], [120, 55], [140, 52], [160, 52], [186, 42], [210, 32], [240, 22]],
-      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }] },
-    { id: 'edge-of-the-world', name: 'Edge of the World', world: 'vesta', kind: 'land', fuel: 260, credits: 340,
-      brief: 'The survey team wants a beacon on the very rim of Vesta, where the spin is strongest. A tiny pad, a long way out. Lean into the push.',
-      spawn: { x: 120, y: 90, vx: 0 }, stars: { fuel: 130, time: 66 },
-      ground: [[0, 20], [30, 32], [60, 44], [90, 52], [120, 55], [150, 52], [180, 44], [200, 36], [212, 30], [226, 26], [240, 18]],
-      pads: [{ id: 'LZ', x1: 213, x2: 224, y: 28 }] },
-    { id: 'relay-run', name: 'Relay Run', world: 'ganymede', kind: 'cargo', fuel: 280, credits: 360, mass: 0.85,
-      brief: 'Ganymede’s relay keeps dropping out in the storms. Carry Gus’s new storm-proof relay from PICKUP to DROP. When the storms scramble your instruments, trust your eyes.',
-      spawn: { x: 60, y: 100, vx: 0 }, stars: { fuel: 40, time: 62 },
-      ground: [[0, 36], [14, 34], [40, 36], [58, 46], [76, 58], [96, 52], [116, 62], [136, 56], [156, 48], [176, 40], [196, 36], [222, 38], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 32 }, { id: 'DROP', x1: 198, x2: 214, y: 34 }] },
-    { id: 'mayday', name: 'Mayday', world: 'ganymede', kind: 'rescue', fuel: 220, credits: 380, mass: 0.85,
-      brief: 'A rival pilot is stranded on Ganymede with fried instruments. Land at CREW, take him aboard, and climb out to orbit. Storms roll through every few seconds.',
-      spawn: { x: 30, y: 110, vx: 1.5 }, stars: { fuel: 50, time: 40 },
-      ground: [[0, 40], [24, 46], [46, 40], [70, 50], [94, 44], [116, 36], [136, 36], [156, 48], [180, 56], [204, 48], [240, 52]],
-      pads: [{ id: 'CREW', x1: 118, x2: 134, y: 34 }] },
-    { id: 'spare-key', name: 'Spare Key', world: 'mercury', kind: 'land', fuel: 240, credits: 400,
-      brief: 'Gus has locked himself out of his hopper on Mercury. Fly him a spare key and supplies. The sun boils your fuel in the open, so hop from shadow to shadow.',
-      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 100, time: 40 },
-      shade: [[2, 46], [92, 116], [188, 232]],
-      ground: [[0, 40], [20, 36], [44, 42], [70, 50], [96, 44], [120, 52], [146, 46], [170, 40], [196, 34], [224, 36], [240, 40]],
-      pads: [{ id: 'LZ', x1: 200, x2: 216, y: 32 }] },
-    { id: 'sunrise', name: 'Sunrise', world: 'mercury', kind: 'rescue', fuel: 200, credits: 450, mass: 0.85,
-      brief: 'The finale. Sunrise is sweeping toward Gus’s camp, and nothing survives Mercury’s dawn in the open. Land at CREW, get Gus aboard, and climb out before the light arrives.',
-      spawn: { x: 30, y: 110, vx: 1 }, stars: { fuel: 55, time: 42 },
-      timeLimit: 60, limitText: 'Get Gus out within 60 seconds, before sunrise', spareText: 'to spare before sunrise',
-      lateReason: 'the sun came up', lateQuip: ['G', 'I’m fine! Extra crispy, but fine! Try again, I’ll put on more sunscreen.'],
-      nags: [[40, 'FLIGHT: Forty seconds to sunrise.'], [20, 'FLIGHT: Twenty seconds. Gus is putting on a second hat.'], [8, 'ENGINEERING: It’s getting VERY bright out here, pilot!']],
-      shade: [[28, 56], [136, 178]],
-      ground: [[0, 44], [24, 40], [48, 46], [72, 54], [96, 48], [120, 42], [146, 38], [172, 38], [196, 46], [220, 52], [240, 48]],
-      pads: [{ id: 'CREW', x1: 148, x2: 164, y: 36 }] },
-    // ---- Act 3: Beyond Pluto ----
-    { id: 'big-ear', name: 'Big Ear', world: 'pluto', kind: 'sling', label: 'Sling load', cargoName: 'dish', sling: 6, fragile: 1.8, fuel: 480, credits: 480,
-      brief: 'A strange signal is coming from somewhere past Pluto. Gus built a listening dish to hear it better. It rides on a cable under Biscuit: pick it up, then set it down gently on the ridge.',
-      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 90, time: 115 },
-      ground: [[0, 34], [12, 30], [40, 30], [56, 36], [74, 42], [92, 40], [106, 36], [134, 36], [150, 42], [170, 48], [196, 50], [216, 46], [240, 42]],
-      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 108, x2: 132, y: 36 }] },
-    { id: 'triangulation', name: 'Triangulation', world: 'moon', kind: 'hop', label: 'Pad hopping', fuel: 320, credits: 500,
-      brief: 'One dish hears the signal. Three beacons tell you where it comes from. Touch down on pads 1, 2 and 3 on the Moon, in order, to plant them.',
-      spawn: { x: 20, y: 90, vx: 0 }, stars: { fuel: 100, time: 70 },
-      goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
-      ground: [[0, 40], [18, 36], [36, 38], [58, 38], [74, 46], [92, 54], [110, 56], [132, 56], [150, 50], [168, 44], [184, 42], [206, 42], [222, 48], [240, 44]],
-      pads: [{ id: '1', x1: 38, x2: 56, y: 38 }, { id: '2', x1: 112, x2: 130, y: 56 }, { id: '3', x1: 186, x2: 204, y: 42 }] },
-    { id: 'echo', name: 'Echo', world: 'europa', kind: 'land', label: 'Geyser field', fuel: 220, credits: 520,
-      brief: 'Something under Europa’s ice is echoing the signal. Set a hydrophone down in the middle of the geyser field. The geysers throw you upward when they blow, so watch for the warning.',
-      spawn: { x: 30, y: 110, vx: 0 }, stars: { fuel: 105, time: 38 },
-      vents: [[36, 6, 1], [84, 5.5, 3.2], [146, 6.5, 0.5]],
-      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
-      pads: [{ id: 'LZ', x1: 106, x2: 122, y: 40 }] },
-    { id: 'interference', name: 'Interference', world: 'io', kind: 'cargo', label: 'Cargo', cargoName: 'filter', mass: 0.85, fuel: 300, credits: 540,
-      brief: 'Io’s eruptions drown out the signal. Carry Gus’s noise filter from PICKUP to DROP. Two vents erupt in rhythm and the lava only reaches about 40 meters up, so either fly high over them or wait for the gap.',
-      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 90, time: 68 },
-      vents: [[96, 7, 0], [156, 6.5, 3]],
-      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 32 }, { id: 'DROP', x1: 198, x2: 220, y: 38 }] },
-    { id: 'cloud-relay', name: 'Cloud Relay', world: 'venus', kind: 'route', label: 'Relay route', fuel: 260, credits: 560,
-      brief: 'The numbers in the signal need decoding, and Venus’s cloud relay is the only machine that can do it. Fly through its three markers to reboot it, then land. Trust the markers, not the fog.',
-      spawn: { x: 22, y: 112, vx: 0 }, rings: [[64, 96], [118, 62], [176, 92]], stars: { fuel: 150, time: 34 },
+    { id: 'apex-calling', name: 'Apex Calling', world: 'moon', kind: 'route', label: 'Race vs Apex', fuel: 200, credits: 260,
+      timeLimit: 70, limitText: 'Fly the three markers and land within 70 seconds to beat Kestrel', spareText: 'ahead of Kestrel’s time',
+      lateReason: 'Kestrel won the contract', lateQuip: ['Q', 'Better luck next time. Sable’s offer still stands.'],
+      nags: [[35, 'APEX: Kestrel here. I’ve already landed. Take your time.'], [15, 'FLIGHT: Fifteen seconds! Go, go, go!'], [6, 'APEX: Tick tock.']],
+      brief: 'Kestrel from Apex Landings has challenged you for a survey contract. Fly through the three markers, then land at LZ before her time runs out.',
+      spawn: { x: 22, y: 112, vx: 0 }, rings: [[64, 96], [118, 62], [176, 92]], stars: { fuel: 100, time: 45 },
       ground: [[0, 44], [22, 40], [44, 46], [66, 36], [90, 30], [112, 36], [134, 28], [156, 34], [178, 46], [198, 40], [224, 40], [240, 46]],
       pads: [{ id: 'LZ', x1: 200, x2: 222, y: 40 }] },
-    { id: 'old-station', name: 'Old Station', world: 'titan', kind: 'canyon', fuel: 230, credits: 580,
-      brief: 'Wren’s old weather station sits at the bottom of a methane canyon, under the rock. Drop in on the left, then creep beneath the overhang to the pad. Touch the rock and it’s over.',
-      spawn: { x: 40, vx: 0 }, stars: { fuel: 105, time: 68 },
-      ground: [[0, 72], [18, 74], [36, 70], [48, 66], [56, 44], [64, 24], [84, 18], [104, 16], [124, 18], [146, 16], [172, 16], [194, 20], [204, 40], [214, 70], [240, 76]],
-      ceilings: [[[94, 62], [110, 44], [130, 40], [160, 38], [186, 40], [200, 62]]],
-      pads: [{ id: 'LZ', x1: 150, x2: 168, y: 16 }] },
-    { id: 'rex-shortcut', name: 'Rex’s Shortcut', world: 'vesta', kind: 'rescue', mass: 0.85, fuel: 340, credits: 600,
-      brief: 'Rex went looking for the signal on his own, tried a shortcut around Vesta, and got flung into a crater. Land at CREW, get him aboard, and climb out to orbit. Lean against the spin.',
-      spawn: { x: 140, y: 90, vx: 0 }, stars: { fuel: 70, time: 105 },
-      ground: [[0, 20], [24, 30], [44, 38], [56, 34], [72, 34], [88, 46], [110, 52], [130, 55], [150, 52], [176, 46], [200, 36], [220, 28], [240, 20]],
-      pads: [{ id: 'CREW', x1: 56, x2: 72, y: 34 }] },
-    { id: 'unit-zero', name: 'Unit Zero', world: 'pluto', kind: 'canyon', label: 'Finale', fuel: 210, credits: 700,
-      brief: 'The finale. The signal is coming from the bottom of a canyon on Pluto’s far side, under a long overhang. Slow in, gentle down. Whatever is down there has been waiting a long time.',
-      spawn: { x: 40, vx: 0 }, stars: { fuel: 55, time: 58 },
-      ground: [[0, 80], [20, 82], [40, 78], [54, 74], [62, 50], [70, 28], [90, 22], [112, 20], [134, 22], [156, 18], [178, 18], [192, 22], [202, 44], [214, 74], [240, 80]],
-      ceilings: [[[100, 70], [116, 48], [136, 44], [160, 42], [186, 44], [200, 70]]],
-      pads: [{ id: 'LZ', x1: 158, x2: 176, y: 18 }] },
-    // ---- Act 4: The Senders ----
-    { id: 'deep-tank', name: 'Deep Tank', world: 'ganymede', kind: 'cargo', label: 'Cargo', cargoName: 'tank', mass: 0.85, fuel: 300, credits: 620,
-      brief: 'Unit Zero’s coordinates point at Eris, farther out than anyone has flown. Biscuit needs a long-range tank for the trip. Carry it from PICKUP to DROP on Ganymede. Storms roll through every few seconds.',
-      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 90, time: 70 },
-      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
-      pads: [{ id: 'PICKUP', x1: 16, x2: 36, y: 32 }, { id: 'DROP', x1: 198, x2: 220, y: 38 }] },
-    { id: 'first-light', name: 'First Light', world: 'eris', kind: 'land', label: 'In the dark', fuel: 200, credits: 640,
-      brief: 'Nobody has ever landed on Eris. It’s so far out that the Sun is just a bright star. Your landing light shows the ground right below you, and the pad beacon shines through. Gentle down on the LZ.',
-      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 90, time: 60 },
-      ground: [[0, 40], [18, 44], [40, 36], [62, 42], [84, 34], [104, 30], [136, 30], [154, 38], [176, 46], [198, 40], [220, 44], [240, 48]],
-      pads: [{ id: 'LZ', x1: 108, x2: 132, y: 30 }] },
-    { id: 'old-lights', name: 'Old Lights', world: 'eris', kind: 'route', label: 'Beacon trail', fuel: 240, credits: 660,
-      brief: 'Three old lights stand in a line across the ice, leading over the ridge. Somebody put them there a long time ago. Fly through all three, then land at the end of the trail.',
-      spawn: { x: 20, y: 105, vx: 0 }, rings: [[60, 90], [116, 76], [172, 92]], stars: { fuel: 110, time: 60 },
-      ground: [[0, 42], [22, 38], [44, 46], [66, 52], [90, 46], [112, 40], [134, 48], [156, 54], [178, 46], [198, 38], [224, 38], [240, 44]],
-      pads: [{ id: 'LZ', x1: 200, x2: 222, y: 38 }] },
-    { id: 'quiet-posts', name: 'Quiet Posts', world: 'titan', kind: 'hop', label: 'Pad hopping', fuel: 300, credits: 680,
-      brief: 'The Senders hid three listening posts in Titan’s haze. Touch down on pads 1, 2 and 3, in order, and Unit Zero will wake them up.',
-      spawn: { x: 24, y: 90, vx: 0 }, stars: { fuel: 100, time: 80 },
-      goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
-      ground: [[0, 44], [16, 40], [34, 40], [52, 46], [72, 52], [92, 56], [112, 56], [132, 52], [152, 46], [172, 44], [192, 44], [212, 50], [240, 46]],
-      pads: [{ id: '1', x1: 16, x2: 34, y: 40 }, { id: '2', x1: 94, x2: 110, y: 56 }, { id: '3', x1: 174, x2: 190, y: 44 }] },
-    { id: 'envoy-escort', name: 'Envoy Escort', world: 'io', kind: 'rescue', mass: 0.85, fuel: 300, credits: 700,
-      brief: 'Kael and Lyra flew to Io to read their fleet’s oldest records, and their shuttle gave up. Land at CREW, get them aboard, and climb out to orbit. The ground is warm. Don’t stay long.',
-      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 70, time: 60 },
-      ground: [[0, 30], [20, 36], [40, 44], [60, 40], [80, 46], [100, 38], [116, 38], [134, 48], [156, 54], [178, 48], [200, 40], [220, 34], [240, 30]],
-      pads: [{ id: 'CREW', x1: 100, x2: 116, y: 38 }] },
-    { id: 'the-key', name: 'The Key', world: 'eris', kind: 'sling', label: 'Sling load', cargoName: 'probe', sling: 6, fragile: 2.0, fuel: 480, credits: 720,
-      crashLine: ['G', 'Unit Zero! Okay. Okay. It survived twenty-one years at the bottom of a canyon, it’ll survive that. Softer this time?'],
-      brief: 'There’s a round door in the ice with a slot the exact shape of Unit Zero. It rides on a cable under Biscuit: pick it up, then lower it gently onto the DROP. We only have one.',
-      spawn: { x: 50, y: 95, vx: 0 }, stars: { fuel: 100, time: 125 },
-      ground: [[0, 34], [12, 30], [40, 30], [56, 36], [74, 42], [92, 44], [110, 40], [136, 40], [152, 46], [172, 52], [196, 54], [216, 50], [240, 46]],
-      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 112, x2: 134, y: 40 }] },
-    { id: 'the-vault', name: 'The Vault', world: 'eris', kind: 'canyon', label: 'Dark canyon', fuel: 230, credits: 760,
-      brief: 'Behind the door, a canyon runs down under the ice. The signal comes from the bottom, under a long overhang, and it’s dark. Drop in on the left and creep beneath the rock to the pad.',
-      spawn: { x: 40, vx: 0 }, stars: { fuel: 70, time: 70 },
-      ground: [[0, 78], [20, 80], [40, 76], [54, 72], [62, 48], [70, 26], [90, 20], [110, 18], [132, 20], [150, 16], [174, 16], [190, 20], [200, 42], [212, 72], [240, 78]],
-      ceilings: [[[98, 68], [114, 46], [134, 42], [158, 40], [184, 42], [198, 68]]],
-      pads: [{ id: 'LZ', x1: 152, x2: 172, y: 16 }] },
-    { id: 'the-reply', name: 'The Reply', world: 'eris', kind: 'hop', label: 'Act finale', fuel: 330, credits: 820,
-      brief: 'Time to answer. Three antennas stand on the ridge. Touch down on 1, 2 and 3, in order, and Gus sends the crew’s message out past Eris.',
-      spawn: { x: 28, y: 95, vx: 0 }, stars: { fuel: 110, time: 85 },
-      goals: [{ type: 'visit', pad: '1' }, { type: 'visit', pad: '2' }, { type: 'land', pad: '3' }],
-      ground: [[0, 46], [18, 42], [38, 42], [56, 50], [76, 58], [96, 62], [118, 62], [138, 56], [156, 50], [174, 46], [194, 46], [214, 52], [240, 48]],
-      pads: [{ id: '1', x1: 20, x2: 36, y: 42 }, { id: '2', x1: 98, x2: 116, y: 62 }, { id: '3', x1: 176, x2: 192, y: 46 }] }
+    { id: 'test-fire', name: 'Test Fire', world: 'moon', kind: 'route', label: 'Ring route', fuel: 230, credits: 280,
+      brief: 'The Second Wind fires her engines for the first time in six years. Fly through all four guidance markers out on the plain first, then land at LZ.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[52, 90], [100, 70], [148, 96], [190, 74]], stars: { fuel: 105, time: 44 },
+      ground: [[0, 44], [22, 40], [44, 46], [66, 36], [90, 30], [112, 36], [134, 28], [156, 34], [178, 46], [198, 40], [224, 40], [240, 46]],
+      pads: [{ id: 'LZ', x1: 200, x2: 222, y: 40 }] },
+    { id: 'all-systems-go', name: 'All Systems Go', world: 'moon', kind: 'land', label: 'Multi-stop', fuel: 420, credits: 320,
+      brief: 'The final checklist before liftoff: fuel at the DEPOT, Apogee from the CRATER, Gus’s lucky wrench at the WORKSHOP, then home to the HANGAR.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 130, time: 120 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      legs: [
+        { name: 'Top up the tank at the DEPOT', goals: [{ type: 'visit', pad: 'DEPOT', refuel: 120, text: 'Touch down on DEPOT to refuel' }] },
+        { name: 'Collect Apogee from the CRATER', say: 'ENGINEERING: She’s chasing dust bunnies in the crater again. Moon dust bunnies. Land on CRATER and I’ll grab her.', goals: [{ type: 'visit', pad: 'CRATER', text: 'Land at CRATER to collect Apogee', done: 'Apogee is aboard. She is not pleased.' }] },
+        { name: 'Grab Gus’s wrench at the WORKSHOP', say: 'ENGINEERING: My lucky wrench is on the bench at the WORKSHOP. I can’t fly without it. I won’t fly without it.', goals: [{ type: 'visit', pad: 'WORKSHOP', text: 'Land at WORKSHOP for the lucky wrench', done: 'Wrench secured. The ship feels luckier already.' }] },
+        { name: 'Bring it all home to the HANGAR', say: 'FLIGHT: Fuel, cat, wrench. That’s the list. Bring them home.', goals: [{ type: 'land', pad: 'HANGAR' }] }],
+      pads: [{ id: 'DEPOT', x1: 16, x2: 36, y: 34 }, { id: 'CRATER', x1: 100, x2: 116, y: 54 }, { id: 'WORKSHOP', x1: 56, x2: 72, y: 44 }, { id: 'HANGAR', x1: 178, x2: 196, y: 34 }] }
   ];
-  const ACT1 = 12;
-  const ACT2 = 18;   // Acts 1 and 2 end here
-  const ACT3 = 26;   // Act 3 (Beyond Pluto) ends here; Act 4 (The Senders) runs to the end. Later acts add their own marker.   // the first twelve missions: the original campaign, which the older badges count
+  const ACT1 = 9;    // Act 1 · Grounded
+  const ACT2 = 18;   // Act 2 · Lift Off
+  const ACT3 = 28;   // Act 3 · Adrift; Act 4 · The Slingshot runs to STORY_TOTAL
   // ---- Character portraits: 32×32 pixel art drawn in code ----
   const px = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
   const outline = (c, x, y, w, h, col) => { px(c, x, y, w, 1, col); px(c, x, y + h - 1, w, 1, col); px(c, x, y, 1, h, col); px(c, x + w - 1, y, 1, h, col); };
@@ -2495,7 +2377,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Get some rest, pilot. The Senders have a lot more to say, and we’re going to go and hear it.'],
     ['A', 'Mrrp. (Apogee is sitting by the big dish with her ears forward, listening.) MORE TO COME.']
   ];
-  const EPILOGUES = { 'last-light': [EPILOGUE, { label: 'Epilogue', title: 'Home' }], 'sunrise': [EPILOGUE2, { label: 'Epilogue', title: 'Everyone Home' }], 'unit-zero': [EPILOGUE3, { label: 'Epilogue', title: 'Unit Zero' }], 'the-reply': [EPILOGUE4, { label: 'Epilogue', title: 'The Answer' }] };
+  const EPILOGUES = {};
   const FAIL_QUIPS = [
     ['F', 'That’s going in the report. In crayon, so it’s gentle.'],
     ['G', 'Biscuit is fine. Biscuit is in several places, but fine.'],
@@ -2831,11 +2713,151 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 40], [22, 44], [44, 38], [66, 46], [90, 52], [114, 46], [138, 40], [160, 46], [184, 40], [200, 36], [222, 36], [240, 42]],
       pads: [{ id: 'LZ', x1: 202, x2: 220, y: 36 }] }
   ];
+  // ---- The new story: 38 missions in four acts. Act 1 is built; later acts show up in the list as coming soon ----
+  const STORY_TOTAL = 38;
+  // [id, name, world, label] for every story mission, built or not
+  const STORY_PLAN = MISSIONS.map(d => [d.id, d.name, d.world, d.label || ({ land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route', trip: 'Round trip' })[d.kind] || '']).concat([
+    ['liftoff', 'Liftoff', 'moon', 'Multi-stop'], ['first-port', 'First Port', 'earth', 'Cargo'], ['red-dock', 'Red Dock', 'mars', 'Precision'],
+    ['dust-bowl', 'Dust Bowl', 'mars', 'Timed delivery'], ['stone-patient', 'Stone Patient', 'vesta', 'Fragile cargo'], ['overdue', 'Overdue', 'mars', 'Precision'],
+    ['sun-side', 'Sun-Side', 'mercury', 'Heat cargo'], ['storm-front', 'Storm Front', 'mercury', 'Blind landing'], ['dead-air', 'Dead Air', 'venus', 'Multi-stop'],
+    ['catch', 'Catch!', 'mars', 'Catch'], ['market-day', 'Market Day', 'ganymede', 'Multi-stop'], ['under-the-ice', 'Under the Ice', 'europa', 'Rescue'],
+    ['left-behind', 'Left Behind', 'ganymede', 'SOS'], ['the-overdrive', 'The Overdrive', 'io', 'Precision'], ['still-crew', 'Still Crew', 'europa', 'Multi-stop'],
+    ['lantern-light', 'Lantern Light', 'titan', 'In the haze'], ['the-envoys', 'The Envoys', 'titan', 'Rescue'], ['cold-storage', 'Cold Storage', 'pluto', 'Cargo'],
+    ['patchwork', 'Patchwork', 'eris', 'Sling load'],
+    ['the-buyout', 'The Buyout', 'eris', 'Story'], ['wrens-old-partner', 'Wren’s Old Partner', 'pluto', 'Canyon'], ['first-burn', 'First Burn', 'pluto', 'Timed'],
+    ['sulfur-stop', 'Sulfur Stop', 'io', 'Multi-stop'], ['ice-for-the-road', 'Ice for the Road', 'europa', 'Cargo'], ['the-slingshot', 'The Slingshot', 'ganymede', 'Ring route'],
+    ['homecoming', 'Homecoming', 'mars', 'Precision'], ['earth-contract', 'The Earth Contract', 'earth', 'Race'], ['the-rescue', 'The Rescue', 'earth', 'Rescue'],
+    ['home', 'Home', 'moon', 'Final landing']
+  ].filter(p => !MISSIONS.some(d => d.id === p[0])));
+  const storyDone = id => (missionStars[id] || 0) > 0;
+  // each Act 1 story mission pays for one repair on the Second Wind
+  const REPAIRS = {
+    'final-notice': ['Power', 'The hangar lights are back on'], 'scrap-run': ['Hull', 'The holes are patched'],
+    'the-neighbor': ['Engine bell', 'Wren’s old bell is bolted on'], 'star-client': ['Life support', 'The ship can breathe again'],
+    'dark-side': ['Navigation', 'She knows where she is again'], 'moonquake': ['Reactor', 'A brand-new core, humming'],
+    'apex-calling': ['Pride', 'Fully restored'], 'test-fire': ['Engines', 'First fire in six years'], 'all-systems-go': ['Everything', 'The Second Wind is ready to fly']
+  };
+
+  SPEAKERS.R.name = 'Rex Valor · Movie Star';
+  Object.assign(SPEAKERS, { Q: { name: 'Kestrel · Apex Landings', color: '#c9d4e8' }, U: { name: 'Sable Voss · Apex Landings', color: '#ff6b7a' } });
+
+  Object.assign(STORY, {
+    'final-notice': { chapter: [1, 'Final Notice'],
+      intro: [
+        ['F', 'Morning, pilot. Welcome to Descent Systems. See this letter? Third “final notice” from the bank. Apparently “final” doesn’t mean what I thought it meant.'],
+        ['G', 'Hi! I’m Gus. That’s Biscuit, our lander. And through the big window is the Second Wind. Our mothership. She hasn’t flown in six years.'],
+        ['F', 'If we want her flying again, we need repairs. Repairs need money. Money needs jobs. And jobs need a pilot. Hi.'],
+        ['G', 'First job: a survey team needs a ride down to Tranquility. Kill your drift early and come straight down.'],
+        ['F', 'Paid on landing. Let’s keep the lights on. Literally. The power bill is in this pile too.']],
+      react: [['F', 'Landed and paid. That goes straight to the power cells.'],
+        ['G', 'Clean landing! Biscuit’s purring. I didn’t know she could purr.'],
+        ['F', 'Perfect. Gus already spent the money. Look out the window: the hangar lights just came on.']] },
+    'scrap-run': { chapter: [2, 'Scrap Run'],
+      intro: [
+        ['G', 'The Second Wind’s hull has more holes than Apogee’s favorite blanket. But there are old wrecks out on the plain with good plating.'],
+        ['F', 'Nobody’s claimed them in decades. I checked. Twice. Legally, it’s salvage. Morally, it’s also salvage.'],
+        ['G', 'Load up at WRECK1, grab more at WRECK2, then bring it all back to the HANGAR. It gets heavy, so give yourself room to stop.']],
+      react: [['G', 'Plating! Real plating! I could cry. I am crying.'],
+        ['F', 'Two wrecks in one trip. Our accountant is pleased. I’m the accountant.'],
+        ['G', 'Perfect run. The hull will be patched by dinner. Gus-dinner. So, midnight.']] },
+    'the-neighbor': { chapter: [3, 'The Neighbor'],
+      intro: [
+        ['F', 'Bad news: the Second Wind needs an engine bell, and a new one costs more than this whole base.'],
+        ['G', 'Good news: the lady in the dome next door has one in her garage. Bad news: it’s Wren. She doesn’t really do visitors.'],
+        ['W', 'I heard that. I hear everything through these walls. You want my engine bell? Fine. Fly it over yourself.'],
+        ['W', 'I flew that bell to Neptune and back. Twice. If it comes back dented, so do you.']],
+      react: [['W', 'Hmph. You set it down like it was made of glass. …Fine. Fine.'],
+        ['W', 'Not bad, kid. I’ll be over tomorrow to make sure Gus bolts it on properly.'],
+        ['W', 'That was a pilot’s landing. I’m moving in. Somebody has to supervise this circus.']] },
+    'star-client': { chapter: [4, 'Star Client'],
+      intro: [
+        ['F', 'Big job today. A celebrity client. Rex Valor. Yes, that Rex Valor. The action movies. The hair.'],
+        ['R', 'Darling! Rex Valor. You’ve seen me fall off things on purpose. I’m filming a commercial on a crater rim, and I need a smooth ride.'],
+        ['R', 'I mean smooth. I get dizzy. Don’t spin me, don’t tip me, and nothing over six meters per second. My stomach is insured.'],
+        ['F', 'Take him to the RIM for the shoot, then down to LZ. Gently. He pays very, very well.']],
+      react: [['R', 'I only screamed twice! A personal best.'],
+        ['R', 'Smooth as my jawline. I’m investing in this little company. Don’t argue, I’ve decided.'],
+        ['R', 'Flawless. I’m paying for the life support AND moving in. Where do I put my luggage? All eleven bags?']] },
+    'dark-side': { chapter: [5, 'Dark Side'],
+      intro: [
+        ['G', 'We need a navigation computer, and there’s a dead weather satellite on the far side that crashed with one inside.'],
+        ['K', '*beep boop* (Crumb is very excited. Crumb has been waiting all year for a road trip.)'],
+        ['G', 'Land on LZ and Crumb rolls out. Drive to the three pieces, bring them back up the ramp, then launch and dock.'],
+        ['F', 'Keep an eye on Crumb’s battery. If he runs dry out there, I am not walking out to get him.']],
+      react: [['K', '*happy beeping* (Crumb would like to go again immediately.)'],
+        ['G', 'The nav computer still works! It thinks it’s 2071, but it works.'],
+        ['G', 'Every piece! Navigation is back online. The Second Wind knows where she is again.']] },
+    'moonquake': { chapter: [6, 'Moonquake'],
+      intro: [
+        ['M', 'Moonbase Pim calling! Mayday! A quake just hit, and three of our miners are cut off at the bottom of a crater!'],
+        ['F', 'Pilot, drop everything. Get down to CREW, take them aboard, then climb straight out the top.'],
+        ['G', 'Watch the rocks. Quakes shake things loose. Everything shakes loose.'],
+        ['M', 'Please hurry. The mining company says they’ll pay you whatever you need.']],
+      react: [['M', 'They’re safe! All three! The company’s sending you a reactor core. Don’t ask where they got it.'],
+        ['F', 'That was beautiful flying. And a reactor core! Gus is doing a little dance.'],
+        ['G', 'A REACTOR CORE. Dottie, can I keep it? I’m keeping it.']] },
+    'apex-calling': { chapter: [7, 'Apex Calling'],
+      intro: [
+        ['F', 'Uh oh. There’s a shiny silver lander parked on our pad. Apex Landings.'],
+        ['Q', 'Kestrel, Apex Landings. Sable Voss sends her regards. She’d like to buy your mothership. For scrap.'],
+        ['F', 'Absolutely not. You can tell Sable I said that. Word for word.'],
+        ['Q', 'Then let’s make it interesting. A survey contract is up for grabs. Three markers, then the pad. Fastest pilot gets it.'],
+        ['G', 'Fly through all three markers and land at LZ before her time runs out. No pressure. Lots of pressure.']],
+      react: [['Q', 'Hm. Lucky. Very lucky.'],
+        ['F', 'We beat Apex! Did you see Kestrel’s face? I want to frame Kestrel’s face.'],
+        ['Q', '…Not bad, Descent. Sable won’t like this. I kind of do.']] },
+    'test-fire': { chapter: [8, 'Test Fire'],
+      intro: [
+        ['G', 'It’s time. The engines are in. Today we fire them for the first time in six years.'],
+        ['W', 'I want guidance markers out on the plain first, in case she jumps her moorings. Fly through all four, then land at LZ.'],
+        ['F', 'Everybody stand back from the hangar door. Rex, that includes you. Rex, put the camera down.'],
+        ['G', 'If it explodes, it was a learning experience. It won’t explode. Probably.']],
+      react: [['G', 'SHE FIRED. She actually fired! Nobody is on fire!'],
+        ['W', 'Steady markers, steady burn. Good work, both of you.'],
+        ['R', 'I got the whole thing on camera. Do you know what this footage is worth? We’re going to be famous. More famous. Me, specifically.']] },
+    'all-systems-go': { chapter: [9, 'All Systems Go'],
+      intro: [
+        ['F', 'Final checklist before liftoff: fuel, the cat, and Gus’s lucky wrench. Don’t laugh. He won’t fly without it.'],
+        ['G', 'Fill up at the DEPOT, pick up Apogee from the CRATER, grab my wrench at the WORKSHOP, then bring it all home to the HANGAR.'],
+        ['A', 'Mrrp. (Apogee has no intention of being picked up.)'],
+        ['F', 'Then that’s it. Then she’s ready.']],
+      react: [['F', 'Fuel, cat, wrench. All present and accounted for.'],
+        ['G', 'Wrench! My wrench! I can feel the ship getting luckier already.'],
+        ['A', 'Mrrrrrrp. (Apogee approves of this crew.)']] }
+  });
+  const ACT1_END = [
+    ['G', 'Okay. Is everyone ready? Power… on.'],
+    ['F', 'Look at her. Six years in the dark, and she’s lit up like a birthday cake.'],
+    ['W', 'Good hull. Good bones. Somebody built her to fly.'],
+    ['R', 'I need a moment. I’m not crying. It’s the hangar dust.'],
+    ['K', '*beep beep beep* (Crumb is doing a little spin.)'],
+    ['F', 'The bills are paid. Well. This month’s. Pack your things, everybody. Our little base has been very cozy.'],
+    ['G', 'Too cozy. Rex’s luggage has been in my bunk for a week.'],
+    ['F', 'Tomorrow, we fly.'],
+    ['A', 'Mrrp.']
+  ];
+  EPILOGUES['all-systems-go'] = [ACT1_END, { label: 'Act 1 ending', title: 'Tomorrow, We Fly' }];
+
+  // side missions follow the new story: crew introductions are story missions now, and each world's jobs
+  // open once the Second Wind gets there
+  {
+    const gone = ['zib-market', 'moth-lights', 'vip-pickup', 'bubble-trouble', 'rock-steady', 'house-call', 'express-lane'];
+    for (let i = SIDES.length - 1; i >= 0; i--) if (gone.includes(SIDES[i].id)) SIDES.splice(i, 1);
+    const AFTER = {
+      'shooting-stars': 'final-notice', 'spa-day': 'scrap-run', 'ride-along': 'the-neighbor', 'rock-collection': 'dark-side', 'swing-shift': 'moonquake',
+      'radio-polka': 'test-fire', 'coffee-crisis': 'dust-bowl', 'beacon-repair': 'red-dock', 'stowaway': 'lantern-light', 'catnip-run': 'the-envoys',
+      'wheres-apogee': 'lantern-light', 'long-way-round': 'dead-air', 'hopscotch': 'stone-patient', 'lost-luggage': 'stone-patient',
+      'northern-lights': 'market-day', 'relay-dish': 'market-day', 'shadow-hopper': 'sun-side', 'meteor-watch': 'sun-side',
+      'geyser-surfing': 'under-the-ice', 'core-drill': 'under-the-ice', 'ice-regatta': 'the-envoys', 'bounce-house': 'cold-storage',
+      'dark-picnic': 'patchwork', 'seedling-run': 'lantern-light'
+    };
+    SIDES.forEach(d => { if (AFTER[d.id]) d.after = AFTER[d.id]; });
+  }
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
   const missionLabel = i => i < MISSIONS.length ? `Mission ${i + 1}` : 'Side mission';
-  const afterName = d => (ALL.find(m => m.id === d.after) || {}).name;
+  const afterName = d => (ALL.find(m => m.id === d.after) || {}).name || (STORY_PLAN.find(p => p[0] === d.after) || [])[1];
 
   const KIND_LABEL = { land: 'Precision', canyon: 'Canyon', cargo: 'Cargo', rescue: 'Rescue', route: 'Survey route', hop: 'Pad hopping', sling: 'Sling load', trip: 'Round trip' };
   const LOAD_TIME = 1.5;
@@ -2930,7 +2952,7 @@ details.act > .limits { margin: 0 0 8px; }
       const left = Math.max(0, d.timeLimit - flightT);
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
-    if (d.comfort) t += ` · Apogee ${Math.round(mission.comfort)}%`;
+    if (d.comfort) t += ` · ${d.comfortWho || 'Apogee'} ${Math.round(mission.comfort)}%`;
     if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · battery ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
@@ -2960,7 +2982,7 @@ details.act > .limits { margin: 0 0 8px; }
       if ((keys.left || keys.right) && L.fuel > 0) drain += 6;
       if (Math.abs(L.a) > 20 * Math.PI / 180) drain += 12;
       if (Math.hypot(L.vx, L.vy) > 6) drain += 10;
-      mission.comfort = Math.max(0, mission.comfort - drain * dt);
+      mission.comfort = Math.max(0, mission.comfort - drain * dt * (d.comfortRate || 1));
       if (comfortCheck()) return true;
     }
     if (d.melt && mission.carrying === 'cargo') {
@@ -2984,10 +3006,11 @@ details.act > .limits { margin: 0 0 8px; }
   // Apogee's mood: a couple of warnings, then the inevitable.
   function comfortCheck() {
     const c = mission.comfort;
-    if (c <= 50 && !mission.nagged.includes('c50')) { mission.nagged.push('c50'); showToast('Apogee: mrrp?', 1800); }
-    if (c <= 25 && !mission.nagged.includes('c25')) { mission.nagged.push('c25'); showToast('Apogee: MRAOWWW.', 1800); }
+    const rex = mission.def.comfortWho === 'Rex';
+    if (c <= 50 && !mission.nagged.includes('c50')) { mission.nagged.push('c50'); showToast(rex ? 'Rex: I’m fine. I’m totally fine. Is the floor supposed to move?' : 'Apogee: mrrp?', 1800); }
+    if (c <= 25 && !mission.nagged.includes('c25')) { mission.nagged.push('c25'); showToast(rex ? 'Rex: I can see my lunch. Darling, I can SEE it.' : 'Apogee: MRAOWWW.', 1800); }
     if (c <= 0) {
-      failMission('Apogee got space-sick all over the console', ['G', 'I’ll get the paper towels. All the paper towels.']);
+      failMission(mission.def.sickReason || 'Apogee got space-sick all over the console', mission.def.sickQuip || ['G', 'I’ll get the paper towels. All the paper towels.']);
       return true;
     }
     return false;
@@ -3719,7 +3742,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked };
+    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
@@ -4947,7 +4970,7 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="menubody">${body}</div>
         <div class="btns"><button class="btn ghost" id="shipBack">Back to ${here}</button></div>`;
     } else if (m === 'flights') {
-      html = `<span class="eyebrow">Nav console</span>
+      html = `<span class="eyebrow">${inBase() ? 'Dottie’s desk · Moon base' : 'Nav console'}</span>
         <h1 class="good">Flight deck</h1>
         <p class="tagline">Where to today, pilot?</p>
         <nav class="menu" aria-label="Flight modes">
@@ -4959,7 +4982,7 @@ details.act > .limits { margin: 0 0 8px; }
           <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
         </nav>
         <button class="reqstrip" id="reqBtn">${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === 3 ? 'All done today ✓' : `${3 - d} of 3 open today`}</span></span>`; })()}</button>
-        <div class="btns"><button class="btn ghost" id="shipBack">${flightsFrom === 'bridge' ? 'Back to the bridge' : 'Back to the ship'}</button></div>`;
+        <div class="btns"><button class="btn ghost" id="shipBack">${flightsFrom === 'bridge' ? 'Back to the bridge' : flightsFrom === 'office' || inBase() ? 'Back to the base' : 'Back to the ship'}</button></div>`;
     } else if (m === 'setup') {
       const best = bestFor(world);
       const head = playMode === 'hotseat' ? 'Hot-seat' : playMode === 'daily' ? 'Daily challenge' : 'Free flight';
@@ -5088,7 +5111,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (d.sling) steps.push(`The ${what} hangs ${d.sling} m below you and swings when you turn or brake. Don’t drag it into the ground, and set it down slower than ${d.fragile.toFixed(1)} m/s`);
       else if (d.fragile) steps.push(`Fragile: with the crate aboard, touch down slower than ${d.fragile.toFixed(1)} m/s`);
       if (d.timeLimit) steps.push(d.limitText || `Deliver within ${d.timeLimit} seconds, before it goes cold`);
-      if (d.comfort) steps.push('Keep Apogee comfortable: turn as little as you can, stay within 20° of level, and keep under 6 m/s');
+      if (d.comfort) steps.push(`Keep ${d.comfortWho || 'Apogee'} comfortable: turn as little as you can, stay within 20° of level, and keep under 6 m/s`);
       if (d.melt) steps.push('With the ice cream aboard, sunlight melts it. Shadows stop the melting');
       if (d.pads.some(p => p.move)) steps.push('The pad is moving. Match its speed before you touch down: only your speed relative to the deck counts');
       if (d.meteors) steps.push('Meteors are falling. A red marker and a dotted track show where each one will land: don’t be in the way');
@@ -5129,7 +5152,7 @@ details.act > .limits { margin: 0 0 8px; }
             <span class="${r.met[1] ? 'met' : ''}">★ ${Math.floor(r.fuel)} kg fuel left (goal ${d.stars.fuel} kg)</span>
             <span class="${r.met[2] ? 'met' : ''}">★ ${r.t.toFixed(1)} s (goal ${d.stars.time} s)</span>
             ${d.timeLimit ? `<span>${(d.timeLimit - r.t).toFixed(1)} s ${d.spareText || 'to spare before the coffee went cold'}</span>` : ''}
-            ${d.comfort ? `<span>Apogee’s comfort: ${Math.round(r.comfort)}%</span>` : ''}
+            ${d.comfort ? `<span>${d.comfortWho || 'Apogee'}’s comfort: ${Math.round(r.comfort)}%</span>` : ''}
             ${d.melt ? `<span>Ice cream: ${Math.round(r.melt)}% melted</span>` : ''}
             ${d.sling && mission.deliverV != null ? `<span>Set down at ${mission.deliverV.toFixed(2)} m/s</span>` : ''}
             ${mission.grades.length ? `<span>Landings: ${['butter', 'clean', 'bumpy'].map(g => [g, mission.grades.filter(x => x === g).length]).filter(([, n]) => n).map(([g, n]) => `${GRADES[g][0].replace('!', '')}${n > 1 ? ' ×' + n : ''}`).join(' · ')}</span>` : ''}
@@ -5137,6 +5160,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
+          ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
                   : `<p class="limits">No new stars this time. Your best is ${r.prev} of 3.</p>`}
@@ -5295,7 +5319,7 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => { sfx.click(); walkEnter = null; setMode(b.dataset.room); }));
     card.querySelectorAll('[data-mapdeck]').forEach(b => b.addEventListener('click', () => { sfx.click(); hallDeck = +b.dataset.mapdeck; store.set('ds-hallDeck', String(hallDeck)); walkEnter = null; setMode(b.classList.contains('shaft') ? 'lift' : 'hall'); }));
     const sbk = $('shipBack');
-    if (sbk) sbk.addEventListener('click', () => { sfx.click(); if (m === 'flights' && flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); });
+    if (sbk) sbk.addEventListener('click', () => { sfx.click(); if (m === 'flights' && flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (m === 'flights' && flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); });
     const flb = $('flightsBtn');
     if (flb) flb.addEventListener('click', () => { sfx.click(); flightsFrom = null; setMode('flights'); });
     const frb = $('friendsBtn2');
@@ -5402,6 +5426,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     const tryRestore = text => {
       let o; try { o = readSave(text); } catch (e) { pending = null; say('That doesn’t look like a Descent Systems save code. It should start with DSAVE1:'); return; }
+      if (!o.data || o.data['ds-saveVer'] !== '2') { pending = null; say('That save is from before the new story, so it can’t be loaded. Everyone starts fresh with Act 1.'); return; }
       if (pending !== text) { pending = text; say(`Found: ${saveSummary(o)}. This replaces your current progress. Tap restore again to confirm.`); return; }
       try {
         const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
@@ -5513,13 +5538,13 @@ details.act > .limits { margin: 0 0 8px; }
   let missionTab = 'story';
   const tabOf = i => i < MISSIONS.length ? 'story' : ALL[i].kind === 'trip' ? 'trip' : 'side';
   const ACTS = () => [
-    [0, ACT1, 'Act 1 · The Signal', ''],
-    [ACT1, ACT2, 'Act 2 · New Frontiers', 'Finish Last Light to begin Act 2.'],
-    [ACT2, ACT3, 'Act 3 · Beyond Pluto', 'Finish Sunrise to begin Act 3.'],
-    [ACT3, MISSIONS.length, 'Act 4 · The Senders', 'Finish Unit Zero to begin Act 4.']
+    [0, ACT1, 'Act 1 · Grounded', ''],
+    [ACT1, ACT2, 'Act 2 · Lift Off', 'Finish All Systems Go to begin Act 2.'],
+    [ACT2, ACT3, 'Act 3 · Adrift', 'Finish Dead Air to begin Act 3.'],
+    [ACT3, STORY_TOTAL, 'Act 4 · The Slingshot', 'Finish Patchwork to begin Act 4.']
   ];
   // shown under the newest act once it's finished, until the next act arrives
-  const NEXT_TEASE = 'More is on the way. The Senders sent new coordinates, and Gus is already plotting the course.';
+  const NEXT_TEASE = 'Act 2 is on the way. The Second Wind is fuelled, the crew is packed, and Apogee is already asleep in the pilot’s seat.';
   let freshM = new Set();
   const newChip = d => freshM.has(d.id) ? '<i class="mnew">New</i>' : '';
   function storyTile(d, i) {
@@ -5530,6 +5555,16 @@ details.act > .limits { margin: 0 0 8px; }
       <b>${d.name}</b>
       <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
       <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
+    </button>`;
+  }
+  function soonTile(p, i) {
+    const w = WORLDS.find(x => x.id === p[2]);
+    return `<button class="mtile soon" disabled>
+      <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
+      <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
+      <b>${p[1]}</b>
+      <span class="mtype">${w.name} · ${p[3]}</span>
+      <span class="mstars"><span class="mtype">Coming soon</span></span>
     </button>`;
   }
   function sideTile(d, i) {
@@ -5557,17 +5592,17 @@ details.act > .limits { margin: 0 0 8px; }
     if (missionTab === 'story') {
       const acts = ACTS();
       // the act you're on: the first one that's open and not finished
-      let cur = acts.findIndex(([a, b]) => missionOpen(a) && completedCount(a, b) < b - a);
+      let cur = acts.findIndex(([a, b]) => a < MISSIONS.length && missionOpen(a) && completedCount(a, b) < b - a);
       if (cur < 0) cur = acts.length - 1;
       body = acts.map(([a, b, title, lockText], k) => {
-        const open = missionOpen(a), done = completedCount(a, b), n = b - a;
-        const meta = !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
+        const open = a < MISSIONS.length && missionOpen(a), done = completedCount(a, b), n = b - a, soon = a >= MISSIONS.length;
+        const meta = soon ? 'Coming soon' : !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
         return `<details class="act${open ? '' : ' locked'}"${k === cur ? ' open' : ''}>
           <summary><span class="atitle">${title}</span><span class="ameta">${meta}</span></summary>
-          ${open ? '' : `<p class="limits">${lockText}</p>`}
-          <div class="mlist">${MISSIONS.slice(a, b).map((d, j) => storyTile(d, a + j)).join('')}</div>
+          ${open ? '' : `<p class="limits">${soon ? 'Coming in a future update. Here’s what’s planned.' : lockText}</p>`}
+          <div class="mlist">${STORY_PLAN.slice(a, b).map((p, j) => a + j < MISSIONS.length ? storyTile(MISSIONS[a + j], a + j) : soonTile(p, a + j)).join('')}</div>
         </details>`;
-      }).join('') + (completedCount(ACT3) === MISSIONS.length - ACT3 ? `<p class="limits act4">${NEXT_TEASE}</p>` : '');
+      }).join('') + (MISSIONS.length < STORY_TOTAL && completedCount() === MISSIONS.length ? `<p class="limits act4">${NEXT_TEASE}</p>` : '');
     } else {
       const list = missionTab === 'trip' ? trips : sides;
       // the ones you can fly first, locked ones after
@@ -5661,9 +5696,9 @@ details.act > .limits { margin: 0 0 8px; }
   const CAT_SPOTS = [
     { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
   ];
-  const wrenHome = () => (missionStars['last-light'] || 0) > 0;
-  const crumbHome = () => SIDES.some(d => d.kind === 'trip' && missionStars[d.id] > 0);
-  const junoMet = () => crumbHome();
+  const wrenHome = () => storyDone('the-neighbor');
+  const crumbHome = () => true;   // Crumb has always lived in the garage
+  const junoMet = () => storyDone('red-dock');
   // ---- "New" markers: things that unlocked since you last looked ----
   const seenSet = k => { try { return new Set(JSON.parse(store.get(k, '[]'))); } catch (e) { return new Set(); } };
   const markSeen = (k, ids) => {
@@ -5684,10 +5719,10 @@ details.act > .limits { margin: 0 0 8px; }
     return out.filter(k => !seen.has(k));
   }
   const pimMet = () => (missionStars['swing-shift'] || 0) > 0 || (missionStars['ride-along'] || 0) > 0;
-  const zibMet = () => (missionStars['zib-market'] || 0) > 0;
-  const olloMet = () => (missionStars['moth-lights'] || 0) > 0;
+  const zibMet = () => storyDone('market-day');
+  const olloMet = () => storyDone('lantern-light');
   const blipHome = () => (missionStars['blip'] || 0) > 0;
-  const twinsMet = () => (missionStars['vip-pickup'] || 0) > 0;
+  const twinsMet = () => storyDone('the-envoys');
   // Crumb trundles along the front of the floor, stopping to look around now and then
   function crumbRoam(st, t, lo, hi) {
     const r = st.crumb || (st.crumb = { x: lo + Math.random() * (hi - lo), dir: Math.random() < 0.5 ? -1 : 1, pause: t + 1200, last: t, beep: 0 });
@@ -7520,7 +7555,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], (missionStars.mayday || 0) > 0 ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
+  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], storyDone('star-client') ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -7730,7 +7765,7 @@ details.act > .limits { margin: 0 0 8px; }
   function renderDen(keepSpot) {
     if (walkEnter && denUI) denUI.room = 'pad';
     if (walkEnter) roomBack.den = walkEnter === 'hall' ? 'hall' : 'lounge';
-    if (!intro && store.get('ds-nudge', '') === 'missions' && !shipNudged) { shipNudged = true; setTimeout(() => showToast('Dottie: Your first mission is waiting on the Bridge. Out your door and it’s right there.', 5200), 700); }
+    if (!intro && store.get('ds-nudge', '') === 'missions' && !shipNudged) { shipNudged = true; setTimeout(() => showToast(inBase() ? 'Dottie: Your first job is on my desk. Out your door, down the corridor to the OFFICE.' : 'Dottie: Your first mission is waiting on the Bridge. Out your door and it’s right there.', 5200), 700); }
     let fresh = false;
     if (!denUI) {
       denUI = { spot: 'wallL', trying: null, anim: 0, typer: 0, note: '', cat: denPickCat(denLook), catAwake: 0, visitor: null, talking: null, lastLine: '' };
@@ -8141,7 +8176,7 @@ details.act > .limits { margin: 0 0 8px; }
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
     if (hall) {
-      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley', engine: 'engine', bridge: 'bridge' }[from])) || HALL_DOORS.find(x => x[1] === 'LIFT');
+      const d = from === 'projects' ? [167] : HALL_DOORS.find(x => hallDoorTo(x) === ({ lounge: 'lounge', den: 'den', hangar: 'garage', garden: 'garden', quarters: 'quarters', dome: 'dome', galley: 'galley', engine: 'engine', bridge: 'bridge', office: 'office' }[from])) || HALL_DOORS.find(x => x[1] === 'LIFT');
       start = { x: d ? d[0] : 120, y: 72, dir: from === 'projects' ? 3 : 0 };
     } else if (lift) {
       start = { x: 128, y: 132, dir: 3 };
@@ -8239,13 +8274,14 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'engine') { engineThings(L); return L; }
     if (deck.kind === 'lift') { liftThings(L); return L; }
     if (deck.kind === 'hall') {
+      if (hallDeck === 0) baseThings(L);
       if (hallDeck === 2) L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
       if (hallDeck === 2 && projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
       for (const d of HALL_DOORS) { const [x, label, , sealed] = d, to = hallDoorTo(d);
         const w = label === 'BRIDGE' ? 36 : label === 'LIFT' ? 30 : 22;
         L.push({ id: label, rect: [x - w / 2, 14, w, 52], go: () => [x, 70], at: () => ({ x, y: 30 }), act: () => {
           if (!to) { sfx.click(); shipSay(...sealed); return; }
-          sfx.click(); walkEnter = 'hall'; if (to === 'garage') hangarOpenOn = null; setMode(to);
+          sfx.click(); if (to === 'office') { flightsFrom = 'office'; setMode('flights'); return; } walkEnter = 'hall'; if (to === 'garage') hangarOpenOn = null; setMode(to);
         } });
       }
       return L;
@@ -8372,6 +8408,8 @@ details.act > .limits { margin: 0 0 8px; }
   let hallDeck = Math.min(3, Math.max(1, +store.get('ds-hallDeck', '2') || 2));
   // pick the corridor you're walking into: the deck of the room you came from, or the one the lift stopped at
   function setHallDeck(from) {
+    if (inBase()) { hallDeck = 0; HALL_W = DECKS[0].W; HALL_DOORS = DECKS[0].doors; return; }
+    if (hallDeck === 0) hallDeck = 2;
     const room = from === 'hangar' ? 'garage' : from === 'projects' ? 'lounge' : from;
     if (ROOM_DECK[room]) hallDeck = ROOM_DECK[room];
     store.set('ds-hallDeck', String(hallDeck));
@@ -8467,6 +8505,94 @@ details.act > .limits { margin: 0 0 8px; }
     live: { ceil: '#211b2a', wall: '#2c2436', seam: '#342a40', trim: '#4a3a50', lamp: '#ffe9b8', floor: '#3a2a22', tile: '#33251e', door: '#2a2234' },
     eng: { ceil: '#141824', wall: '#1c2130', seam: '#232838', trim: '#2e3446', lamp: '#ffd27a', floor: '#1a1f2c', tile: '#151927', door: '#1b2030' }
   };
+  // ---- The Moon base: where everyone lives until the Second Wind flies ----
+  // One cramped corridor: the garage, Dottie's office, a big window into the hangar, the kitchen and the bunks.
+  // It fills up with everyone's stuff as the crew grows. Liftoff moves everyone aboard.
+  const inBase = () => !storyDone('liftoff');
+  const repairsDone = () => MISSIONS.slice(0, ACT1).filter(d => storyDone(d.id)).length;
+  DECKS[0] = { name: 'Moon Base', short: 'Base', W: 320, style: 'base', doors: [
+    [26, 'GARAGE', 'garage'],
+    [76, 'OFFICE', 'office'],
+    [240, 'KITCHEN', 'galley'],
+    [294, 'BUNKS', 'den']] };
+  DECK_LOOK.base = { ceil: '#2a2622', wall: '#4a443c', seam: '#3e3932', trim: '#6e6454', lamp: '#ffe9b8', floor: '#2e2b27', tile: '#272420', door: '#3a342c' };
+  DECK_SAYS[0] = [
+    ['F', 'Dottie on the intercom. Office is by the garage, the kitchen and the bunks are down the far end. Mind the boxes. Mind ALL the boxes.'],
+    ['G', 'Gus here. If you hear clanking from the hangar, that’s me. If you hear swearing from the hangar, that’s also me.'],
+    ['F', 'This base was built for four people. It is no longer four people. We are managing. Mostly.']
+  ];
+  // what Gus says about the ship through the hangar window, depending on how far the repairs have got
+  function hangarLine() {
+    const n = repairsDone(), next = MISSIONS.slice(0, ACT1).find(d => !storyDone(d.id));
+    if (!next) return ['G', 'Look at her. Every system green. All she needs now is a crew and somewhere to go.'];
+    const part = REPAIRS[next.id][0].toLowerCase();
+    return [['G', `Repairs: ${n} of ${ACT1} done. Next on my list: ${part}. The job for it is “${next.name}”, on Dottie’s desk.`],
+      ['F', `The Second Wind. ${n ? `${n} of ${ACT1} repairs in. ` : ''}Every job you fly puts a little more of her back together.`],
+      ['G', n < 2 ? 'Six years in that hangar. She’s still beautiful. Holey. But beautiful.' : n < 5 ? 'See the new plating? I polished it. Then I polished it again. Then Wren told me to stop.' : 'She’s nearly there. I talk to her at night. She doesn’t talk back yet. Yet.']][Math.floor(Math.random() * 3)];
+  }
+  function baseDraw(c, t, W) {
+    const n = repairsDone();
+    // the hangar window: the Second Wind on her cradle, a little more finished with every repair
+    px(c, 100, 8, 116, 36, '#6e6454'); px(c, 102, 10, 112, 32, n ? '#151a26' : '#0b0d14');
+    if (n) { c.fillStyle = 'rgba(255,233,184,0.10)'; for (const lx of [120, 158, 196]) { c.beginPath(); c.moveTo(lx - 2, 10); c.lineTo(lx + 2, 10); c.lineTo(lx + 12, 40); c.lineTo(lx - 12, 40); c.fill(); px(c, lx - 2, 10, 4, 2, '#ffe9b8'); } }
+    px(c, 102, 36, 112, 6, '#1d1f28'); for (let x = 104; x < 214; x += 8) px(c, x, 36, 4, 1, '#c9a24a');
+    if (n < ACT1) { px(c, 122, 13, 1, 23, '#5a6278'); px(c, 192, 13, 1, 23, '#5a6278'); px(c, 122, 20, 71, 1, '#5a6278'); }
+    // the cradle and the hull
+    px(c, 128, 33, 4, 3, '#3a4256'); px(c, 184, 33, 4, 3, '#3a4256');
+    px(c, 120, 22, 76, 11, n >= 2 ? '#7a84a2' : '#4a5066'); px(c, 124, 20, 68, 2, n >= 2 ? '#8a93ab' : '#5a6078'); px(c, 196, 24, 6, 7, n >= 2 ? '#7a84a2' : '#4a5066'); px(c, 202, 26, 3, 3, '#8a93ab');
+    if (n >= 2) for (let x = 126; x < 192; x += 10) px(c, x, 22, 1, 11, '#6a7390');
+    else for (const [hx, hy] of [[130, 25], [148, 28], [163, 24], [178, 29]]) px(c, hx, hy, 3, 2, '#0b0d14');
+    // cockpit windows: lit once the power is back
+    for (let x = 186; x < 196; x += 3) px(c, x, 24, 2, 2, n >= 1 ? '#ffe9b8' : '#1a1e2a');
+    for (let x = 136; x < 176; x += 6) px(c, x, 26, 2, 2, n >= 1 ? (Math.floor(t / 1700 + x) % 9 ? '#ffd27a' : '#8a6a3a') : '#1a1e2a');
+    // engine bell, life support lights, nav dish, reactor glow
+    if (n >= 3) { px(c, 112, 23, 8, 9, '#8a93ab'); px(c, 108, 21, 4, 13, '#6a7390'); }
+    if (n >= 4) for (const x of [140, 152, 164]) px(c, x, 31, 2, 1, Math.floor(t / 600 + x) % 2 ? '#58e0a0' : '#2a6a4a');
+    if (n >= 5) { px(c, 168, 15, 1, 5, '#8a93ab'); px(c, 164, 13, 9, 2, '#c9cfdc'); px(c, 168, 12, 1, 1, Math.floor(t / 500) % 2 ? '#ff6b5e' : '#7a3a3a'); }
+    if (n >= 6) { const g = 0.5 + 0.5 * Math.sin(t / 400); px(c, 154, 28, 6, 3, `rgba(127,214,255,${0.5 + g * 0.5})`); }
+    if (n >= 8) { const f = reduceMotion ? 0 : Math.floor(t / 90) % 3; px(c, 104 - f, 25, 4 + f, 5, n >= ACT1 ? '#7fd6ff' : '#ffb547'); }
+    if (n >= ACT1) { px(c, 140, 12, 36, 6, '#1a3a2a'); c.font = '700 5px monospace'; c.fillStyle = '#58e0a0'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('READY', 158, 15); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; }
+    doorPlate(c, 158, 2, 'SECOND WIND', true);
+    // a notice board by the office, piling up with bills
+    px(c, 40, 14, 18, 20, '#5a4636'); px(c, 41, 15, 16, 18, '#a47a4c');
+    const bills = Math.max(1, 6 - n);
+    for (let i = 0; i < bills; i++) px(c, 42 + (i % 3) * 5, 16 + Math.floor(i / 3) * 8, 4, 6, i === 0 ? '#ff6b5e' : '#f4f1e8');
+  }
+  // the clutter on the floor: the more crew squeezed in, the more stuff in the corridor
+  function baseFloorThings(c, t, things) {
+    things.push([128, () => { px(c, 112, 116, 14, 10, '#8a6a44'); px(c, 112, 116, 14, 2, '#a47a4c'); px(c, 118, 116, 2, 10, '#6a4a2c'); }]);
+    if (storyDone('scrap-run')) things.push([132, () => { px(c, 196, 124, 18, 6, '#6a7390'); px(c, 198, 120, 14, 4, '#8a93ab'); px(c, 200, 116, 10, 4, '#7a84a2'); }]);
+    if (storyDone('the-neighbor')) things.push([134, () => {   // Wren's armchair, which she brought herself
+      px(c, 150, 118, 18, 12, '#6b4226'); px(c, 148, 114, 4, 16, '#5a3418'); px(c, 166, 114, 4, 16, '#5a3418'); px(c, 150, 110, 18, 8, '#7a4e2e'); px(c, 152, 120, 14, 3, '#ff9ad5');
+    }]);
+    if (storyDone('star-client')) things.push([140, () => {   // Rex's luggage, all eleven bags
+      const bags = [[250, 128, 14, 10, '#ffd27a'], [264, 130, 10, 8, '#c97a3a'], [252, 120, 12, 8, '#f4f1e8'], [266, 123, 8, 7, '#ffd27a'], [256, 113, 9, 7, '#c97a3a']];
+      for (const [x, y, w, h, col] of bags) { px(c, x, y, w, h, col); px(c, x, y, w, 1, 'rgba(255,255,255,0.35)'); px(c, x + w / 2 - 1, y - 2, 3, 2, '#3a2a1a'); }
+    }]);
+    if (storyDone('moonquake')) things.push([126, () => { px(c, 64, 118, 12, 8, '#3a4256'); px(c, 66, 120, 8, 4, `rgba(127,214,255,${0.6 + 0.3 * Math.sin(t / 300)})`); }]);
+  }
+  function baseThings(L) {
+    L.push({ id: 'hangarwin', rect: [100, 8, 116, 36], go: () => [158, 70], at: () => ({ x: 158, y: 26 }), act: () => shipSay(...hangarLine()) });
+    L.push({ id: 'bills', rect: [38, 12, 22, 24], go: () => [49, 70], at: () => ({ x: 49, y: 24 }), act: () => {
+      const n = repairsDone();
+      shipSay('F', n >= ACT1 ? 'The bills board. Empty! Well. Nearly. There’s one from the dentist. That’s personal.' : n >= 5 ? 'The pile’s getting smaller. I’ve started doodling on the red one. It’s a little drawing of a rocket.' : 'Bills. Bills, bills, bills. The red one is from the bank. I’ve named it Gerald.');
+    } });
+  }
+  function baseMapHtml() {
+    const P = crewPlaces(), here = lastRoom === 'hall' ? 'hall' : lastRoom;
+    const rooms = [['garage', 'Garage'], ['office', 'Office'], ['galley', 'Kitchen'], ['den', 'Bunks']];
+    const at = k => Object.keys(P).filter(w => (P[w] === k) || (k === 'hall' && P[w] === 'tag'));
+    const dots = k => at(k).map(w => `<i class="cdot" style="--c:${SPEAKERS[w].color}" title="${esc(SIGN[w])}">${esc(SIGN[w][0])}</i>`).join('');
+    const you = k => k === here ? '<i class="you" title="You">You</i>' : '';
+    return `<div class="shipmap" role="group" aria-label="Moon base map: where you and the crew are">
+      <p class="maphead"><span></span><span>Moon base · who’s where</span><span></span></p>
+      <div class="mdeck d2"><span class="mlabel">Base</span>
+        <div class="mrooms">${rooms.map(([id, name]) => `<span class="mroom${id === here ? ' here' : ''}" role="img" aria-label="${esc(name)}"><b>${name}</b><span class="dots">${you(id)}${dots(id)}</span></span>`).join('')}</div>
+        <span class="mhall" role="img" aria-label="Corridor"><small>Corridor</small><span class="dots">${you('hall')}${dots('hall')}</span></span>
+      </div>
+      <p class="limits">Next door, in the hangar: the Second Wind. ${repairsDone()} of ${ACT1} repairs done.</p>
+    </div>`;
+  }
   function hallDraw(t) {
     const c = deck.c, v = deck.view, D = DECKS[hallDeck], S = D.style, K = DECK_LOOK[S], W = HALL_W;
     camT(c, v);
@@ -8484,7 +8610,7 @@ details.act > .limits { margin: 0 0 8px; }
       for (let x = 30; x < W; x += 60) { px(c, x, 6, 3, 9, '#3a4256'); if (!reduceMotion && Math.floor(t / 900 + x) % 9 === 0) px(c, x + 6, 16 - Math.floor(t / 120) % 5, 2, 2, 'rgba(220,230,240,0.35)'); }
     }
     // windows in the gaps between doors: a long view on deck one, portholes elsewhere
-    const busy = x => D.doors.some(d => Math.abs(d[0] - x) < (d[1] === 'BRIDGE' ? 32 : d[1] === 'LIFT' ? 28 : 22)) || (hallDeck === 2 && x > 144 && x < 190);
+    const busy = x => D.doors.some(d => Math.abs(d[0] - x) < (d[1] === 'BRIDGE' ? 32 : d[1] === 'LIFT' ? 28 : 22)) || (hallDeck === 2 && x > 144 && x < 190) || (S === 'base' && x > 92 && x < 222);
     if (S === 'cmd') {
       for (let x = 0; x < W; x += 4) {
         if (busy(x) || busy(x + 4)) continue;
@@ -8502,6 +8628,7 @@ details.act > .limits { margin: 0 0 8px; }
         wx += 25;   // keep them spaced out
       }
     }
+    if (S === 'base') baseDraw(c, t, W);
     if (hallDeck === 2) {
       // the project board over the bench, and a plant by the lift
       px(c, 152, 10, 30, 26, '#5a4636'); px(c, 153, 11, 28, 24, '#a47a4c');
@@ -8549,6 +8676,10 @@ details.act > .limits { margin: 0 0 8px; }
       for (let y = 64; y < SHIP_H; y += 6) px(c, 0, y, W, 1, K.tile);
       for (let x = 0; x < W; x += 6) px(c, x, 60, 1, SHIP_H - 60, K.tile);
       for (let x = 0; x < W; x += 12) { px(c, x, 106, 6, 4, '#c9a24a'); px(c, x + 6, 106, 6, 4, '#1a1f2c'); }
+    } else if (S === 'base') {   // rubber matting with a painted walkway
+      for (let y = 70; y < SHIP_H; y += 10) px(c, 0, y, W, 1, K.tile);
+      for (let x = 0; x < W; x += 10) px(c, x, 60, 1, SHIP_H - 60, K.tile);
+      px(c, 0, 104, W, 2, '#c9a24a'); px(c, 0, 114, W, 2, '#c9a24a');
     } else {   // polished tiles and a cool guide light
       for (let y = 72; y < SHIP_H; y += 14) px(c, 0, y, W, 1, K.tile);
       for (let y = 60, k = 0; y < SHIP_H; y += 14, k++) for (let x = (k % 2) * 20; x < W; x += 40) px(c, x, y, 1, 14, K.tile);
@@ -8563,6 +8694,7 @@ details.act > .limits { margin: 0 0 8px; }
       c.strokeStyle = '#c9a24a'; c.lineWidth = 1; c.beginPath(); c.ellipse(285, 140, 36, 7, 0, 0, Math.PI * 2); c.stroke();
     }
     const things = shipFloorThings(c, t), me = deck.me;
+    if (S === 'base') baseFloorThings(c, t, things);
     if (sofa) things.push([138, () => {
       px(c, 260, 118, 50, 10, '#3d6b63'); px(c, 260, 118, 50, 2, '#4f8a80'); px(c, 260, 128, 50, 9, '#2f5a54'); px(c, 256, 120, 6, 18, '#2f5a54'); px(c, 308, 120, 6, 18, '#2f5a54');
       px(c, 266, 129, 18, 3, '#4f8a80'); px(c, 286, 129, 18, 3, '#4f8a80'); px(c, 262, 137, 3, 3, '#1f3a36'); px(c, 305, 137, 3, 3, '#1f3a36');
@@ -8662,7 +8794,15 @@ details.act > .limits { margin: 0 0 8px; }
   const SLOT_MS = 15 * 60 * 1000;
   let crewCache = null;
   const srand = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10007) / 10007; };
+  // in the Moon base there's only the corridor and the kitchen to hang out in
   function crewPlaces() {
+    const P = crewPlacesShip();
+    if (intro || !inBase()) return P;
+    const Q = {};
+    for (const w of Object.keys(P)) { const loc = P[w]; Q[w] = loc === 'tag' || loc === 'hall' || loc === 'galley' ? loc : srand(w + 'b' + shipDay) < 0.6 ? 'hall' : 'galley'; }
+    return Q;
+  }
+  function crewPlacesShip() {
     const met = ROM_WHO.filter(w => romMet[w]());
     if (intro) { const P = {}; met.forEach(w => { P[w] = CREW_HOME[w]; }); return P; }
     const slot = Math.floor(Date.now() / SLOT_MS) + (window.__crewShift || 0) + shipDay * 7919, key = slot + met.join('');
@@ -8820,6 +8960,7 @@ details.act > .limits { margin: 0 0 8px; }
     const P = crewPlaces(), key = crewCache ? crewCache.key : '';
     if (P[w] !== 'hall') return 0;
     if (liftMoves[w] && liftMoves[w].key === key) return liftMoves[w].deck;
+    if (inBase()) return 0;
     const r = srand(w + 'deck' + key);
     return r < 0.5 ? 2 : r < 0.75 ? 1 : 3;
   }
@@ -8889,6 +9030,7 @@ details.act > .limits { margin: 0 0 8px; }
     3: [['garage', 'Hangar'], ['airlock', 'Airlock'], ['cargo', 'Cargo'], ['lift', 'Lift'], ['engine', 'Engine']]
   };
   function shipMapHtml() {
+    if (inBase()) return baseMapHtml();
     const P = crewPlaces(), here = lastRoom === 'hall' ? 'hall' + hallDeck : lastRoom === 'bedroom' ? 'quarters' : lastRoom;
     const where = {};   // map cell -> crew in it
     const put = (k, w) => (where[k] = where[k] || []).push(w);
@@ -10985,8 +11127,8 @@ details.act > .limits { margin: 0 0 8px; }
   const GUIDE = [
     { id: 'sleep', name: 'Sleep to end the day', where: 'Your Pad · 🌙 Sleep', what: 'A new ship day: chat and gift again, the crew move around, the garden can be watered.', open: () => true, tried: () => shipDay > 1, hi: ['F', 'When you’re done for the day, press 🌙 Sleep in your Pad. Everyone resets for a fresh day of chats and gifts.'] },
     { id: 'friends', name: 'Chat and give gifts', where: 'Anyone you meet · Menu → Crew ♥', what: 'One chat and one gift per person per day grows your hearts.', open: () => true, tried: () => Object.keys(bond.gift || {}).length > 0, hi: ['G', 'Psst! Tap anyone on the ship to chat, and bring them a gift from Menu → Crew ♥. Hearts unlock hangouts and their rooms.'] },
-    { id: 'garden', name: 'Grow crops', where: 'Deck 2 · GARDEN door', what: 'Plant seeds; they grow with every landing. Harvest them as gifts or cooking ingredients.', open: () => true, tried: () => store.get('ds-gardenSeen', '') === '1', hi: ['G', 'The garden’s open! Plant a few seeds, land a few times, and you’ll have homegrown gifts.'] },
-    { id: 'projects', name: 'Fund ship repairs', where: 'Deck 2 · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => true, tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
+    { id: 'garden', name: 'Grow crops', where: 'Deck 2 · GARDEN door', what: 'Plant seeds; they grow with every landing. Harvest them as gifts or cooking ingredients.', open: () => !inBase(), tried: () => store.get('ds-gardenSeen', '') === '1', hi: ['G', 'The garden’s open! Plant a few seeds, land a few times, and you’ll have homegrown gifts.'] },
+    { id: 'projects', name: 'Fund ship repairs', where: 'Deck 2 · the board over the bench', what: 'Chip in credits to fix the lights, add sprinklers, a jukebox, and reopen the dome.', open: () => !inBase(), tried: () => Object.keys(projPaid).length > 0, hi: ['G', 'I put a project board up in the hallway. Chip in a few credits and we’ll fix this ship up together. The dome’s the big one!'] },
     { id: 'wardrobe', name: 'Dress your pilot', where: 'Menu → Journal → Wardrobe', what: 'Outfits and hats that show everywhere, from the hallway to your license.', open: () => stats.landings >= 3, tried: () => wardOwned.size > 0, hi: ['F', 'You’ve been wearing the same flight suit for days. The wardrobe is in Menu → Journal. Treat yourself.'] },
     { id: 'galley', name: 'Cook meals', where: 'Deck 2 · GALLEY door', what: 'Two crops make a meal. Meals are the best gifts on the ship.', open: () => Object.keys(garden.basket).length > 0 || store.get('ds-galleySeen', '') === '1', tried: () => store.get('ds-galleySeen', '') === '1', hi: ['G', 'You’ve got crops in your basket! Take them to the galley at the end of the hallway and cook something. Meals are the best gifts there are.'] },
     { id: 'engine', name: 'Fix things in the engine room', where: 'Deck 3 · ENGINE door (take the lift down)', what: 'Three pipe-puzzle repair jobs a day from Gus, paid in credits, with a bonus for tidy work.', open: () => true, tried: () => repairsTotal() > 0, hi: ['G', 'The engine room is down on deck three. Take the lift! I always have paid repair jobs for you.'] },
@@ -11456,11 +11598,11 @@ details.act > .limits { margin: 0 0 8px; }
   let intro = null;          // { step: 'cards' | 'license' | 'flight' | 'lounge' | 'den', i, tour, stamped, anim }
   const isBrandNew = () => !store.get('ds-intro', '') && !store.get('ds-tut', '') && stats.landings === 0 && credits === 0 && !Object.keys(missionStars || {}).length;
   const INTRO_CARDS = [
-    ['F', 'radio', 'Is this thing on? Okay. Hi! Welcome to Descent Systems. I’m Dottie, flight director. Also accounting. Also the coffee.'],
-    ['F', 'closet', 'We’re a small outfit. We started in a supply closet. Technically, the supply closet is still our head office.'],
-    ['G', 'biscuit', 'And this is Biscuit! Our lander. Our only lander. I built most of her myself. Please, please don’t scratch her.'],
-    ['F', 'bake', 'We paid for Biscuit with a bake sale. A very big bake sale. Now we need a pilot who can land her anywhere in the solar system.'],
-    ['A', 'cat', 'Mrrp. (This is Apogee, the station cat. Technically, she outranks you.)'],
+    ['F', 'radio', 'Is this thing on? Okay. Hi! Welcome to Descent Systems. I’m Dottie: flight director, accounting, and the coffee.'],
+    ['F', 'closet', 'We run out of a little base on the Moon. It’s cozy. That’s the word I’m going with. Cozy.'],
+    ['G', 'biscuit', 'And this is Biscuit! Our lander. Our only lander. Next door in the hangar is our mothership, the Second Wind. She hasn’t flown in six years. Yet!'],
+    ['F', 'bake', 'Fixing her costs money. We owe the bank more than any bake sale could cover. So we need a pilot who’ll fly every odd job going.'],
+    ['A', 'cat', 'Mrrp. (This is Apogee, the base cat. Technically, she outranks you.)'],
     ['F', 'paper', 'So. You want the job? Wonderful. Paperwork first.']
   ];
   function startIntro() {
@@ -11778,11 +11920,11 @@ details.act > .limits { margin: 0 0 8px; }
         ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
         <button class="btn ghost" id="phReq">Open crew requests</button></div>
       <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
-        <p class="where">📍 The Garden · Deck 2</p></div>
+        <p class="where">📍 ${inBase() ? 'The Garden on the Second Wind · opens after liftoff' : 'The Garden · Deck 2'}</p></div>
       <div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><p class="where">📍 Project board · Deck 2 corridor</p></div>
       ${crumbHome() ? `<div class="tcard"><span class="eyebrow">Crumb</span><p>${salvageReady() ? 'Crumb is back from his salvage run and bursting to show you what he found.' : crumbOut() ? `Out salvaging on ${(WORLDS.find(w => w.id === salvage().world) || {}).name}. He’ll be back after your next flight.` : 'Home on his dock. Send him salvaging from the hangar.'} Mining runs left today: ${minePermits()} of ${MINE_PERMITS}.</p><p class="where">📍 The Hangar · Deck 3</p></div>` : ''}
       <div class="tcard"><span class="eyebrow">Flights</span><p>${newMissions().length ? `${newMissions().length} new ${newMissions().length === 1 ? 'mission' : 'missions'} waiting.` : 'No new missions right now.'} Today’s daily challenge is on ${dailyWorld().name}, new in ${untilReset()}.</p>
-        <p class="where">📍 Nav console on the Bridge · Deck 1</p></div>
+        <p class="where">📍 ${inBase() ? 'Dottie’s desk in the OFFICE · Moon base' : 'Nav console on the Bridge · Deck 1'}</p></div>
     </div>`;
   }
   const inboxUnread = () => phoneLog.filter(p => p.at > phoneSeen).length;
@@ -11939,7 +12081,7 @@ details.act > .limits { margin: 0 0 8px; }
   // requests all fill them. Friendship tops out at 8 hearts; dating someone opens the last two.
   // Romance is off by default (Settings). Pim, Crumb and Apogee are friends only and never appear here.
   const HEART = 100, ROM_WHO = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y'];
-  const romMet = { F: () => true, G: () => true, W: () => wrenHome(), R: () => (missionStars.mayday || 0) > 0, J: () => junoMet(),
+  const romMet = { F: () => true, G: () => true, W: () => wrenHome(), R: () => storyDone('star-client'), J: () => junoMet(),
     Z: () => zibMet(), O: () => olloMet(), V: () => twinsMet(), Y: () => twinsMet() };
   let romanceOn = store.get('ds-romance', '0') === '1';
   let hearts = (() => { try { return JSON.parse(store.get('ds-hearts', '{}')) || {}; } catch (e) { return {}; } })();
@@ -13050,7 +13192,7 @@ details.act > .limits { margin: 0 0 8px; }
     lift: 'I love the lift. Do you think it gets tired? I said thank you to it. Just in case.'
   };
   const KIT_HELLO = 'Oh! Hi! You’re the pilot! I’m Kit, I’m the new cadet, I started this week too! Dottie said I should learn by watching you. So for the next few days I’m going to follow you around. Quietly. Mostly quietly. Is that okay? Great!';
-  const BAO_HELLO = 'Aha, a new face! I’m Bao. I run the galley now, which means I run the ship, but don’t tell Dottie. Sit, eat, tell me what you like. Come back when we’re friends and I’ll teach you my recipes.';
+  const BAO_HELLO = 'Aha, a new face! I’m Bao. I ran the diner by the hangar until Dottie said this kitchen was free. Now I run the kitchen, which means I run the base, but don’t tell Dottie. Sit, eat, tell me what you like. Come back when we’re friends and I’ll teach you my recipes.';
   const KIT_BYE = 'Dottie says I’ve watched you enough and it’s time to study on my own. I’ll be on the Bridge, mostly. Come visit! Thanks for letting me tag along, pilot. Best three days ever.';
   // the room-chat lines in the break room, the Pad and around the ship
   function castLines(who) {
@@ -13086,7 +13228,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DECK_KINDS = ['hall', 'bridge', 'garden', 'galley', 'engine', 'dome', 'quarters', 'lift'];
   function castHello(m) {
     if (intro || store.get('ds-intro', '') !== 'done') return;
-    if (!kitMet() && DECK_KINDS.includes(m)) {
+    if (!kitMet() && !inBase() && DECK_KINDS.includes(m)) {
       store.set('ds-kitMet', String(shipDay));
       setTimeout(() => {
         if (mode !== m || !deck) return;
@@ -13112,12 +13254,10 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Recruits: crew who apply as you progress, audition with a side mission, then move in ----
   // Doc Marisol (D), Tamsin the botanist (T) and Dash the courier (X). Friends only, like Kit and Bao.
   const RECRUITS = [
-    { who: 'D', audition: 'house-call', role: 'Medic', blurb: 'Fifteen years as a rescue medic on the Mars ambulance runs. Wants somewhere quieter. Has clearly not met Gus.' },
     { who: 'T', audition: 'seedling-run', role: 'Botanist', blurb: 'Grew a forest on a comet once. Says the garden “has potential” and “is crying out for love”.' },
-    { who: 'X', audition: 'express-lane', role: 'Courier', blurb: 'The fastest courier in the inner system. Has never been late. Has been early by up to a day.' }
   ];
   FRIEND_ONLY.push('D', 'T', 'X');
-  const hired = w => { const r = RECRUITS.find(x => x.who === w); return !!r && (missionStars[r.audition] || 0) > 0; };
+  const hired = w => { if (w === 'D') return storyDone('dead-air'); if (w === 'X') return storyDone('left-behind'); const r = RECRUITS.find(x => x.who === w); return !!r && (missionStars[r.audition] || 0) > 0; };
   Object.assign(FACES, {
     // Doc Marisol Ibarra: soft dark waves to the shoulder, side-swept bangs, thin gold glasses, teal scrubs and a stethoscope
     D: { bg: '#163038', skin: '#c68a5e', shade: '#a8704a', mouth: '#7a3a30', brow: '#3a2218',
@@ -13390,7 +13530,7 @@ details.act > .limits { margin: 0 0 8px; }
     else { tail(dir === 1 ? 11 : 3, 4, 13); }
   }
   // ---- Two more aliens you can date: Nerri from under Europa's ice, and Brix, a stone poet from Vesta ----
-  const nerriMet = () => (missionStars['bubble-trouble'] || 0) > 0, brixMet = () => (missionStars['rock-steady'] || 0) > 0;
+  const nerriMet = () => storyDone('under-the-ice'), brixMet = () => storyDone('stone-patient');
   Object.assign(FACES, {
     // Nerri: teal skin with glowing freckles, fin ears, long sea-blue hair, inside a water-filled helmet
     N: { bg: '#0e2a3a', skin: '#6cc4bc', shade: '#4a9a94', mouth: '#1e4a5a', brow: '#1e5a6a',
@@ -13418,6 +13558,28 @@ details.act > .limits { margin: 0 0 8px; }
     N: { skin: '#93e2d6', hair: '#2f78a8', style: 'bun', top: '#2a4a7a', pants: '#2a4a7a', shoes: '#1e3a5a', trim: '#bfefff', scarf: '#ff9ad5', acc: 'helmet' },
     S: { skin: '#6a8ad0', hair: null, style: 'none', top: '#3f6a3a', pants: '#4a3e30', shoes: '#3a3228', trim: '#e8b94a' }
   });
+  // ---- Apex Landings: Kestrel, their ace pilot, and Sable Voss, who runs the company ----
+  Object.assign(FACES, {
+    // Kestrel: a silver-white undercut swept to one side, a sharp look, a navy Apex flight jacket with a silver chevron
+    Q: { bg: '#18203a', skin: '#e8c4a8', shade: '#c9a288', mouth: '#7a3a3a', brow: '#b8c0cc',
+      back(c) { const h = '#d7dde6'; px(c, 9, 4, 14, 5, h); px(c, 8, 6, 2, 6, h); px(c, 22, 6, 2, 3, '#8a93ab'); },
+      body(c) { px(c, 4, 26, 24, 6, '#1e2a4c'); px(c, 6, 25, 20, 1, '#1e2a4c'); px(c, 12, 25, 8, 2, '#c9cfdc'); px(c, 14, 28, 2, 1, '#c9d4e8'); px(c, 13, 29, 1, 1, '#c9d4e8'); px(c, 16, 29, 1, 1, '#c9d4e8'); px(c, 22, 27, 3, 2, '#c9d4e8'); },
+      front(c) { const h = '#d7dde6'; px(c, 9, 8, 10, 2, h); px(c, 9, 10, 4, 2, h); px(c, 9, 12, 2, 1, h); },
+      extra(c) { px(c, 11, 14, 4, 1, '#3a3040'); px(c, 18, 14, 4, 1, '#3a3040'); px(c, 23, 15, 1, 2, '#c9cfdc'); } },
+    // Sable Voss: a glossy black bob, red lipstick, a white suit with a red pin
+    U: { bg: '#2a1018', skin: '#f0d2bc', shade: '#d4b09a', mouth: '#c8283c', brow: '#141018',
+      back(c) { const h = '#141018'; px(c, 7, 4, 18, 15, h); px(c, 6, 8, 2, 12, h); px(c, 24, 8, 2, 12, h); px(c, 8, 18, 3, 3, h); px(c, 21, 18, 3, 3, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#f4f1e8'); px(c, 6, 25, 20, 1, '#f4f1e8'); px(c, 13, 25, 6, 4, '#2a2030'); px(c, 15, 25, 2, 1, '#f0d2bc'); px(c, 21, 27, 2, 2, '#ff3b4e'); },
+      front(c) { const h = '#141018'; px(c, 8, 7, 16, 3, h); px(c, 8, 10, 3, 4, h); px(c, 21, 10, 3, 4, h); },
+      extra(c) { px(c, 11, 14, 3, 1, '#141018'); px(c, 18, 14, 3, 1, '#141018'); px(c, 7, 17, 1, 2, '#ffd27a'); px(c, 24, 17, 1, 2, '#ffd27a'); } }
+  });
+  Object.assign(LOOKS, {
+    Q: { skin: '#e8c4a8', hair: '#d7dde6', style: 'short', top: '#1e2a4c', pants: '#1e2a4c', shoes: '#c9cfdc' },
+    U: { skin: '#f0d2bc', hair: '#141018', style: 'bun', top: '#f4f1e8', pants: '#f4f1e8', shoes: '#ff3b4e' }
+  });
+  Object.assign(SIGN, { Q: 'Kestrel', U: 'Sable' });
+  Object.assign(DEFAULT_MOOD, { Q: 'neutral', U: 'neutral' });
+  STORY_BG.Q = 'hangar'; STORY_BG.U = 'office';
   Object.assign(SPEAKERS, { N: { name: 'Nerri · Europan', color: '#6cc4bc' }, S: { name: 'Brix · Stone Poet', color: '#d9b45a' } });
   Object.assign(SIGN, { N: 'Nerri', S: 'Brix' });
   Object.assign(DEFAULT_MOOD, { N: 'happy', S: 'neutral' });
@@ -15457,7 +15619,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'hangar') { if (e.code === 'Escape') { trying = null; hangarLander = null; setMode('garage'); } return; }
     if (mode === 'missions' && missionsFrom === 'flights') { if (e.code === 'Escape') setMode('flights'); return; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
-    if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
+    if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
     if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
