@@ -1686,7 +1686,47 @@ details.act > .limits { margin: 0 0 8px; }
         { name: 'Top up at the resort DEPOT', say: 'ENGINEERING: There’s a fuel cell at the depot. Take everything. They’re not coming back for it.', goals: [{ type: 'visit', pad: 'DEPOT', refuel: 120, text: 'Land on DEPOT to refuel' }] },
         { name: 'Pick up the medic at MEDIC', say: 'FLIGHT: Someone’s still down there, waving. Go get them.', goals: [{ type: 'pickup', pad: 'MEDIC', what: 'crew' }] },
         { name: 'Climb back up to the ship', goals: [{ type: 'exit' }] }],
-      pads: [{ id: 'COUPLER', x1: 60, x2: 76, y: 34 }, { id: 'DEPOT', x1: 128, x2: 144, y: 26 }, { id: 'MEDIC', x1: 200, x2: 222, y: 40 }] }
+      pads: [{ id: 'COUPLER', x1: 60, x2: 76, y: 34 }, { id: 'DEPOT', x1: 128, x2: 144, y: 26 }, { id: 'MEDIC', x1: 200, x2: 222, y: 40 }] },
+    // ---- Act 3 · Adrift: drifting outward, picking up crew, and Gus's confession ----
+    { id: 'catch', name: 'Catch!', world: 'mars', kind: 'land', label: 'Catch', noSurprise: true, windMul: 0.5, fuel: 320, credits: 520,
+      pods: { n: 10, every: 3, fall: 3.4 },
+      brief: 'Juno’s dock is firing supply pods into the ship’s path. Catch six on their way down before they hit the dust, then climb back out the top to the ship.',
+      spawn: { x: 120, y: 70, vx: 0 }, stars: { fuel: 150, time: 45 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      legs: [
+        { name: 'Catch 6 supply pods', goals: [{ type: 'catch', need: 6 }] },
+        { name: 'Climb back up to the ship', goals: [{ type: 'exit' }] }],
+      pads: [] },
+    { id: 'market-day', name: 'Market Day', world: 'ganymede', kind: 'cargo', label: 'Multi-stop', cargoName: 'ice', fuel: 440, credits: 560, mass: 0.85,
+      brief: 'Zib trades engine parts for help. Load the ice at PICKUP, drop a block at the LANTERN stall and the FISH stall, then bring the rest to Zib at DROP. Storms roll through.',
+      spawn: { x: 180, y: 100, vx: 0 }, stars: { fuel: 110, time: 100 },
+      ground: [[0, 36], [14, 34], [40, 36], [58, 46], [76, 58], [96, 52], [116, 62], [136, 56], [156, 48], [176, 40], [196, 36], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Load the ice at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop a block at the LANTERN stall', say: 'Zib: The lantern stall gets one block! Zib promised!', goals: [{ type: 'drop', pad: 'LANTERN', keep: true, busy: 'Unloading a block', done: 'Lantern stall: thank you!' }] },
+        { name: 'Drop a block at the FISH stall', say: 'Zib: Now the fish stall! Fish love ice! Well. Dead fish do.', goals: [{ type: 'drop', pad: 'FISH', keep: true, busy: 'Unloading a block', done: 'Fish stall: thank you!' }] },
+        { name: 'Bring the rest to Zib at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 198, x2: 214, y: 34 }, { id: 'DROP', x1: 16, x2: 36, y: 32 }, { id: 'FISH', x1: 92, x2: 108, y: 50 }, { id: 'LANTERN', x1: 148, x2: 164, y: 46 }] },
+    { id: 'under-the-ice', name: 'Under the Ice', world: 'europa', kind: 'rescue', mass: 0.85, fuel: 240, credits: 580,
+      brief: 'Nerri’s water tank cracked while she was exploring a geyser field. Land at CREW, take her aboard, then climb out the top. The geysers throw you upward when they blow, so watch for the warning.',
+      spawn: { x: 30, y: 110, vx: 0 }, stars: { fuel: 100, time: 40 },
+      vents: [[36, 6, 1], [84, 5.5, 3.2], [146, 6.5, 0.5]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      pads: [{ id: 'CREW', x1: 106, x2: 122, y: 40 }] },
+    { id: 'left-behind', name: 'Left Behind', world: 'ganymede', kind: 'rescue', label: 'SOS', fuel: 220, credits: 600, mass: 0.85,
+      brief: 'An Apex pilot is stranded on Ganymede with a fried lander, and Apex isn’t coming. Land at CREW, take her aboard, and climb out. Storms roll through every few seconds.',
+      spawn: { x: 30, y: 110, vx: 1.5 }, stars: { fuel: 50, time: 40 },
+      ground: [[0, 40], [24, 46], [46, 40], [70, 50], [94, 44], [116, 36], [136, 36], [156, 48], [180, 56], [204, 48], [240, 52]],
+      pads: [{ id: 'CREW', x1: 118, x2: 134, y: 34 }] },
+    { id: 'the-overdrive', name: 'The Overdrive', world: 'io', kind: 'land', label: 'Multi-stop', fuel: 320, credits: 620,
+      brief: 'An old mining rig on Io has engine parts. Land at SALVAGE between the two lava vents, then bring Biscuit down at LZ. The lava reaches about 40 meters up, so fly high or wait for the gap.',
+      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 100, time: 70 },
+      vents: [[74, 7, 0], [150, 6.5, 3]],
+      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Salvage parts between the vents', goals: [{ type: 'visit', pad: 'SALVAGE', text: 'Land at SALVAGE between the vents', done: 'Parts aboard. Gus is very quiet.' }] },
+        { name: 'Land at LZ', say: 'ENGINEERING: Got them. Bring her down at LZ. …Thanks.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'SALVAGE', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -2983,7 +3023,9 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Your Pad is on deck two. A real room, with a real door. Welcome home, pilot.']
   ], { label: 'Act 2', title: 'Moving Day' }];
   const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
-    : 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.';
+    : MISSIONS.length === ACT2 ? 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.'
+    : MISSIONS.length < ACT3 ? 'The rest of Act 3 is on the way. Gus has been sleeping in the engine room, and nobody knows what to say yet.'
+    : 'Act 4 is on the way.';
   // ---- Hard calls: moments in the story where a crewmate can be lost for good ----
   // Your choice and how close you are to them decide it. Lost crew are missing, never shown dying; their bunk stays empty.
   const callOf = id => store.get('ds-call-' + id, '');
@@ -3085,6 +3127,71 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'We’ll come back. I promise.'],
     ['A', 'Mrrp.']
   ], { label: 'Act 2 ending', title: 'Drifting Past Home' }] });
+  // ---- Act 3, first half: the long drift and Gus's confession ----
+  Object.assign(STORY, {
+    'catch': { chapter: [19, 'Catch!'],
+      intro: [
+        ['F', 'We’re drifting past Mars. We can see Juno’s dock from here.'],
+        ['J', 'And my dock can see us. I radioed ahead. They’re firing supply pods into our path: food, water, spare parts.'],
+        ['G', 'They come down on parachutes. Fly up and grab them before they hit the dust. Six should do it. Then climb back out the top to us.']],
+      react: [['J', 'Six pods! My dock crew says good luck. They also say I owe them lunch.'],
+        ['F', 'Food, water, and a box of Gus’s favorite bolts. We’ll be okay for a while.'],
+        ['J', 'Every single pod. Show-off. I’m very proud.']] },
+    'market-day': { chapter: [20, 'Market Day'],
+      intro: [
+        ['F', 'Jupiter. We’ve drifted all the way to Jupiter. And there’s a floating market on Ganymede right below us.'],
+        ['Z', 'Hello hello! Zib runs the market! Zib has engine parts! Big ones! Shiny ones!'],
+        ['G', 'We can’t pay for engine parts, Zib.'],
+        ['Z', 'Then you help Zib! Load the ice at PICKUP, drop a block at the LANTERN stall and the FISH stall, then bring the rest to Zib at DROP. Help for parts! Fair is fair!']],
+      react: [['Z', 'All delivered! Here are the parts. And here is Zib. Zib is coming too. Zib likes your ship!'],
+        ['F', 'Did Zib just move in?'],
+        ['Z', 'Perfect delivery! Zib has never seen such flying! Zib is staying forever!']] },
+    'under-the-ice': { chapter: [21, 'Under the Ice'],
+      intro: [
+        ['F', 'Distress call from Europa. Someone’s trapped in a geyser field.'],
+        ['N', 'H-hello? I’m Nerri. I went exploring, and my water tank cracked. I’m drying out. Please hurry!'],
+        ['G', 'Land at CREW, take her aboard, then climb straight out the top. Watch the geysers: they throw you upward when they blow.']],
+      react: [['N', 'You came! You actually came! Can I stay? I won’t take up much room. I’ll live in the bath.'],
+        ['D', 'Doc here. Mild dehydration. Prescription: one bathtub, full. I’ll set it up.'],
+        ['N', 'That was the best flying I’ve ever seen. I’m staying! Somebody fill the tub!']] },
+    'left-behind': { chapter: [22, 'Left Behind'],
+      intro: [
+        ['F', 'An SOS on Ganymede. It’s an Apex beacon.'],
+        ['W', 'Apex can rescue their own.'],
+        ['X', 'They’re not coming. I’m Dash, Apex courier. My lander’s fried, and Apex told me to wait. That was three days ago.'],
+        ['F', 'Nobody gets left behind. Not even Apex. Land at CREW, take her aboard, and climb out. Storms roll through every few seconds.']],
+      react: [['X', 'Thanks for coming. Apex wasn’t going to.'],
+        ['X', 'Smooth. You’re better than any Apex pilot I’ve flown with.'],
+        ['X', 'Perfect. Okay. I owe you more than thanks. There’s something you need to hear.']] },
+    'the-overdrive': { chapter: [23, 'The Overdrive'],
+      intro: [
+        ['G', 'There’s an old mining rig on Io with engine parts. It sits between two lava vents. Land at SALVAGE between eruptions, then bring Biscuit down at LZ.'],
+        ['W', 'Gus has been quiet for a week. Gus is never quiet.'],
+        ['G', 'I’m fine. I’m just… concentrating. Go. Watch the vents.']],
+      react: [['G', 'Parts. Good. That’s… good.'],
+        ['G', 'Nice flying. Really nice. I…'],
+        ['G', 'Perfect. You’re all so… I need to tell everyone something.']] }
+  });
+  EPILOGUES['left-behind'] = [[
+    ['X', 'That Mercury job. The one with no name on it. It came from Apex, through a fake company.'],
+    ['F', 'What?'],
+    ['X', 'Sable knew the solar storm was coming. She wanted the Second Wind broken and drifting, so you’d have no choice but to sell.'],
+    ['W', 'Of course she did.'],
+    ['R', 'That’s villain behavior. I’ve played villains. That is exactly what they do.'],
+    ['F', 'Dash. Would you say that out loud? To other people?'],
+    ['X', 'Get me home, and I’ll say it to anyone who’ll listen.'],
+    ['G', 'Dottie, I… never mind. It’s nothing.']
+  ], { label: 'Act 3', title: 'They Knew' }];
+  EPILOGUES['the-overdrive'] = [[
+    ['G', 'Everyone. Can you all come to the engine room? I need to say something.'],
+    ['G', 'The storm didn’t kill the engine. Not by itself.'],
+    ['G', 'Before Mercury, I bolted on a booster. The Overdrive. It was experimental. I didn’t tell anyone, because I knew you’d say no.'],
+    ['G', 'When the storm hit, it overloaded and burned out the whole drive. It’s my fault we’re drifting. All of it.'],
+    ['W', 'Gus…'],
+    ['G', 'I just wanted us to win one. Just once.'],
+    ['F', 'Everybody, give him some room. We’ll talk tomorrow.'],
+    ['A', 'Mrrp. (Apogee sits on Gus’s foot and does not move.)']
+  ], { label: 'Act 3', title: 'The Confession' }];
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3117,6 +3224,43 @@ details.act > .limits { margin: 0 0 8px; }
     return li == null ? '' : `Stop ${li + 1}/${d.legs.length} · `;
   }
   // a goal was just finished (the stage has already moved on)
+  // ---- Supply pods on parachutes: a 'catch' goal is met by grabbing them in mid-air before they hit the ground ----
+  function podsTick(dt) {
+    const d = mission.def, cfg = d.pods, L = lander;
+    const P = mission.pods || (mission.pods = { list: [], next: 1.2, spawned: 0, caught: 0, lost: 0 });
+    if (P.spawned < cfg.n && (P.next -= dt) <= 0) {
+      P.next = cfg.every; P.spawned++;
+      P.list.push({ x: 24 + Math.random() * (W - 48), y: H - 4, vx: (Math.random() - 0.5) * 1.4, ph: Math.random() * 6, done: false });
+    }
+    for (const p of P.list) {
+      if (p.done) continue;
+      p.y -= cfg.fall * dt; p.x = Math.max(6, Math.min(W - 6, p.x + (p.vx + Math.sin(flightT * 1.3 + p.ph) * 0.7) * dt));
+      if (!L.grounded && Math.hypot(L.x - p.x, L.y + 1 - p.y) < 4.8) {
+        p.done = true; P.caught++; mission.bonus += 25;
+        L.fuel = Math.min(L.fuelMax, L.fuel + 12 * tankMul() * ship().tank);
+        popText(`Pod ${P.caught}!`, '#ffd27a', p.x, p.y + 2, true); sfx.coin(); spawnSpark(p.x, p.y, '#ffd27a');
+      } else if (p.y <= groundAt(p.x) + 1) { p.done = true; P.lost++; spawnSpark(p.x, p.y, '#c97a3a'); }
+    }
+    const g = currentGoal();
+    if (!g || g.type !== 'catch') return false;
+    if (P.caught >= g.need) { mission.stage++; showToast('That’s enough pods! Now climb back up to the ship.', 2400); afterGoal(g, null); return false; }
+    const live = P.list.filter(p => !p.done).length;
+    if (P.caught + live + (cfg.n - P.spawned) < g.need) { failMission('Too many supply pods hit the ground', ['J', 'My dock’s loading another batch. Try again!']); return true; }
+    return false;
+  }
+  function drawPods(time) {
+    if (!mission || !mission.pods) return;
+    for (const p of mission.pods.list) {
+      if (p.done) continue;
+      const X = sx(p.x), Y = sy(p.y), s = scale;
+      ctx.strokeStyle = 'rgba(244,241,232,0.7)'; ctx.lineWidth = Math.max(1, 0.15 * s);
+      ctx.beginPath(); ctx.moveTo(X - 0.9 * s, Y - 0.6 * s); ctx.lineTo(X - 2.4 * s, Y - 3.6 * s); ctx.moveTo(X + 0.9 * s, Y - 0.6 * s); ctx.lineTo(X + 2.4 * s, Y - 3.6 * s); ctx.stroke();
+      ctx.fillStyle = '#ff6b5e'; ctx.beginPath(); ctx.arc(X, Y - 3.6 * s, 2.6 * s, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = '#f4f1e8'; ctx.fillRect(X - 0.5 * s, Y - 6.2 * s, 1 * s, 2.6 * s);
+      ctx.fillStyle = '#c97a3a'; ctx.fillRect(X - 1 * s, Y - 0.8 * s, 2 * s, 1.8 * s);
+      ctx.fillStyle = '#ffd27a'; ctx.fillRect(X - 1 * s, Y - 0.1 * s, 2 * s, 0.4 * s);
+    }
+  }
   function afterGoal(g, pad) {
     const d = mission.def, L = lander;
     if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
@@ -3165,6 +3309,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (!g) return '';
     if (mission.loading) return `${g.type === 'drop' ? (g.busy || (mission.carrying === 'crew' ? 'Passenger getting off' : 'Unloading')) : g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
     if (g.text) return g.text;
+    if (g.type === 'either') return g.text;
+    if (g.type === 'catch') { const P = mission.pods || { caught: 0, lost: 0 }; return `Catch supply pods: ${P.caught} of ${g.need}${P.lost ? ` · ${P.lost} lost` : ''}`; }
     if (g.type === 'drop') return `Drop off at ${g.pad}`;
     if (g.type === 'pickup') return `Land on ${g.pad}`;
     if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
@@ -3200,6 +3346,7 @@ details.act > .limits { margin: 0 0 8px; }
   function missionTick(dt) {
     const d = mission.def, L = lander;
     if (mission.pk && !mission.rover) pickupsTick();
+    if (d.pods && !mission.rover && podsTick(dt)) return true;
     copTick();
     if (!mission.rover && mission.docking == null) surpriseTick(dt);
     if (d.timeLimit) {
@@ -14858,7 +15005,7 @@ details.act > .limits { margin: 0 0 8px; }
         ctx.fillText(p.label || `×${p.mult}`, sx((p.x1 + p.x2) / 2), p.move ? sy(p.y) - off * 0.55 - 4.5 * scale : sy(p.y) + off);
         ctx.globalAlpha = 1;
       }
-      if (mission) { drawMissionProps(time); drawPickups(time); drawSurprises(time); drawGuide(); }
+      if (mission) { drawMissionProps(time); drawPickups(time); drawPods(time); drawSurprises(time); drawGuide(); }
       if (vents.length) drawVents(time);
       if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
     }
