@@ -3097,6 +3097,9 @@ details.act > .limits { margin: 0 0 8px; }
   const totalStars = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).reduce((n, d) => n + (missionStars[d.id] || 0), 0);
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
   const missionOpen = i => i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
+  // story missions are one a day: after a new story mission, the next one waits until you've slept
+  const restLocked = i => i > 0 && i < MISSIONS.length && !(missionStars[MISSIONS[i].id] > 0) && +store.get('ds-storyRest', '0') >= shipDay;
+  const restText = () => `The crew needs rest. Sleep in your ${inBase() ? 'bunk' : 'Pad'} to unlock the next story mission. Side missions and free flight are still open.`;
   const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
   // ---- Multi-stop missions ----
   // A mission with `legs` is a chain of stops flown in one go. Each leg has a name, an optional radio line
@@ -3964,6 +3967,7 @@ details.act > .limits { margin: 0 0 8px; }
     const starsWon = met.filter(Boolean).length;
     const prev = missionStars[d.id] || 0;
     const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex);
+    if (!d.side && prev === 0) store.set('ds-storyRest', String(shipDay));
     if (d.id === 'storm-front') hardCallStorm(mission.choice);
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
     credits += pay + extra;
@@ -5373,7 +5377,8 @@ details.act > .limits { margin: 0 0 8px; }
         </div>`;
     } else if (m === 'missionEnd') {
       const r = mission.result, d = mission.def;
-      const hasNext = r.ok && !d.side && missionSel + 1 < MISSIONS.length;
+      const resting = r.ok && !d.side && missionSel + 1 < MISSIONS.length && restLocked(missionSel + 1);
+      const hasNext = r.ok && !d.side && missionSel + 1 < MISSIONS.length && !resting;
       if (r.ok) {
         const fresh = r.stars - r.prev;
         html = `<span class="eyebrow">${missionLabel(missionSel)} · ${d.name}</span>
@@ -5394,6 +5399,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
           ${r.call ? `<p class="balance call">⚠ ${CALL_TEXT[r.call]}</p>` : ''}
+          ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
@@ -5683,6 +5689,7 @@ details.act > .limits { margin: 0 0 8px; }
     return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
   }
   function openMission(i) {
+    if (restLocked(i)) { showToast(restText(), 4200); return; }
     missionTab = tabOf(i);
     missionSel = i;
     const d = ALL[i], st = STORY[d.id];
@@ -5782,13 +5789,13 @@ details.act > .limits { margin: 0 0 8px; }
   let freshM = new Set();
   const newChip = d => freshM.has(d.id) ? '<i class="mnew">New</i>' : '';
   function storyTile(d, i) {
-    const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}>${newChip(d)}
+    const w = WORLDS.find(x => x.id === d.world), rest = missionOpen(i) && restLocked(i), open = missionOpen(i) && !rest, st = missionStars[d.id] || 0;
+    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}${rest ? ` title="${esc(restText())}"` : ''}>${newChip(d)}
       <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
       <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
       <b>${d.name}</b>
       <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
-      <span class="mstars">${open ? starHtml(st) : '<span class="mtype">Locked</span>'}</span>
+      <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${rest ? '💤 Sleep first' : 'Locked'}</span>`}</span>
     </button>`;
   }
   function soonTile(p, i) {
@@ -5833,6 +5840,7 @@ details.act > .limits { margin: 0 0 8px; }
         const meta = soon ? 'Coming soon' : !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
         return `<details class="act${open ? '' : ' locked'}"${k === cur ? ' open' : ''}>
           <summary><span class="atitle">${title}</span><span class="ameta">${meta}</span></summary>
+          ${open && MISSIONS.some((m, k) => k >= a && k < b && restLocked(k) && missionOpen(k)) ? `<p class="limits">💤 ${restText()}</p>` : ''}
           ${open ? '' : `<p class="limits">${soon ? 'Coming in a future update. Here’s what’s planned.' : lockText}</p>`}
           <div class="mlist">${STORY_PLAN.slice(a, b).map((p, j) => a + j < MISSIONS.length ? storyTile(MISSIONS[a + j], a + j) : soonTile(p, a + j)).join('')}</div>
         </details>`;
