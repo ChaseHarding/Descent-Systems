@@ -1155,12 +1155,13 @@ details.act > .limits { margin: 0 0 8px; }
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
   };
-  // the story was rebuilt from scratch, so saves from before it are wiped once (save version 2)
+  // the story was rebuilt from scratch (save version 2). A save from before it is kept, and on the first load
+  // the player chooses: keep their stuff and start the new story, or start completely fresh
   try {
     if (localStorage.getItem('ds-saveVer') !== '2') {
-      const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
-      kill.forEach(k => localStorage.removeItem(k));
+      let old = false; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) old = true; }
       localStorage.setItem('ds-saveVer', '2');
+      if (old) localStorage.setItem('ds-migrate', 'ask');
     }
   } catch (e) {}
   let world = WORLDS.find(w => w.id === store.get('ds-world', 'moon')) || WORLDS[1];
@@ -1592,7 +1593,7 @@ details.act > .limits { margin: 0 0 8px; }
       spawn: { x: 50, vx: 1.5 }, stars: { fuel: 80, time: 28 },
       ground: [[0, 60], [20, 55], [40, 62], [60, 50], [80, 40], [95, 34], [125, 40], [145, 55], [165, 66], [185, 60], [205, 70], [225, 64], [240, 68]],
       pads: [{ id: 'CREW', x1: 100, x2: 118, y: 34 }] },
-    { id: 'apex-calling', name: 'Apex Calling', world: 'moon', kind: 'route', label: 'Race vs Apex', fuel: 200, credits: 260,
+    { id: 'apex-calling', name: 'Apex Calling', world: 'moon', kind: 'route', label: 'Race vs Apex', noSurprise: true, fuel: 200, credits: 260,
       timeLimit: 70, limitText: 'Fly the three markers and land within 70 seconds to beat Kestrel', spareText: 'ahead of Kestrel’s time',
       lateReason: 'Kestrel won the contract', lateQuip: ['Q', 'Better luck next time. Sable’s offer still stands.'],
       nags: [[35, 'APEX: Kestrel here. I’ve already landed. Take your time.'], [15, 'FLIGHT: Fifteen seconds! Go, go, go!'], [6, 'APEX: Tick tock.']],
@@ -1664,7 +1665,7 @@ details.act > .limits { margin: 0 0 8px; }
       shade: [[6, 50], [104, 128], [184, 232]],
       ground: [[0, 34], [16, 30], [42, 32], [60, 40], [80, 46], [100, 42], [116, 48], [135, 44], [155, 40], [175, 36], [194, 34], [218, 36], [240, 42]],
       pads: [{ id: 'PICKUP', x1: 18, x2: 38, y: 30 }, { id: 'DROP', x1: 196, x2: 214, y: 34 }] },
-    { id: 'storm-front', name: 'Storm Front', world: 'mercury', kind: 'land', label: 'Blind landing', storm: 'always', fuel: 320, credits: 640,
+    { id: 'storm-front', name: 'Storm Front', world: 'mercury', kind: 'land', label: 'Blind landing', storm: 'always', noSurprise: true, fuel: 320, credits: 640,
       timeLimit: 70, limitText: 'Reach KIT or CELL and climb back to the ship within 70 seconds', spareText: 'to spare before the storm peaked',
       lateReason: 'the storm hit with Biscuit still on the surface', lateQuip: ['F', 'Come back up. We try again. We have to.'],
       nags: [[30, 'FLIGHT: Thirty seconds. The storm is right on top of us.'], [12, 'ENGINEERING: Twelve seconds! Climb, climb!']],
@@ -3529,7 +3530,7 @@ details.act > .limits { margin: 0 0 8px; }
   function planSurprises(d) {
     if (surpForce) { const f = surpForce; surpForce = null; return f; }
     const plan = { kinds: [], pads: [] };
-    if (ALL.indexOf(d) < 3 || window.__noSurprise || d.kind === 'trip' || Math.random() > 0.55) return plan;
+    if (ALL.indexOf(d) < 3 || window.__noSurprise || d.noSurprise || d.kind === 'trip' || Math.random() > 0.55) return plan;
     const padOK = !d.ceilings && !['hop', 'route', 'sling', 'dock'].includes(d.kind) && !d.pads.some(p => p.move);
     const pool = [['sputter', 3], ['satellite', 3]];
     if (!d.meteors && !d.ceilings) pool.push(['meteors', 3]);
@@ -5605,6 +5606,11 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="btns"><button class="btn ghost" id="saveLoad">Restore from code</button><label class="btn ghost" for="saveFileIn">Load a save file</label><input type="file" id="saveFileIn" accept=".txt,text/plain" hidden></div>
         <p class="limits" id="saveMsg" aria-live="polite"></p>
       </div>
+      <h2 class="sect">New game</h2>
+      <div class="savebox">
+        <p class="limits">Start over from the very beginning. Everything is wiped, so back up your save code first if you might want it back.</p>
+        <div class="btns"><button class="btn ghost" id="saveNew">Start a new game</button></div>
+      </div>
       <div class="btns">
         <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
         <button class="btn ghost" id="introBtn">Replay intro</button>
@@ -5647,6 +5653,55 @@ details.act > .limits { margin: 0 0 8px; }
     let name = 'Pilot'; try { name = JSON.parse(d['ds-license'] || '{}').name || d['ds-p1'] || 'Pilot'; } catch (e) {}
     return `${name} · ship day ${day} · ${fmt(cr)} credits · saved ${new Date(o.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }
+  // wipe everything and start a brand-new game
+  function wipeAll() {
+    try {
+      const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
+      kill.forEach(k => localStorage.removeItem(k));
+      localStorage.setItem('ds-saveVer', '2');
+    } catch (e) {}
+    location.reload();
+  }
+  // keep everything except the old story: credits, landers, the Pad, hearts, side missions, badges and records stay
+  const OLD_STORY = ['first-steps', 'tranquility', 'supply-run', 'lifeline', 'haze-delivery', 'methane-canyon', 'dust-ledge', 'valles-run', 'storm-rescue', 'heavy-lift', 'the-needle', 'last-light', 'core-sample', 'edge-of-the-world', 'relay-run', 'mayday', 'spare-key', 'sunrise', 'big-ear', 'triangulation', 'echo', 'interference', 'cloud-relay', 'old-station', 'rex-shortcut', 'unit-zero', 'deep-tank', 'first-light', 'old-lights', 'quiet-posts', 'envoy-escort', 'the-key', 'the-vault', 'the-reply'];
+  function migrateKeep() {
+    try {
+      const ms = JSON.parse(localStorage.getItem('ds-missions') || '{}') || {}; OLD_STORY.forEach(id => delete ms[id]);
+      localStorage.setItem('ds-missions', JSON.stringify(ms));
+      ['ds-kitMet', 'ds-lastRoom', 'ds-hallDeck', 'ds-storyRest', 'ds-call-storm', 'ds-lost', 'ds-migrate', 'ds-nudge'].forEach(k => localStorage.removeItem(k));
+      localStorage.setItem('ds-migrated', 'intro');
+    } catch (e) {}
+    location.reload();
+  }
+  function renderMigrate() {
+    setMode('settings');
+    const code = saveCode(), card = $('card');
+    let sure = false;
+    card.innerHTML = `<span class="eyebrow">Descent Systems · a new story</span>
+      <h1 class="good">The story has been rebuilt</h1>
+      <p>Descent Systems has a brand-new story. It starts at Act 1, in a cramped little base on the Moon, with a mothership that hasn’t flown in six years. You can bring your stuff along, or start over completely.</p>
+      <div class="savebox">
+        <p class="limits">First, here’s a backup of your current save, just in case. Keep it somewhere safe, like your Notes app.</p>
+        <textarea id="migCode" rows="3" readonly spellcheck="false" aria-label="Your save code">${esc(code)}</textarea>
+        <div class="btns"><button class="btn ghost" id="migCopy">Copy save code</button></div>
+      </div>
+      <div class="btns">
+        <button class="btn" id="migKeep">Keep my stuff, start the new story</button>
+        <button class="btn ghost" id="migFresh">Start completely fresh</button>
+      </div>
+      <p class="limits">Keeping your stuff keeps your credits, landers and paint jobs, your Pad, crew hearts, side missions, badges and records. Only the story restarts. Crew rejoin as the new story reaches them, and the ship’s rooms open after Liftoff.</p>
+      <p class="limits" id="migMsg" aria-live="polite"></p>`;
+    const msg = t => { $('migMsg').textContent = t; };
+    $('migCopy').addEventListener('click', () => {
+      const box = $('migCode'), sel = () => { box.focus(); box.select(); msg('Your save code is selected. Copy it and keep it somewhere safe.'); };
+      try { navigator.clipboard.writeText(code).then(() => msg('Copied! Paste it somewhere safe.'), sel); } catch (e) { sel(); }
+    });
+    $('migKeep').addEventListener('click', migrateKeep);
+    $('migFresh').addEventListener('click', () => {
+      if (!sure) { sure = true; $('migFresh').textContent = 'Tap again to wipe everything'; msg('This deletes everything: credits, landers, your Pad, hearts. Copy your save code first if you might want it back.'); return; }
+      wipeAll();
+    });
+  }
   function wireSaveBackup() {
     const msg = $('saveMsg'), box = $('saveIn'); let pending = null;
     const say = t => { if (msg) msg.textContent = t; };
@@ -5666,7 +5721,6 @@ details.act > .limits { margin: 0 0 8px; }
     });
     const tryRestore = text => {
       let o; try { o = readSave(text); } catch (e) { pending = null; say('That doesn’t look like a Descent Systems save code. It should start with DSAVE1:'); return; }
-      if (!o.data || o.data['ds-saveVer'] !== '2') { pending = null; say('That save is from before the new story, so it can’t be loaded. Everyone starts fresh with Act 1.'); return; }
       if (pending !== text) { pending = text; say(`Found: ${saveSummary(o)}. This replaces your current progress. Tap restore again to confirm.`); return; }
       try {
         const kill = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ds-')) kill.push(k); }
@@ -5676,6 +5730,11 @@ details.act > .limits { margin: 0 0 8px; }
       say('Restored! Reloading…'); setTimeout(() => location.reload(), 600);
     };
     $('saveLoad').addEventListener('click', () => tryRestore(box.value));
+    let sureNew = false;
+    $('saveNew').addEventListener('click', () => {
+      if (!sureNew) { sureNew = true; box.value = saveCode(); $('saveNew').textContent = 'Tap again to wipe and start over'; say('Your current save code is in the box above, in case you want it back. Tap again to wipe everything and start a new game.'); return; }
+      wipeAll();
+    });
     $('saveFileIn').addEventListener('change', e => {
       const f = e.target.files && e.target.files[0]; if (!f) return;
       const rd = new FileReader(); rd.onload = () => { box.value = String(rd.result || '').trim(); tryRestore(box.value); }; rd.readAsText(f);
@@ -15985,7 +16044,9 @@ details.act > .limits { margin: 0 0 8px; }
   resize();
   genTerrain();
   spawn();
-  if (isBrandNew() && !/^#race=/.test(location.hash)) startIntro(); else setMode('title');
+  if (store.get('ds-migrate', '') === 'ask' && !/^#race=/.test(location.hash)) renderMigrate();
+  else if (store.get('ds-migrated', '') === 'intro') { store.set('ds-migrated', ''); startIntro(); }
+  else if (isBrandNew() && !/^#race=/.test(location.hash)) startIntro(); else setMode('title');
   checkRaceLink();
   addEventListener('hashchange', checkRaceLink);
   requestAnimationFrame(frame);
