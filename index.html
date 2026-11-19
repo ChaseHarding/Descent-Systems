@@ -1614,7 +1614,45 @@ details.act > .limits { margin: 0 0 8px; }
         { name: 'Collect Apogee from the CRATER', say: 'ENGINEERING: She’s chasing dust bunnies in the crater again. Moon dust bunnies. Land on CRATER and I’ll grab her.', goals: [{ type: 'visit', pad: 'CRATER', text: 'Land at CRATER to collect Apogee', done: 'Apogee is aboard. She is not pleased.' }] },
         { name: 'Grab Gus’s wrench at the WORKSHOP', say: 'ENGINEERING: My lucky wrench is on the bench at the WORKSHOP. I can’t fly without it. I won’t fly without it.', goals: [{ type: 'visit', pad: 'WORKSHOP', text: 'Land at WORKSHOP for the lucky wrench', done: 'Wrench secured. The ship feels luckier already.' }] },
         { name: 'Bring it all home to the HANGAR', say: 'FLIGHT: Fuel, cat, wrench. That’s the list. Bring them home.', goals: [{ type: 'land', pad: 'HANGAR' }] }],
-      pads: [{ id: 'DEPOT', x1: 16, x2: 36, y: 34 }, { id: 'CRATER', x1: 100, x2: 116, y: 54 }, { id: 'WORKSHOP', x1: 56, x2: 72, y: 44 }, { id: 'HANGAR', x1: 178, x2: 196, y: 34 }] }
+      pads: [{ id: 'DEPOT', x1: 16, x2: 36, y: 34 }, { id: 'CRATER', x1: 100, x2: 116, y: 54 }, { id: 'WORKSHOP', x1: 56, x2: 72, y: 44 }, { id: 'HANGAR', x1: 178, x2: 196, y: 34 }] },
+    // ---- Act 2 · Lift Off: the Second Wind finally flies ----
+    { id: 'liftoff', name: 'Liftoff', world: 'moon', kind: 'cargo', label: 'Multi-stop', cargoName: 'boulder', mass: 0.85, fuel: 420, credits: 340,
+      brief: 'The quake left boulders across the launch path. Lift the one at ROCK1 into the PIT, then the one at ROCK2, so the Second Wind can take off.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 110, time: 110 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      legs: [
+        { name: 'Lift the boulder at ROCK1', goals: [{ type: 'pickup', pad: 'ROCK1', what: 'cargo' }] },
+        { name: 'Drop it in the PIT', say: 'ENGINEERING: Into the pit! Gently. It’s a boulder, but still. It has a long history.', goals: [{ type: 'drop', pad: 'PIT', busy: 'Rolling the boulder off', done: 'One down!' }] },
+        { name: 'Lift the boulder at ROCK2', say: 'FLIGHT: One more and the path is clear. Everybody’s at the windows.', goals: [{ type: 'pickup', pad: 'ROCK2', what: 'cargo' }] },
+        { name: 'Set it down in the PIT', say: 'ENGINEERING: Last one! Engines are warming up. Can you hear her? That’s her humming.', goals: [{ type: 'land', pad: 'PIT' }] }],
+      pads: [{ id: 'ROCK1', x1: 16, x2: 36, y: 34 }, { id: 'PIT', x1: 100, x2: 116, y: 54 }, { id: 'ROCK2', x1: 178, x2: 196, y: 34 }] },
+    { id: 'first-port', name: 'First Port', world: 'earth', kind: 'cargo', cargoName: 'supply crate', fuel: 225, credits: 380, mass: 0.8,
+      brief: 'Your first job off the Moon. Earth pulls six times harder, so lift the crate from PICKUP to DROP with short bursts and never let your speed build up. One crate is making noises.',
+      spawn: { x: 24, y: 100, vx: 0 }, stars: { fuel: 85, time: 41 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 26 }, { id: 'DROP', x1: 170, x2: 188, y: 28 }] },
+    { id: 'red-dock', name: 'Red Dock', world: 'mars', kind: 'land', fuel: 210, credits: 400,
+      brief: 'Juno’s last free pad on Mars is buried. Land on top of the spire at LZ while her crew digs it out. The pad is tiny and the gusts shove you sideways, so watch the wind gauge.',
+      spawn: { x: 60, vx: 0 }, stars: { fuel: 85, time: 46 },
+      ground: [[0, 20], [20, 24], [40, 18], [60, 22], [80, 30], [100, 45], [115, 70], [125, 88], [146, 70], [160, 40], [180, 25], [200, 18], [220, 22], [240, 16]],
+      pads: [{ id: 'LZ', x1: 128, x2: 140, y: 92 }] },
+    { id: 'dust-bowl', name: 'Dust Bowl', world: 'mars', kind: 'cargo', label: 'Timed delivery', cargoName: 'medical supplies', mass: 0.85, fuel: 230, credits: 420,
+      timeLimit: 80, limitText: 'Get the supplies to DROP within 80 seconds, before the storm hits', spareText: 'to spare before the storm hit',
+      lateReason: 'the storm hit before the supplies arrived', lateQuip: ['J', 'We’ll try again when it clears. Dust gets everywhere. Everywhere.'],
+      nags: [[30, 'DOCK: Thirty seconds. The storm wall is right behind you.'], [12, 'FLIGHT: Twelve seconds! Go, go!']],
+      brief: 'A dust storm is rolling in, and the clinic past the ridge needs medical supplies first. Grab the crate at PICKUP and get it to DROP before the clock runs out.',
+      windMul: 0.7, spawn: { x: 50, y: 100, vx: 0 }, stars: { fuel: 70, time: 45 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'PICKUP', x1: 40, x2: 58, y: 38 }, { id: 'DROP', x1: 100, x2: 116, y: 22 }] },
+    { id: 'stone-patient', name: 'Stone Patient', world: 'vesta', kind: 'cargo', label: 'Fragile cargo', cargoName: 'pet rock', fragile: 1.6, mass: 0.85, fuel: 460, credits: 460,
+      brief: 'A quake is coming, and Brix’s four-thousand-year-old pet rock must be moved. Pick it up, show it the view at VIEW (refuel there), then set it down gently at DROP.',
+      spawn: { x: 100, y: 90, vx: 0 }, stars: { fuel: 120, time: 170 },
+      ground: [[0, 22], [20, 30], [44, 40], [62, 46], [80, 46], [100, 52], [120, 55], [140, 52], [160, 52], [186, 42], [210, 32], [240, 22]],
+      legs: [
+        { name: 'Pick up the pet rock', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Show it the view (and refuel)', say: 'Brix: It has… never… seen… the sky… from up high.', goals: [{ type: 'visit', pad: 'VIEW', refuel: 80, text: 'Land at VIEW (fuel depot)' }] },
+        { name: 'Set it down gently at DROP', say: 'Brix: It… liked it. I can… tell.', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }, { id: 'VIEW', x1: 196, x2: 212, y: 35 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -2853,6 +2891,65 @@ details.act > .limits { margin: 0 0 8px; }
     };
     SIDES.forEach(d => { if (AFTER[d.id]) d.after = AFTER[d.id]; });
   }
+  // ---- Act 2, first half: liftoff, moving aboard, and the first ports ----
+  Object.assign(STORY, {
+    'liftoff': { chapter: [10, 'Liftoff'],
+      intro: [
+        ['F', 'This is it. Everybody aboard in… well, in a minute. The quake dropped boulders all over the launch path.'],
+        ['G', 'Biscuit can lift them! Grab the one at ROCK1 and drop it in the PIT, then the one at ROCK2, and set that down in the PIT too.'],
+        ['W', 'And keep your eyes up. When she lifts, she’ll throw dust everywhere.'],
+        ['R', 'I’ve written a speech for the occasion. It’s eleven pages. I’ll read it during takeoff.'],
+        ['F', 'You will not.']],
+      react: [['G', 'Path’s clear! Firing engines… she’s up! SHE’S UP!'],
+        ['W', 'Look at her climb. Just like the old days.'],
+        ['F', 'Liftoff, Descent Systems. Everybody grab your bags. We live on a spaceship now.']] },
+    'first-port': { chapter: [11, 'First Port'],
+      intro: [
+        ['F', 'Our first paying job off the Moon: supply crates from the cargo pod at PICKUP to the relief station at DROP. On Earth.'],
+        ['G', 'Earth gravity is no joke. Six times the Moon. Short bursts, and never let your speed build up.'],
+        ['F', 'Also, Gus says one of the crates is… making noises.'],
+        ['G', 'Probably just the cargo settling. Cargo settles. With little footsteps.']],
+      react: [['C', 'Hi! Um. Hi. I’m Kit. I was in the crate. Please don’t put me out of the airlock.'],
+        ['F', 'A stowaway cadet. Fine. You can stay if you make yourself useful. And you’re paying for the crate.'],
+        ['C', 'That was the smoothest landing I’ve ever felt from inside a box! Can I watch you fly? Like, forever?']] },
+    'red-dock': { chapter: [12, 'Red Dock'],
+      intro: [
+        ['J', 'Mars Dock, Juno speaking. Our only free pad is under a dust drift, and the gusts are nasty today. Land on top of the spire at LZ while my crew digs it out.'],
+        ['F', 'Juno runs the last independent dock on Mars. Apex bought up all the others.'],
+        ['J', 'Land it clean and the berth is yours for as long as you need it. I don’t like Apex either.']],
+      react: [['J', 'Down and safe. Welcome to Mars, Descent.'],
+        ['J', 'Nice touch. There’s a berth with your name on it. And a spare bunk on your ship, I hear. I might use it.'],
+        ['J', 'Cleanest landing on that spire in years. I’m coming aboard. Somebody has to run your docking.']] },
+    'dust-bowl': { chapter: [13, 'Dust Bowl'],
+      intro: [
+        ['J', 'Storm’s rolling in fast. The clinic past the ridge needs medical supplies before it hits.'],
+        ['F', 'Grab the crate at PICKUP and get it to DROP before the clock runs out. The wind is only going to get worse.'],
+        ['G', 'Business is booming! Well. Business is dusty. Dusty is good.']],
+      react: [['J', 'Supplies delivered. The clinic says thank you.'],
+        ['F', 'Three jobs in three days. We might actually make rent this month.'],
+        ['G', 'Perfect run! Dottie smiled. I saw it. Don’t tell her I saw it.']] },
+    'stone-patient': { chapter: [14, 'Stone Patient'],
+      intro: [
+        ['F', 'Strange call from Vesta. Very slow. Very polite. I think it’s… a rock?'],
+        ['S', 'Hello… pilot. I am… Brix. A quake… is coming. My pet rock… must be moved.'],
+        ['S', 'It is… four thousand years old. It has… never seen… the view from up high.'],
+        ['G', 'Pick it up, show it the view at VIEW (there’s a fuel depot up there), then set it down gently at DROP. It’s fragile!']],
+      react: [['S', 'You… were gentle. Thank you.'],
+        ['S', 'It liked… the view. I can tell. May I… come with you? I am… very good… at sitting still.'],
+        ['S', 'Perfect. I will… write you a poem. It will take… about a year.']] }
+  });
+  EPILOGUES['liftoff'] = [[
+    ['F', 'Moving day! Everybody grab a box. Rex, grab… several boxes.'],
+    ['R', 'Eleven bags, darling. Somebody has to carry the wardrobe. The wardrobe is a supporting character.'],
+    ['W', 'I’m bringing my chair. I don’t care how many decks it has to go down.'],
+    ['H', 'The galley has TWO ovens. Two! I’m never leaving.'],
+    ['G', 'Gus to the engine room! I’ve wanted to say that for six years.'],
+    ['K', '*beep beep* (Crumb has found the cargo bay. Crumb loves the cargo bay.)'],
+    ['A', 'Mrrp. (Apogee has claimed the captain’s chair.)'],
+    ['F', 'Your Pad is on deck two. A real room, with a real door. Welcome home, pilot.']
+  ], { label: 'Act 2', title: 'Moving Day' }];
+  const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
+    : 'Act 3 is on the way.';
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -5602,7 +5699,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${open ? '' : `<p class="limits">${soon ? 'Coming in a future update. Here’s what’s planned.' : lockText}</p>`}
           <div class="mlist">${STORY_PLAN.slice(a, b).map((p, j) => a + j < MISSIONS.length ? storyTile(MISSIONS[a + j], a + j) : soonTile(p, a + j)).join('')}</div>
         </details>`;
-      }).join('') + (MISSIONS.length < STORY_TOTAL && completedCount() === MISSIONS.length ? `<p class="limits act4">${NEXT_TEASE}</p>` : '');
+      }).join('') + (MISSIONS.length < STORY_TOTAL && completedCount() === MISSIONS.length ? `<p class="limits act4">${nextTease()}</p>` : '');
     } else {
       const list = missionTab === 'trip' ? trips : sides;
       // the ones you can fly first, locked ones after
@@ -7423,7 +7520,7 @@ details.act > .limits { margin: 0 0 8px; }
     c.fillStyle = '#f4ead6'; rrect(c, 58, 5, 62, 48, 12); c.fill();
     c.fillStyle = '#b9a98c'; rrect(c, 60, 7, 58, 44, 10); c.fill();
     c.save(); rrect(c, 62, 9, 54, 40, 9); c.clip();
-    it('window').draw(c, 62, 9, t, st);
+    if (inBase()) moonView(c, 62, 9, 54, 40, t); else it('window').draw(c, 62, 9, t, st);
     c.fillStyle = 'rgba(255,255,255,0.07)'; c.beginPath(); c.moveTo(70, 9); c.lineTo(80, 9); c.lineTo(66, 49); c.lineTo(62, 49); c.lineTo(62, 30); c.closePath(); c.fill();
     c.restore();
     // wall art
@@ -7812,8 +7909,8 @@ details.act > .limits { margin: 0 0 8px; }
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
-      <h1 class="good">${inBalc() ? 'The Balcony' : 'The Pad'}</h1>
-      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
+      <h1 class="good">${inBalc() ? 'The Balcony' : inBase() ? 'Your Bunk' : 'The Pad'}</h1>
+      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : inBase() ? 'Your corner of the Moon base. Walk around, or tap Decorate to change things.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
           <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
@@ -8157,7 +8254,7 @@ details.act > .limits { margin: 0 0 8px; }
       bridge: ['The Bridge', 'The bridge: a huge front window, the comms console on the left, the nav console in the middle, the star map on the right and the captain’s chair. Tap to walk; walk up to a console to use it. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', 'Tap to walk · the nav console opens the flight deck · comms takes calls · sit in the captain’s chair · the hallway is behind you'],
       quarters: ['Crew quarters', 'The crew quarters: a carpeted corridor with a bedroom door for each crew member. Doors open once you have 3 hearts with that person; a warm light under a door means someone is home. Tap to walk; walk up to a door to knock or go in. With a keyboard, arrow keys walk and Enter uses the nearest door.', 'Walk up to a door to knock · rooms open at 3 hearts · a light under the door means someone’s home'],
       engine: ['Engine room', 'The engine room: a tall glowing core in the middle, Gus’s workbench and tool board on the left, gauges, a big red lever, and the power junction panel on the right where you do repair jobs. Tap to walk; walk up to the junction to fix things. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
-      galley: ['The Galley', 'The galley: a tiled kitchen with a pantry, a stove with hanging pans, a sink, a fridge and a little round table. Tap to walk; walk up to the stove to cook. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
+      galley: [inBase() ? 'The Kitchen' : 'The Galley', 'The galley: a tiled kitchen with a pantry, a stove with hanging pans, a sink, a fridge and a little round table. Tap to walk; walk up to the stove to cook. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
     }[kind];
@@ -8592,6 +8689,31 @@ details.act > .limits { margin: 0 0 8px; }
       </div>
       <p class="limits">Next door, in the hangar: the Second Wind. ${repairsDone()} of ${ACT1} repairs done.</p>
     </div>`;
+  }
+  // the Moon outside: grey hills, craters and Earth hanging in a black sky
+  function moonView(c, x, y, w, h, t) {
+    px(c, x, y, w, h, '#05070f');
+    for (let i = 0; i < 14; i++) { const sx = x + ((i * 37) % w), sy = y + ((i * 23) % Math.max(1, h - 14)); px(c, sx, sy, 1, 1, i % 3 ? '#8a93ab' : '#ffffff'); }
+    const ex = x + w * 0.72, ey = y + h * 0.3, r = Math.max(3, Math.round(h * 0.16));
+    c.fillStyle = '#3f86c9'; c.beginPath(); c.arc(ex, ey, r, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#58b860'; c.beginPath(); c.arc(ex - r * 0.3, ey - r * 0.1, r * 0.45, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.55)'; c.fillRect(ex - r * 0.6, ey + r * 0.35, r * 0.9, 1);
+    c.fillStyle = 'rgba(5,7,15,0.55)'; c.beginPath(); c.arc(ex + r * 0.45, ey, r, -Math.PI / 2, Math.PI / 2); c.fill();
+    const hz = y + h * 0.66;
+    c.fillStyle = '#6a6862'; c.beginPath(); c.moveTo(x, y + h); c.lineTo(x, hz + 3);
+    for (let k = 0; k <= 8; k++) c.lineTo(x + (w * k) / 8, hz + Math.sin(k * 1.7) * 3);
+    c.lineTo(x + w, y + h); c.fill();
+    px(c, x, Math.round(hz + 5), w, Math.ceil(y + h - hz - 5), '#8a877e');
+    for (const [cx, cy, cr] of [[0.2, 0.84, 3], [0.55, 0.9, 2], [0.8, 0.8, 2]]) { c.fillStyle = '#6a6862'; c.beginPath(); c.ellipse(x + w * cx, y + h * cy, cr + 1, cr * 0.5, 0, 0, Math.PI * 2); c.fill(); }
+  }
+  // Bao's kitchen in the base: warm prefab walls, a diner sign from his old place, and a window onto the Moon
+  function baseKitchenDecor(c, t) {
+    px(c, 130, 9, 60, 28, '#6e6454'); moonView(c, 132, 11, 56, 24, t);
+    const on = reduceMotion || Math.floor(t / 2600) % 7 !== 0;
+    px(c, 62, 6, 64, 24, '#5a4e40');   // the sign hangs where the pans would be
+    px(c, 70, 14, 48, 12, '#2a2420'); px(c, 76, 8, 1, 6, '#8a93ab'); px(c, 111, 8, 1, 6, '#8a93ab'); c.font = '700 8px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = on ? '#ff7a8a' : '#6a3a40'; c.fillText('BAO’S', 94, 20); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    if (on) { c.fillStyle = 'rgba(255,122,138,0.14)'; c.fillRect(68, 12, 52, 16); }
   }
   function hallDraw(t) {
     const c = deck.c, v = deck.view, D = DECKS[hallDeck], S = D.style, K = DECK_LOOK[S], W = HALL_W;
@@ -10813,7 +10935,8 @@ details.act > .limits { margin: 0 0 8px; }
   function galleyDraw(t) {
     const c = deck.c, W = 256;
     camT(c, deck.view); c.imageSmoothingEnabled = false;
-    px(c, 0, 0, W, 72, '#2e2a3a'); for (let x = 0; x < W; x += 10) for (let y = 24; y < 70; y += 10) px(c, x + ((y / 10) % 2) * 5, y, 9, 9, '#3a3548');
+    const mb = inBase();
+    px(c, 0, 0, W, 72, mb ? '#5a4e40' : '#2e2a3a'); for (let x = 0; x < W; x += 10) for (let y = 24; y < 70; y += 10) px(c, x + ((y / 10) % 2) * 5, y, 9, 9, mb ? '#66584a' : '#3a3548');
     px(c, 0, 66, W, 6, '#1e1a28');
     // pantry shelves
     for (let r = 0; r < 3; r++) { px(c, 12, 26 + r * 12, 48, 2, '#7a5c44'); for (let k = 0; k < 6; k++) px(c, 14 + k * 8, 18 + r * 12, 5, 8, ['#e8dcb8', '#c94236', '#ffe58a', '#58b878', '#e8dcb8', '#7fd6ff'][(k + r) % 6]); }
@@ -10829,8 +10952,9 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 196, 18, 34, 54, '#e8edf5'); px(c, 196, 40, 34, 1, '#a8b0c0'); px(c, 224, 26, 2, 10, '#a8b0c0'); px(c, 224, 46, 2, 14, '#a8b0c0'); px(c, 202, 24, 4, 4, '#ff6b5e'); px(c, 208, 50, 5, 3, '#ffe58a');
     // hanging pans
     px(c, 64, 8, 60, 2, '#8a93ab'); for (const hx of [72, 90, 108]) { px(c, hx, 10, 1, 6, '#8a93ab'); c.fillStyle = '#5a5a66'; c.beginPath(); c.arc(hx, 20, 5, 0, Math.PI * 2); c.fill(); }
-    // floor: checker tiles, a little table
-    px(c, 0, 72, W, SHIP_H - 72, '#2a2434'); for (let y = 72; y < SHIP_H; y += 12) for (let x = ((y - 72) / 12 % 2) * 12; x < W; x += 24) px(c, x, y, 12, 12, '#322b3e');
+    if (mb) baseKitchenDecor(c, t);
+    // floor: checker tiles (red and cream in Bao's base kitchen), a little table
+    px(c, 0, 72, W, SHIP_H - 72, mb ? '#d8cbb0' : '#2a2434'); for (let y = 72; y < SHIP_H; y += 12) for (let x = ((y - 72) / 12 % 2) * 12; x < W; x += 24) px(c, x, y, 12, 12, mb ? '#a8443a' : '#322b3e');
     px(c, 106, 152, 44, 8, '#26304f'); doorPlate(c, 128, 150, 'HALL', true);
     const things = shipFloorThings(c, t), me = deck.me;
     things.push([132, () => { c.fillStyle = '#7a5c44'; c.beginPath(); c.ellipse(196, 118, 22, 7, 0, 0, Math.PI * 2); c.fill(); px(c, 194, 120, 4, 12, '#5a4636'); px(c, 186, 112, 6, 4, '#f4f1e8'); px(c, 200, 113, 5, 4, '#ffb547'); }]);
@@ -13191,7 +13315,7 @@ details.act > .limits { margin: 0 0 8px; }
     quarters: 'My room’s the little one at the end. It used to be a cupboard. It’s a very nice cupboard.',
     lift: 'I love the lift. Do you think it gets tired? I said thank you to it. Just in case.'
   };
-  const KIT_HELLO = 'Oh! Hi! You’re the pilot! I’m Kit, I’m the new cadet, I started this week too! Dottie said I should learn by watching you. So for the next few days I’m going to follow you around. Quietly. Mostly quietly. Is that okay? Great!';
+  const KIT_HELLO = 'Oh! Hi! It’s me, Kit. From the crate. Dottie says I can stay if I’m useful, so I’m going to follow you around for a few days and learn everything. Quietly. Mostly quietly. Is that okay? Great!';
   const BAO_HELLO = 'Aha, a new face! I’m Bao. I ran the diner by the hangar until Dottie said this kitchen was free. Now I run the kitchen, which means I run the base, but don’t tell Dottie. Sit, eat, tell me what you like. Come back when we’re friends and I’ll teach you my recipes.';
   const KIT_BYE = 'Dottie says I’ve watched you enough and it’s time to study on my own. I’ll be on the Bridge, mostly. Come visit! Thanks for letting me tag along, pilot. Best three days ever.';
   // the room-chat lines in the break room, the Pad and around the ship
@@ -13228,7 +13352,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DECK_KINDS = ['hall', 'bridge', 'garden', 'galley', 'engine', 'dome', 'quarters', 'lift'];
   function castHello(m) {
     if (intro || store.get('ds-intro', '') !== 'done') return;
-    if (!kitMet() && !inBase() && DECK_KINDS.includes(m)) {
+    if (!kitMet() && storyDone('first-port') && DECK_KINDS.includes(m)) {
       store.set('ds-kitMet', String(shipDay));
       setTimeout(() => {
         if (mode !== m || !deck) return;
