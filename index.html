@@ -1652,7 +1652,40 @@ details.act > .limits { margin: 0 0 8px; }
         { name: 'Pick up the pet rock', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
         { name: 'Show it the view (and refuel)', say: 'Brix: It has… never… seen… the sky… from up high.', goals: [{ type: 'visit', pad: 'VIEW', refuel: 80, text: 'Land at VIEW (fuel depot)' }] },
         { name: 'Set it down gently at DROP', say: 'Brix: It… liked it. I can… tell.', goals: [{ type: 'land', pad: 'DROP' }] }],
-      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }, { id: 'VIEW', x1: 196, x2: 212, y: 35 }] }
+      pads: [{ id: 'PICKUP', x1: 62, x2: 80, y: 46 }, { id: 'DROP', x1: 140, x2: 158, y: 52 }, { id: 'VIEW', x1: 196, x2: 212, y: 35 }] },
+    { id: 'overdue', name: 'Overdue', world: 'mars', kind: 'land', windMul: 0.6, fuel: 200, credits: 420,
+      brief: 'A routine landing at Juno’s dock on Mars. Someone is waiting for Dottie in Juno’s office.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 80, time: 32 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'LZ', x1: 96, x2: 120, y: 22 }] },
+    { id: 'sun-side', name: 'Sun-Side', world: 'mercury', kind: 'cargo', label: 'Heat cargo', cargoName: 'sunshade crate', mass: 0.85, fuel: 340, credits: 600,
+      brief: 'The big job: one sunshade crate from PICKUP to a scorching mining station at DROP. Sunlight boils your fuel, so stay in the shadows when you can.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 120, time: 55 },
+      shade: [[6, 50], [104, 128], [184, 232]],
+      ground: [[0, 34], [16, 30], [42, 32], [60, 40], [80, 46], [100, 42], [116, 48], [135, 44], [155, 40], [175, 36], [194, 34], [218, 36], [240, 42]],
+      pads: [{ id: 'PICKUP', x1: 18, x2: 38, y: 30 }, { id: 'DROP', x1: 196, x2: 214, y: 34 }] },
+    { id: 'storm-front', name: 'Storm Front', world: 'mercury', kind: 'land', label: 'Blind landing', storm: 'always', fuel: 320, credits: 640,
+      timeLimit: 70, limitText: 'Reach KIT or CELL and climb back to the ship within 70 seconds', spareText: 'to spare before the storm peaked',
+      lateReason: 'the storm hit with Biscuit still on the surface', lateQuip: ['F', 'Come back up. We try again. We have to.'],
+      nags: [[30, 'FLIGHT: Thirty seconds. The storm is right on top of us.'], [12, 'ENGINEERING: Twelve seconds! Climb, climb!']],
+      brief: 'A solar storm is minutes away, and your instruments are already scrambled. Kit is out on the hull at KIT, and the spare fuel cell is at CELL. You can only reach one. Then climb straight back up to the ship.',
+      spawn: { x: 116, y: 95, vx: 0 }, stars: { fuel: 140, time: 40 },
+      shade: [[6, 50], [104, 128], [184, 232]],
+      ground: [[0, 34], [16, 30], [42, 32], [60, 40], [80, 46], [100, 42], [116, 48], [135, 44], [155, 40], [175, 36], [194, 34], [218, 36], [240, 42]],
+      legs: [
+        { name: 'Save Kit at KIT, or the fuel cell at CELL', goals: [{ type: 'either', pads: ['KIT', 'CELL'], text: 'Land on KIT (save Kit) or CELL (save the fuel cell). Only one!' }] },
+        { name: 'Climb back up to the ship', say: 'FLIGHT: Go! Straight up! Out the top!', goals: [{ type: 'exit' }] }],
+      pads: [{ id: 'KIT', x1: 18, x2: 38, y: 30 }, { id: 'CELL', x1: 196, x2: 214, y: 34 }] },
+    { id: 'dead-air', name: 'Dead Air', world: 'venus', kind: 'land', label: 'Multi-stop', windMul: 0.5, fuel: 380, credits: 680,
+      brief: 'The ship is drifting past an evacuating sky resort on Venus. Grab the power COUPLER, top up at the DEPOT, pick up the last person at MEDIC, then climb back up to the ship.',
+      spawn: { x: 22, y: 112, vx: 0 }, stars: { fuel: 110, time: 75 },
+      ground: [[0, 44], [22, 40], [44, 46], [66, 36], [90, 30], [112, 36], [134, 28], [156, 34], [178, 46], [198, 40], [224, 40], [240, 46]],
+      legs: [
+        { name: 'Grab the power COUPLER', goals: [{ type: 'visit', pad: 'COUPLER', text: 'Land on COUPLER for the power coupler', done: 'Coupler aboard.' }] },
+        { name: 'Top up at the resort DEPOT', say: 'ENGINEERING: There’s a fuel cell at the depot. Take everything. They’re not coming back for it.', goals: [{ type: 'visit', pad: 'DEPOT', refuel: 120, text: 'Land on DEPOT to refuel' }] },
+        { name: 'Pick up the medic at MEDIC', say: 'FLIGHT: Someone’s still down there, waving. Go get them.', goals: [{ type: 'pickup', pad: 'MEDIC', what: 'crew' }] },
+        { name: 'Climb back up to the ship', goals: [{ type: 'exit' }] }],
+      pads: [{ id: 'COUPLER', x1: 60, x2: 76, y: 34 }, { id: 'DEPOT', x1: 128, x2: 144, y: 26 }, { id: 'MEDIC', x1: 200, x2: 222, y: 40 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -2949,7 +2982,108 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Your Pad is on deck two. A real room, with a real door. Welcome home, pilot.']
   ], { label: 'Act 2', title: 'Moving Day' }];
   const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
-    : 'Act 3 is on the way.';
+    : 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.';
+  // ---- Hard calls: moments in the story where a crewmate can be lost for good ----
+  // Your choice and how close you are to them decide it. Lost crew are missing, never shown dying; their bunk stays empty.
+  const callOf = id => store.get('ds-call-' + id, '');
+  const lostList = () => { try { return JSON.parse(store.get('ds-lost', '[]')) || []; } catch (e) { return []; } };
+  // Kit in an escape pod is missing until you find her at Venus
+  const isLost = w => lostList().includes(w) || (w === 'C' && callOf('storm') === 'pod' && !storyDone('dead-air'));
+  function hardCallStorm(choice) {
+    if (callOf('storm')) return;   // the first time you finish Storm Front decides it
+    const r = choice === 'CELL' ? ((typeof heartsOf === 'function' ? heartsOf('C') : 0) >= 3 ? 'pod' : 'lost') : 'kit';
+    store.set('ds-call-storm', r);
+    if (r === 'lost') { const L = lostList(); if (!L.includes('C')) L.push('C'); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  const CALL_TEXT = {
+    kit: 'You saved Kit. Without the spare fuel cell, Biscuit starts the next job with less fuel.',
+    pod: 'You took the fuel cell. Kit trusted you enough to make it to an escape pod. Look for her at Venus.',
+    lost: 'You took the fuel cell. Kit is missing in the storm. Her bunk stays empty.'
+  };
+  // the drift: from the storm until the engine is relit in Act 3, the ship runs on emergency power
+  const DRIFT_SAYS = [
+    ['F', 'Dottie on the intercom. We’re on emergency power. Red lights stay on, everything else stays off. That includes the jukebox, Rex.'],
+    ['G', 'Gus here. The engine’s… resting. I’m working on it. I’m always working on it.'],
+    ['W', 'Wren on the intercom. We’ve drifted before. You keep busy, you keep fed, and you keep each other company.']
+  ];
+  const shipDark = () => storyDone('storm-front') && !storyDone('patchwork');
+  const DRIFT_STOPS = [['storm-front', 'Mercury'], ['dead-air', 'Venus'], ['dead-air', 'Earth and the Moon'], ['catch', 'Mars'], ['market-day', 'Jupiter'], ['lantern-light', 'Saturn'], ['cold-storage', 'Pluto'], ['patchwork', 'Eris']];
+  function driftHtml() {
+    if (!storyDone('storm-front')) return '';
+    let at = 0; DRIFT_STOPS.forEach(([id], i) => { if (storyDone(id)) at = i; });
+    if (storyDone('dead-air')) at = 2;
+    for (let i = 3; i < DRIFT_STOPS.length; i++) if (storyDone(DRIFT_STOPS[i][0])) at = i;
+    return `<div class="tcard drift"><span class="eyebrow">Drift chart · engine offline</span>
+      <p>${DRIFT_STOPS.map(([, n], i) => i === at ? `<b>▶ ${n}</b>` : i < at ? `<s>${n}</s>` : n).join(' · ')}</p>
+      <p class="limits">${at < 2 ? 'Drifting outward past Venus.' : at === 2 ? 'Drifting past home. Next: Mars, then the Jupiter moons.' : 'Still drifting outward.'}</p></div>`;
+  }
+
+  Object.assign(STORY, {
+    'overdue': { chapter: [15, 'Overdue'],
+      intro: [
+        ['J', 'Welcome back to Mars, Descent. Land on LZ. And, Dottie? Someone’s waiting for you in my office.'],
+        ['U', 'Dottie Reyes. Sable Voss, Apex Landings. Don’t get up. I bought your loans this morning. All of them.'],
+        ['F', 'You did what?'],
+        ['U', 'You owe Apex forty thousand credits. You have ten days. Or I take the Second Wind, and you can all come and work for me. I pay very well.'],
+        ['W', 'Hello, Sable.'],
+        ['U', 'Wren. You look… old.'],
+        ['W', 'And you look exactly like someone who sells out her friends.'],
+        ['F', 'Pilot. Land on LZ. I need a minute. And a calculator.']],
+      react: [['F', 'Forty thousand credits in ten days. We make about four thousand a week. On a good week.'],
+        ['G', 'I did the math three times. It came out bad all three times.'],
+        ['F', 'Then we need a miracle. Or a very, very big job.']] },
+    'sun-side': { chapter: [16, 'Sun-Side'],
+      intro: [
+        ['F', 'A job came in overnight. No name on it. One sunshade crate to a mining station on Mercury’s sun side. It pays forty thousand credits.'],
+        ['W', 'Nobody pays forty thousand for a crate, Dottie.'],
+        ['F', 'Somebody does. Today.'],
+        ['G', 'We can’t make Mercury and back on our fuel. Not unless… leave it with me. I have an idea. A small idea. A small, safe idea.'],
+        ['G', 'Grab the crate at PICKUP and set it down at DROP. Stay in the shade when you can: the sunlight boils your fuel.']],
+      react: [['F', 'Delivered. Forty thousand credits, as soon as we’re home.'],
+        ['G', 'She flew great! Totally normal engine. Nothing new on it at all. Why do you ask?'],
+        ['W', 'Gus. What did you bolt onto my engine bell?']] },
+    'storm-front': { chapter: [17, 'Storm Front'],
+      intro: [
+        ['F', 'Pilot, we have a problem. A solar storm, minutes out, and it’s a big one.'],
+        ['C', 'I’m out on the hull fixing the antenna! I’m tethered! Mostly!'],
+        ['G', 'And the spare fuel cell is still sitting on the pad. Without it, we’re flying on fumes.'],
+        ['F', 'You can only reach one before the storm hits. KIT on the left, the CELL on the right. Then climb straight back up to us.'],
+        ['W', 'Your instruments will be useless. Fly by eye. And pilot? Choose fast.']],
+      react: [['F', 'You’re back. Hold on. Something’s wrong with the engine.'],
+        ['G', 'No. No, no, no. The engine’s dead. We’re… we’re drifting.'],
+        ['W', 'Everybody strap in. We’re not going anywhere we choose for a while.']] },
+    'dead-air': { chapter: [18, 'Dead Air'],
+      get intro() {
+        const c = callOf('storm');
+        return [
+          ['F', 'Status. Engine: dead. Speed: very much not dead. We’re drifting past Venus.'],
+          ['G', 'There’s a sky resort evacuating below us. They’re leaving everything behind: a power coupler, fuel, food.'],
+          ...(c === 'kit' ? [['F', 'And without the spare cell, we’re low on fuel. Fly light.']]
+            : c === 'pod' ? [['G', 'And Kit’s escape pod is pinging from the resort! She made it! She’s waiting with the medic!']]
+            : c === 'lost' ? [['F', 'And keep an ear on the radio. Just in case Kit… just in case.']] : []),
+          ['F', 'Grab the COUPLER, top up at the DEPOT, then pick up whoever is left at MEDIC. Then climb straight back up to us.']];
+      },
+      get react() {
+        const pod = callOf('storm') === 'pod';
+        return [['D', 'Doc Marisol Ibarra. I was the resort’s medic. Thank you. Where are we going?'],
+          pod ? ['C', 'I’m back! I’m back! Doc patched up my elbow! I am never going outside again. Okay, maybe tomorrow.'] : ['F', 'Honestly, Doc? Wherever the drift takes us.'],
+          ['D', 'Smooth flying in a hurricane. I think I’m going to like it here. I’ll set up the med bay.']];
+      } }
+  });
+  // Dead Air starts with less fuel if you saved Kit instead of the spare cell
+  { const da = MISSIONS.find(d => d.id === 'dead-air');
+    if (da) Object.defineProperty(da, 'fuel', { get: () => callOf('storm') === 'kit' ? 320 : 380, enumerable: true }); }
+  Object.defineProperty(EPILOGUES, 'dead-air', { enumerable: true, get: () => [[
+    ['F', 'Everybody to the window.'],
+    ['G', 'Is that…?'],
+    ['W', 'The Moon. And the base. Our little base.'],
+    ['R', 'I can see the bills board through the window! We left the bills board!'],
+    ...(lostList().includes('C') ? [['F', 'Somebody should be standing here with us. Kit should be standing here.']] : []),
+    ['F', 'We can’t stop. We can’t even slow down.'],
+    ['G', 'I’m sorry. I’m so sorry.'],
+    ['F', 'We’ll come back. I promise.'],
+    ['A', 'Mrrp.']
+  ], { label: 'Act 2 ending', title: 'Drifting Past Home' }] });
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3019,7 +3153,7 @@ details.act > .limits { margin: 0 0 8px; }
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
     : [{ type: 'land', pad: 'LZ' }];
   const currentGoal = () => { if (!mission) return null; const g = goalsOf(mission.def)[mission.stage]; const rd = mission.redirect; return g && rd && g.pad === rd.from && (g.type === 'land' || g.type === 'drop') ? { ...g, pad: rd.to } : g; };
-  const isGoalPad = p => { const g = currentGoal(); return !!g && g.pad === p.id; };
+  const isGoalPad = p => { const g = currentGoal(); return !!g && (g.pad === p.id || (!!g.pads && g.pads.includes(p.id))); };
   const thrustMul = () => (mission && mission.carrying && !mission.def.sling && !ship().hauler ? (mission.def.mass || 0.8) : 1) * (mission && mission.cop === 'X' ? 1.12 : 1);
   const rotMul = () => mission && mission.carrying && !mission.def.sling && !ship().hauler ? 0.8 : 1;
   function goalText() {
@@ -3793,6 +3927,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (g.type === 'land' && pad.id === g.pad && g.rover) { deployRover(); return; }
     if (g.type === 'land' && pad.id === g.pad) { completeMission(pad); return; }
     if ((g.type === 'pickup' || g.type === 'drop') && pad.id === g.pad) { mission.loading = true; mission.loadT = 0; }
+    else if (g.type === 'either' && g.pads.includes(pad.id)) { mission.choice = pad.id; mission.stage++; sfx.coin(); showToast(pad.id === 'KIT' ? 'Kit is aboard! Now climb!' : 'Fuel cell aboard. Now climb!', 2200); afterGoal(g, pad); }
     else if (g.type === 'visit' && pad.id === g.pad && d.legs) { mission.stage++; sfx.coin(); afterGoal(g, pad); }
     else if (g.type === 'visit' && pad.id === g.pad) {
       mission.stage++;
@@ -3829,6 +3964,7 @@ details.act > .limits { margin: 0 0 8px; }
     const starsWon = met.filter(Boolean).length;
     const prev = missionStars[d.id] || 0;
     const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex);
+    if (d.id === 'storm-front') hardCallStorm(mission.choice);
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
     credits += pay + extra;
     saveCosmetics();
@@ -3839,7 +3975,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null };
+    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, call: d.id === 'storm-front' && prev === 0 ? callOf('storm') : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
@@ -4474,8 +4610,8 @@ details.act > .limits { margin: 0 0 8px; }
   const BOIL = 0.9, SPIN = 0.001, STORM_P = 14;
   const inShade = x => shades.some(([a, b]) => x >= a && x <= b);
   function stormState() {
-    if (world.hazard !== 'storm') return {};
     if (mission && mission.def.storm === 'always') return { on: true };
+    if (world.hazard !== 'storm') return {};
     const t = (simT + stormSeed) % STORM_P;
     if (t >= 9 && t < 13.5) return { on: true };
     if (t >= 6.5 && t < 9) return { warn: true, left: 9 - t };
@@ -5257,6 +5393,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
+          ${r.call ? `<p class="balance call">⚠ ${CALL_TEXT[r.call]}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
           ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
@@ -8311,12 +8448,13 @@ details.act > .limits { margin: 0 0 8px; }
       shipStep(dt);
       if (!deck) return;
       draw(t); eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
+      if (shipDark()) { const c = deck.c; c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = `rgba(40,0,8,${!reduceMotion && Math.floor(t / 1900) % 11 === 0 ? 0.42 : 0.28})`; c.fillRect(0, 0, deck.cv.width, deck.cv.height); }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
     if (hall) {
       const wand = deck.npcs.map(n => n.who);
-      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the corridor. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])(DECK_SAYS[hallDeck].filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1]))))));
+      shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the corridor. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])((shipDark() ? DRIFT_SAYS : DECK_SAYS[hallDeck].filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1])))))));
     } else if (lift) {
       shipSay(...LIFT_SAYS[Math.floor(Math.random() * LIFT_SAYS.length)]);
       renderLiftPanel();
@@ -12108,7 +12246,7 @@ details.act > .limits { margin: 0 0 8px; }
     const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0]];
     const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
     const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
-      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
+      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
       <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
       ${body}</div>`;
@@ -13709,6 +13847,7 @@ details.act > .limits { margin: 0 0 8px; }
   Object.assign(DEFAULT_MOOD, { N: 'happy', S: 'neutral' });
   ROM_WHO.push('N', 'S');
   Object.assign(romMet, { N: nerriMet, S: brixMet });
+  for (const w of Object.keys(romMet)) { const met = romMet[w]; romMet[w] = () => !isLost(w) && met(); }
   Object.assign(CREW_HOME, { N: 'garden', S: 'room' });
   GEM_FANS.push('S');
   Object.assign(GIFT_TASTE, { N: [['tea', 'tapes'], ['flowers', 'pastry', 'choc']], S: [['stars', 'plant'], ['tea', 'lamp', 'tapes']] });
@@ -14688,7 +14827,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
     if (mission && mission.def.rings && !MENU_MODES.includes(mode)) drawRings(time);
-    if (world.hazard === 'storm' && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
+    if ((world.hazard === 'storm' || (mission && mission.def.storm)) && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
     if (shaking) ctx.restore();
     if (mode === 'replay' && replay) {
       // cinematic bars
