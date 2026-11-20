@@ -531,6 +531,11 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .mtype { font-size: 11px; color: var(--regolith-dim); }
 .mstars { font-size: 15px; letter-spacing: 0.12em; color: var(--flame); }
 .mstars .off, .card .squares .off { color: var(--regolith-dim); opacity: 0.5; }
+.card .squares .sq { display: inline-block; font-size: 1.4em; }
+.card .squares.reveal .sq { animation: starPop .5s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(.25s + var(--i) * .35s); }
+.card .squares .sq.new { color: #ffd36a; text-shadow: 0 0 10px rgba(255, 211, 106, .75); }
+@keyframes starPop { from { transform: scale(0) rotate(-40deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .card .squares.reveal .sq { animation: none; } }
 .card .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
 .goals { margin: 0; padding-left: 1.4em; text-align: left; font-size: 13px; line-height: 1.7; }
 .starlist { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--regolith-dim); text-align: left; }
@@ -3219,6 +3224,26 @@ details.act > .limits { margin: 0 0 8px; }
   // story missions are one a day: after a new story mission, the next one waits until you've slept
   const restLocked = i => i > 0 && i < MISSIONS.length && !(missionStars[MISSIONS[i].id] > 0) && +store.get('ds-storyRest', '0') >= shipDay;
   const restText = () => `The crew needs rest. Sleep in your ${inBase() ? 'bunk' : 'Pad'} to unlock the next story mission. Side missions and free flight are still open.`;
+  const starReveal = (n, prev) => [0, 1, 2].map(i => `<span class="sq${i < n ? ' on' : ' off'}${i >= prev && i < n ? ' new' : ''}" style="--i:${i}">★</span>`).join('');
+  // the results card: stars pop in one by one with a rising chime, credits count up, a fresh 3 stars gets confetti
+  function revealStars(card) {
+    const row = card.querySelector('.squares.reveal');
+    if (!row || !mission) return;
+    mission.revealed = true;
+    const on = row.querySelectorAll('.sq.on'), fresh = row.querySelectorAll('.sq.new').length;
+    const counts = card.querySelectorAll('[data-count]');
+    if (reduceMotion) return;
+    const from = mode;
+    on.forEach((el, i) => setTimeout(() => { if (mode === from) sfx.star(i); }, 250 + i * 350));
+    const end = 250 + on.length * 350;
+    if (on.length === 3 && fresh) setTimeout(() => { if (mode === from) { confetti(90); sfx.cheer(); } }, end);
+    counts.forEach(el => {
+      const goal = +el.dataset.count; el.textContent = '0';
+      const t0 = performance.now() + end - 150;
+      const tick = now => { const k = Math.max(0, Math.min(1, (now - t0) / 700)); el.textContent = fmt(Math.round(goal * (1 - Math.pow(1 - k, 3)))); if (k < 1 && el.isConnected) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    });
+  }
   const starHtml = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(3 - n)}</span>`;
   // ---- Multi-stop missions ----
   // A mission with `legs` is a chain of stops flown in one go. Each leg has a name, an optional radio line
@@ -4844,6 +4869,7 @@ details.act > .limits { margin: 0 0 8px; }
       beep(urgent) { tone(urgent ? 1180 : 980, 'square', 0, 0.09, 0.12); },
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
+      star(i) { const f = [784, 988, 1175][i] || 1175; tone(f, 'square', 0, 0.09, 0.1); tone(f * 1.5, 'square', 0.07, 0.24, 0.08); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       shutter() { burst(0, 0.035, 0.35, 5000, 1500); burst(0.07, 0.05, 0.3, 3000, 900); },
       arcThrust() { burst(0, 0.1, 0.05, 520, 300); },
@@ -5842,7 +5868,7 @@ details.act > .limits { margin: 0 0 8px; }
         const fresh = r.stars - r.prev;
         html = `<span class="eyebrow">${missionLabel(missionSel)} · ${d.name}</span>
           <h1 class="good">Mission complete</h1>
-          <p class="squares">${starHtml(r.stars)}</p>
+          <p class="squares${mission.revealed ? '' : ' reveal'}" aria-label="${r.stars} of 3 stars">${starReveal(r.stars, r.prev)}</p>
           ${STORY[d.id] ? radioQuote(STORY[d.id].react[r.stars - 1]) : ''}
           <div class="starlist">
             <span class="met">★ Mission complete</span>
@@ -5862,9 +5888,9 @@ details.act > .limits { margin: 0 0 8px; }
           ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
-          ${r.pay ? `<p class="balance">+${fmt(r.pay)} credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
+          ${r.pay ? `<p class="balance">+<span data-count="${r.pay}">${fmt(r.pay)}</span> credits for ${fresh} new star${fresh === 1 ? '' : 's'}</p>`
                   : `<p class="limits">No new stars this time. Your best is ${r.prev} of 3.</p>`}
-          ${r.extra ? `<p class="balance">+${fmt(r.extra)} bonus credits from landings and pickups</p>` : ''}
+          ${r.extra ? `<p class="balance">+<span data-count="${r.extra}">${fmt(r.extra)}</span> bonus credits from landings and pickups</p>` : ''}
           <div class="btns">
             ${EPILOGUES[d.id] ? '<button class="btn" id="epilogue">Epilogue</button>' : hasNext ? '<button class="btn" id="next">Next mission</button>' : ''}
             <button class="btn${hasNext || EPILOGUES[d.id] ? ' ghost' : ''}" id="go">Fly again</button>
@@ -5937,6 +5963,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     card.innerHTML = html;
     paintFaces(card);
+    if (m === 'missionEnd') revealStars(card);
     const chb = $('chalBtn');
     if (chb) { const R = { w: world.id, l: level, s: siteSeed, n: pilotName(), p: lastResult.pts, frames: lastRun.frames }; chb.addEventListener('click', () => shareRace(R, chb)); }
     const rpb = $('replayBtn');
@@ -13248,6 +13275,38 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, 0, 62, 22, 10, '#3f8a4a'); px(c, 76, 58, 20, 14, '#3f8a4a'); phOval(c, 8, 60, 8, 4, '#4fa85a'); phOval(c, 88, 56, 8, 4, '#4fa85a');
       phOval(c, 30, 56, 3, 2, '#e03a2a'); px(c, 30, 54, 1, 5, '#15151f'); px(c, 28, 55, 1, 1, '#15151f'); px(c, 32, 57, 1, 1, '#15151f'); px(c, 27, 56, 1, 1, '#15151f');
     }]
+    ,['a steaming bamboo basket of dumplings', c => {
+      phGrad(c, '#3a2a20', '#20160f'); px(c, 0, 50, PH_W, 22, '#5a3a24'); px(c, 0, 50, PH_W, 1, '#7a5034');
+      phOval(c, 48, 50, 34, 10, '#8a6a30'); phOval(c, 48, 47, 32, 9, '#c9a24a'); phOval(c, 48, 46, 29, 7, '#e8d8b0');
+      for (let x = 18; x < 80; x += 6) px(c, x, 52, 1, 6, '#8a6a30');
+      [[34, 42], [48, 40], [62, 42], [40, 48], [56, 48]].forEach(([x, y], i) => {
+        if (i === 1) { px(c, x - 5, y - 4, 10, 7, '#f4f1e8'); px(c, x - 3, y - 3, 6, 3, '#9fd8f0'); px(c, x - 6, y + 3, 2, 2, '#f4f1e8'); px(c, x + 4, y + 3, 2, 2, '#f4f1e8'); return; }
+        phOval(c, x, y, 6, 4, '#f4f1e8'); px(c, x - 3, y - 4, 1, 2, '#d8d0bc'); px(c, x, y - 5, 1, 2, '#d8d0bc'); px(c, x + 3, y - 4, 1, 2, '#d8d0bc');
+      });
+      c.fillStyle = 'rgba(255,255,255,.18)'; for (let i = 0; i < 3; i++) { c.beginPath(); c.ellipse(36 + i * 12, 22 - (i % 2) * 4, 3, 8, 0.3, 0, Math.PI * 2); c.fill(); }
+    }]
+    ,['Kit saluting in front of the supply closet', c => {
+      px(c, 0, 0, PH_W, PH_H, '#2a3045');
+      const cols = ['#ff6b5e', '#ffb547', '#ffe58a', '#9fe0b8', '#7fd6ff', '#9a8ae0', '#ff9ad5'];
+      for (let r = 0; r < 4; r++) { px(c, 0, 14 + r * 16, PH_W, 2, '#5a4030'); cols.forEach((cl, i) => px(c, 3 + i * 13, 4 + r * 16, 11, 10, cl)); }
+      phFaceAt(c, 'C', 26, 22, 1.4);
+    }]
+    ,['a Mars sunset from the dock', c => {
+      phGrad(c, '#b8835a', '#6a5a70', 0, PH_H);
+      const g = c.createRadialGradient(56, 44, 1, 56, 44, 30); g.addColorStop(0, 'rgba(200,230,255,.95)'); g.addColorStop(0.35, 'rgba(120,170,230,.7)'); g.addColorStop(1, 'rgba(120,170,230,0)'); c.fillStyle = g; c.fillRect(20, 10, 72, 40);
+      phDisc(c, 56, 44, 2, '#ffffff');
+      c.fillStyle = '#2a1a18'; c.beginPath(); c.moveTo(0, 50); for (let x = 0; x <= PH_W; x += 8) c.lineTo(x, 48 + Math.sin(x * 0.11) * 3); c.lineTo(PH_W, PH_H); c.lineTo(0, PH_H); c.fill();
+      px(c, 12, 26, 4, 26, '#1a100e'); px(c, 8, 24, 12, 3, '#1a100e'); px(c, 15, 22, 1, 2, '#ff6b5e');
+      px(c, 0, 60, PH_W, 12, '#1a100e'); px(c, 0, 60, PH_W, 1, '#3a2620');
+    }]
+    ,['a lap-time chart taped to a bunk wall', c => {
+      px(c, 0, 0, PH_W, PH_H, '#3a4256'); for (let x = 0; x < PH_W; x += 12) px(c, x, 0, 1, PH_H, '#333a4c');
+      px(c, 14, 8, 68, 56, '#f4f1e8'); [[12, 6], [76, 6], [12, 58], [76, 58]].forEach(([x, y]) => px(c, x, y, 8, 4, 'rgba(255,229,138,.8)'));
+      for (let i = 0; i < 5; i++) { c.strokeStyle = i === 3 ? '#e03a2a' : '#9aa2b4'; c.lineWidth = i === 3 ? 1.5 : 1; c.beginPath(); c.moveTo(20, 52 - i * 3); for (let x = 20; x <= 76; x += 8) c.lineTo(x, 52 - i * 3 - (x - 20) * (0.2 + i * 0.07) + Math.sin(x + i) * 1.5); c.stroke(); }
+      c.strokeStyle = '#e03a2a'; c.lineWidth = 1.2; c.beginPath(); c.ellipse(66, 22, 9, 5, -0.3, 0, Math.PI * 2); c.stroke();
+      phText(c, 'YOURS', 56, 11.5, 3.8, '#e03a2a');
+      phText(c, 'LAP TIMES', 32, 13, 3.4, '#3a4668', { font: 'ui-monospace, Menlo, monospace' });
+    }]
   ];
   function photoFor(text) { const k = text.replace(/^📷\s*/, ''); return PHOTOS.find(([key]) => k.startsWith(key)); }
   function photoCanvas(text) {
@@ -13601,8 +13660,8 @@ details.act > .limits { margin: 0 0 8px; }
       ['I tried to sing you a song but my helmet fogged up. Can I send it as a text? ♪ ♫ ♪♪ ♫', [['That was beautiful.', 'warm', 'You could HEAR it?? Through the little notes?? This is the best day.'], ['♫ ♪ ♫ (singing back)', 'fun', 'A DUET!! We have a duet!! I’m telling everyone on Europa!']]]],
     S: [['…Good… morning.', [['Good morning, Brix!', 'warm', 'I… wrote that… yesterday. It arrived… on time. I am… very proud.'], ['It’s nighttime.', 'fun', 'Ah. I… started typing… this morning. Time… is fast… on this ship.']]],
       ['📷 a smooth grey rock, sitting on a tiny pillow', [['Is that your pet rock?', 'fun', 'His name… is Pebble. He… says hello. Slowly.'], ['He looks very comfortable.', 'warm', 'He… is. I… knitted… the pillow. It took… a season.']]]],
-    C: [['Cadet Kit reporting: I reorganized the supply closet by color. Then by size. Then by color again.', [['Great work, cadet!', 'warm', 'THANK YOU, PILOT! I’m framing this text! Can you frame a text?'], ['How many times did you reorganize it?', 'fun', 'Eleven. Dottie said “stop”. I am pretending I didn’t hear her.']]]],
-    H: [['Dumplings tomorrow. I’m saving you the crispy ones. Don’t tell Gus. Gus eats the crispy ones.', [['You’re the best, Bao.', 'warm', 'I know. Now go to sleep. Growing pilots need sleep. And dumplings.'], ['Gus will find out.', 'fun', 'Gus can try. I have hidden them in the spice drawer. Nobody opens the spice drawer.']]]],
+    C: [['📷 Kit saluting in front of the supply closet, every shelf sorted into a rainbow', [['That’s beautiful, cadet.', 'warm', 'I CRIED A LITTLE. Happy tears! Regulation tears!'], ['Now do it alphabetically.', 'fun', 'ON IT. Wait. Alphabetically by what. By WHAT, pilot.']]], ['Cadet Kit reporting: I reorganized the supply closet by color. Then by size. Then by color again.', [['Great work, cadet!', 'warm', 'THANK YOU, PILOT! I’m framing this text! Can you frame a text?'], ['How many times did you reorganize it?', 'fun', 'Eleven. Dottie said “stop”. I am pretending I didn’t hear her.']]]],
+    H: [['📷 a steaming bamboo basket of dumplings, one shaped like Biscuit', [['Is that one shaped like Biscuit?!', 'fun', 'It is. It tastes like victory. And pork.'], ['Save me one!', 'warm', 'Already saved. Third shelf. Behind the hot sauce. Tell no one.']]], ['Dumplings tomorrow. I’m saving you the crispy ones. Don’t tell Gus. Gus eats the crispy ones.', [['You’re the best, Bao.', 'warm', 'I know. Now go to sleep. Growing pilots need sleep. And dumplings.'], ['Gus will find out.', 'fun', 'Gus can try. I have hidden them in the spice drawer. Nobody opens the spice drawer.']]]],
     D: [['Medical reminder: drink water. That’s it. That’s the text. Drink water.', [['Drinking water right now 💧', 'warm', 'Good. I’m proud of you. Medically.'], ['What if I drink coffee instead?', 'fun', 'Then I will be texting you again. Every hour. With pictures of water.']]]],
     T: [['The moonflower in bed three bloomed! It only blooms at night. I stayed up to see it. Worth it!', [['Send a picture!', 'fun', '📷 a pale glowing flower, wide open under the grow lamps'], ['That sounds magical.', 'warm', 'It was. Come by the garden tomorrow night? It might bloom again.']]]],
     X: [['RACE ME TOMORROW. Engine room to the bridge. Loser buys cocoa.', [['You’re on.', 'fun', 'YESSS. I’ve been stretching. Since yesterday. Prepare to lose.'], ['How about we walk there together instead?', 'warm', 'Walk?? …Okay fine. Slowly. I will be vibrating the whole time.']]]]
@@ -15199,9 +15258,9 @@ details.act > .limits { margin: 0 0 8px; }
         ['C', 'books', '#1e2a4c', 'Flight manuals and one romance novel. Rex gave it to me. I’ve read it four times. Don’t tell him.'], ['D', 'plant', '#5a8a3a', 'Tamsin gave me a plant. I’ve never kept anything alive before. It’s doing well. I check on it every hour.']] }
   });
   Object.assign(TEXTS, {
-    E: [['Juno just messaged me. She says hi to you. Specifically you. I think she knows.', [['Knows what? 😏', 'fun', 'Ha. Nice try, ace. You know what.'], ['Tell her hi back!', 'warm', 'Done. She sent back a heart. Juno doesn’t send hearts. Ever.']]],
+    E: [['📷 a Mars sunset from the dock: a small white sun in a blue glow, the dust sky gone gold', [['Wait, Mars sunsets are blue?', 'fun', 'Everyone’s first question. Yeah, ace. The dust does it. Best thing about home.'], ['That’s gorgeous.', 'warm', 'Thought of you when I took it. Don’t make it weird. …Okay, make it a little weird.']]], ['Juno just messaged me. She says hi to you. Specifically you. I think she knows.', [['Knows what? 😏', 'fun', 'Ha. Nice try, ace. You know what.'], ['Tell her hi back!', 'warm', 'Done. She sent back a heart. Juno doesn’t send hearts. Ever.']]],
       ['Fixed the galley coffee machine. It makes coffee now instead of noises. You’re welcome, ship.', [['My hero ☕', 'warm', 'Yeah, I am. Come get a cup.'], ['It made great noises though', 'fun', 'It did. I recorded them. For the album.']]]],
-    Q: [['Ran the numbers on your last landing. You were 0.3 seconds off the best line.', [['Show me the line?', 'warm', 'Tomorrow. Bridge. 0600. Bring coffee.'], ['0.3 is nothing', 'fun', '0.3 is everything. …It was a good landing.']]],
+    Q: [['📷 a lap-time chart taped to a bunk wall, one red line circled: YOURS', [['You keep my times on your wall?', 'fun', 'For research. Purely research. Stop smiling.'], ['Let’s beat it together.', 'warm', 'Bridge. 0600. You fly, I’ll call the lines.']]], ['Ran the numbers on your last landing. You were 0.3 seconds off the best line.', [['Show me the line?', 'warm', 'Tomorrow. Bridge. 0600. Bring coffee.'], ['0.3 is nothing', 'fun', '0.3 is everything. …It was a good landing.']]],
       ['Apex just sent me my final paycheck. I spent it on cocoa for the whole crew.', [['That’s so sweet', 'warm', 'Don’t spread that around. I have a reputation.'], ['Revenge cocoa 😂', 'fun', 'The sweetest revenge.']]]]
   });
   Object.assign(MORE_TEXTS, {
