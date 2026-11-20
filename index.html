@@ -411,6 +411,13 @@ kbd {
 .ph-b.me { align-self: flex-end; } .ph-b.me > div { background: #2f8a55; color: #fff; border-bottom-right-radius: 4px; }
 .ph-photo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px; margin: -2px -4px; border-radius: 10px; background: #0a0e1c; border: 1px dashed rgba(201, 207, 220, 0.3); font-size: 12px; font-style: italic; text-align: center; }
 .ph-photo span { font-size: 24px; font-style: normal; }
+.ph-b > div:has(> .ph-pic) { padding: 3px; line-height: 0; }
+.ph-pic { display: block; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 11px; overflow: hidden; width: 180px; max-width: 100%; }
+.ph-pic img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.ph-view { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; background: rgba(5, 7, 15, 0.9); padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); box-sizing: border-box; }
+.ph-view-in { display: flex; flex-direction: column; align-items: center; gap: 12px; width: min(100%, 640px, calc((100dvh - 140px) * 4 / 3)); }
+.ph-view img { width: 100%; height: auto; border-radius: 8px; image-rendering: pixelated; -webkit-touch-callout: default; }
+.ph-view p { margin: 0; color: var(--regolith); font-size: 13px; font-style: italic; text-align: center; text-wrap: balance; }
 .ph-replies { display: flex; flex-direction: column; gap: 6px; padding: 8px 2px 2px; border-top: 1px solid rgba(201, 207, 220, 0.12); }
 .ph-reply { padding: 9px 12px; border-radius: 16px; border: 1px solid rgba(47, 138, 85, 0.7); background: rgba(47, 138, 85, 0.12); color: inherit; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .ph-reply.flirt { border-color: rgba(255, 154, 213, 0.7); background: rgba(255, 154, 213, 0.1); }
@@ -13107,13 +13114,186 @@ details.act > .limits { margin: 0 0 8px; }
     return `<ul class="ph-list">${rows || '<li class="ph-empty">No messages yet. Crew messages, radio calls and intercom announcements will be saved here.</li>'}</ul>
       ${phoneLog.length ? '<div class="ph-foot"><button class="link" id="phoneClear">Clear all</button></div>' : ''}`;
   }
-  const bubble = m => m.text.startsWith('📷 ') ? `<div class="ph-photo"><span aria-hidden="true">📷</span>${esc(m.text.slice(2).trim())}</div>` : esc(m.text);
+  // ---- Real photos in texts: each 📷 line is painted as a little pixel-art photo, using the crew's own faces ----
+  const PH_W = 96, PH_H = 72, PH_K = 4;
+  const phCache = {};
+  function phFace(who, mood) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, mood || 'happy', false, false, true); return cv; }
+  function phRng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+  function phGrad(c, top, bot, y0 = 0, y1 = PH_H) { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, top); g.addColorStop(1, bot); c.fillStyle = g; c.fillRect(0, y0, PH_W, y1 - y0); }
+  function phDisc(c, cx, cy, r, col) { for (let y = -r; y <= r; y++) { const w = Math.round(Math.sqrt(r * r - y * y)); px(c, Math.round(cx - w), Math.round(cy + y), w * 2 + 1, 1, col); } }
+  function phOval(c, cx, cy, rx, ry, col) { for (let y = -ry; y <= ry; y++) { const w = Math.round(rx * Math.sqrt(1 - (y * y) / (ry * ry))); px(c, Math.round(cx - w), Math.round(cy + y), w * 2 + 1, 1, col); } }
+  function phStar(c, x, y, col) { px(c, x + 2, y, 1, 5, col); px(c, x, y + 2, 5, 1, col); px(c, x + 1, y + 1, 3, 3, col); }
+  function phFaceAt(c, who, x, y, k, mood) { c.drawImage(phFace(who, mood), x, y, 32 * k, 32 * k); }
+  function phText(c, txt, x, y, size, col, opt = {}) {
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+    let s = size * PH_K;
+    c.font = `${opt.weight || 700} ${s}px ${opt.font || C('--f-display')}`;
+    if (opt.max) while (c.measureText(txt).width > opt.max * PH_K && s > 10) { s -= 1; c.font = `${opt.weight || 700} ${s}px ${opt.font || C('--f-display')}`; }
+    c.textAlign = opt.align || 'center'; c.textBaseline = 'middle';
+    if (opt.stroke) { c.lineWidth = s / 5; c.strokeStyle = opt.stroke; c.lineJoin = 'round'; c.strokeText(txt, x * PH_K, y * PH_K); }
+    c.fillStyle = col; c.fillText(txt, x * PH_K, y * PH_K); c.restore();
+  }
+  const PHOTOS = [
+    ['Biscuit in a tiny party hat', c => {
+      phGrad(c, '#2a3148', '#1a2033', 0, 60); px(c, 0, 60, PH_W, 12, '#3a4256'); px(c, 0, 60, PH_W, 1, '#4c5672');
+      for (let x = 4; x < PH_W; x += 12) { px(c, x, 4, 13, 1, '#8a8f9c'); const cl = ['#ff9ad5', '#ffd36a', '#7fd6ff', '#9fe0b8'][(x / 12 | 0) % 4]; px(c, x + 3, 5, 6, 2, cl); px(c, x + 4, 7, 4, 1, cl); px(c, x + 5, 8, 2, 1, cl); }
+      const r = phRng(7); for (let i = 0; i < 40; i++) px(c, r() * PH_W | 0, 10 + r() * 50 | 0, 1 + (r() < 0.4), 1, ['#ff9ad5', '#ffd36a', '#7fd6ff', '#9fe0b8', '#ff6b5e'][i % 5]);
+      c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(26, 60, 44, 2);
+      cineLander(c, 48, 42, 3.2, '#c9cfdc');
+      // the hat, a little crooked
+      for (let i = 0; i < 14; i++) { const w = Math.round((14 - i) * 0.55); px(c, 49 - w + Math.round(i * 0.15), 26 - i, w * 2 + 1, 1, (i >> 1) % 2 ? '#ffd36a' : '#ff9ad5'); }
+      phDisc(c, 51, 11, 2, '#f4f1e8'); px(c, 41, 26, 17, 1, '#c96a9a');
+    }],
+    ['a wrench wearing googly eyes', c => {
+      phGrad(c, '#5a4030', '#3a2a20', 14, PH_H); const r = phRng(3); for (let i = 0; i < 30; i++) px(c, r() * PH_W | 0, 14 + r() * 58 | 0, 3 + r() * 6 | 0, 1, '#4a3428');
+      c.save(); c.translate(48, 46); c.rotate(-0.42);
+      px(c, -30, -3, 46, 6, '#9aa2b4'); px(c, -30, -3, 46, 2, '#c9cfdc'); px(c, -30, 2, 46, 1, '#6c7690');
+      px(c, 14, -9, 14, 18, '#9aa2b4'); px(c, 14, -9, 14, 2, '#c9cfdc'); px(c, 20, -4, 9, 8, '#3a2a20');
+      px(c, -36, -6, 9, 12, '#9aa2b4'); px(c, -35, -2, 6, 4, '#3a2a20'); c.restore();
+      phDisc(c, 34, 44, 6, '#ffffff'); phDisc(c, 50, 38, 6, '#ffffff'); phDisc(c, 32, 46, 3, '#15151f'); phDisc(c, 53, 37, 3, '#15151f');
+      px(c, 0, 0, PH_W, 14, '#15151f');
+      phText(c, 'me when the engine makes a new noise', 48, 7.3, 6.2, '#ffffff', { max: 90, font: 'Impact, "Arial Black", sans-serif', weight: 400 });
+    }],
+    ['Five pilots in matching jumpsuits', c => {
+      phGrad(c, '#9db7d6', '#d6dde8', 0, 50); px(c, 0, 50, PH_W, 22, '#7c8494'); px(c, 0, 50, PH_W, 1, '#5c6474');
+      px(c, 70, 12, 10, 38, '#c9cfdc'); px(c, 72, 4, 6, 8, '#c9cfdc'); px(c, 73, 0, 4, 4, '#ff6b5e'); px(c, 66, 40, 18, 10, '#9aa2b4');
+      const suit = '#d86a2a';
+      const crew = [
+        { skin: '#e8b48a', hair: '#e0c050', style: 'messy' }, { skin: '#9a5f43', hair: '#2b1d16', style: 'curly' },
+        { skin: '#c99470', hair: '#4a2e22', style: 'long', scarf: '#ff9ad5' },
+        { skin: '#f2c9a2', hair: '#a0402a', style: 'curly' }, { skin: '#6e4a36', hair: '#15151f', style: 'messy' }];
+      c.save(); c.translate(48, 56); c.scale(1.15, 1.15); c.translate(-48, -56);
+      crew.forEach((k, i) => {
+        const x = 8 + i * 16, y = 28 + (i === 2 ? -1 : 0);
+        phOval(c, x + 8, y + 1, i === 2 ? 8 : 7, 5, k.hair);
+        drawSprite(c, { ...k, top: suit, pants: suit, shoes: '#2a1a12' }, x, y, 0, 0, false);
+      });
+      c.restore();
+      phText(c, 'KEPLER RUN · THE WHOLE CREW', 48, 66, 3.6, '#3a3040', { font: 'ui-monospace, Menlo, monospace' });
+      return 'sepia';
+    }],
+    ['Rex, mid-hair-flip', c => {
+      px(c, 0, 0, PH_W, PH_H, '#b8aac8'); for (let y = 0; y < PH_H; y += 8) for (let x = 0; x < PH_W; x += 8) px(c, x, y, 7, 7, (x + y) % 16 ? '#e6dcf0' : '#d8cce6');
+      px(c, 18, 4, 60, 62, '#c9a24a'); px(c, 21, 7, 54, 56, '#9fb4cc'); px(c, 21, 7, 54, 56, '#a9bed6');
+      for (let i = 0; i < 6; i++) { phDisc(c, 22 + i * 10.4, 4, 2, '#fff6d0'); }
+      phFaceAt(c, 'R', 24, 10, 1.6);
+      c.strokeStyle = '#1f1a24'; c.lineWidth = 2; for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(40 + i * 3, 16, 14 + i * 3, Math.PI * 1.05, Math.PI * 1.45); c.stroke(); }
+      c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1; for (let i = 0; i < 3; i++) { c.beginPath(); c.moveTo(24 - i * 2, 12 + i * 4); c.lineTo(17 - i * 2, 10 + i * 4); c.stroke(); }
+      phStar(c, 66, 14, '#ffffff'); phStar(c, 70, 40, '#fff6d0'); phStar(c, 26, 50, '#ffffff');
+      px(c, 0, 66, PH_W, 6, '#f4f1e8');
+    }],
+    ['Zib holding six Zib plushies', c => {
+      phGrad(c, '#4a2a5a', '#2a1a3a'); for (let i = 0; i < 6; i++) phStar(c, 6 + i * 16, 4 + (i % 2) * 6, '#ff9ad5');
+      phFaceAt(c, 'Z', 28, 12, 1.25);
+      const spots = [[4, 44], [14, 54], [4, 58], [70, 44], [80, 54], [70, 58]];
+      spots.forEach(([x, y], i) => phFaceAt(c, 'Z', x, y - 8 + (i % 3 === 1 ? -6 : 0), 0.5));
+      px(c, 0, 68, PH_W, 4, '#1a1028');
+    }],
+    ['a smooth grey rock, sitting on a tiny pillow', c => {
+      phGrad(c, '#5a5470', '#3a3650', 0, 46); px(c, 0, 46, PH_W, 26, '#7a5a3a'); px(c, 0, 46, PH_W, 2, '#9a7a52');
+      phOval(c, 48, 52, 26, 7, '#c9a0e0'); phOval(c, 48, 50, 24, 5, '#dcb8f0'); [[22, 52], [74, 52]].forEach(([x, y]) => { px(c, x - 3, y, 3, 1, '#ffd36a'); px(c, x - 4, y + 1, 2, 2, '#ffd36a'); });
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(32, 49, 32, 2);
+      phOval(c, 48, 38, 16, 11, '#7c8494'); phOval(c, 47, 36, 14, 9, '#9aa2b4'); phOval(c, 43, 32, 6, 3, '#c9cfdc');
+      const r = phRng(11); for (let i = 0; i < 10; i++) px(c, 36 + r() * 24 | 0, 32 + r() * 12 | 0, 1, 1, '#6c7690');
+    }],
+    ['a pale glowing flower', c => {
+      phGrad(c, '#0c1418', '#14241e');
+      for (const x of [10, 52]) { px(c, x, 3, 34, 4, '#3a2a4a'); px(c, x + 2, 7, 30, 2, '#e07ad8'); }
+      const gl = c.createLinearGradient(0, 9, 0, 50); gl.addColorStop(0, 'rgba(224,122,216,.28)'); gl.addColorStop(1, 'rgba(224,122,216,0)'); c.fillStyle = gl; c.fillRect(8, 9, 82, 41);
+      px(c, 0, 58, PH_W, 14, '#3a2618'); px(c, 0, 58, PH_W, 2, '#4a3220');
+      px(c, 47, 34, 2, 24, '#3f8a4a'); px(c, 38, 46, 9, 3, '#4fa85a'); px(c, 49, 42, 9, 3, '#4fa85a');
+      const halo = c.createRadialGradient(48, 30, 2, 48, 30, 22); halo.addColorStop(0, 'rgba(220,240,255,.55)'); halo.addColorStop(1, 'rgba(220,240,255,0)'); c.fillStyle = halo; c.fillRect(20, 6, 56, 48);
+      for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; phOval(c, 48 + Math.cos(a) * 7, 30 + Math.sin(a) * 6, 5, 4, '#e8f4ff'); }
+      phDisc(c, 48, 30, 3, '#ffe58a');
+      const r = phRng(5); for (let i = 0; i < 12; i++) px(c, 24 + r() * 48 | 0, 10 + r() * 36 | 0, 1, 1, '#ffffff');
+    }],
+    ['a neat bar graph labeled', c => {
+      px(c, 0, 0, PH_W, PH_H, '#f4f1e8'); for (let y = 18; y < 62; y += 8) px(c, 12, y, 78, 1, '#e0dccf');
+      px(c, 12, 16, 1, 46, '#3a4668'); px(c, 12, 62, 78, 1, '#3a4668');
+      const hs = [8, 14, 19, 26, 33, 40];
+      hs.forEach((h, i) => { px(c, 17 + i * 12, 62 - h, 8, h, '#4a7ac8'); px(c, 17 + i * 12, 62 - h, 8, 2, '#7aa8ee'); });
+      phDisc(c, 81, 15, 4, '#ffd36a'); phStar(c, 79, 13, '#fff6d0');
+      phText(c, 'PILOT IMPROVEMENT', 48, 7, 6, '#26355e');
+      phText(c, '+12%', 70, 26, 4.2, '#2f7a58', { font: 'ui-monospace, Menlo, monospace' });
+    }],
+    ['a selfie of Gus covered in engine grease', c => {
+      phGrad(c, '#2a3045', '#1a2030'); px(c, 0, 10, PH_W, 4, '#4c5672'); px(c, 0, 30, PH_W, 3, '#4c5672'); px(c, 70, 0, 5, PH_H, '#5a6478'); phDisc(c, 72, 31, 4, '#c46a2c');
+      phFaceAt(c, 'G', 18, 6, 2);
+      const sm = 'rgba(30,26,30,.7)'; c.fillStyle = sm; [[30, 40, 6, 3], [50, 34, 4, 5], [36, 54, 9, 2], [26, 28, 3, 6], [56, 48, 5, 3]].forEach(([x, y, w, h]) => c.fillRect(x, y, w, h));
+      // thumbs up: a fist with the thumb pointing up from its top-left, curled fingers on the right
+      const sk = '#f2c9a2', sd = '#c9966e';
+      px(c, 73, 60, 13, 12, '#3d6b63'); px(c, 73, 60, 13, 2, '#2f5550');
+      px(c, 72, 46, 15, 14, sk); px(c, 72, 46, 15, 1, '#ffe0c0');
+      for (let i = 0; i < 4; i++) { px(c, 80, 49 + i * 3, 7, 1, sd); }
+      px(c, 86, 47, 1, 12, sd);
+      px(c, 72, 36, 6, 11, sk); px(c, 73, 35, 4, 1, sk); px(c, 77, 37, 1, 9, sd); px(c, 73, 36, 3, 2, '#ffe0c0');
+      c.fillStyle = sm; c.fillRect(81, 52, 4, 3);
+    }],
+    ['Zib wearing a tiny captain', c => {
+      phGrad(c, '#15203a', '#0a1020'); const r = phRng(9); for (let i = 0; i < 30; i++) px(c, r() * PH_W | 0, r() * PH_H | 0, 1, 1, '#c9cfdc');
+      phFaceAt(c, 'Z', 16, 12, 2);
+      px(c, 36, 15, 26, 7, '#1e2a4c'); px(c, 32, 21, 34, 3, '#15151f'); px(c, 36, 19, 26, 2, '#ffd36a'); phStar(c, 47, 15, '#ffd36a');
+    }],
+    ['Nerri pressing her face against the dome glass', c => {
+      phGrad(c, '#05070f', '#0e1630'); const r = phRng(21); for (let i = 0; i < 60; i++) px(c, r() * PH_W | 0, r() * PH_H | 0, 1, 1, r() < 0.2 ? '#7fd6ff' : '#ffffff');
+      phFaceAt(c, 'N', 16, 8, 2);
+      c.fillStyle = 'rgba(220,240,255,.28)'; phOval(c, 48, 50, 10, 5, 'rgba(220,240,255,.28)');
+      c.fillStyle = 'rgba(255,255,255,.10)'; c.beginPath(); c.moveTo(0, 20); c.lineTo(30, 0); c.lineTo(42, 0); c.lineTo(0, 30); c.fill(); c.beginPath(); c.moveTo(60, 72); c.lineTo(96, 40); c.lineTo(96, 48); c.lineTo(68, 72); c.fill();
+      c.strokeStyle = '#3a4668'; c.lineWidth = 3; c.beginPath(); c.arc(48, 150, 150, Math.PI * 1.3, Math.PI * 1.7); c.stroke();
+    }],
+    ['Brix sitting very still in the garden', c => {
+      phGrad(c, '#1c3a2a', '#14281e'); const r = phRng(4);
+      for (let i = 0; i < 26; i++) { const x = r() * PH_W | 0, y = r() * PH_H | 0; phOval(c, x, y, 3, 2, r() < 0.5 ? '#2f6a42' : '#3f8a4a'); }
+      phFaceAt(c, 'S', 16, 8, 2);
+      px(c, 0, 62, 22, 10, '#3f8a4a'); px(c, 76, 58, 20, 14, '#3f8a4a'); phOval(c, 8, 60, 8, 4, '#4fa85a'); phOval(c, 88, 56, 8, 4, '#4fa85a');
+      phOval(c, 30, 56, 3, 2, '#e03a2a'); px(c, 30, 54, 1, 5, '#15151f'); px(c, 28, 55, 1, 1, '#15151f'); px(c, 32, 57, 1, 1, '#15151f'); px(c, 27, 56, 1, 1, '#15151f');
+    }]
+  ];
+  function photoFor(text) { const k = text.replace(/^📷\s*/, ''); return PHOTOS.find(([key]) => k.startsWith(key)); }
+  function photoCanvas(text) {
+    const p = photoFor(text); if (!p) return null;
+    const cv = document.createElement('canvas'); cv.width = PH_W * PH_K; cv.height = PH_H * PH_K;
+    const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.scale(PH_K, PH_K);
+    const fx = p[1](c);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    if (fx === 'sepia') {
+      const im = c.getImageData(0, 0, cv.width, cv.height), d = im.data;
+      for (let i = 0; i < d.length; i += 4) { const r = d[i], g = d[i + 1], b = d[i + 2]; d[i] = Math.min(255, r * .393 + g * .769 + b * .189); d[i + 1] = Math.min(255, r * .349 + g * .686 + b * .168); d[i + 2] = Math.min(255, r * .272 + g * .534 + b * .131); }
+      c.putImageData(im, 0, 0);
+      c.strokeStyle = '#efe6d0'; c.lineWidth = 14; c.strokeRect(0, 0, cv.width, cv.height);
+    }
+    const v = c.createRadialGradient(cv.width / 2, cv.height / 2, cv.height * 0.35, cv.width / 2, cv.height / 2, cv.width * 0.62);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.28)'); c.fillStyle = v; c.fillRect(0, 0, cv.width, cv.height);
+    return cv;
+  }
+  function photoUrl(text) {
+    if (text in phCache) return phCache[text];
+    let url = null; try { const cv = photoCanvas(text); url = cv && cv.toDataURL('image/png'); } catch (e) { url = null; }
+    return (phCache[text] = url);
+  }
+  const bubble = m => {
+    if (!m.text.startsWith('📷 ')) return esc(m.text);
+    const cap = m.text.slice(2).trim(), url = photoUrl(m.text);
+    return url ? `<button class="ph-pic" data-cap="${esc(cap)}" aria-label="Photo: ${esc(cap)}"><img src="${url}" alt="${esc(cap)}"></button>`
+      : `<div class="ph-photo"><span aria-hidden="true">📷</span>${esc(cap)}</div>`;
+  };
+  function openTextPhoto(img, cap) {
+    const old = document.querySelector('.ph-view'); if (old) old.remove();
+    const v = document.createElement('div'); v.className = 'ph-view'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-label', 'Photo');
+    v.innerHTML = `<div class="ph-view-in"><img src="${img}" alt="${esc(cap)}"><p>${esc(cap)}</p><button class="btn ghost">Close</button></div>`;
+    const close = () => { v.remove(); removeEventListener('keydown', key, true); };
+    const key = e => { if (e.code === 'Escape') { e.stopPropagation(); e.preventDefault(); close(); } };
+    v.addEventListener('click', e => { if (e.target === v || e.target.tagName === 'BUTTON') close(); });
+    addEventListener('keydown', key, true);
+    document.body.appendChild(v); sfx.click();
+  }
+  document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.ph-pic'); if (!b) return; e.preventDefault(); openTextPhoto(b.querySelector('img').src, b.dataset.cap); });
   function textsHtml() {
     const who = Object.keys(bond.texts).filter(w => bond.texts[w].length).sort((a, b) => { const la = bond.texts[a][bond.texts[a].length - 1], lb = bond.texts[b][bond.texts[b].length - 1]; return (pendingText(b) ? 1 : 0) - (pendingText(a) ? 1 : 0) || lb.day - la.day; });
     const newBtn = '<div class="ph-new"><button class="btn ghost" data-app="contacts">✏️ New text</button></div>';
     if (!who.length) return newBtn + '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions, or start one yourself.</li></ul>';
     return `${newBtn}<ul class="ph-list ph-threads">${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
-      return `<li><button class="ph-thread${un ? ' new' : ''}" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${last.from === 'P' ? 'You: ' : ''}${esc(last.text.replace(/^📷\s*/, '📷 '))}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`; }).join('')}</ul>`;
+      return `<li><button class="ph-thread${un ? ' new' : ''}" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${last.from === 'P' ? 'You: ' : ''}${esc((last.text.startsWith('📷') ? '📷 Photo' : last.text))}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`; }).join('')}</ul>`;
   }
   function contactsHtml() {
     const who = textWho();
