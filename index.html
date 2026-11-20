@@ -4603,10 +4603,10 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function completeMission(pad) {
     const d = mission.def, t = flightT, fuel = lander.fuel;
-    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? 1.15 : 1)];
+    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? 1.15 : copHas('Q') ? 1.25 : 1)];
     const starsWon = met.filter(Boolean).length;
     const prev = missionStars[d.id] || 0;
-    const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex);
+    const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex * (copHas('E') ? 1.5 : 1));
     if (!d.side && prev === 0) store.set('ds-storyRest', String(shipDay));
     if (d.id === 'storm-front') hardCallStorm(mission.choice);
     if (d.id === 'still-crew') hardCallPort();
@@ -6817,6 +6817,18 @@ details.act > .limits { margin: 0 0 8px; }
       L.push('Your little rover saluted me. I saluted back. Diplomacy is everywhere.');
       L.push('Can you recommend a human book? Something with no treaties in it. Please.');
       L.push('For the record, I don’t laugh at Kael’s jokes. Except the one about the toaster.');
+    } else if (who === 'E') {
+      L.push('Theo here! I re-tuned the lift. It’s faster now. It’s also louder. I’m calling that a feature.');
+      L.push('Juno messaged. She says the dock’s too quiet without me. I said that sounds like a her problem.');
+      L.push('I found three loose bolts in the garden. Tamsin says they’re “art.” I put them back where they go. Tamsin is upset.');
+      L.push('Every ship I ever fixed, I wondered where it went after. Now I know. It went here. With you.');
+      L.push('You ever need anything fixed, ace, you know where I am. Usually upside down under something.');
+    } else if (who === 'Q') {
+      L.push('Kestrel. I’ve been reviewing your landings. Not for any reason. Just reviewing.');
+      L.push('Dash and I used to race at Apex. She was faster in a straight line. I was faster everywhere else.');
+      L.push('Rex wants me in his next movie. I said only if I get to do my own flying. He said that’s the most Kestrel thing I’ve ever said.');
+      L.push('It’s strange, not checking a leaderboard every morning. I check on my plant instead.');
+      L.push('Thank you for coming back for me. I’m not going to keep saying it. But I’m going to keep thinking it.');
     } else if (who === 'B') {
       L.push('*bip!* (It’s sitting in Gus’s mug again. Gus is drinking around it.)');
       L.push('*bip bip bip!* (Blip found the cookie jar. Blip is now the cookie jar.)');
@@ -6933,7 +6945,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'P') { loungeSay(...photoLine()); return; }
     if (who === 'radio') {
       // whoever's calling in: Juno from the mothership, or Pim from the Moon
-      const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
+      const callers = ['E', 'Q'].filter(w => romMet[w] && romMet[w]()).concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
       if (!callers.length) {
         sfx.click();
         showToast('Just static for now. Finish Swing Shift, Ride Along or any round trip to tune in.', 3200);
@@ -8258,7 +8270,7 @@ details.act > .limits { margin: 0 0 8px; }
   function denFaces() {
     if (denFaceCache) return denFaceCache;
     denFaceCache = {};
-    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X', 'N', 'S']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X', 'N', 'S', 'E', 'Q']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
     return denFaceCache;
   }
 
@@ -8498,7 +8510,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], storyDone('star-client') ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
+  const denGuests = () => ['F', 'G'].concat(['E', 'Q'].filter(w => romMet[w] && romMet[w]()), wrenHome() ? ['W'] : [], storyDone('star-client') ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -9240,7 +9252,7 @@ details.act > .limits { margin: 0 0 8px; }
     return L;
   }
   function bridgeComms() {
-    const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
+    const callers = ['E', 'Q'].filter(w => romMet[w] && romMet[w]()).concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
     if (!callers.length) { sfx.click(); shipSay('G', 'Just static for now. Finish Swing Shift, Ride Along or any round trip and somebody will call in.'); return; }
     store.set('ds-radioSeen', '1');
     const fresh = callers.filter(c => c !== deck.lastCaller), pool = fresh.length ? fresh : callers;
@@ -10029,7 +10041,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
 
   // ---- Crew quarters: a corridor of bedroom doors ----
-  const QUARTERS_W = 760, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
+  const QUARTERS_W = 850, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
   const qDoorX = i => 76 + i * 42;
   let bedroomOwner = 'F';
   const SNACKS = ['Space crisps. They taste like stars. Stars taste like salt, apparently.', 'A Moonbase Pim pastry. Slightly squashed. Still perfect.',
@@ -10049,7 +10061,7 @@ details.act > .limits { margin: 0 0 8px; }
         bedroomOwner = w; walkEnter = 'quarters'; setMode('bedroom');
       } });
     });
-    L.push({ id: 'snacks', rect: [724, 18, 28, 44], go: () => [738, 72], at: () => ({ x: 738, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
+    L.push({ id: 'snacks', rect: [814, 18, 28, 44], go: () => [828, 72], at: () => ({ x: 828, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
   }
   function quartersDraw(t) {
     const c = deck.c, v = deck.view;
@@ -10079,9 +10091,9 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, x - 9, 60, 18, 3, '#2a2240');
     });
     // the snack machine
-    px(c, 724, 18, 28, 42, '#c44a5a'); px(c, 726, 20, 18, 30, '#14182a');
-    for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) px(c, 728 + k * 5, 22 + r * 9, 3, 5, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]);
-    px(c, 746, 24, 4, 10, '#2a3045'); px(c, 747, 26, 2, 2, Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58'); px(c, 726, 52, 18, 5, '#0b0e1a');
+    px(c, 814, 18, 28, 42, '#c44a5a'); px(c, 816, 20, 18, 30, '#14182a');
+    for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) px(c, 818 + k * 5, 22 + r * 9, 3, 5, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]);
+    px(c, 836, 24, 4, 10, '#2a3045'); px(c, 837, 26, 2, 2, Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58'); px(c, 816, 52, 18, 5, '#0b0e1a');
     // carpet runner
     px(c, 0, 60, W, SHIP_H - 60, '#221d33');
     px(c, 0, 98, W, 26, '#5a2a3a'); px(c, 0, 99, W, 1, '#c9a24a'); px(c, 0, 122, W, 1, '#c9a24a');
@@ -13158,13 +13170,13 @@ details.act > .limits { margin: 0 0 8px; }
     if (!cands.length || Math.random() > 0.35) return;
     const w = cands[Math.floor(Math.random() * cands.length)];
     bond.notes[w] = 'sent'; saveBond();
-    setTimeout(() => crewToast('A', 'Mrrp. (Someone slipped a folded note under your door. It smells faintly of ' + ({ F: 'coffee', G: 'engine grease', W: 'old leather', R: 'expensive hair gel', J: 'ferns', Z: 'jelly', O: 'lamp oil', V: 'cologne', Y: 'chocolate', N: 'seawater', S: 'warm stone' }[w] || 'mystery') + '. It says: “Your landings make my heart do a little flip. — ?”)', 'Secret admirer'), 3200);
+    setTimeout(() => crewToast('A', 'Mrrp. (Someone slipped a folded note under your door. It smells faintly of ' + ({ F: 'coffee', G: 'engine grease', W: 'old leather', R: 'expensive hair gel', J: 'ferns', Z: 'jelly', O: 'lamp oil', V: 'cologne', Y: 'chocolate', N: 'seawater', S: 'warm stone', E: 'engine grease and oranges', Q: 'jet fuel and mint' }[w] || 'mystery') + '. It says: “Your landings make my heart do a little flip. — ?”)', 'Secret admirer'), 3200);
   }
   // the next time you chat with your admirer, they own up
   function admirerConfess(w) {
     if (bond.notes[w] !== 'sent') return null;
     bond.notes[w] = 'told'; saveBond(); addHearts(w, 40);
-    return { F: 'Did you get a note? Under your door? Smelled of coffee? …I don’t know anything about it. It was me. Don’t make it weird.', G: 'So, um. That note. With the grease smudge. That was me. I tried to write it neatly. I failed. Hi.', W: 'I haven’t written a love note in forty years. I hope it wasn’t too terrible, dear.', R: 'Yes, the note was from me. Obviously. Who else has handwriting that gorgeous?', J: 'The note was mine. I rewrote it eleven times. The final draft was the shortest.', Z: 'Zib wrote you a note! Zib cannot spell! Zib drew a heart instead of the hard words!', O: 'I confess the note was mine. I wrote it by lamplight. I wrote it by many lamplights.', V: 'Did Lyra put you up to asking? Fine. The note was me. I’m very smooth. Usually.', Y: 'Off the record, the note was mine. On the record, I deny everything.', N: 'Did you get my NOTE? I wrote it on dry paper! It took three tries! The first two got wet!', S: 'The note… was mine. It took me… a month… to write one sentence. It was… worth it.' }[w] || null;
+    return { F: 'Did you get a note? Under your door? Smelled of coffee? …I don’t know anything about it. It was me. Don’t make it weird.', G: 'So, um. That note. With the grease smudge. That was me. I tried to write it neatly. I failed. Hi.', W: 'I haven’t written a love note in forty years. I hope it wasn’t too terrible, dear.', R: 'Yes, the note was from me. Obviously. Who else has handwriting that gorgeous?', J: 'The note was mine. I rewrote it eleven times. The final draft was the shortest.', Z: 'Zib wrote you a note! Zib cannot spell! Zib drew a heart instead of the hard words!', O: 'I confess the note was mine. I wrote it by lamplight. I wrote it by many lamplights.', V: 'Did Lyra put you up to asking? Fine. The note was me. I’m very smooth. Usually.', Y: 'Off the record, the note was mine. On the record, I deny everything.', N: 'Did you get my NOTE? I wrote it on dry paper! It took three tries! The first two got wet!', S: 'The note… was mine. It took me… a month… to write one sentence. It was… worth it.', E: 'So. The note. With the grease smudge. That was me. I wrote it four times. Three had worse smudges.', Q: 'The note was mine. I timed how long it took to write. Don’t ask. It was a long time.' }[w] || null;
   }
   // Gus's gossip, over the intercom, once things get messy
   function gossipLines() {
@@ -13236,7 +13248,7 @@ details.act > .limits { margin: 0 0 8px; }
   const GOODNIGHT = { F: 'Goodnight. I’ve scheduled you a good dream. Eight hours. Mandatory.', G: 'Night! I’m dreaming about you. And engines. Mostly you. Some engines.', W: 'Sleep well, dear. The stars are out, and so am I. That’s a pilot joke. Goodnight.', R: 'Goodnight, gorgeous. Second most gorgeous. After me. Goodnight.', J: 'Lights out. All lanes clear. Goodnight, pilot. ♥', Z: 'Goodnight from Zib!!! Zib will dream of you!!! Pink dreams!!!', O: 'I have dimmed my lamp so I can think of you in the dark. Goodnight.', V: 'Goodnight. Lyra says I’m being “disgustingly cute”. I don’t care.', Y: 'Off the record: goodnight. On the record: also goodnight. ♥', N: 'Night night!! I’m sleeping in my tank tonight. Thinking about you!!', S: 'Goodnight. I… will see you… in the morning. Or… a bit after.' };
   const COLD = { F: 'Noted.', G: 'Oh. Okay. Sorry. I’ll go.', W: 'I see. Well. Goodnight then.', R: 'Excuse me? Do you know who I am?', J: 'Copy. Logging off.', Z: 'Zib is a little blue now.', O: 'I see. I shall fly elsewhere.', V: 'Ouch. Noted.', Y: 'Off the record: rude.', N: 'Oh. Okay. My song got shorter.', S: '…Oh.', C: 'Yes, sir. Pilot. Sorry.', H: 'Fine. No crispy dumplings for you.', D: 'Rude. Also, drink water.', T: 'Oh. Okay. Bye then.', X: 'Wow. Okay. Rude AND slow.' };
   bond.texts = bond.texts || {};   // who -> [{ from, text, day, choices, picked }]
-  const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'].filter(w => romMet[w] && romMet[w]());
+  const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X', 'E', 'Q'].filter(w => romMet[w] && romMet[w]());
   const thread = w => (bond.texts[w] = bond.texts[w] || []);
   const pendingText = w => { const t = bond.texts[w]; const m = t && t[t.length - 1]; return m && m.from === w && m.choices && m.picked == null ? m : null; };
   const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length;
@@ -14651,6 +14663,146 @@ details.act > .limits { margin: 0 0 8px; }
         ['S', 'A gentle flight. I would like… to come aboard. If… there is room. I am… quite large.'],
         ['S', '…Perfect. Not a scratch. I have decided. I will live here… now. Slowly. Starting… now.']] }
   });
+  // ---- Two more crewmates: Theo, Juno's dock deputy (joins after Catch!), and Kestrel, ex-Apex ace (joins after The Rescue) ----
+  Object.assign(FACES, {
+    // Theo Okafor: a short fade with a little top, a grease smudge on one cheek, an orange dock jumpsuit with a wrench in the pocket
+    E: { bg: '#3a1a10', skin: '#6b4226', shade: '#5a3418', mouth: '#3a1a10', brow: '#1a1410',
+      back(c) { px(c, 9, 4, 14, 4, '#1a1410'); px(c, 8, 6, 2, 5, '#1a1410'); px(c, 22, 6, 2, 5, '#1a1410'); },
+      body(c) { px(c, 4, 26, 24, 6, '#ff8a3a'); px(c, 6, 25, 20, 1, '#ff8a3a'); px(c, 13, 25, 6, 3, '#e06a2a'); px(c, 15, 25, 2, 1, '#6b4226'); px(c, 21, 27, 2, 4, '#c9cfdc'); px(c, 20, 27, 4, 1, '#c9cfdc'); },
+      front(c) { px(c, 10, 6, 12, 3, '#1a1410'); px(c, 12, 5, 8, 1, '#2a2018'); },
+      extra(c) { px(c, 20, 18, 3, 1, '#3a2a20'); px(c, 21, 19, 2, 1, '#3a2a20'); } }
+  });
+  Object.assign(LOOKS, { E: { skin: '#6b4226', hair: '#1a1410', style: 'short', top: '#ff8a3a', pants: '#3a2a20', shoes: '#2a2a2a' } });
+  Object.assign(SPEAKERS, { E: { name: 'Theo Okafor · Dock Deputy', color: '#ff9a5a' } });
+  SPEAKERS.Q.name = 'Kestrel · Ace Pilot';
+  Object.assign(SIGN, { E: 'Theo' });
+  Object.assign(DEFAULT_MOOD, { E: 'happy' });
+  STORY_BG.E = 'dock'; STORY_BG.Q = 'cockpit';
+  ROM_WHO.push('E', 'Q');
+  const theoMet = () => storyDone('catch'), kestrelMet = () => storyDone('the-rescue');
+  romMet.E = () => !isLost('E') && theoMet();
+  romMet.Q = () => !isLost('Q') && kestrelMet();
+  BUYOUT_RISK.push('E');
+  Object.assign(CREW_HOME, { E: 'lounge', Q: 'bridge' });
+  Object.assign(OPENNESS, { E: 0.8, Q: 0.25 });
+  COP_ORDER.push('E', 'Q'); QUARTERS.push('E', 'Q'); STAGE_CREW.push('E', 'Q');
+  Object.assign(COPILOTS, {
+    E: { perk: 'Dockhand', what: 'Pickups and pods pay 50% more', go: 'Theo, riding shotgun. If it floats, I’ll spot it. If it’s shiny, I’ll spot it twice.', nice: 'Easy. You made that look easy, ace.', oops: 'Okay, that one I’ll pretend I didn’t see.' },
+    Q: { perk: 'Racing line', what: 'Time stars are 25% easier', go: 'I’ll call the line. You fly it. Don’t argue with the line.', nice: 'Clean. Sable never flew like that.', oops: 'We don’t talk about that one.' }
+  });
+  Object.assign(DRAMA, {
+    E: { caught: 'Two dates? Ace. I’m flattered I made the list, but I’m not a pit stop.', agree: 'Okay. Okay! I can share. I grew up on a dock. Everybody shares everything.', dump: 'Right. Cool. I’ll be in the hangar. Hitting things with a wrench. Totally fine.', jealous: 'So who’s the other one? I won’t be weird. I’ll be a little weird.', ex: 'Hey, ace. Nice landing. That’s it. That’s all I’ve got.' },
+    Q: { caught: 'I raced Apex for ten years. I know when I’m being lapped.', agree: 'Fine. Open track. But I don’t lose.', dump: 'Understood. I’ve been dropped by better. Not many, but some.', jealous: 'You’ve been flying a lot of laps with someone else. I notice lap times.', ex: 'Pilot.' }
+  });
+  Object.assign(GIFT_TASTE, { E: [['pastry', 'tapes'], ['choc', 'lamp', 'stars']], Q: [['gel', 'stars'], ['tea', 'tapes', 'plant']] });
+  Object.assign(GIFT_SAYS, {
+    E: ['No way. NO way. You got me this? I’m putting it on my workbench where everyone can see it.', 'Hey, thanks, ace! That’s sweet.', 'Ha. Thanks. I’ll find a spot for it.'],
+    Q: ['…You remembered. Nobody at Apex ever remembered anything about me except my lap times.', 'Thank you. That’s… thoughtful.', 'Thanks.']
+  });
+  Object.assign(DATE_BG, { E3: 'dock', E6: 'hangarnight', E8: 'moon', E10: 'obsdeck', Q3: 'cockpit', Q6: 'breaknight', Q8: 'saturn', Q10: 'obsdeck' });
+  Object.assign(ROM, {
+    E: {
+      s3: ['The Pod Launcher', [['E', 'You know I aimed every one of those pods at you? Ten pods. I was aiming for your hands.'],
+        ['E', 'Juno said “fire them into the flight path, Theo.” I said “I’m firing them at the cutest pilot in the system, Juno.” She hung up on me.'],
+        ['P', 'You missed four.'],
+        ['E', 'I missed four on PURPOSE. I wanted to see you chase them. Okay, I missed two on purpose.']]],
+      s6: ['First Time Off Mars', [['E', 'Can I tell you something? I’d never left Mars before. Not once. I fixed everybody else’s ships and never went anywhere.'],
+        ['E', 'Every night on the dock I watched the ships leave and thought, someday. Then your ship drifted past, and Juno said go.'],
+        ['P', 'Are you glad you came?'],
+        ['E', 'Ace. Look where we are. Look who I’m with. Glad doesn’t cover it.']]],
+      ask: [['P', 'Theo, do you want to go on a date with me?'], ['E', 'Do I— wait, are you asking me? I had a whole speech. I was going to ask YOU.'],
+        ['E', 'Yes. Obviously yes. I’m keeping the speech for the anniversary.']],
+      notYet: 'Ha. Ace, I like you a lot. But let’s get to know each other a bit more first. I want to do this right.',
+      s8: ['Grease and Stars', [['E', 'I rebuilt the old telescope mount on the hull. Took me three nights. Gus helped. Gus mostly ate my snacks.'],
+        ['E', 'Come out here. That little red dot? That’s Mars. That’s home. And that’s Juno’s dock, if you squint really hard.'],
+        ['P', 'You miss it.'],
+        ['E', 'Sometimes. But I used to look up from down there and wish I was up here. Now I’m up here, with you. Turns out I was right.']]],
+      s10: ['The Speech', [['E', 'Okay. I saved the speech. Here it is.'],
+        ['E', '“You catch everything I throw at you. Pods, jokes, bad days. And you never once made me feel like the guy who stayed on the dock.”'],
+        ['P', 'Theo…'],
+        ['E', '“So wherever this ship goes next, I want to be on it. Next to you. Holding a wrench.” …That last part was improvised.']]],
+      bye: 'Yeah. Okay. I get it. You’re still the best pilot I ever fired a pod at.',
+      date: ['I fixed the squeaky hinge on your door. It was driving me nuts. Also it was an excuse to stop by.',
+        'Bao let me make breakfast. It’s eggs. They’re a little burnt. The burnt part is my love language.',
+        'I named a wrench after you. It’s my favorite wrench. That’s not weird. That’s a dock thing. It’s a little weird.']
+    },
+    Q: {
+      s3: ['Lap Times', [['Q', 'I’ve been going over your flight data. Every landing since the Moon. I keep a spreadsheet.'],
+        ['Q', 'At Apex we were ranked every week. One number. That was you. Lose the number, lose the job.'],
+        ['P', 'What’s my number?'],
+        ['Q', '…Higher than mine was. Don’t let it go to your head. It’s already gone to mine.']]],
+      s6: ['The Badge', [['Q', 'I kept the Apex badge. I fished it out of the bin. I know. I’m not proud of it.'],
+        ['Q', 'Ten years I wore it. Sable told me I was the best thing Apex ever made. I believed her. Then she left me falling out of the sky.'],
+        ['P', 'You don’t have to be anything she made.'],
+        ['Q', '…Then hold onto it for me. If I have it, I’ll keep looking at it. If you have it, maybe I’ll stop.']]],
+      ask: [['P', 'Kestrel, would you go on a date with me?'], ['Q', 'Is this a race? It feels like a race.'],
+        ['Q', '…Yes. You win. Don’t make that face. Fine. Make that face.']],
+      notYet: 'You’re fast, pilot. I’m not. Not with this. Give it time.',
+      s8: ['Night Run', [['Q', 'Gus says Biscuit’s due for a test flight. Midnight. No missions, no clock, no Apex.'],
+        ['Q', 'I’ve never flown just to fly. Not once. Everything was a race.'],
+        ['P', 'So let’s go slow.'],
+        ['Q', '…Slow. Okay. Slow is… actually really nice. Don’t tell anyone I said slow was nice.']]],
+      s10: ['New Number', [['Q', 'I made a new spreadsheet. It only has one column.'],
+        ['Q', 'It’s days. Days since I stopped being an Apex pilot and started being… this. Whatever this is. It’s good, whatever it is.'],
+        ['P', 'What’s the number up to?'],
+        ['Q', 'High. And I don’t want it to stop. That’s the first number I’ve ever wanted to keep going.']]],
+      bye: 'Understood. You were the best race I ever lost.',
+      date: ['I timed how long it takes to walk from my room to yours. Forty seconds. I’ve been practicing. It’s thirty-eight now.',
+        'Rex wants to put me in his next movie. As the villain. I said I’d do it if you were in it too. As the hero. Obviously.',
+        'I tuned Biscuit’s left thruster while you slept. It was pulling two percent. It isn’t now. You’re welcome.']
+    }
+  });
+  Object.assign(LIFT_CHAT, {
+    E: ['This lift has a busted roller. Hear that click? I’ll fix it. Probably tonight. Probably while singing.', 'Lifts on Mars are way slower. I like this one. Gives me more time with you. Wait. Forget I said that.'],
+    Q: ['Seven seconds per deck. I’ve timed it. Twice.', 'At Apex the lifts had music. This is better. Quieter.']
+  });
+  Object.assign(DEN_IDLE, {
+    E: ['Your cabin’s nice! Your shelf’s a little crooked, though. Hold still, I’ve got a wrench.', 'Is this where the best pilot in the system sleeps? Kind of messy. I respect it.', 'I brought you a bolt from Juno’s dock. It’s lucky. Every bolt is lucky if you believe hard enough.'],
+    Q: ['Your bed’s made. Good. Discipline.', 'You keep your flight logs on the floor? …I’m going to pretend I didn’t see that.', 'It’s quiet in here. I like quiet. Apex was never quiet.']
+  });
+  Object.assign(DEN_NICE, { E: 'Ooh, solid choice. Good build quality. I checked.', Q: 'Clean. Functional. Approved.' });
+  Object.assign(BALC_SAYS, { E: 'Now THIS is a view. On the dock we had a view of… more dock.', Q: 'You can see the whole flight path from here. I’m going to sit out here every morning.' });
+  Object.assign(ROOMS, {
+    E: { wall: '#3a2418', bed: '#ff8a3a', rug: '#5a3a28', hello: 'Hey, ace! Mind the tools. And the other tools. And the spare tools.',
+      props: [['A', 'poster', '#ff8a3a', 'Juno’s Mars Dock, the year I started. That kid with the huge wrench is me. I was eight. The wrench was bigger than me.'], ['B', 'shelf', ['#ff8a3a', '#c9cfdc', '#ffd27a', '#7fd6ff', '#e06a2a'], 'Parts I’ve saved from every ship I fixed. That one’s from the first ship I ever fixed. It still doesn’t work.'],
+        ['C', 'books', '#c9a24a', 'Repair manuals. All of them. I read them for fun. Don’t make that face.'], ['D', 'lamp', '#ffd27a', 'A dock lamp. Juno gave it to me when I left. It means “come home safe.” On Mars, everybody knows that.']] },
+    Q: { wall: '#1a2030', bed: '#1e2a4c', rug: '#2a3450', hello: 'Come in. Shoes off. It’s not a rule. It’s a strong suggestion.',
+      props: [['A', 'maps', '#c9d4e8', 'Every race route I ever flew for Apex. I won most of them. I’m deciding whether to burn it or frame it.'], ['B', 'shelf', ['#c9d4e8', '#ffd27a', '#c9cfdc', '#7fd6ff', '#ff6b7a'], 'Trophies. Some of them. The ones I actually liked winning.'],
+        ['C', 'books', '#1e2a4c', 'Flight manuals and one romance novel. Rex gave it to me. I’ve read it four times. Don’t tell him.'], ['D', 'plant', '#5a8a3a', 'Tamsin gave me a plant. I’ve never kept anything alive before. It’s doing well. I check on it every hour.']] }
+  });
+  Object.assign(TEXTS, {
+    E: [['Juno just messaged me. She says hi to you. Specifically you. I think she knows.', [['Knows what? 😏', 'fun', 'Ha. Nice try, ace. You know what.'], ['Tell her hi back!', 'warm', 'Done. She sent back a heart. Juno doesn’t send hearts. Ever.']]],
+      ['Fixed the galley coffee machine. It makes coffee now instead of noises. You’re welcome, ship.', [['My hero ☕', 'warm', 'Yeah, I am. Come get a cup.'], ['It made great noises though', 'fun', 'It did. I recorded them. For the album.']]]],
+    Q: [['Ran the numbers on your last landing. You were 0.3 seconds off the best line.', [['Show me the line?', 'warm', 'Tomorrow. Bridge. 0600. Bring coffee.'], ['0.3 is nothing', 'fun', '0.3 is everything. …It was a good landing.']]],
+      ['Apex just sent me my final paycheck. I spent it on cocoa for the whole crew.', [['That’s so sweet', 'warm', 'Don’t spread that around. I have a reputation.'], ['Revenge cocoa 😂', 'fun', 'The sweetest revenge.']]]]
+  });
+  Object.assign(MORE_TEXTS, {
+    E: [['I just caught Gus asleep in the engine bay. Should I wake him or draw on him?', [['Draw on him', 'fun', 'Drawing a tiny mustache. Masterpiece.'], ['Let him sleep', 'warm', 'Yeah. Okay. I put a blanket on him instead. Look at me, all mature.']]]],
+    Q: [['I tried to sleep in. I lasted four minutes.', [['Come have breakfast', 'warm', 'On my way. I’ve been dressed since 0500.'], ['Four whole minutes!', 'fun', 'A personal record.']]]]
+  });
+  Object.assign(FLIRT, { E: 'Ace. ACE. You can’t just text me that. I dropped a wrench. On my foot. Worth it.', Q: '…That’s not fair. I wasn’t ready. Say it again.' });
+  Object.assign(GOODNIGHT, { E: 'Night, ace. Dream about me. Or engines. Me first though.', Q: 'Goodnight. Sleep well. That’s an order. A gentle one.' });
+  Object.assign(COLD, { E: 'Oof. Okay. Noted.', Q: 'Fine.' });
+  Object.assign(HI, { E: 'Hey ace! I was literally just about to text you. Literally.', Q: 'Hello. I saw your name and I smiled. Unprofessional of me.' });
+  Object.assign(LOL, { E: 'HA! I laughed so hard Juno heard it on Mars.', Q: 'Ha. I laughed out loud. On the bridge. Dottie stared.' });
+  Object.assign(MORE_FLIRT, {
+    E: ['I’m blushing. You can’t tell because of the grease, but I am.', 'Okay, that one’s going on the wall of my workshop.'],
+    Q: ['I don’t lose races. I think I just lost one.', 'You’re very distracting. I’m going to need another lap.']
+  });
+  Object.assign(MORE_COLD, { E: ['Ah. Okay. Bad timing?', 'Got it. I’ll give you some space.'], Q: ['Understood.', '…Noted.'] });
+  Object.assign(MORE_HI, { E: ['Heyyy. What are you up to? Want to help me fix a thing?', 'Hi! I made you something. It’s a keychain. It’s a tiny wrench.'], Q: ['You’re up early. Good.', 'Hi. I’m on the bridge. It’s boring. Come be boring with me.'] });
+  Object.assign(MORE_LOL, { E: ['I snorted. Bao looked at me like I was a broken engine.', 'HAHA okay that one got me.'], Q: ['That was actually funny.', 'Ha. Two laughs in one day. Concerning.'] });
+  Object.assign(TOPIC, {
+    E: [['What’s Mars like?', 'Red. Dusty. Loud. Everybody knows everybody. I miss it a little. Less every day.'], ['Why “ace”?', 'Because you are one. Also I forgot your name the first day. Kidding! Mostly.']],
+    Q: [['What was Apex like?', 'Fast. Cold. Everyone was a number. I was a very good number.'], ['Do you miss racing?', 'I miss winning. I don’t miss the rest. This is better.']]
+  });
+  // Theo is the voice on Juno's dock radio in Act 2 and fires the pods in Catch!
+  STORY['red-dock'].intro.splice(1, 0, ['E', 'Theo here, Juno’s deputy. I’m the one digging. Well, supervising the digging. Supervising is a kind of digging.']);
+  STORY['dust-bowl'].react[2] = ['E', 'Perfect run through a dust storm! Juno, I want that pilot’s autograph. On my wrench.'];
+  STORY['catch'].intro.splice(2, 0, ['E', 'Theo on the pod launcher! Ten pods, loaded and ready. I’ll aim them right at you, ace.']);
+  STORY['catch'].react = [['E', 'Six pods! Not bad! Hey, Juno says you need someone to keep that ship in one piece. Guess who volunteered.'],
+    ['E', 'Great catching, ace. Juno’s sending me up with the last pod. Like, inside it. I’m the last pod. Hi.'],
+    ['E', 'Every pod! Okay, I’m in. Juno’s orders: “keep that ship in one piece, Theo.” Permission to come aboard?']];
   function alienLines(who) {
     const ms = id => (missionStars[id] || 0) > 0, L = [], add = (cond, text) => { if (cond) L.push(text); };
     if (who === 'N') {
