@@ -1769,7 +1769,77 @@ details.act > .limits { margin: 0 0 8px; }
       brief: 'At the edge of the map, lower Gus’s rebuilt engine section from PICKUP into place at DROP. It rides on a 9-meter cable under Biscuit, so fly smooth and set it down gently.',
       spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 150, time: 80 },
       ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
-      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] }
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
+    // ---- Act 4 · The Slingshot: the long way home ----
+    { id: 'the-buyout', name: 'The Buyout', world: 'eris', kind: 'land', label: 'Story', noSurprise: true, fuel: 220, credits: 760,
+      brief: 'An Apex ship has landed beside you at the edge of the map. Sable Voss wants to talk. Set Biscuit down on the APEX pad next to her ship.',
+      spawn: { x: 40, vx: 1 }, stars: { fuel: 90, time: 36 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'APEX', x1: 178, x2: 200, y: 44 }] },
+    { id: 'wrens-old-partner', name: 'Wren’s Old Partner', world: 'pluto', kind: 'canyon', fuel: 200, credits: 780, noSurprise: true,
+      brief: 'Wren is flying out to face Sable aboard her ship. Thread the gap beneath the rock shelf and land on the pad at the far end. There’s just enough room to fly level.',
+      spawn: { x: 30, vx: 0 }, stars: { fuel: 55, time: 34 },
+      ground: [[0, 60], [20, 62], [35, 58], [45, 40], [55, 22], [75, 20], [95, 22], [115, 20], [135, 24], [150, 22], [178, 24], [190, 40], [205, 70], [220, 80], [240, 82]],
+      ceilings: [[[95, 100], [105, 50], [125, 44], [145, 46], [180, 46], [195, 100]]],
+      pads: [{ id: 'LZ', x1: 158, x2: 172, y: 20 }] },
+    { id: 'first-burn', name: 'First Burn', world: 'pluto', kind: 'land', label: 'Beacon drop', noSurprise: true, fuel: 300, credits: 800,
+      timeLimit: 90, limitText: 'Drop all three beacons and climb out within 90 seconds, before the burn', spareText: 'to spare before the burn',
+      lateReason: 'the burn window closed before the beacons were placed', lateQuip: ['G', 'We’ll catch the next window. Pluto’s not going anywhere. Slowly.'],
+      drops: [50, 126, 196],
+      brief: 'Place guidance beacons on Pluto’s three peaks before the ship’s first big burn. You don’t land: fly low over each peak, inside the dashed zone, and the beacon releases on its own. Then climb out the top.',
+      spawn: { x: 20, y: 105, vx: 0 }, stars: { fuel: 140, time: 55 },
+      ground: [[0, 30], [20, 34], [40, 60], [50, 64], [60, 58], [80, 36], [100, 32], [118, 70], [126, 74], [134, 68], [150, 38], [170, 34], [188, 66], [196, 72], [204, 64], [222, 36], [240, 32]],
+      legs: [
+        { name: 'Drop beacons on all three peaks', goals: [{ type: 'drops' }] },
+        { name: 'Climb out for the burn', goals: [{ type: 'exit' }] }],
+      pads: [] },
+    { id: 'sulfur-stop', name: 'Sulfur Stop', world: 'io', kind: 'land', label: 'Multi-stop', fuel: 260, credits: 820,
+      brief: 'Top up the tanks at Io’s old fuel depots on the way home. Refuel at DEPOT1, then DEPOT2, then fly over the lava vent to LZ. The lava reaches about 40 meters up, so fly high or wait for the gap.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 160, time: 80 },
+      vents: [[150, 6.5, 3]],
+      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Refuel at DEPOT1', goals: [{ type: 'visit', pad: 'DEPOT1', refuel: 90, text: 'Land on DEPOT1 to refuel' }] },
+        { name: 'Refuel at DEPOT2', say: 'ENGINEERING: Second depot. After that it’s over the lava vent to LZ. Wait for the gap.', goals: [{ type: 'visit', pad: 'DEPOT2', refuel: 90, text: 'Land on DEPOT2 to refuel' }] },
+        { name: 'Land at LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'DEPOT1', x1: 16, x2: 36, y: 32 }, { id: 'DEPOT2', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] },
+    { id: 'ice-for-the-road', name: 'Ice for the Road', world: 'europa', kind: 'cargo', cargoName: 'ice block', mass: 0.85, fuel: 300, credits: 840,
+      brief: 'Nerri’s people are giving you ice for reaction mass. Lift it from PICKUP and carry it across the geyser field to DROP. The geysers throw you upward when they blow.',
+      spawn: { x: 20, y: 100, vx: 0 }, stars: { fuel: 110, time: 60 },
+      vents: [[84, 5.5, 3.2], [146, 6.5, 0.5]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      pads: [{ id: 'PICKUP', x1: 10, x2: 30, y: 40 }, { id: 'DROP', x1: 196, x2: 214, y: 41 }] },
+    { id: 'the-slingshot', name: 'The Slingshot', world: 'ganymede', kind: 'route', label: 'Moving rings', noSurprise: true, fuel: 320, credits: 880,
+      ringMove: { r: 7, speed: 1.1 },
+      brief: 'The big one. Fly ahead of the ship and thread the guidance rings so she can swing around Jupiter. The rings swing as you go, so time your pass. Then land on LZ.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[50, 90], [92, 70], [134, 92], [172, 70], [206, 88]], stars: { fuel: 150, time: 60 },
+      ground: [[0, 40], [24, 46], [46, 40], [70, 50], [94, 44], [116, 36], [136, 36], [156, 48], [180, 56], [204, 48], [222, 44], [240, 52]],
+      pads: [{ id: 'LZ', x1: 116, x2: 134, y: 34 }] },
+    { id: 'homecoming', name: 'Homecoming', world: 'mars', kind: 'land', windMul: 0.6, fuel: 200, credits: 900,
+      brief: 'Juno’s dock on Mars is throwing a welcome-back party. Bring Biscuit down on LZ in front of the whole crowd.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 80, time: 32 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'LZ', x1: 96, x2: 120, y: 22 }] },
+    { id: 'earth-contract', name: 'The Earth Contract', world: 'earth', kind: 'route', label: 'Race vs Kestrel', noSurprise: true, fuel: 260, credits: 960,
+      rival: { path: [[22, 104], [50, 80], [110, 70], [160, 72], [179, 30]], time: 45, winText: 'Kestrel landed first and won the contract', winQuip: ['Q', 'Good race, Descent. Not good enough.'] },
+      brief: 'One final contract to clear the debt: Earth’s big supply route, head to head with Kestrel. Her lander flies the course beside you. Fly through all three markers and land on LZ before she does.',
+      spawn: { x: 20, y: 104, vx: 0 }, rings: [[50, 80], [110, 70], [160, 72]], stars: { fuel: 100, time: 34 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      pads: [{ id: 'LZ', x1: 170, x2: 188, y: 28 }] },
+    { id: 'the-rescue', name: 'The Rescue', world: 'earth', kind: 'land', label: 'Catch', noSurprise: true, fuel: 260, credits: 1000,
+      pods: { n: 1, every: 1, fall: 3, label: 'Kestrel' },
+      brief: 'Kestrel’s lander has failed and she has ejected. Lift off, catch her escape pod in mid-air before it hits the ground, then bring her down on LZ.',
+      spawn: { x: 179, y: 40, vx: 0 }, stars: { fuel: 120, time: 45 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      legs: [
+        { name: 'Catch Kestrel’s escape pod', goals: [{ type: 'catch', need: 1 }] },
+        { name: 'Bring her down on LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 170, x2: 188, y: 28 }] },
+    { id: 'home', name: 'Home', world: 'moon', kind: 'land', label: 'Final landing', noSurprise: true, fuel: 140, credits: 1200,
+      brief: 'The Second Wind is back over the Moon. Bring Biscuit down one last time at the HANGAR, right next to the little base where it all began.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 60, time: 22 },
+      ground: [[0, 50], [15, 45], [30, 52], [45, 40], [60, 30], [75, 34], [90, 20], [130, 22], [145, 40], [160, 55], [175, 48], [195, 60], [215, 50], [240, 58]],
+      pads: [{ id: 'HANGAR', x1: 100, x2: 118, y: 18 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -3258,6 +3328,7 @@ details.act > .limits { margin: 0 0 8px; }
   function hardCallText(id) {
     if (id === 'storm-front') return CALL_TEXT[callOf('storm')] || '';
     if (id === 'still-crew') { const p = portLeavers(); return p.length ? `${nameList(p)} got off at Europa’s port. ${p.length > 1 ? 'Their bunks stay' : 'Their bunk stays'} empty.` : 'Europa’s port opened its doors, and nobody got off. Everyone’s staying, Gus included.'; }
+    if (id === 'the-buyout') { const b = buyoutLeavers(); return b.length ? `${nameList(b)} took Sable’s offer and left on the Apex ship.` : 'Nobody took Sable’s offer. Not one hand went up.'; }
     if (id === 'cold-storage') return callOf('door') === 'out' ? 'Brix trusted you. When you called, he let go of the door and squeezed out just before the station collapsed.' : 'Brix held the door until the station collapsed. He didn’t make it out. He’s somewhere under the ice.';
     return '';
   }
@@ -3338,6 +3409,133 @@ details.act > .limits { margin: 0 0 8px; }
     ['G', 'Pilot? Thank you for not leaving me behind.'],
     ['A', 'Mrrp.']
   ], { label: 'Act 3 ending', title: 'Blue in the Dark' }] });
+  // ---- Act 4: the long way home ----
+  // Hard call 4, the buyout: up to two crewmates with fewer than 2 hearts take Sable's offer and leave on her ship.
+  // Story crew are always safe, and the crew who joined on Titan are too new to have been tempted.
+  const BUYOUT_RISK = ['C', 'H', 'J', 'D', 'T', 'M', 'Z', 'N', 'S'];
+  const buyoutLeavers = () => { try { return JSON.parse(store.get('ds-call-buyout', '[]')) || []; } catch (e) { return []; } };
+  function hardCallBuyout() {
+    if (store.get('ds-call-buyout', '') !== '') return;
+    const who = BUYOUT_RISK.filter(w => romMet[w] && romMet[w]() && heartsOf(w) < 2).sort((a, b) => (hearts[a] || 0) - (hearts[b] || 0)).slice(0, 2);
+    store.set('ds-call-buyout', JSON.stringify(who));
+    if (who.length) { const L = lostList(); who.forEach(w => { if (!L.includes(w)) L.push(w); }); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  const lostNames = () => nameList(lostList());
+
+  Object.assign(STORY, {
+    'the-buyout': { chapter: [29, 'The Buyout'],
+      intro: [
+        ['F', 'There’s a ship landing next to us. Silver. Very shiny. Very expensive.'],
+        ['U', 'Dottie. You look terrible. The edge of the map doesn’t suit you.'],
+        ['F', 'Sable. What do you want?'],
+        ['U', 'To be generous. Sign the Second Wind over to Apex, and I’ll tow you all home. Jobs for everyone. Warm beds. Real coffee.'],
+        ['G', 'Pilot, set Biscuit down on the APEX pad next to her ship. Dottie wants to answer her in person.']],
+      react: [['F', 'We’ll vote on it. Tonight.'], ['U', 'Take your time. You have plenty of it out here.'], ['W', 'I don’t need a vote. But I’ll sit through one.']] },
+    'wrens-old-partner': { chapter: [30, 'Wren’s Old Partner'],
+      intro: [
+        ['W', 'I need to tell you all something. Sable was my co-pilot. Thirty years ago. We started an agency together.'],
+        ['W', 'Then she sold it, and our ships, and our routes, out from under me. That’s how Apex started.'],
+        ['W', 'She’s parked her ship in a canyon on Pluto. Fly me out there. I’m going to have a word.'],
+        ['G', 'Thread the gap under the rock shelf and land on the pad at the far end. Level flying. Very level.']],
+      react: [['W', 'She hasn’t changed. Not one bit.'],
+        ['W', 'I got what I came for. Her flight logs. Every message about the Mercury job.'],
+        ['W', 'Perfect flying. And perfect timing: she was out when I took the logs. Shame.']] },
+    'first-burn': { chapter: [31, 'First Burn'],
+      intro: [
+        ['G', 'The engine’s ready for her first big burn: swing back toward the Sun and start heading home.'],
+        ['G', 'I need guidance beacons on Pluto’s three peaks. You don’t land. Fly low over each peak, inside the dashed zone, and the beacon drops on its own.'],
+        ['F', 'Then climb out the top before the burn window closes.']],
+      react: [['G', 'Beacons locked! Burn starting in three… two… we’re moving! We’re actually moving!'],
+        ['F', 'We’re going home, everybody. The long way. But home.'],
+        ['G', 'Perfect beacons! Dottie, can I do the countdown again? Just for fun?']] },
+    'sulfur-stop': { chapter: [32, 'Sulfur Stop'],
+      intro: [
+        ['G', 'We need fuel for the slingshot. Lots of it. Io has old depots from the mining days.'],
+        ['F', 'Refuel at DEPOT1, then DEPOT2, then hop over the lava vent and land at LZ.'],
+        ['X', 'I used to run supplies to these depots. That vent past the second one blows every few seconds. Wait for the gap.']],
+      react: [['G', 'Tanks full! Well. Full enough.'], ['X', 'Nice. You didn’t even flinch at the lava.'], ['G', 'Perfect run. The ship is so full of fuel she’s burping.']] },
+    'ice-for-the-road': { chapter: [33, 'Ice for the Road'],
+      get intro() {
+        const n = !lostList().includes('N') && storyDone('under-the-ice');
+        return [
+          ['F', 'Europa. We need ice for reaction mass, and Nerri’s people have offered us some.'],
+          n ? ['N', 'They’re singing for us! That song means “good journey.” And also “please bring back the bucket.”'] : ['F', 'Nerri’s people are singing for us. I wish Nerri could hear it.'],
+          ['G', 'Lift the ice at PICKUP and carry it across the geyser field to DROP. The geysers throw you upward, so watch for the warning.']];
+      },
+      react: [['G', 'Ice aboard! That’s enough reaction mass for the slingshot.'], ['F', 'Thank you, Europa. We’ll bring the bucket back.'], ['G', 'Perfect delivery. Not one geyser touched you.']] },
+    'the-slingshot': { chapter: [34, 'The Slingshot'],
+      intro: [
+        ['F', 'This is it. The slingshot. We swing around Jupiter, and it throws us all the way home.'],
+        ['G', 'Biscuit flies ahead and threads the guidance rings. The rings swing in the gravity, so time your pass. Then land on LZ.'],
+        ['W', 'Everybody on the radio. Everybody.'],
+        ['R', 'I’d like to say a few words. Very few. “Go.”']],
+      react: [['G', 'We’re around! We’re around Jupiter! Next stop: everything we know!'],
+        ['W', 'That was the best flying I’ve seen in thirty years. Don’t tell anyone I said that.'],
+        ['F', 'Perfect slingshot. Everybody, look out the window. That’s the way home.']] },
+    'homecoming': { chapter: [35, 'Homecoming'],
+      get intro() {
+        const j = !lostList().includes('J');
+        return [
+          ['F', 'Mars. We made it back to Mars. Under our own power this time.'],
+          j ? ['J', 'My dock is throwing a party! Banners! Balloons! Someone made a cake shaped like Biscuit!'] : ['F', 'Juno’s old dock is throwing us a party. They say Juno sends her love.'],
+          ['G', 'Bring Biscuit down on LZ in front of the whole crowd. No pressure. They’ve made a banner.']];
+      },
+      react: [['F', 'Home soil. Well. Home-ish soil.'], ['R', 'They’re cheering! For us! I’ll take it from here. Thank you, thank you.'], ['G', 'Perfect landing in front of everyone. Somebody frame that.']] },
+    'earth-contract': { chapter: [36, 'The Earth Contract'],
+      intro: [
+        ['F', 'One contract left, and it pays off everything: Earth’s big supply route. And guess who else is bidding.'],
+        ['Q', 'Hello again, Descent. Same deal as the Moon. Three markers, then the pad. Winner takes the route.'],
+        ['G', 'Her lander flies the course right beside you. Fly through all three markers and land on LZ before she does.'],
+        ['W', 'Show her what a pilot looks like.']],
+      react: [['F', 'We WON! We won the Earth contract! Wait. What’s Kestrel doing?'],
+        ['G', 'Her engine’s smoking. Dottie, her lander is going down!'],
+        ['Q', 'Mayday, mayday! Engine failure! I’m ejecting!']] },
+    'the-rescue': { chapter: [37, 'The Rescue'],
+      intro: [
+        ['F', 'The contract isn’t signed until the inspector arrives. If Biscuit lifts off the pad, we forfeit it.'],
+        ['G', 'Kestrel’s escape pod is coming down on a parachute. If it hits at that speed…'],
+        ['F', 'Then we forfeit. Go get her. Catch the pod in mid-air, then bring her down on LZ.'],
+        ['W', 'That’s the right call, Dottie.']],
+      react: [['Q', 'You… came back for me. You gave up the route for me.'],
+        ['F', 'Nobody gets left behind. Not even Apex.'],
+        ['Q', 'Then I’m not Apex anymore. Tell Sable she can have her badge back. It’s in the bin.']] },
+    'home': { chapter: [38, 'Home'],
+      intro: [
+        ['F', 'There it is. The Moon. Our little base, and the hangar where we started.'],
+        ['G', 'One last landing. The HANGAR pad. Bring her home.'],
+        ['A', 'Mrrp.']],
+      react: [['F', 'Welcome home, pilot.'], ['W', 'Good flying. Every bit of it.'], ['F', 'We’re home. We’re actually home.']] }
+  });
+  Object.defineProperty(EPILOGUES, 'the-buyout', { enumerable: true, get: () => {
+    const b = buyoutLeavers();
+    return [[
+      ['F', 'All right. Everyone’s here. Sable’s offer: Apex tows us home, and we all work for her. Hands up for yes.'],
+      ...(b.length ? [['F', `${nameList(b)}… okay. I understand. Really, I do.`], ['U', `Excellent. ${b.length > 1 ? 'They’ll' : 'They’ll'} be very comfortable at Apex. Anyone else?`]] : [['F', 'Nobody? Not one hand?'], ['U', 'Sentimental. All of you.']]),
+      ['F', 'Then the answer is no, Sable. We’re flying home ourselves.'],
+      ['U', 'With that engine? You won’t make it past Jupiter.'],
+      ['W', 'Watch us.'],
+      ['A', 'Mrrp.']
+    ], { label: 'Act 4', title: 'The Vote' }];
+  } });
+  Object.defineProperty(EPILOGUES, 'home', { enumerable: true, get: () => {
+    const lost = lostList();
+    return [[
+      ['F', 'We lost the Earth contract. And the debt still got paid. Rex, do you want to explain?'],
+      ['R', 'I may have filmed the rescue. And posted it. With some very moving music. Three hundred million views, darling. The “Save the Little Agency” fund closed in a day.'],
+      ['W', 'And my old partner’s flight logs are on every news channel, along with Dash’s statement.'],
+      ['X', 'And Kestrel’s. She told them everything.'],
+      ['F', 'The bank cancelled the loans. Apex’s board removed Sable this morning.'],
+      ['W', 'She didn’t apologize. She said this was all our fault. I’ve never been so happy to be blamed for something.'],
+      ['G', 'And I have a new title. Chief of Not Bolting Things On Without Asking.'],
+      ...(lost.length ? [['F', `Not everyone came home with us. ${lostNames()}. Their bunks stay made. We keep the lights on for them.`]] : [['F', 'And every single one of us came home. Every one.']]),
+      ['F', 'Welcome home, Descent Systems.'],
+      ['G', 'Dottie? I fixed the old telescope in the Dome. And it’s picking something up. A signal. From way past Eris.'],
+      lost.length ? ['G', 'There’s a voice on it. It sounds a lot like… no. It couldn’t be.'] : ['G', 'There’s a voice on it. Nobody I recognize.'],
+      ['F', '…Nobody tell Rex. He’ll want to make a movie about it.'],
+      ['R', 'I’m standing right here, darling. And yes. Yes, I will.'],
+      ['A', 'Mrrp.']
+    ], { label: 'The end · for now', title: 'Home' }];
+  } });
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3384,14 +3582,14 @@ details.act > .limits { margin: 0 0 8px; }
       if (!L.grounded && Math.hypot(L.x - p.x, L.y + 1 - p.y) < 4.8) {
         p.done = true; P.caught++; mission.bonus += 25;
         L.fuel = Math.min(L.fuelMax, L.fuel + 12 * tankMul() * ship().tank);
-        popText(`Pod ${P.caught}!`, '#ffd27a', p.x, p.y + 2, true); sfx.coin(); spawnSpark(p.x, p.y, '#ffd27a');
+        popText(cfg.label ? 'Got her!' : `Pod ${P.caught}!`, '#ffd27a', p.x, p.y + 2, true); sfx.coin(); spawnSpark(p.x, p.y, '#ffd27a');
       } else if (p.y <= groundAt(p.x) + 1) { p.done = true; P.lost++; spawnSpark(p.x, p.y, '#c97a3a'); }
     }
     const g = currentGoal();
     if (!g || g.type !== 'catch') return false;
-    if (P.caught >= g.need) { mission.stage++; showToast('That’s enough pods! Now climb back up to the ship.', 2400); afterGoal(g, null); return false; }
+    if (P.caught >= g.need) { mission.stage++; showToast(cfg.label ? `${cfg.label} is aboard! Bring her down on LZ.` : 'That’s enough pods! Now climb back up to the ship.', 2400); afterGoal(g, null); return false; }
     const live = P.list.filter(p => !p.done).length;
-    if (P.caught + live + (cfg.n - P.spawned) < g.need) { failMission('Too many supply pods hit the ground', ['J', 'My dock’s loading another batch. Try again!']); return true; }
+    if (P.caught + live + (cfg.n - P.spawned) < g.need) { failMission(cfg.label ? `${cfg.label}’s escape pod hit the ground` : 'Too many supply pods hit the ground', cfg.label ? ['F', 'Again. We go again. Nobody gets left behind.'] : ['J', 'My dock’s loading another batch. Try again!']); return true; }
     return false;
   }
   function drawPods(time) {
@@ -3481,6 +3679,73 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(X - 0.3 * s, Y - 2.2 * s, 0.4 * s, 2 * s);
     }
   }
+  // ---- Moving rings: on a ring route with ringMove, each marker swings around its spot ----
+  const ringAt = (d, i) => {
+    const [x, y] = d.rings[i], m = d.ringMove;
+    if (!m) return [x, y];
+    const a = (typeof flightT === 'number' ? flightT : 0) * m.speed + i * 1.9;
+    return [x + Math.cos(a) * m.r, y + Math.sin(a * 0.8) * m.r * 0.7];
+  };
+  // ---- Beacon drop: fly low over each peak and a guidance beacon releases on its own ----
+  function dropsTick() {
+    const d = mission.def, L = lander, g = currentGoal();
+    const B = mission.bc || (mission.bc = d.drops.map(x => ({ x, done: false })));
+    if (!g || g.type !== 'drops') return;
+    for (const b of B) {
+      if (b.done || L.grounded) continue;
+      const top = groundAt(b.x);
+      if (Math.abs(L.x - b.x) < 4.5 && L.y - top < 16 && L.y > top) {
+        b.done = true; mission.bonus += 30; popText(`Beacon ${B.filter(q => q.done).length}!`, '#7fd6ff', b.x, top + 6, true); sfx.coin(); spawnSpark(b.x, top + 2, '#7fd6ff');
+      }
+    }
+    if (B.every(b => b.done)) { mission.stage++; showToast('All beacons placed! Now climb out for the burn.', 2400); afterGoal(g, null); }
+  }
+  function drawDrops(time) {
+    if (!mission.def.drops) return;
+    const B = mission.bc || mission.def.drops.map(x => ({ x, done: false })), s = scale, on = Math.floor(time / 400) % 2 === 0;
+    for (const b of B) {
+      const top = groundAt(b.x), X = sx(b.x), Y = sy(top);
+      if (b.done) {
+        ctx.fillStyle = '#8a93ab'; ctx.fillRect(X - 0.25 * s, Y - 4 * s, 0.5 * s, 4 * s);
+        ctx.fillStyle = on ? '#7fd6ff' : 'rgba(127,214,255,0.4)'; ctx.beginPath(); ctx.arc(X, Y - 4.3 * s, 0.8 * s, 0, Math.PI * 2); ctx.fill();
+        if (on) { ctx.fillStyle = 'rgba(127,214,255,0.15)'; ctx.beginPath(); ctx.arc(X, Y - 4.3 * s, 3 * s, 0, Math.PI * 2); ctx.fill(); }
+      } else {   // a dashed drop zone above the peak
+        ctx.strokeStyle = 'rgba(127,214,255,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.strokeRect(X - 4.5 * s, sy(top + 16), 9 * s, 16 * s); ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(127,214,255,0.8)'; ctx.beginPath(); ctx.moveTo(X - 1.2 * s, sy(top + 18)); ctx.lineTo(X + 1.2 * s, sy(top + 18)); ctx.lineTo(X, sy(top + 16.6)); ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+  // ---- A real race: the rival's lander flies the course beside you; if it lands first, you lose ----
+  function rivalPos() {
+    const R = mission.def.rival, S = mission.rv, P = R.path;
+    const lens = []; let tot = 0;
+    for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); lens.push(l); tot += l; }
+    let dist = Math.min(1, S.t / R.time) * tot;
+    for (let i = 0; i < lens.length; i++) {
+      if (dist <= lens[i] || i === lens.length - 1) { const k = Math.min(1, dist / lens[i]); return [P[i][0] + (P[i + 1][0] - P[i][0]) * k, P[i][1] + (P[i + 1][1] - P[i][1]) * k, (P[i + 1][0] - P[i][0]) / lens[i]]; }
+      dist -= lens[i];
+    }
+    return P[P.length - 1].concat([0]);
+  }
+  function rivalTick(dt) {
+    const R = mission.def.rival, S = mission.rv || (mission.rv = { t: 0 });
+    S.t += dt;
+    if (S.t >= R.time) { failMission(R.winText || 'The rival landed first', R.winQuip || ['Q', 'Close. Not close enough.']); return true; }
+    return false;
+  }
+  function drawRival(time) {
+    if (!mission.def.rival || !mission.rv) return;
+    const [x, y, dir] = rivalPos(), s = scale, X = sx(x), Y = sy(y), done = mission.rv.t >= mission.def.rival.time;
+    ctx.save(); ctx.translate(X, Y); ctx.rotate(done ? 0 : dir * 0.25);
+    if (!done && Math.floor(time / 60) % 2) { ctx.fillStyle = '#7fd6ff'; ctx.beginPath(); ctx.moveTo(-0.9 * s, 1.4 * s); ctx.lineTo(0.9 * s, 1.4 * s); ctx.lineTo(0, 4 * s); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle = '#c9d4e8'; ctx.fillRect(-1.6 * s, -1.8 * s, 3.2 * s, 2.6 * s);
+    ctx.fillStyle = '#1e2a4c'; ctx.fillRect(-1.6 * s, -0.4 * s, 3.2 * s, 0.7 * s);
+    ctx.fillStyle = '#7fd6ff'; ctx.fillRect(-0.7 * s, -1.4 * s, 1.4 * s, 0.7 * s);
+    ctx.strokeStyle = '#c9d4e8'; ctx.lineWidth = Math.max(1, 0.25 * s); ctx.beginPath(); ctx.moveTo(-1.4 * s, 0.8 * s); ctx.lineTo(-2.4 * s, 2 * s); ctx.moveTo(1.4 * s, 0.8 * s); ctx.lineTo(2.4 * s, 2 * s); ctx.stroke();
+    ctx.restore();
+    ctx.font = `700 ${Math.max(9, 2.2 * s)}px monospace`; ctx.textAlign = 'center'; ctx.fillStyle = '#c9d4e8'; ctx.fillText('KESTREL', X, Y - 3 * s); ctx.textAlign = 'left';
+  }
   function afterGoal(g, pad) {
     const d = mission.def, L = lander;
     if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
@@ -3519,7 +3784,7 @@ details.act > .limits { margin: 0 0 8px; }
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
     : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
-    : [{ type: 'land', pad: 'LZ' }];
+    : [{ type: 'land', pad: d.pads.length === 1 ? d.pads[0].id : 'LZ' }];
   const currentGoal = () => { if (!mission) return null; const g = goalsOf(mission.def)[mission.stage]; const rd = mission.redirect; return g && rd && g.pad === rd.from && (g.type === 'land' || g.type === 'drop') ? { ...g, pad: rd.to } : g; };
   const isGoalPad = p => { const g = currentGoal(); return !!g && (g.pad === p.id || (!!g.pads && g.pads.includes(p.id))); };
   const thrustMul = () => (mission && mission.carrying && !mission.def.sling && !ship().hauler ? (mission.def.mass || 0.8) : 1) * (mission && mission.cop === 'X' ? 1.12 : 1);
@@ -3531,7 +3796,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (g.text) return g.text;
     if (g.type === 'either') return g.text;
     if (g.type === 'follow') return `Follow the lantern · ${Math.round(mission.fl ? mission.fl.meter : 100)}% in the light`;
-    if (g.type === 'catch') { const P = mission.pods || { caught: 0, lost: 0 }; return `Catch supply pods: ${P.caught} of ${g.need}${P.lost ? ` · ${P.lost} lost` : ''}`; }
+    if (g.type === 'catch') { const P = mission.pods || { caught: 0, lost: 0 }; return mission.def.pods.label ? `Catch ${mission.def.pods.label}’s escape pod before it lands` : `Catch supply pods: ${P.caught} of ${g.need}${P.lost ? ` · ${P.lost} lost` : ''}`; }
+    if (g.type === 'drops') { const n = (mission.bc || []).filter(b => b.done).length; return `Fly low over the peaks: ${n} of ${mission.def.drops.length} beacons placed`; }
     if (g.type === 'drop') return `Drop off at ${g.pad}`;
     if (g.type === 'pickup') return `Land on ${g.pad}`;
     if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
@@ -3555,13 +3821,14 @@ details.act > .limits { margin: 0 0 8px; }
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
     if (d.comfort) t += ` · ${d.comfortWho || 'Apogee'} ${Math.round(mission.comfort)}%`;
+    if (d.rival && mission.rv) t += ` · Kestrel ${Math.min(100, Math.round(mission.rv.t / d.rival.time * 100))}% of the way`;
     if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · ${d.battLabel || 'battery'} ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
   }
   const objectiveWarn = () => {
     const d = mission.def;
-    return (mission.fl && mission.fl.meter < 40) || (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
+    return (mission.rv && d.rival && mission.rv.t > d.rival.time * 0.8) || (mission.fl && mission.fl.meter < 40) || (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
   };
   // Per-tick rules for side missions. Returns true if the mission just ended.
   function missionTick(dt) {
@@ -3570,6 +3837,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.pods && !mission.rover && podsTick(dt)) return true;
     if (d.follow && !mission.rover && followTick(dt)) return true;
     if (d.icicles && mission.rover) iciclesTick(dt);
+    if (d.drops) dropsTick();
+    if (d.rival && rivalTick(dt)) return true;
     copTick();
     if (!mission.rover && mission.docking == null) surpriseTick(dt);
     if (d.timeLimit) {
@@ -3599,7 +3868,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     const g = currentGoal();
     if (g && g.type === 'ring') {
-      const [rx, ry] = d.rings[g.i];
+      const [rx, ry] = ringAt(d, g.i);
       if (Math.hypot(L.x - rx, L.y - ry) < RING_R) {
         mission.stage++;
         sfx.coin();
@@ -3852,7 +4121,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (!copHas('J') || !lander || mode !== 'flying') return;
     const g = currentGoal(); if (!g) return;
     let tx, ty;
-    if (g.type === 'ring') [tx, ty] = mission.def.rings[g.i];
+    if (g.type === 'ring') [tx, ty] = ringAt(mission.def, g.i);
     else if (g.pad) { const p = pads.find(q => q.id === g.pad); if (!p) return; tx = (p.x1 + p.x2) / 2; ty = p.y + 4; }
     else return;
     ctx.save(); ctx.setLineDash([4, 6]); ctx.lineDashOffset = -performance.now() / 60; ctx.strokeStyle = 'rgba(127,214,255,0.45)'; ctx.lineWidth = 1.5;
@@ -4342,6 +4611,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'storm-front') hardCallStorm(mission.choice);
     if (d.id === 'still-crew') hardCallPort();
     if (d.id === 'cold-storage') hardCallDoor();
+    if (d.id === 'the-buyout') hardCallBuyout();
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
     credits += pay + extra;
     saveCosmetics();
@@ -15233,7 +15503,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (mission) { drawMissionProps(time); drawPickups(time); drawPods(time); drawSurprises(time); drawGuide(); }
       if (vents.length) drawVents(time);
       if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
-      if (mission) { drawFollow(time); drawIcicles(time); drawDark(time); }
+      if (mission) { drawDrops(time); drawRival(time); drawFollow(time); drawIcicles(time); drawDark(time); }
     }
 
     const sk = skin();
@@ -16041,7 +16311,7 @@ details.act > .limits { margin: 0 0 8px; }
   function drawRings(time) {
     const d = mission.def, g = currentGoal();
     const next = g && g.type === 'ring' ? g.i : d.rings.length;
-    d.rings.forEach(([x, y], i) => {
+    d.rings.forEach((r0, i) => { const [x, y] = ringAt(d, i);
       const done = i < next, active = i === next;
       ctx.save();
       ctx.globalAlpha = done ? 0.3 : active ? 0.75 + 0.25 * Math.sin(time / 200) : 0.5;
