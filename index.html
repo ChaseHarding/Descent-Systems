@@ -411,6 +411,9 @@ kbd {
 .ph-b.me { align-self: flex-end; } .ph-b.me > div { background: #2f8a55; color: #fff; border-bottom-right-radius: 4px; }
 .ph-photo { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 8px; margin: -2px -4px; border-radius: 10px; background: #0a0e1c; border: 1px dashed rgba(201, 207, 220, 0.3); font-size: 12px; font-style: italic; text-align: center; }
 .ph-photo span { font-size: 24px; font-style: normal; }
+.ph-thread .grp-ic { flex: 0 0 32px; max-width: 32px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #3a4668, #26304f); font-size: 17px; }
+.grp-name { display: block; font-size: 10px; font-weight: 700; letter-spacing: .04em; margin-bottom: 2px; }
+.grp-chat .ph-day { font-style: italic; }
 .ph-b > div:has(> .ph-pic) { padding: 3px; line-height: 0; }
 .ph-pic { display: block; padding: 0; margin: 0; border: 0; background: none; cursor: zoom-in; border-radius: 11px; overflow: hidden; width: 180px; max-width: 100%; }
 .ph-pic img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
@@ -523,6 +526,31 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
   font-family: var(--f-mono);
 }
 .mtile:hover:not(:disabled) { border-color: var(--regolith-dim); }
+.cont { position: fixed; inset: 0; z-index: 65; display: flex; align-items: center; justify-content: center; background: rgba(5, 7, 15, .82); padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); box-sizing: border-box; transition: opacity .25s; animation: contIn .35s ease both; }
+.cont.out { opacity: 0; }
+@keyframes contIn { from { opacity: 0; } }
+.cont-in { width: min(100%, 26rem); max-height: 100%; overflow: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 16px 16px; border-radius: 12px; background: var(--space); border: 1px solid var(--space-2); border-top: 2px solid var(--flame); text-align: center; box-sizing: border-box; }
+.cont-in canvas { width: 100%; height: auto; aspect-ratio: 256 / 96; image-rendering: pixelated; border-radius: 6px; }
+.cont-eye { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--regolith-dim); }
+.cont-act { font: 700 20px var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: var(--flame); margin-top: 4px; }
+.cont-next { margin: 0; font-size: 13px; color: var(--regolith); text-wrap: balance; }
+.cont-next b { color: #f4f1e8; }
+.cont-status { margin: 0; font-size: 12px; } .cont-status.go { color: var(--ok); } .cont-status.rest { color: var(--regolith-dim); }
+.cont-meta { margin: 0; font-size: 11px; color: var(--regolith-dim); }
+@media (max-height: 460px) { .cont-in { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 12px; padding: 10px 14px; } .cont-in canvas { width: 46%; } .cont-eye, .cont-act, .cont-next, .cont-status, .cont-meta { flex-basis: 100%; } }
+.sset { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.mtabs.stabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.stabs .mtab { padding-block: 10px; }
+.pz { width: 100%; max-width: 26rem; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.pz-now { margin: 0; padding: 10px 12px; border: 1px solid var(--flame); border-radius: 8px; color: var(--regolith); font-size: 13px; line-height: 1.4; }
+.pz-now small { display: block; margin-bottom: 3px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--flame); }
+.pz-stars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pz-stars li { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: baseline; font-size: 12px; color: var(--regolith); }
+.pz-stars b { color: var(--flame); }
+.pz-stars li.ok em { color: var(--ok); } .pz-stars li.bad em { color: var(--bad); } .pz-stars li.bad b { color: var(--regolith-dim); }
+.pz-stars em { font-style: normal; font-size: 11px; color: var(--regolith-dim); white-space: nowrap; }
+.pz-limit { margin: 0; font-size: 12px; color: var(--warn); }
+@media (max-height: 460px) { .card h1.pz-h { font-size: 26px; margin: 0; } .pz-where { display: none; } .pz { gap: 5px; } .pz-now { padding: 5px 10px; font-size: 12px; } .pz-stars { gap: 2px; } .pz-stars li { font-size: 11px; } .card:has(.pz) .keys-hint { display: none; } }
 .mtile:disabled { cursor: not-allowed; opacity: 0.45; }
 .mtile:focus-visible { outline: 2px solid var(--regolith); outline-offset: 2px; }
 .mtile .orb { position: absolute; top: 10px; right: 10px; width: 14px; height: 14px; border-radius: 50%; }
@@ -970,6 +998,24 @@ details.act[open] summary::after { transform: rotate(90deg); }
 details.act .atitle { font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith); text-align: left; }
 details.act .ameta { margin-left: auto; font-family: var(--f-mono); font-size: 11px; color: var(--flame); white-space: nowrap; }
 details.act.locked .atitle, details.act.locked .ameta { color: var(--regolith-dim); }
+details.act summary { flex-wrap: wrap; row-gap: 6px; }
+details.act .atitle small { display: block; margin-top: 3px; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0; text-transform: none; color: var(--regolith-dim); }
+details.act .abar { order: 3; flex: 1 0 100%; height: 3px; border-radius: 2px; background: var(--space-2); overflow: hidden; }
+details.act .abar i { display: block; height: 100%; background: var(--flame); border-radius: 2px; }
+details.act.done .abar i { background: var(--ok); }
+details.act summary::after { order: 2; }
+.mup { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--flame); background: linear-gradient(135deg, rgba(255,181,71,.16), rgba(255,181,71,.04)); color: inherit; font: inherit; text-align: left; cursor: pointer; box-sizing: border-box; }
+.mup:disabled { cursor: default; border-color: var(--space-2); background: rgba(255,255,255,.03); }
+.mup .orb { flex: none; width: 30px; height: 30px; border-radius: 50%; }
+.mup > span:not(.mup-go) { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.mup small { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--flame); }
+.mup.rest small { color: var(--regolith-dim); }
+.mup b { font-family: var(--f-display); font-size: 17px; letter-spacing: .04em; color: var(--regolith); }
+.mup em { font-style: normal; font-size: 11px; color: var(--regolith-dim); }
+.mup-go { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--flame); color: var(--space); font-size: 12px; }
+.mup-note { margin-top: -4px; }
+.mtile.next { border-color: var(--flame); box-shadow: 0 0 0 1px var(--flame), 0 0 14px rgba(255,181,71,.25); }
+.mnext { position: absolute; top: -7px; right: 8px; padding: 1px 7px; border-radius: 8px; background: var(--flame); color: var(--space); font: 700 9.5px/1.6 var(--f-display); letter-spacing: .12em; text-transform: uppercase; font-style: normal; }
 details.act > .limits { margin: 0 0 8px; }
 .card h2.sect { margin: 6px 0 0; font-family: var(--f-display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--regolith-dim); }
 /* Tutorial coach */
@@ -3481,6 +3527,23 @@ details.act > .limits { margin: 0 0 8px; }
   const isGoalPad = p => { const g = currentGoal(); return !!g && (g.pad === p.id || (!!g.pads && g.pads.includes(p.id))); };
   const thrustMul = () => (mission && mission.carrying && !mission.def.sling && !ship().hauler ? (mission.def.mass || 0.8) : 1) * (mission && mission.cop === 'X' ? 1.12 : 1);
   const rotMul = () => mission && mission.carrying && !mission.def.sling && !ship().hauler ? 0.8 : 1;
+  // the pause card during a mission: what you're doing now, and how the three stars are going
+  function pauseMissionHtml() {
+    const d = mission.def, L = lander, best = missionStars[d.id] || 0;
+    const goals = goalsOf(d), stop = d.legs ? `Stop ${(currentGoal() && currentGoal().leg != null ? currentGoal().leg : 0) + 1} of ${d.legs.length}` : goals.length > 1 ? `Step ${Math.min(mission.stage + 1, goals.length)} of ${goals.length}` : '';
+    const fuelOk = L.fuel >= d.stars.fuel, timeOk = flightT <= d.stars.time;
+    const left = d.timeLimit ? Math.max(0, d.timeLimit - flightT) : null;
+    return `<div class="pz">
+        <p class="pz-now"><small>Now${stop ? ' · ' + stop : ''}</small>${esc(goalText() || objectiveText())}</p>
+        <ul class="pz-stars">
+          <li><b>★</b><span>Complete the mission</span><em>${mission.stage}/${goals.length} steps</em></li>
+          <li class="${fuelOk ? 'ok' : 'bad'}"><b>★</b><span>${d.stars.fuel} kg fuel or more</span><em>${Math.ceil(L.fuel)} kg now${fuelOk ? '' : ' · below goal'}</em></li>
+          <li class="${timeOk ? 'ok' : 'bad'}"><b>★</b><span>Within ${d.stars.time} s</span><em>${flightT.toFixed(0)} s so far${timeOk ? '' : ' · gone'}</em></li>
+        </ul>
+        ${left != null ? `<p class="pz-limit">⏱ ${left.toFixed(0)} s left on the clock</p>` : ''}
+        ${best ? `<p class="limits">Your best: ${starHtml(best)}</p>` : ''}
+      </div>`;
+  }
   function goalText() {
     const g = currentGoal();
     if (!g) return '';
@@ -5912,10 +5975,13 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (m === 'paused') {
       const where = tut ? 'Tutorial' : mission ? `${missionLabel(missionSel)} · ${esc(mission.def.name)}` : match ? `${esc(names[cur()])} · round ${match.round} of ${ROUNDS}`
         : daily ? `Daily · site ${daily.site} of ${DAILY_SITES}` : `${world.name} · site ${level}`;
-      html = `<h1>Paused</h1>
-        <p class="limits">${where}</p>
+      const pm = mission && !tut ? pauseMissionHtml() : '';
+      html = `<h1${pm ? ' class="pz-h"' : ''}>Paused</h1>
+        <p class="limits${pm ? ' pz-where' : ''}">${where}</p>
+        ${pm}
         <div class="btns">
           <button class="btn" id="go">Resume</button>
+          ${pm ? `${mission.cp ? '<button class="btn ghost" id="retryStop">Retry from last stop</button>' : ''}<button class="btn ghost" id="restartBtn">Restart</button>` : ''}
           <button class="btn ghost" id="pick">Quit to the ship</button>
         </div>
         <p class="keys-hint limits"><kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>`;
@@ -5964,6 +6030,10 @@ details.act > .limits { margin: 0 0 8px; }
     card.innerHTML = html;
     paintFaces(card);
     if (m === 'missionEnd') revealStars(card);
+    if (m === 'paused') {
+      const rs = $('restartBtn'); if (rs) rs.addEventListener('click', () => { sfx.click(); surpForce = null; startMission(null); });
+      const rf = $('retryStop'); if (rf) rf.addEventListener('click', () => { sfx.click(); retryFromStop(); });
+    }
     const chb = $('chalBtn');
     if (chb) { const R = { w: world.id, l: level, s: siteSeed, n: pilotName(), p: lastResult.pts, frames: lastRun.frames }; chb.addEventListener('click', () => shareRace(R, chb)); }
     const rpb = $('replayBtn');
@@ -6065,43 +6135,62 @@ details.act > .limits { margin: 0 0 8px; }
     setMode('setup');
   }
   function renderSettings(focusId) {
+    if (focusId) { const tabOfId = { setSound: 'sound', setMusic: 'sound', setStory: 'story', setRomance: 'story' }; if (tabOfId[focusId]) setTab = tabOfId[focusId]; }
     const row = (id, label, sub, on) => `<button class="toggle" id="${id}" aria-pressed="${on}">
       <span><b>${label}</b><small>${sub}</small></span><i aria-hidden="true"></i></button>`;
     const keyRows = [['Main engine', '↑ or W'], ['Rotate', '← → or A D'], ['Pause', 'P or Esc'], ['Sound', 'M'], ['Music', 'N'],
       ['Ghosts', 'G'], ['Auto-zoom', 'Z'], ['Hangar', 'H'], ['Break room', 'R'], ['Badges', 'B']];
+    const T = setTab || 'fly', sec = id => T === id ? '' : ' hidden';
+    const tabs = [['fly', 'Flying'], ['sound', 'Sound'], ['story', 'Story'], ['save', 'Save']];
     card.innerHTML = `<h1 class="good">Settings</h1>
-      <div class="settings">
-        ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
-        ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
-        ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
-        ${row('setRomance', 'Romance', 'Date the crew once you’re close (Friends ♥ in the break room). Date more than one at a time if you dare: jealousy, exes, rivals and gossip included. Off keeps everyone as friends', romanceOn)}
-        ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
-        ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
-        ${row('setMusic', 'Music', 'A soundtrack generated as you play. It builds as you near the ground', sfx.musicOn)}
-      </div>
-      <h2 class="sect">Controls</h2>
-      <div class="tally-wrap"><table class="tally">
-        <tbody>${keyRows.map(([a, k]) => `<tr><td>${a}</td><td>${k}</td></tr>`).join('')}</tbody>
-      </table></div>
-      <p class="limits">On touch screens, use the buttons below the game.</p>
-      <h2 class="sect">Save backup</h2>
-      <div class="savebox">
-        <p class="limits">Everything (hearts, dates, your ship, your wardrobe) is saved in this browser. iPhone Safari can clear that if you don’t visit for a while, so keep a backup somewhere safe, like your Notes app.</p>
-        <div class="btns"><button class="btn" id="saveCopy">Copy save code</button><button class="btn ghost" id="saveFile">Download save file</button></div>
-        <textarea id="saveIn" rows="3" spellcheck="false" autocomplete="off" placeholder="To restore, paste a save code here" aria-label="Save code"></textarea>
-        <div class="btns"><button class="btn ghost" id="saveLoad">Restore from code</button><label class="btn ghost" for="saveFileIn">Load a save file</label><input type="file" id="saveFileIn" accept=".txt,text/plain" hidden></div>
-        <p class="limits" id="saveMsg" aria-live="polite"></p>
-      </div>
-      <h2 class="sect">New game</h2>
-      <div class="savebox">
-        <p class="limits">Start over from the very beginning. Everything is wiped, so back up your save code first if you might want it back.</p>
-        <div class="btns"><button class="btn ghost" id="saveNew">Start a new game</button></div>
-      </div>
+      <div class="mtabs stabs" role="tablist">${tabs.map(([id, name]) => `<button role="tab" class="mtab${id === T ? ' on' : ''}" data-stab="${id}" aria-selected="${id === T}"><b>${name}</b></button>`).join('')}</div>
+      <section class="sset"${sec('fly')}>
+        <div class="settings">
+          ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
+          ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
+          ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
+        </div>
+        <h2 class="sect">Controls</h2>
+        <p class="limits">On touch screens, use the ◀ ROT, THRUST and ROT ▶ buttons below the game. With a keyboard:</p>
+        <div class="tally-wrap"><table class="tally">
+          <tbody>${keyRows.map(([a, k]) => `<tr><td>${a}</td><td>${k}</td></tr>`).join('')}</tbody>
+        </table></div>
+      </section>
+      <section class="sset"${sec('sound')}>
+        <div class="settings">
+          ${row('setSound', 'Sound', 'Engine, wind, alarms and touchdowns. On iPhone, the silent switch mutes it too', !sfx.muted)}
+          ${row('setMusic', 'Music', 'A soundtrack generated as you play. It builds as you near the ground', sfx.musicOn)}
+        </div>
+      </section>
+      <section class="sset"${sec('story')}>
+        <div class="settings">
+          ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
+          ${row('setRomance', 'Romance', 'Date the crew once you’re close (Friends ♥ in the break room). Date more than one at a time if you dare: jealousy, exes, rivals and gossip included. Off keeps everyone as friends', romanceOn)}
+        </div>
+        <div class="btns">
+          <button class="btn ghost" id="introBtn">Replay intro</button>
+          <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
+        </div>
+      </section>
+      <section class="sset"${sec('save')}>
+        <h2 class="sect">Save backup</h2>
+        <div class="savebox">
+          <p class="limits">Everything (hearts, dates, your ship, your wardrobe) is saved in this browser. iPhone Safari can clear that if you don’t visit for a while, so keep a backup somewhere safe, like your Notes app.</p>
+          <div class="btns"><button class="btn" id="saveCopy">Copy save code</button><button class="btn ghost" id="saveFile">Download save file</button></div>
+          <textarea id="saveIn" rows="3" spellcheck="false" autocomplete="off" placeholder="To restore, paste a save code here" aria-label="Save code"></textarea>
+          <div class="btns"><button class="btn ghost" id="saveLoad">Restore from code</button><label class="btn ghost" for="saveFileIn">Load a save file</label><input type="file" id="saveFileIn" accept=".txt,text/plain" hidden></div>
+          <p class="limits" id="saveMsg" aria-live="polite"></p>
+        </div>
+        <h2 class="sect">New game</h2>
+        <div class="savebox">
+          <p class="limits">Start over from the very beginning. Everything is wiped, so back up your save code first if you might want it back.</p>
+          <div class="btns"><button class="btn ghost" id="saveNew">Start a new game</button></div>
+        </div>
+      </section>
       <div class="btns">
-        <button class="btn ghost" id="tutBtn2">Replay tutorial</button>
-        <button class="btn ghost" id="introBtn">Replay intro</button>
         <button class="btn ghost" id="back">${menuReturn ? 'Back to the menu' : 'Back to the ship'}</button>
       </div>`;
+    card.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.stab === setTab) return; setTab = b.dataset.stab; sfx.click(); renderSettings(); const t2 = card.querySelector('.stabs .mtab.on'); if (t2) t2.focus({ preventScroll: true }); }));
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
     $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
@@ -6117,9 +6206,10 @@ details.act > .limits { margin: 0 0 8px; }
     $('introBtn').addEventListener('click', startIntro);
     wireSaveBackup();
     $('back').addEventListener('click', () => setMode('title'));
-    const f = $(focusId || 'setZoom');
+    const f = focusId ? $(focusId) : card.querySelector('.stabs .mtab.on');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 0);
   }
+  var setTab = 'fly';
 
   // ---- Save backup: everything the game keeps lives in localStorage under ds-, packed into one code ----
   function saveCode() {
@@ -6603,32 +6693,25 @@ details.act > .limits { margin: 0 0 8px; }
   let missionTab = 'story';
   const tabOf = i => i < MISSIONS.length ? 'story' : ALL[i].kind === 'trip' ? 'trip' : 'side';
   const ACTS = () => [
-    [0, ACT1, 'Act 1 · Grounded', ''],
-    [ACT1, ACT2, 'Act 2 · Lift Off', 'Finish All Systems Go to begin Act 2.'],
-    [ACT2, ACT3, 'Act 3 · Adrift', 'Finish Dead Air to begin Act 3.'],
-    [ACT3, STORY_TOTAL, 'Act 4 · The Slingshot', 'Finish Patchwork to begin Act 4.']
+    [0, ACT1, 'Act 1 · Grounded', '', 'Odd jobs around the Moon to get the Second Wind flying.'],
+    [ACT1, ACT2, 'Act 2 · Lift Off', 'Finish All Systems Go to begin Act 2.', 'First jobs off the Moon, old debts and a storm.'],
+    [ACT2, ACT3, 'Act 3 · Adrift', 'Finish Dead Air to begin Act 3.', 'Drifting outward with the lights off, and a confession.'],
+    [ACT3, STORY_TOTAL, 'Act 4 · The Slingshot', 'Finish Patchwork to begin Act 4.', 'One big burn around Jupiter, and the long way home.']
   ];
+  // the next story mission to fly: the first one that's open and not done yet
+  const nextStory = () => { for (let i = 0; i < MISSIONS.length; i++) if (missionOpen(i) && !storyDone(MISSIONS[i].id)) return i; return -1; };
   // shown under the newest act once it's finished, until the next act arrives
   let freshM = new Set();
   const newChip = d => freshM.has(d.id) ? '<i class="mnew">New</i>' : '';
   function storyTile(d, i) {
     const w = WORLDS.find(x => x.id === d.world), rest = missionOpen(i) && restLocked(i), open = missionOpen(i) && !rest, st = missionStars[d.id] || 0;
-    return `<button class="mtile" data-i="${i}"${open ? '' : ' disabled'}${rest ? ` title="${esc(restText())}"` : ''}>${newChip(d)}
+    const nx = i === nextStory();
+    return `<button class="mtile${nx ? ' next' : ''}${rest ? ' rest' : ''}" data-i="${i}"${open ? '' : ' disabled'}${rest ? ` title="${esc(restText())}"` : ''}>${nx && open ? '<i class="mnext">Next</i>' : newChip(d)}
       <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
       <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
       <b>${d.name}</b>
       <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
       <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${rest ? '💤 Sleep first' : 'Locked'}</span>`}</span>
-    </button>`;
-  }
-  function soonTile(p, i) {
-    const w = WORLDS.find(x => x.id === p[2]);
-    return `<button class="mtile soon" disabled>
-      <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
-      <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
-      <b>${p[1]}</b>
-      <span class="mtype">${w.name} · ${p[3]}</span>
-      <span class="mstars"><span class="mtype">Coming soon</span></span>
     </button>`;
   }
   function sideTile(d, i) {
@@ -6640,6 +6723,59 @@ details.act > .limits { margin: 0 0 8px; }
       <span class="mtype">${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}${d.legs ? ` · ${d.legs.length} stops` : ''}</span>
       <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${d.afterWorld ? `Land on ${WORLDS.find(x => x.id === d.afterWorld).name} in free flight` : `Unlocks after ${afterName(d)}`}</span>`}</span>
     </button>`;
+  }
+  // ---- Welcome back: when the game opens, a card shows where you are in the story and the ship as she is now ----
+  function contShipState() {
+    if (storyDone('home')) return 'home';
+    if (storyDone('patchwork')) return 'blue';
+    if (shipDark()) return 'dark';
+    if (!inBase()) return 'fly';
+    return 'base';
+  }
+  function contDraw(c, t, st) {
+    const W2 = 256, H2 = 96;
+    if (st === 'base') {
+      const fixed = MISSIONS.slice(0, ACT1).filter(d => storyDone(d.id)).length / ACT1;
+      px(c, 0, 0, W2, H2, '#0c0b0a');
+      c.fillStyle = `rgba(110,100,84,${0.15 + fixed * 0.55})`; c.fillRect(0, 0, W2, 72);
+      for (let x = 0; x < W2; x += 32) px(c, x, 0, 2, 72, `rgba(60,54,46,${0.4 + fixed * 0.4})`);
+      px(c, 0, 72, W2, 24, fixed > 0.2 ? '#2a2724' : '#151412'); for (let x = 6; x < W2; x += 22) px(c, x, 76, 12, 2, fixed > 0.2 ? '#c9a24a' : '#3a3220');
+      cineShipAt(c, 70, 34, 1.5, { dusty: fixed < 0.9, holes: fixed < 0.4, lit: fixed });
+      return;
+    }
+    px(c, 0, 0, W2, H2, '#05070f');
+    for (let i = 0; i < 46; i++) { const x = ((i * 97) % W2 + W2 - (st === 'dark' ? t * 2 : t * 14) * (1 + i % 3) % W2) % W2, y = (i * 53) % H2; px(c, x, y, 1, 1, i % 4 ? '#8a93ab' : '#ffffff'); }
+    if (st === 'home') { phDisc(c, 196, 60, 30, '#c9cfdc'); phDisc(c, 190, 54, 6, '#a9afbd'); phDisc(c, 206, 70, 4, '#a9afbd'); }
+    if (st === 'dark') { c.save(); c.translate(128, 44); c.rotate(Math.sin(t * 0.4) * 0.05); cineShipAt(c, -54, -14, 1.5, { lit: Math.floor(t * 1.5) % 2 ? 0.34 : 0, red: true, dish: true }); c.restore(); return; }
+    cineShipAt(c, st === 'home' ? 50 : 76, 30 + Math.sin(t * 1.2) * 2, 1.5, { flame: st === 'home' ? 0 : 0.8 + Math.random() * 0.3, blue: st === 'blue' || st === 'home', lit: 1 });
+  }
+  function showContinue() {
+    if (document.querySelector('.cont') || !storyDone('final-notice')) return;
+    const nx = nextStory(), nd = nx >= 0 ? MISSIONS[nx] : null, rest = nd && restLocked(nx);
+    const act = nd ? ACTS().find(([a, b]) => nx >= a && nx < b) : null;
+    const st = contShipState(), un = textsUnread();
+    const el = document.createElement('div'); el.className = 'cont'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Welcome back');
+    el.innerHTML = `<div class="cont-in">
+        <span class="cont-eye">Welcome back, ${esc(pilotName() === 'A pilot' ? 'pilot' : pilotName())}</span>
+        <canvas width="256" height="96" aria-hidden="true"></canvas>
+        <b class="cont-act">${act ? act[2] : 'Story complete'}</b>
+        <p class="cont-next">${nd ? `Up next: <b>Mission ${nx + 1} · ${nd.name}</b> on ${WORLDS.find(w => w.id === nd.world).name}` : 'Every story mission flown. The Dome is waiting.'}</p>
+        <p class="cont-status ${rest ? 'rest' : 'go'}">${nd ? (rest ? '💤 Sleep in your bunk before the next story mission' : '● Ready to fly') : '★ Chase three stars, or take a side job'}</p>
+        <p class="cont-meta">Day ${shipDay} · ${fmt(credits)} credits${un ? ` · 📱 ${un} unread` : ''}</p>
+        <div class="btns"><button class="btn" id="contGo">Continue</button>${nd && !rest ? '<button class="btn ghost" id="contMs">Missions</button>' : ''}</div>
+      </div>`;
+    document.body.appendChild(el);
+    const cv = el.querySelector('canvas'), c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+    let raf = 0; const t0 = performance.now();
+    const loop = now => { contDraw(c, (now - t0) / 1000, st); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    const close = () => { cancelAnimationFrame(raf); removeEventListener('keydown', key, true); el.classList.add('out'); setTimeout(() => el.remove(), 250); };
+    const key = e => { if (e.code === 'Escape' || e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); e.stopPropagation(); close(); } };
+    addEventListener('keydown', key, true);
+    el.addEventListener('click', e => { if (e.target === el) close(); });
+    $('contGo').addEventListener('click', () => { sfx.click(); close(); });
+    const ms = $('contMs'); if (ms) ms.addEventListener('click', () => { sfx.click(); close(); missionsFrom = null; missionTab = 'story'; setMode('missions'); });
+    setTimeout(() => $('contGo').focus({ preventScroll: true }), 0);
   }
   function renderMissions() {
     const sideIdx = kind => SIDES.map((d, k) => MISSIONS.length + k).filter(i => (ALL[i].kind === 'trip') === (kind === 'trip'));
@@ -6658,16 +6794,22 @@ details.act > .limits { margin: 0 0 8px; }
       // the act you're on: the first one that's open and not finished
       let cur = acts.findIndex(([a, b]) => a < MISSIONS.length && missionOpen(a) && completedCount(a, b) < b - a);
       if (cur < 0) cur = acts.length - 1;
-      body = acts.map(([a, b, title, lockText], k) => {
-        const open = a < MISSIONS.length && missionOpen(a), done = completedCount(a, b), n = b - a, soon = a >= MISSIONS.length;
-        const meta = soon ? 'Coming soon' : !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
-        return `<details class="act${open ? '' : ' locked'}"${k === cur ? ' open' : ''}>
-          <summary><span class="atitle">${title}</span><span class="ameta">${meta}</span></summary>
-          ${open && MISSIONS.some((m, k) => k >= a && k < b && restLocked(k) && missionOpen(k)) ? `<p class="limits">💤 ${restText()}</p>` : ''}
-          ${open ? '' : `<p class="limits">${soon ? 'Coming in a future update. Here’s what’s planned.' : lockText}</p>`}
-          <div class="mlist">${STORY_PLAN.slice(a, b).map((p, j) => a + j < MISSIONS.length ? storyTile(MISSIONS[a + j], a + j) : soonTile(p, a + j)).join('')}</div>
+      const nx = nextStory(), nd = nx >= 0 ? MISSIONS[nx] : null, nrest = nd && restLocked(nx);
+      const up = nd ? `<button class="mup${nrest ? ' rest' : ''}" data-i="${nx}"${nrest ? ' disabled' : ''}>
+          <i class="orb" style="background:${WORLDS.find(x => x.id === nd.world).orb}" aria-hidden="true"></i>
+          <span><small>${nrest ? '💤 Up next, after you sleep' : 'Up next'} · Mission ${nx + 1}</small><b>${nd.name}</b><em>${WORLDS.find(x => x.id === nd.world).name} · ${nd.label || KIND_LABEL[nd.kind]}</em></span>
+          ${nrest ? '' : '<span class="mup-go" aria-hidden="true">▶</span>'}
+        </button>${nrest ? `<p class="limits mup-note">${restText()}</p>` : ''}`
+        : completedCount() >= MISSIONS.length ? '<p class="limits mup-note">★ Story complete. Go for three stars everywhere, or take a side job.</p>' : '';
+      body = up + acts.map(([a, b, title, lockText, tag], k) => {
+        const open = missionOpen(a), done = completedCount(a, b), n = b - a;
+        const meta = !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
+        return `<details class="act${open ? '' : ' locked'}${done === n ? ' done' : ''}"${k === cur ? ' open' : ''}>
+          <summary><span class="atitle">${title}<small>${tag}</small></span><span class="ameta">${meta}</span><span class="abar" aria-hidden="true"><i style="width:${Math.round(done / n * 100)}%"></i></span></summary>
+          ${open ? '' : `<p class="limits">${lockText}</p>`}
+          <div class="mlist">${MISSIONS.slice(a, b).map((d, j) => storyTile(d, a + j)).join('')}</div>
         </details>`;
-      }).join('') + (MISSIONS.length < STORY_TOTAL && completedCount() === MISSIONS.length ? `<p class="limits act4">${nextTease()}</p>` : '');
+      }).join('');
     } else {
       const list = missionTab === 'trip' ? trips : sides;
       // the ones you can fly first, locked ones after
@@ -6680,7 +6822,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="mbody">${body}</div>
       <p class="limits">Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">${missionsFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button>`;
-    card.querySelectorAll('.mtile').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
+    card.querySelectorAll('.mtile, .mup').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
     // the ones shown on this tab count as seen now (they keep their chip until you leave)
     markSeen('ds-seenM', [...freshM].filter(id => tabOf(ALL.findIndex(d => d.id === id)) === missionTab));
     card.querySelectorAll('.mtab').forEach(b => b.addEventListener('click', () => {
@@ -13350,13 +13492,105 @@ details.act > .limits { margin: 0 0 8px; }
   function textsHtml() {
     const who = Object.keys(bond.texts).filter(w => bond.texts[w].length).sort((a, b) => { const la = bond.texts[a][bond.texts[a].length - 1], lb = bond.texts[b][bond.texts[b].length - 1]; return (pendingText(b) ? 1 : 0) - (pendingText(a) ? 1 : 0) || lb.day - la.day; });
     const newBtn = '<div class="ph-new"><button class="btn ghost" data-app="contacts">✏️ New text</button></div>';
-    if (!who.length) return newBtn + '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions, or start one yourself.</li></ul>';
-    return `${newBtn}<ul class="ph-list ph-threads">${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
+    if (!who.length && !groupRow()) return newBtn + '<ul class="ph-list"><li class="ph-empty">No texts yet. The crew text you overnight and after missions, or start one yourself.</li></ul>';
+    return `${newBtn}<ul class="ph-list ph-threads">${groupRow()}${who.map(w => { const t = bond.texts[w], last = t[t.length - 1], un = !!pendingText(w);
       return `<li><button class="ph-thread${un ? ' new' : ''}" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${last.from === 'P' ? 'You: ' : ''}${esc((last.text.startsWith('📷') ? '📷 Photo' : last.text))}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`; }).join('')}</ul>`;
   }
   function contactsHtml() {
     const who = textWho();
     return `<ul class="ph-list ph-threads">${who.map(w => `<li><button class="ph-thread" data-thread="${w}">${faceTag(w, '')}<span><b style="color:${SPEAKERS[w].color}">${esc(SIGN[w])}${isPartner(w) ? ' ♥' : ''}</b><small>${isEx(w) ? 'Not answering' : bond.textOut[w] === shipDay ? 'Texted today' : esc(SPEAKERS[w].name.includes(' · ') ? SPEAKERS[w].name.split(' · ').slice(-1)[0] === SIGN[w] ? SPEAKERS[w].name.split(' · ')[0] : SPEAKERS[w].name.split(' · ').slice(-1)[0] : 'Crew')}</small></span></button></li>`).join('') || '<li class="ph-empty">Nobody to text yet. Meet the crew first!</li>'}</ul>`;
+  }
+  // ---- The crew group chat: "Second Wind crew 🚀". After big story moments the whole crew talks at once. ----
+  // Lines arrive one at a time while you're looking at the thread. Each moment ends with two replies for you.
+  // Crew who haven't joined yet, or who were lost, never post.
+  const GROUP_CHATS = [
+    ['the-neighbor', [['sys', 'Dottie made the group “Second Wind crew 🚀”'], ['F', 'I made a group. For official ship business only.'], ['G', '🚀🚀🚀'], ['G', 'is this official enough'], ['W', 'Hello dears. How do I make the letters bigger.'], ['F', 'Wren, you’re typing in the search bar again.']],
+      [['Love the name 🚀', [['F', 'The name is a placeholder. The placeholder is permanent.']]], ['Who let Gus in?', [['G', 'i let myself in. i’m very persuasive'], ['F', 'He got in through the router. It took him four seconds.']]]]],
+    ['star-client', [['sys', 'Rex joined the group'], ['R', 'Hi everyone. Rex Valor here. Yes. THE Rex Valor.'], ['R', '📷 Rex, mid-hair-flip, in front of the ship’s mirror. No caption needed.'], ['G', 'he sent me that one privately too'], ['W', 'He sent it to me three times, dear.']],
+      [['Iconic.', [['R', 'Finally. A fan with taste.']]], ['How do I mute Rex', [['R', 'You can’t mute a star.'], ['F', 'You can. Settings, then Rex, then Mute. I’ll walk you through it.']]]]],
+    ['all-systems-go', [['F', 'Final checklist complete. Tomorrow we fly.'], ['G', 'i have been awake for 31 hours'], ['H', 'Liftoff dumplings at 0600. Be there.'], ['C', 'I’M SO EXCITED I PACKED TWICE'], ['W', 'Get some sleep, all of you. Big day tomorrow.']],
+      [['We’ve got this.', [['W', 'We do, dear.'], ['G', 'we absolutely do 🚀']]], ['Can we have the dumplings now?', [['H', 'No.'], ['H', '…Fine. Two.']]]]],
+    ['first-port', [['R', 'EARTH. My people. (The paparazzi.)'], ['F', 'Reminder: nobody leaves the ship without signing out.'], ['G', 'i left the ship'], ['F', 'GUS.'], ['G', 'i signed out in spirit']],
+      [['Bring me a souvenir, Gus', [['G', '📷 a wrench wearing googly eyes, captioned “me when the engine makes a new noise”'], ['G', 'found him in a gift shop. his name is torque']]], ['Rules are rules.', [['F', 'Thank you. Finally, someone on this ship.']]]]],
+    ['storm-front', [['F', 'Roll call. Everyone check in. Now.'], ['G', 'here'], ['W', 'Here, dear.'], ['R', 'Here. I wasn’t scared. My hair was scared.'], ['C', 'HERE!!! I’m okay!!! Thank you pilot!!!'], ['H', 'Here. Galley’s fine. Some soup is on the ceiling.']],
+      [['Everyone’s safe. That’s what matters.', [['F', 'Agreed. Roll call complete.'], ['W', 'Well flown, dear.']]], ['Soup on the ceiling?', [['H', 'Minestrone. It’s staying up there now. It’s art.']]]]],
+    ['dead-air', [['G', 'power’s out so i’m texting by flashlight'], ['F', 'The phones have their own batteries, Gus. You don’t need the flashlight.'], ['G', 'it’s for ambience'], ['R', 'Does anyone else hear that creaking'], ['W', 'That’s the ship, dear. She’s settling. Like me.']],
+      [['We’ll get her running again.', [['G', 'we will. i promise.']]], ['Ghost stories?', [['R', 'NO.'], ['W', 'Ooh. I have a good one. It’s about a lander that went out and never came—'], ['R', 'WREN.']]]]],
+    ['catch', [['sys', 'Theo joined the group'], ['E', 'hey all. Theo. new deputy. Juno sent me'], ['G', 'NEW FRIEND'], ['R', 'Do you know who I am?'], ['E', 'no'], ['R', '…I like him.']],
+      [['Welcome aboard, Theo!', [['E', 'thanks, ace.']]], ['Watch out for Gus.', [['G', 'i’m delightful'], ['E', 'noted.']]]]],
+    ['the-overdrive', [['G', 'i’m sorry. to all of you. i should have told you sooner.'], ['F', 'We know, Gus.'], ['W', 'We’re still here, dear. All of us.'], ['H', 'Galley’s open. Come eat. That’s an order.']],
+      [['We’re crew. We fix it together.', [['G', 'thank you. really.'], ['F', 'Engine room, 0800. All of us.']]], ['You owe us dumplings.', [['G', 'i owe you SO many dumplings'], ['H', 'He does. I’m keeping a list.']]]]],
+    ['patchwork', [['G', 'SHE’S ALIVE 🔥🔥🔥'], ['F', 'All systems green. I checked twice. Then a third time.'], ['R', 'I cried. On camera. For no one.'], ['C', 'I cried too! Regulation tears!']],
+      [['Best crew in the system.', [['W', 'The very best, dear.'], ['G', '🚀']]], ['Gus, you did it!', [['G', 'WE did it. but also me a little']]]]],
+    ['the-buyout', [['F', 'The vote is at 2000 in the galley. Attendance is mandatory.'], ['R', 'Will there be snacks'], ['H', 'There will be snacks.'], ['W', 'Whatever we decide, we decide it together.']],
+      [['We’re not selling.', [['G', 'damn right'], ['W', 'That’s my pilot.']]], ['Let’s hear everyone out.', [['F', 'Sensible. Bring a pen.']]]]],
+    ['the-rescue', [['sys', 'Kestrel joined the group'], ['Q', 'This is Kestrel. Thank you. I don’t say that often.'], ['R', 'A RIVAL TURNED FRIEND. It’s a classic.'], ['G', 'welcome!! we have a lot of rules'], ['F', 'We have four rules. Gus breaks all four.']],
+      [['Glad you’re with us, Kestrel.', [['Q', '…Me too. Don’t tell anyone.']]], ['Race you to breakfast.', [['Q', 'You’ll lose.'], ['Q', 'Bridge. 0600.']]]]],
+    ['home', [['F', 'We’re home.'], ['W', 'We’re home, dears.'], ['G', '🌙🌙🌙'], ['R', 'I’m writing a movie about all this. You’re all in it. I’m the lead.'], ['H', 'Welcome-home dinner. Everyone. No exceptions.']],
+      [['Love you all.', [['W', 'We love you too, dear.'], ['G', '❤️❤️❤️']]], ['So… what’s next?', [['F', 'There’s a signal coming from the Dome.'], ['F', '…Tomorrow. Tonight, we eat.']]]]]
+  ];
+  let groupTyping = null, groupTimer = 0;
+  const groupCan = w => w === 'sys' || ((w === 'F' || w === 'G' || textWho().includes(w)) && !isLost(w));
+  function groupCheck() {
+    if (!bond.groupDone) {   // first look on an old save: only the most recent moment, so the chat doesn't flood
+      const done = GROUP_CHATS.filter(([k]) => storyDone(k)).map(([k]) => k);
+      bond.groupDone = done.slice(0, -1); bond.group = []; bond.groupQ = []; bond.groupAsk = null;
+    }
+    if (!Array.isArray(bond.group)) bond.group = [];
+    if (!Array.isArray(bond.groupQ)) bond.groupQ = [];
+    let added = 0;
+    for (const [k, lines, asks] of GROUP_CHATS) {
+      if (bond.groupDone.includes(k) || !storyDone(k)) continue;
+      bond.groupDone.push(k);
+      for (const [w, t] of lines) if (groupCan(w)) { bond.groupQ.push({ from: w, text: t }); added++; }
+      bond.groupQ.push({ ask: k });
+    }
+    if (added) { saveBond(); setTimeout(() => { if (mode !== 'flying') { showToast('📱 New messages in the crew chat', 2000); sfx.radio(); } }, 900); }
+  }
+  function groupUnread() { try { groupCheck(); } catch (e) { return 0; } return bond.groupQ.filter(q => !q.ask).length + (bond.groupAsk ? 1 : 0); }
+  function groupRow() {
+    if (!bond.groupDone || !bond.groupDone.length) return '';
+    const last = bond.group[bond.group.length - 1], un = groupUnread();
+    const prev = un ? `${un} new message${un === 1 ? '' : 's'}` : last ? `${last.from === 'P' ? 'You' : last.from === 'sys' ? '' : SIGN[last.from]}${last.from === 'sys' ? '' : ': '}${last.text.startsWith('📷') ? '📷 Photo' : last.text}` : '';
+    return `<li><button class="ph-thread grp${un ? ' new' : ''}" data-group="1"><span class="grp-ic" aria-hidden="true">🚀</span><span><b>Second Wind crew</b><small>${esc(prev)}</small></span>${un ? '<i class="ph-dot" aria-label="unread"></i>' : ''}</button></li>`;
+  }
+  function groupHtml() {
+    let prevFrom = null;
+    const rows = bond.group.map(x => {
+      if (x.from === 'sys') { prevFrom = null; return `<li class="ph-day">${esc(x.text)}</li>`; }
+      const me = x.from === 'P', name = !me && x.from !== prevFrom ? `<span class="grp-name" style="color:${SPEAKERS[x.from].color}">${esc(SIGN[x.from])}</span>` : '';
+      prevFrom = x.from;
+      return `<li class="ph-b ${me ? 'me' : 'them'}">${me ? '' : faceTag(x.from, '')}<div>${name}${bubble(x)}</div></li>`;
+    }).join('');
+    const dots = groupTyping ? `<li class="ph-b them">${faceTag(groupTyping, '')}<div class="ph-typing" aria-label="typing"><i></i><i></i><i></i></div></li>` : '';
+    const ask = bond.groupAsk && !groupTyping ? GROUP_CHATS.find(([k]) => k === bond.groupAsk) : null;
+    return `<ul class="ph-list ph-chat grp-chat" id="phChat">${rows || '<li class="ph-empty">Nothing yet.</li>'}${dots}</ul>
+      ${ask ? `<div class="ph-replies">${ask[2].map(([r], i) => `<button class="ph-reply ${i ? 'fun' : 'warm'}" data-greply="${i}">${esc(r)}</button>`).join('')}</div>` : ''}`;
+  }
+  // drip the queue while the thread is open: typing dots, then the message
+  function groupDrip() {
+    if (groupTimer || bond.groupAsk || phoneView !== 'group' || !phoneOpen) return;
+    const q = bond.groupQ[0]; if (!q) return;
+    if (q.ask) { bond.groupQ.shift(); bond.groupAsk = q.ask; saveBond(); renderPhone(); return; }
+    if (q.from === 'sys') { bond.groupQ.shift(); bond.group.push({ from: 'sys', text: q.text, day: shipDay }); saveBond(); renderPhone(); return; }
+    groupTyping = q.from;
+    groupTimer = setTimeout(() => {
+      groupTimer = 0; groupTyping = null;
+      if (phoneView !== 'group' || !phoneOpen) { renderPhone(); return; }
+      const m = bond.groupQ.shift(); if (!m) return;
+      bond.group.push({ from: m.from, text: m.text, day: shipDay });
+      if (bond.group.length > 120) bond.group = bond.group.slice(-120);
+      saveBond(); sfx.pop(); renderPhone(); phoneButton();
+    }, Math.min(1700, 650 + q.text.length * 14));
+    renderPhone();
+  }
+  function groupReply(i) {
+    const ask = GROUP_CHATS.find(([k]) => k === bond.groupAsk); if (!ask) return;
+    const [label, back] = ask[2][i];
+    bond.group.push({ from: 'P', text: label, day: shipDay });
+    bond.groupAsk = null;
+    bond.groupQ.unshift(...back.filter(([w]) => groupCan(w)).map(([w, t]) => ({ from: w, text: t })));
+    saveBond();
   }
   function threadHtml(w) {
     const t = thread(w), m = pendingText(w);
@@ -13377,26 +13611,29 @@ details.act > .limits { margin: 0 0 8px; }
       p.addEventListener('click', e => {
         const t = e.target.closest('button'); if (!t) return;
         if (t.id === 'phoneClose') { sfx.click(); closePhone(); return; }
-        if (t.id === 'phoneBack') { sfx.click(); phoneView = phoneView.startsWith('thread:') || phoneView === 'contacts' ? 'texts' : 'home'; renderPhone(); return; }
+        if (t.id === 'phoneBack') { sfx.click(); phoneView = phoneView.startsWith('thread:') || phoneView === 'contacts' || phoneView === 'group' ? 'texts' : 'home'; renderPhone(); return; }
         if (t.dataset.open) { sfx.click(); startText(phoneView.slice(7), t.dataset.open); renderPhone(); return; }
         if (t.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); return; }
         if (t.id === 'phReq') { sfx.click(); closePhone(); reqFrom = 'title'; setMode('requests'); return; }
         if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
         if (t.dataset.thread) { sfx.click(); phoneView = 'thread:' + t.dataset.thread; renderPhone(); return; }
+        if (t.dataset.group) { sfx.click(); phoneView = 'group'; renderPhone(); return; }
+        if (t.dataset.greply != null) { sfx.click(); groupReply(+t.dataset.greply); renderPhone(); phoneButton(); return; }
         if (t.dataset.reply != null) { sfx.click(); replyText(phoneView.slice(7), +t.dataset.reply); renderPhone(); phoneButton(); return; }
       });
     }
     const v = phoneView, tw = v.startsWith('thread:') ? v.slice(7) : null;
     const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0]];
-    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
+    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', group: 'Second Wind crew 🚀', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
     const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
-      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : threadHtml(tw);
+      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : v === 'group' ? groupHtml() : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
       <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
       ${body}</div>`;
     paintFaces(p);
     p.hidden = false;
     const chat = $('phChat'); if (chat) chat.scrollTop = chat.scrollHeight;
+    if (v === 'group') setTimeout(groupDrip, 0);
   }
   document.addEventListener('keydown', e => { if (phoneOpen && e.code === 'Escape') { e.stopPropagation(); e.preventDefault(); closePhone(); } }, true);
   // crew messages pop up one at a time at the bottom of the screen
@@ -13674,7 +13911,7 @@ details.act > .limits { margin: 0 0 8px; }
   const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X', 'E', 'Q'].filter(w => romMet[w] && romMet[w]());
   const thread = w => (bond.texts[w] = bond.texts[w] || []);
   const pendingText = w => { const t = bond.texts[w]; const m = t && t[t.length - 1]; return m && m.from === w && m.choices && m.picked == null ? m : null; };
-  const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length;
+  const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length + groupUnread();
   bond.textOut = bond.textOut || {};   // who you texted first today
   const typing = {};                   // who is typing a reply right now
   // starting a conversation: once per person per ship day, a small hearts boost and a quick answer
@@ -17328,7 +17565,7 @@ details.act > .limits { margin: 0 0 8px; }
   spawn();
   if (store.get('ds-migrate', '') === 'ask' && !/^#race=/.test(location.hash)) renderMigrate();
   else if (store.get('ds-migrated', '') === 'intro') { store.set('ds-migrated', ''); startIntro(); }
-  else if (isBrandNew() && !/^#race=/.test(location.hash)) startIntro(); else setMode('title');
+  else if (isBrandNew() && !/^#race=/.test(location.hash)) startIntro(); else { setMode('title'); if (!/^#race=/.test(location.hash) && store.get('ds-migrate', '') !== 'ask') setTimeout(() => { try { if (!MENU_MODES.includes(mode) || SHIP_ROOMS.includes(mode) || mode === 'title') showContinue(); } catch (e) {} }, 400); }
   checkRaceLink();
   addEventListener('hashchange', checkRaceLink);
   requestAnimationFrame(frame);
