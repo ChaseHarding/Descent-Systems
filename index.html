@@ -3777,6 +3777,69 @@ details.act > .limits { margin: 0 0 8px; }
     }
   }
   // Juno's guide line to the next stop
+  // ---- Wayfinding: the current goal pad glows mint with a light beam, and an arrow around Biscuit points the way ----
+  const GOAL_COL = '#7cf0b0';
+  function goalTarget() {
+    const g = currentGoal(), L = lander;
+    if (!g || !L || mission.loading || mission.rover || mission.docking != null) return null;
+    if (g.type === 'ring') { const [x, y] = ringAt(mission.def, g.i); return { x, y, label: `MARKER ${g.i + 1}`, col: '#ff9ad5' }; }
+    const ids = g.pads || (g.pad ? [g.pad] : null);
+    if (ids) {
+      let best = null, bd = 1e9;
+      for (const p of pads) if (ids.includes(p.id)) { const c = (p.x1 + p.x2) / 2, dd = Math.hypot(c - L.x, p.y - L.y); if (dd < bd) { bd = dd; best = p; } }
+      if (!best) return null;
+      return { x: (best.x1 + best.x2) / 2, y: best.y + 0.5, label: best.label || best.id, pad: best, col: GOAL_COL };
+    }
+    if (g.type === 'exit') return { x: L.x, y: L.y + 60, label: 'UP', up: true, col: GOAL_COL };
+    return null;
+  }
+  function drawGoalBeam(p, time) {
+    const X1 = sx(p.x1), X2 = sx(p.x2), Y = sy(p.y), hgt = Math.min(Y, 30 * scale);
+    const pulse = 0.5 + 0.5 * Math.sin(time / 260);
+    ctx.save();
+    const gr = ctx.createLinearGradient(0, Y, 0, Y - hgt);
+    gr.addColorStop(0, `rgba(124,240,176,${(0.26 + 0.14 * pulse).toFixed(2)})`); gr.addColorStop(1, 'rgba(124,240,176,0)');
+    ctx.fillStyle = gr; ctx.fillRect(X1, Y - hgt, X2 - X1, hgt);
+    // a bouncing chevron above the pad
+    const cx = (X1 + X2) / 2, cy = Y - (7 + 1.2 * Math.sin(time / 220)) * scale, s = Math.max(6, Math.min(12, scale * 1.4));
+    ctx.fillStyle = GOAL_COL; ctx.strokeStyle = 'rgba(10,14,28,.8)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx - s, cy - s * 0.7); ctx.lineTo(cx + s, cy - s * 0.7); ctx.lineTo(cx, cy + s * 0.5); ctx.closePath(); ctx.stroke(); ctx.fill();
+    ctx.restore();
+  }
+  function drawGoalArrow(time) {
+    if (mode !== 'flying' || !mission || introHold) return;
+    const t = goalTarget(), L = lander; if (!t) return;
+    if (t.pad && L.grounded) return;
+    const lx = sx(L.x), ly = sy(L.y), tx = sx(t.x), ty = t.up ? -1e4 : sy(t.y);
+    const dist = t.up ? null : Math.hypot(t.x - L.x, t.y - L.y);
+    if (dist != null && dist < 12) return;
+    const ang = Math.atan2(ty - ly, tx - lx);
+    const stormy = (world.hazard === 'storm' || mission.def.storm) && stormState().on;
+    const R = Math.max(38, scale * 8), s = 11, pulse = 0.75 + 0.25 * Math.sin(time / 180);
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.translate(lx + Math.cos(ang) * R, ly + Math.sin(ang) * R); ctx.rotate(ang);
+    ctx.fillStyle = t.col; ctx.strokeStyle = 'rgba(10,14,28,.85)'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(s, 0); ctx.lineTo(-s * 0.7, -s * 0.75); ctx.lineTo(-s * 0.3, 0); ctx.lineTo(-s * 0.7, s * 0.75); ctx.closePath(); ctx.stroke(); ctx.fill();
+    ctx.restore();
+    // off screen: a pill on the edge of the screen with the pad's name and distance
+    const M = 22, onScreen = tx > M && tx < cw - M && ty > M && ty < ch - M;
+    if (onScreen || t.up) return;
+    const dx = tx - lx, dy = ty - ly;
+    const k = Math.min(dx ? ((dx > 0 ? cw - M - 40 : M + 40) - lx) / dx : 1e9, dy ? ((dy > 0 ? ch - M - 14 : M + 60) - ly) / dy : 1e9);
+    const px = lx + dx * Math.max(0, k), py = ly + dy * Math.max(0, k);
+    const txt = `${t.label}${stormy ? '' : ` ${Math.round(dist)} m`}`;
+    ctx.save();
+    ctx.font = `700 11px ${C('--f-mono')}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText(txt).width + 26, h = 20;
+    ctx.fillStyle = 'rgba(10,14,28,.88)'; ctx.strokeStyle = t.col; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(px - w / 2, py - h / 2, w, h, 10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = t.col;
+    const ax = dx > 0 ? px + w / 2 - 9 : px - w / 2 + 9;
+    ctx.fillText(dx > 0 ? '▶' : '◀', ax, py + 0.5);
+    ctx.fillText(txt, px + (dx > 0 ? -6 : 6), py + 0.5);
+    ctx.restore();
+  }
   function drawGuide() {
     if (!copHas('J') || !lander || mode !== 'flying') return;
     const g = currentGoal(); if (!g) return;
@@ -15826,11 +15889,12 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.font = `600 ${Math.min(16, Math.max(10, base * 3.2 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
       ctx.textAlign = 'center';
       for (const p of pads) {
-        const lit = !mission || isGoalPad(p);
-        ctx.globalAlpha = !lit ? 0.4 : mission ? 0.75 + 0.25 * Math.sin(time / 200) : 1;
-        ctx.strokeStyle = col.flame; ctx.lineWidth = 3;
+        const goal = !!mission && isGoalPad(p), lit = !mission || goal;
+        if (goal) drawGoalBeam(p, time);
+        ctx.globalAlpha = !lit ? 0.35 : 1;
+        ctx.strokeStyle = goal ? GOAL_COL : col.flame; ctx.lineWidth = goal ? 4.5 : 3;
         ctx.beginPath(); ctx.moveTo(sx(p.x1), sy(p.y)); ctx.lineTo(sx(p.x2), sy(p.y)); ctx.stroke();
-        ctx.fillStyle = col.flame;
+        ctx.fillStyle = goal ? GOAL_COL : col.flame;
         const off = Math.min(24, Math.max(14, base * 4.5 * Math.sqrt(cam.z)));
         ctx.fillText(p.label || `×${p.mult}`, sx((p.x1 + p.x2) / 2), p.move ? sy(p.y) - off * 0.55 - 4.5 * scale : sy(p.y) + off);
         ctx.globalAlpha = 1;
@@ -15875,6 +15939,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
     if (mission && mission.def.rings && !MENU_MODES.includes(mode)) drawRings(time);
+    if (mission) drawGoalArrow(time);
     if ((world.hazard === 'storm' || (mission && mission.def.storm)) && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
     if (shaking) ctx.restore();
     if (mode === 'replay' && replay) {
