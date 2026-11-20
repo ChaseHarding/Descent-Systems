@@ -6575,6 +6575,122 @@ details.act > .limits { margin: 0 0 8px; }
     };
     raf = requestAnimationFrame(frame);
   }
+  // ---- More cinematics: short shots before smaller story beats ----
+  function cineLander(c, x, y, k, col, flame) {
+    c.save(); c.translate(x, y); c.scale(k, k);
+    if (flame) { c.fillStyle = flame === 'blue' ? '#7fd6ff' : '#ffb547'; c.beginPath(); c.moveTo(-2, 5); c.lineTo(2, 5); c.lineTo(0, 10 + Math.random() * 3); c.fill(); }
+    px(c, -5, -5, 10, 7, col); px(c, -3, -4, 6, 3, '#bfefff'); px(c, -5, 1, 10, 2, '#3a4256');
+    c.strokeStyle = col; c.lineWidth = 1; c.beginPath(); c.moveTo(-4, 3); c.lineTo(-7, 6); c.moveTo(4, 3); c.lineTo(7, 6); c.stroke();
+    c.restore();
+  }
+  function cineGround(c, col, hz, wob) { c.fillStyle = col; c.beginPath(); c.moveTo(0, 144); for (let x = 0; x <= 256; x += 8) c.lineTo(x, hz + Math.sin(x * 0.05 + (wob || 0)) * 3); c.lineTo(256, 144); c.fill(); }
+  Object.assign(CINES, {
+    quake: { dur: 6, caps: [[0.3, 'Moon Base.'], [2, 'The ground starts to shake.']],
+      draw(c, t) {
+        const sh = t > 1.8 ? (Math.random() - 0.5) * 4 * Math.min(1, (t - 1.8) * 2) : 0;
+        c.save(); c.translate(sh, sh * 0.5);
+        px(c, -4, -4, 264, 152, '#05070f'); cineStars(c, 40, 29, 0); cineGround(c, '#8a877e', 104);
+        px(c, 80, 84, 46, 20, '#c9c2b0'); px(c, 84, 90, 6, 4, '#ffd27a'); px(c, 96, 90, 6, 4, '#ffd27a'); px(c, 108, 90, 6, 4, '#ffd27a');
+        px(c, 136, 74, 70, 30, '#a49a88'); px(c, 140, 78, 62, 26, '#1a1816');
+        if (t > 2) for (let i = 0; i < 26; i++) px(c, (i * 47) % 256, 100 - ((t - 2) * 30 + i * 9) % 60, 2, 2, 'rgba(170,160,140,0.6)');
+        c.restore();
+      } },
+    apex: { dur: 6.5, caps: [[0.3, 'A silver lander drops out of the sky.'], [3.6, 'Apex Landings.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 50, 31, 0); cineGround(c, '#8a877e', 108);
+        cineLander(c, 70, 100, 2.2, '#ffb547');
+        const d = ease(t / 5);
+        cineLander(c, 170, 10 + d * 90, 2.6, '#c9d4e8', d < 0.98 ? 'blue' : null);
+        if (t > 4.8) { c.font = '700 7px monospace'; c.fillStyle = '#c9d4e8'; c.textAlign = 'center'; c.fillText('APEX', 170, 84); c.textAlign = 'left'; }
+      } },
+    testfire: { dur: 7, caps: [[0.3, 'Everyone stand back.'], [3.4, 'Six years of silence…'], [5, '…and then thunder.']],
+      draw(c, t) {
+        cineHangar(c, 1); [64, 192].forEach(x => cineCone(c, x, 1));
+        const fire = t > 4.8 ? Math.min(1, (t - 4.8) * 2) : t > 3.4 ? 0.15 : 0, sh = t > 4.8 ? (Math.random() - 0.5) * 3 : 0;
+        c.save(); c.translate(sh, 0); cineShipAt(c, 64, 56, 1.6, { flame: fire }); c.restore();
+        px(c, 82, 84, 8, 24, '#3a3430'); px(c, 146, 84, 8, 24, '#3a3430');
+        if (t > 4.8) for (let i = 0; i < 24; i++) px(c, 40 - ((t - 4.8) * 60 + i * 11) % 60, 74 + (i * 7) % 30, 3, 2, 'rgba(200,190,170,0.5)');
+      } },
+    earth: { dur: 6.5, caps: [[0.3, 'Earth.'], [3.2, 'Our first job off the Moon.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#04060c'); cineStars(c, 40, 37, 0);
+        c.fillStyle = '#2f6fb3'; c.beginPath(); c.arc(128, 220, 150, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#4fa85a'; for (const [x, y, r] of [[80, 95, 22], [160, 86, 16], [200, 110, 20]]) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); }
+        c.fillStyle = 'rgba(255,255,255,0.7)'; for (let i = 0; i < 6; i++) c.fillRect(((i * 53 + t * 8) % 300) - 30, 80 + i * 8, 34, 3);
+        c.fillStyle = 'rgba(127,214,255,0.25)'; c.beginPath(); c.arc(128, 220, 154, Math.PI, 0); c.lineTo(282, 220); c.fill();
+        const d = ease(t / 6); cineLander(c, 128, 20 + d * 46, 2 - d * 0.8, '#ffb547', 'orange');
+      } },
+    mars: { dur: 6, caps: [[0.3, 'Mars. The last independent dock.'], [3, 'Somewhere under all that dust: a landing pad.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#3a1e14'); c.fillStyle = 'rgba(255,170,110,0.25)'; c.fillRect(0, 0, 256, 80);
+        cineGround(c, '#7a3a24', 110, t * 0.3);
+        px(c, 116, 52, 24, 58, '#5a2a1c'); px(c, 110, 48, 36, 6, '#8a4a30');
+        for (let i = 0; i < 4; i++) { const hop = Math.abs(Math.sin(t * 4 + i)) * 2; px(c, 114 + i * 8, 42 - hop, 3, 6, ['#ff8a3a', '#ffd27a', '#ff8a3a', '#c9d4e8'][i]); }
+        for (let i = 0; i < 60; i++) px(c, ((i * 41) + t * 40 * (1 + i % 3)) % 256, (i * 23) % 144, 2, 1, 'rgba(230,150,100,0.5)');
+      } },
+    overdrive: { dur: 7, caps: [[0.3, 'That night, in the engine room…'], [4, 'A small idea. A small, safe idea.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#0a0a0e');
+        px(c, 30, 40, 120, 60, '#1c1e28'); for (let k = 0; k < 6; k++) px(c, 36 + k * 19, 46, 12, 48, '#252838');
+        px(c, 150, 60, 30, 26, '#3a1a1a'); px(c, 156, 66, 18, 14, `rgba(255,${60 + Math.floor(40 * Math.sin(t * 6))},60,0.9)`);
+        px(c, 186, 74, 8, 26, '#ff8a3a'); px(c, 184, 66, 12, 9, '#e8c4a8'); px(c, 184, 64, 12, 3, '#4a3020');
+        if (Math.floor(t * 7) % 3 === 0) for (let i = 0; i < 6; i++) px(c, 176 + Math.random() * 8, 70 + Math.random() * 10, 1, 1, '#ffe58a');
+        c.fillStyle = 'rgba(255,233,184,0.08)'; c.beginPath(); c.moveTo(186, 60); c.lineTo(140, 120); c.lineTo(230, 120); c.fill();
+      } },
+    venus: { dur: 6.5, caps: [[0.3, 'Venus. A sky resort, evacuating.'], [3.2, 'Everyone’s leaving. Almost everyone.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#c99a4a'); c.fillStyle = 'rgba(255,220,150,0.35)'; c.fillRect(0, 0, 256, 60);
+        for (let i = 0; i < 8; i++) { c.fillStyle = `rgba(240,200,130,${0.5 - i * 0.04})`; c.beginPath(); c.ellipse(((i * 61 + t * 10) % 320) - 30, 96 + i * 6, 60, 10, 0, 0, Math.PI * 2); c.fill(); }
+        c.fillStyle = '#e8e0d0'; c.beginPath(); c.ellipse(128, 70, 46, 12, 0, 0, Math.PI * 2); c.fill(); px(c, 108, 54, 40, 16, '#f4f1e8'); px(c, 116, 46, 24, 10, '#ffd27a');
+        for (let i = 0; i < 4; i++) { const k = ((t * 0.4 + i * 0.25) % 1); cineLander(c, 128 + (i - 1.5) * 30, 60 - k * 80, 1.4, '#c9d4e8', 'orange'); }
+        if (Math.floor(t * 2) % 2) px(c, 168, 70, 2, 4, '#ff6b5e');
+      } },
+    pods: { dur: 6, caps: [[0.3, 'Juno’s dock, Mars.'], [2.4, 'Fire!']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#2a1410'); c.fillStyle = 'rgba(255,170,110,0.18)'; c.fillRect(0, 0, 256, 90); cineStars(c, 30, 41, 0);
+        cineGround(c, '#7a3a24', 112);
+        px(c, 40, 86, 30, 26, '#5a2a1c'); c.save(); c.translate(56, 88); c.rotate(-0.7); px(c, 0, -3, 26, 6, '#8a4a30'); c.restore();
+        for (let i = 0; i < 5; i++) { const k = t - 2.4 - i * 0.6; if (k < 0) continue; const x = 70 + k * 60, y = 70 - k * 46 + k * k * 4; px(c, x, y, 3, 3, '#c97a3a'); if (k > 1.2) { c.fillStyle = '#ff6b5e'; c.beginPath(); c.arc(x + 1.5, y - 3, 4, Math.PI, 0); c.fill(); } }
+        c.save(); c.translate(150 + t * 4, 18); c.scale(0.5, 0.5); cineShip(c, 0, 0, { lit: 1, red: true }); c.restore();
+      } },
+    jupiter: { dur: 6.5, caps: [[0.3, 'Jupiter.'], [3, 'And below: a floating market, all lit up.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#04050c'); cineStars(c, 50, 43, 0);
+        const bands = ['#c9a27a', '#e8cfa8', '#b07a52', '#e0c090', '#a86a48'];
+        c.save(); c.beginPath(); c.arc(200, 40, 70, 0, Math.PI * 2); c.clip(); bands.forEach((col, i) => { c.fillStyle = col; c.fillRect(130, -30 + i * 28, 140, 29); }); c.restore();
+        cineGround(c, '#6a7088', 112);
+        for (let i = 0; i < 9; i++) { const x = 30 + i * 22, y = 92 + Math.sin(t * 1.4 + i) * 3; px(c, x, y, 14, 8, ['#c9b8ff', '#ffd27a', '#7fd6ff'][i % 3]); px(c, x + 6, y - 6, 2, 6, '#8a93ab'); px(c, x + 5, y - 8, 4, 3, Math.floor(t * 2 + i) % 2 ? '#ffe58a' : '#c9a24a'); }
+      } },
+    apexship: { dur: 6.5, caps: [[0.3, 'Eris. The edge of the map.'], [3, 'And someone else has come all this way.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#030308'); cineStars(c, 70, 47, 0); cineGround(c, '#4a4c58', 116);
+        cineShipAt(c, 20, 82, 1.1, { lit: 1, red: true });
+        const d = ease(t / 5.5);
+        c.save(); c.translate(150, -30 + d * 112); px(c, 0, 4, 70, 12, '#e8ecf4'); px(c, 4, 0, 60, 4, '#ffffff'); px(c, 70, 6, 10, 8, '#e8ecf4'); px(c, 8, 8, 50, 2, '#ff3b4e');
+        if (d < 0.98) { c.fillStyle = '#7fd6ff'; c.fillRect(12, 16, 6, 6 + Math.random() * 4); c.fillRect(52, 16, 6, 6 + Math.random() * 4); }
+        c.restore();
+      } },
+    eject: { dur: 6.5, caps: [[0.3, 'Halfway down, Kestrel’s engine fails.'], [3.4, 'She ejects.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#6aa0d8'); c.fillStyle = 'rgba(255,255,255,0.6)'; for (let i = 0; i < 5; i++) c.fillRect((i * 70 + t * 6) % 300 - 30, 20 + i * 14, 40, 5);
+        cineGround(c, '#4a8a3a', 118);
+        const fall = t > 2 ? (t - 2) * (t - 2) * 6 : 0, lx = 150 + t * 6, ly = 40 + fall;
+        if (ly < 120) { cineLander(c, lx, ly, 2.2, '#c9d4e8'); for (let i = 0; i < 4; i++) px(c, lx - 4 + Math.random() * 8, ly - 10 - Math.random() * 14, 3, 3, `rgba(60,60,70,${0.6 - i * 0.1})`); }
+        if (t > 3.4) { const k = t - 3.4, px2 = lx - 10 - k * 4, py = 30 + k * 10; c.fillStyle = '#ff6b5e'; c.beginPath(); c.arc(px2, py - 6, 7, Math.PI, 0); c.fill(); px(c, px2 - 1, py - 6, 1, 6, '#f4f1e8'); px(c, px2 - 2, py, 4, 4, '#c9d4e8'); }
+        if (t > 2 && t < 2.15) { c.fillStyle = 'rgba(255,200,120,0.6)'; c.fillRect(0, 0, 256, 144); }
+      } }
+  });
+  Object.assign(STORY['moonquake'], { cine: 'quake' });
+  Object.assign(STORY['apex-calling'], { cine: 'apex' });
+  Object.assign(STORY['test-fire'], { cine: 'testfire' });
+  Object.assign(STORY['first-port'], { cine: 'earth' });
+  Object.assign(STORY['red-dock'], { cine: 'mars' });
+  Object.assign(STORY['sun-side'], { cine: 'overdrive' });
+  Object.assign(STORY['dead-air'], { cine: 'venus' });
+  Object.assign(STORY['catch'], { cine: 'pods' });
+  Object.assign(STORY['market-day'], { cine: 'jupiter' });
+  Object.assign(STORY['the-buyout'], { cine: 'apexship' });
+  Object.assign(STORY['the-rescue'], { cine: 'eject' });
   STORY['final-notice'].cine = 'dusty';
   EPILOGUES['storm-front'] = [[
     ['G', 'The engine… it’s gone. Everything’s gone dark.'],
@@ -9274,6 +9390,115 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Deck one. The dome’s still sealed. Gus says soon. Gus always says soon. Paperwork permitting.'],
     ['G', 'If you hear a clanking noise in the walls, that’s just Crumb. Unless Crumb is with you. Then I don’t know what it is.']
   ];
+  // ---- In-ship scenes: story moments that play out in the rooms themselves, not as a cutscene ----
+  // Walk into the right room after a story mission and the crew are already there: they move to their marks,
+  // turn toward whoever is talking, and the lines play in the usual speech panel (tap it to move on). Each plays once.
+  // cast: [who, x, y, walkTo?]. In the corridor (rel: true) x is an offset from where you're standing.
+  const ROOM_SCENES = [
+    { id: 'rs-quake', room: 'galley', after: 'moonquake', until: 'test-fire',
+      cast: [['H', 196, 118], ['G', 70, 120], ['F', 130, 126]],
+      lines: [['H', 'Soup for the heroes! Miner’s stew. My grandmother’s recipe. She was not a miner.'],
+        ['G', 'Bao, this is the best thing I’ve ever eaten. I say that every time. It’s true every time.'],
+        ['F', 'The mining company sent a thank-you card. And a reactor core. Mostly the reactor core.'],
+        ['H', 'Eat. Then fix the ship. Then eat again.']] },
+    { id: 'rs-apex', room: 'hall', rel: true, after: 'apex-calling', until: 'all-systems-go',
+      cast: [['F', -34, 120], ['G', 28, 118], ['W', 120, 122, 54]],
+      lines: [['F', 'Did you see that lander? Silver. Shiny. Probably cost more than this whole base.'],
+        ['G', 'It had heated seats. I looked through the window. I’m not proud of it.'],
+        ['W', 'Shiny landers break just like ours. Louder, usually.'],
+        ['F', 'Kestrel can keep her contracts. We’ve got a ship to fix.']] },
+    { id: 'rs-moving', room: 'hall', rel: true, after: 'liftoff', until: 'red-dock',
+      cast: [['R', -60, 122, 70], ['W', 34, 118], ['G', -18, 120]],
+      lines: [['R', 'Coming through! Bag seven of eleven! Mind the hair dryer!'],
+        ['W', 'You do know we have a cargo bay, Rex.'],
+        ['R', 'The cargo bay doesn’t have mirrors, darling.'],
+        ['G', 'The whole ship smells like new carpet. It’s six-year-old carpet. But it smells new to me.'],
+        ['W', 'Welcome home, Gus.']] },
+    { id: 'rs-kit', room: 'galley', after: 'first-port', until: 'stone-patient',
+      cast: [['C', 120, 124], ['H', 200, 118], ['F', 58, 120]],
+      lines: [['H', 'A stowaway, eh? Sit. Eat. Stowaways always eat first.'],
+        ['C', 'Thank you, sir! Chef! Sir Chef! Is this a real omelet? I’ve only had crate food for two days.'],
+        ['F', 'You owe us one crate, cadet. And you’re on dish duty until further notice.'],
+        ['C', 'Yes, ma’am! Dottie! Ma’am Dottie!']] },
+    { id: 'rs-bolt', room: 'engine', after: 'sun-side', until: 'storm-front',
+      cast: [['G', 60, 106], ['W', 210, 112, 110]],
+      lines: [['G', 'Okay, little booster. Be good. Just this once.'],
+        ['W', 'Gus. What is that.'],
+        ['G', 'Nothing! A… heat shield. For the bolts. A bolt shield.'],
+        ['W', 'Uh huh. If that’s a bolt shield, I’m a moon.'],
+        ['G', 'Goodnight, Wren!']] },
+    { id: 'rs-dark', room: 'hall', rel: true, after: 'storm-front', until: 'catch',
+      cast: [['F', -34, 120], ['R', 26, 118], ['W', 54, 122]],
+      lines: [['F', 'Okay. Emergency lights only. We ration power, we ration food, and we stay calm.'],
+        ['R', 'I’m calm. This is my calm face. It looks like my scared face. They’re very similar.'],
+        ['W', 'I’ve drifted before. Twice. You stay busy, and you stay together.'],
+        ['F', 'Then we stay together.']] },
+    { id: 'rs-theo', room: 'galley', after: 'catch', until: 'under-the-ice',
+      cast: [['E', 110, 124], ['H', 206, 118], ['J', 54, 120]],
+      lines: [['E', 'Theo Okafor, reporting for duty! Where’s your coffee machine? I can hear it from here. It’s crying.'],
+        ['H', 'It doesn’t cry. It sings. Badly.'],
+        ['E', 'Give me five minutes.', { to: [182, 116] }],
+        ['J', 'He fixed every machine on my dock. He also broke four. On purpose, he says.'],
+        ['E', 'And… there. Coffee. Real coffee.'],
+        ['H', 'Fine. He can stay.']] },
+    { id: 'rs-alone', room: 'engine', after: 'the-overdrive', until: 'still-crew',
+      cast: [['G', 60, 106], ['W', 210, 112]],
+      lines: [['G', '…'],
+        ['W', 'Mind if I sit?', { to: [86, 108] }],
+        ['G', 'You should be mad at me.'],
+        ['W', 'I am. I’m also here. Both things can be true, Gus.'],
+        ['G', '…Thanks, Wren.']] },
+    { id: 'rs-toast', room: 'galley', after: 'still-crew', until: 'the-envoys',
+      cast: [['H', 206, 118], ['G', 120, 124], ['F', 54, 120], ['X', 166, 128], ['R', 86, 128]],
+      lines: [['H', 'Everybody! Glasses up! Or mugs. Or whatever Zib is holding.'],
+        ['F', 'To Gus. Who is still crew.'],
+        ['G', 'I’m… I’m going to cry into my cocoa.'],
+        ['X', 'That’s fine. It needed salt.'],
+        ['R', 'To Gus!']] },
+    { id: 'rs-blue', room: 'bridge', after: 'patchwork', until: 'first-burn',
+      cast: [['F', 70, 146], ['G', 190, 146], ['W', 110, 122]],
+      lines: [['G', 'Thrust steady. Temperature steady. Everything’s… steady.'],
+        ['F', 'Say it again.'],
+        ['G', 'Everything is steady, Dottie.'],
+        ['W', 'Best word in the language, that.']] },
+    { id: 'rs-kestrel', room: 'hall', rel: true, after: 'the-rescue', until: 'home',
+      cast: [['Q', 110, 120, 42], ['X', -30, 118], ['F', -8, 124]],
+      lines: [['Q', 'So this is the famous Second Wind. It’s… smaller than it looked from the race.'],
+        ['X', 'Kestrel. Welcome to the worst-paid job you’ll ever love.'],
+        ['F', 'Your room’s in the crew wing. Shoes off. That’s Wren’s rule.'],
+        ['Q', '…Thank you. For coming back for me.'],
+        ['X', 'Get used to it. They do that here.']] }
+  ];
+  const rsSeen = () => { try { return JSON.parse(store.get('ds-rscenes', '[]')) || []; } catch (e) { return []; } };
+  const rsHere = w => romMet[w] && romMet[w]();
+  function roomSceneFor(kind) {
+    const seen = rsSeen();
+    return ROOM_SCENES.find(s => s.room === kind && storyDone(s.after) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
+      && s.cast.filter(([w]) => rsHere(w)).length >= 2);
+  }
+  function startRoomScene(s) {
+    const bx = s.rel ? deck.me.x : 0, clampX = x => Math.max(20, Math.min(deck.W - 20, x));
+    const cast = s.cast.filter(([w]) => rsHere(w));
+    deck.npcs = cast.map(([w, x, y, gx]) => ({ who: w, x: clampX(bx + x), y, dir: 0, baseDir: 0, goal: gx != null ? [clampX(bx + gx), y] : null, pause: 0, moving: false, script: true }));
+    deck.scene = { s, bx, lines: s.lines.filter(([w]) => rsHere(w)), i: -1, timer: 0, speaker: null };
+    roomSceneNext();
+  }
+  function roomSceneNext() {
+    const S = deck && deck.scene; if (!S) return;
+    clearTimeout(S.timer); S.i++;
+    if (S.i >= S.lines.length) { endRoomScene(); return; }
+    const [w, text, cue] = S.lines[S.i];
+    if (cue && cue.to) { const n = deck.npcs.find(o => o.who === w); if (n) n.goal = [Math.max(20, Math.min(deck.W - 20, (S.s.rel ? S.bx : 0) + cue.to[0])), cue.to[1]]; }
+    S.speaker = w;
+    shipSay(w, text);
+    S.timer = setTimeout(roomSceneNext, 2600 + text.length * 40);
+  }
+  function endRoomScene() {
+    const S = deck.scene; deck.scene = null;
+    const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
+    for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
+  }
+  document.addEventListener('click', e => { if (deck && deck.scene && e.target && e.target.closest && e.target.closest('#shipSay')) roomSceneNext(); });
   function shipSay(who, text) {
     const box = $('shipSay'); if (!box) return;
     box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
@@ -9328,6 +9553,7 @@ details.act > .limits { margin: 0 0 8px; }
       crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
+    { const rsc = roomSceneFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
     deck.cat = hall && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
     deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
@@ -10070,6 +10296,16 @@ details.act > .limits { margin: 0 0 8px; }
     const now = performance.now();
     for (const n of deck.npcs) {
       n.moving = false;
+      if (n.script) {   // in a story scene: walk to the mark, then face whoever is talking
+        if (n.goal) {
+          const dx = n.goal[0] - n.x, dy = n.goal[1] - n.y, d = Math.hypot(dx, dy);
+          if (d < 1.5) n.goal = null;
+          else { const sp = Math.min(d, 28 * dt); n.x += dx / d * sp; n.y += dy / d * sp; n.moving = true; n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); continue; }
+        }
+        const spk = deck.scene && deck.npcs.find(o => o.who === deck.scene.speaker);
+        n.dir = spk && spk !== n ? faceToward(n, spk) : faceToward(n, deck.me);
+        continue;
+      }
       if (n.follow) {   // Kit, tagging along a step behind you
         if (n.pause > 0) { n.pause -= dt; n.dir = faceToward(n, deck.me); continue; }
         const tx = deck.me.x + (deck.me.x > deck.W - 40 ? 20 : -20), ty = Math.max(deck.me.y + 4, 0), dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy);
@@ -10096,13 +10332,14 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function npcThings(L) {
     if (deck.cat) { const k = deck.cat; L.push({ id: 'cat', rect: [k.x - 9, k.y - 12, 18, 14], go: () => [k.x + (deck.me.x < k.x ? -14 : 14), k.y + 2], at: () => k, act: () => { k.sleep = false; k.follow = 6; const now = performance.now(); k.emote = { t0: now, until: now + 1600 }; sfx.purr(); reqEvent('pet'); shipSay('A', HALL_CAT[Math.floor(Math.random() * HALL_CAT.length)]); } }); }
-    for (const n of deck.npcs) L.push({ npc: n, id: 'npc' + n.who, rect: [n.x - 9, n.y - 26, 18, 28], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => npcTalk(n) });
+    for (const n of deck.npcs) L.push({ npc: n, id: 'npc' + n.who, rect: [n.x - 9, n.y - 26, 18, 28], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => deck.scene ? roomSceneNext() : npcTalk(n) });
   }
   function npcDrawThings(c, t, things) {
     for (const n of deck.npcs) things.push([n.y, () => {
       drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t);
       if (n.emote && t >= n.emote.t0 && t < n.emote.until) drawEmote(c, n.emote.k, n.x, n.y - 28, t, n.emote.t0);
-      else if (ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
+      else if (!n.script && ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
+      if (n.script && deck.scene && deck.scene.speaker === n.who) drawEmote(c, 'dots', n.x, n.y - 28, t, null);
     }]);
     if (deck.cat) { const k = deck.cat; things.push([k.y, () => { drawCatSprite(c, k.x - 7, k.y - 8, !k.sleep, t); if (k.emote && t < k.emote.until) drawEmote(c, 'heart', k.x, k.y - 14, t, k.emote.t0); }]); }
   }
