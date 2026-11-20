@@ -991,6 +991,13 @@ details.act > .limits { margin: 0 0 8px; }
 .mtile .face { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; image-rendering: pixelated; border-radius: 4px; }
 .objective.warn { border-color: var(--bad); color: var(--bad); }
 .toast.radio { border-left: 3px solid var(--flame); }
+.cine { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); transition: opacity .35s; }
+.cine.out { opacity: 0; }
+.cine canvas { width: min(100%, 960px, calc((100vh - 160px) * 16 / 9)); aspect-ratio: 16 / 9; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.cine-cap { margin: 0; min-height: 2.6em; max-width: 34em; text-align: center; color: #f4f1e8; font: 600 15px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .03em; opacity: 0; transition: opacity .6s; text-wrap: balance; }
+.cine-cap.in { opacity: 1; }
+.cine-skip { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -1129,7 +1136,7 @@ details.act > .limits { margin: 0 0 8px; }
       ground: '#4a3418', rim: '#f0c070', orb: '#e8c27a'
     },
     {
-      id: 'eris', name: 'Eris', g: 0.82, thrust: 2.4, drag: 0, wind: 0, bonus: 1.5, rough: 0.9, dark: 1, gate: 'first-light', fog: '3, 5, 14',
+      id: 'eris', name: 'Eris', g: 0.82, thrust: 2.4, drag: 0, wind: 0, bonus: 1.5, rough: 0.9, dark: 1, gate: 'patchwork', fog: '3, 5, 14',
       note: 'Ninety times farther from the Sun than Earth, and very dark. Your landing light shows the ground right below you, and pad beacons shine through.',
       sky: ['#020308', '#080b18'], stars: 1.2,
       ground: '#262b38', rim: '#b8c8e8', orb: '#dfe6f2'
@@ -1209,9 +1216,9 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#ff9a3d', stroke: '#fff4e0', legs: '#fff4e0', detail: '#9fe0b8', swatch: 'linear-gradient(90deg, #ff9a3d, #fff4e0)' },
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
       fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' },
-    { id: 'unitzero', name: 'Unit Zero', price: 0, unlock: 'outer', blurb: 'The old Descent Systems colors from a probe nobody built. Gus copied them exactly.',
+    { id: 'unitzero', name: 'Burning Blue', price: 0, unlock: 'outer', blurb: 'The exact blue of the engine relighting at the edge of the map. Gus mixed it from memory.',
       fill: '#16243a', stroke: '#9ad8ff', legs: '#c9cfdc', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #16243a, #9ad8ff)' },
-    { id: 'senders', name: 'Dots and Lines', price: 0, unlock: 'senders', blurb: 'Night blue with the Senders’ little dots and lines painted down the side. Lyra picked the colors.',
+    { id: 'senders', name: 'Long Way Home', price: 0, unlock: 'senders', blurb: 'Night blue with the whole route home painted down the side, Eris to the Moon. Lyra picked the colors.',
       fill: '#0e1424', stroke: '#c9b8ff', legs: '#8a93ab', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #0e1424, #c9b8ff)' },
     { id: 'fieldkit', name: 'Field Kit', price: 0, unlock: 'offroad', blurb: 'Dusty khaki with Crumb’s orange stripe. Smells faintly of moon rock.',
       fill: '#d9cfb4', stroke: '#3a4668', legs: '#3a4668', detail: '#ffb547', swatch: 'linear-gradient(90deg, #d9cfb4, #ffb547)' }
@@ -1529,7 +1536,7 @@ details.act > .limits { margin: 0 0 8px; }
     campaign: ['Act 1 complete', 'G', 'We did it! Everyone’s in the break room. There’s cake. I made it. It’s mostly frosting.'],
     frontier: ['Act 2 complete', 'F', 'Act 2, done. I’m proud of you, pilot. Don’t tell anyone I said that out loud.'],
     outer: ['Act 3 complete', 'W', 'Past Pluto and back. You fly the way I used to dream about flying.'],
-    senders: ['Act 4 complete', 'G', 'We answered the Senders! Unit Zero is humming polka now. I taught it that.']
+    senders: ['Act 4 complete', 'G', 'We made it home! The Second Wind, the whole crew, and one very smug cat.']
   };
   function award(id) {
     if (got[id]) return;
@@ -3061,7 +3068,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Tomorrow, we fly.'],
     ['A', 'Mrrp.']
   ];
-  EPILOGUES['all-systems-go'] = [ACT1_END, { label: 'Act 1 ending', title: 'Tomorrow, We Fly' }];
+  EPILOGUES['all-systems-go'] = [ACT1_END, { label: 'Act 1 ending', title: 'Tomorrow, We Fly', cine: 'powerup' }];
 
   // side missions follow the new story: crew introductions are story missions now, and each world's jobs
   // open once the Second Wind gets there
@@ -3134,7 +3141,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['K', '*beep beep* (Crumb has found the cargo bay. Crumb loves the cargo bay.)'],
     ['A', 'Mrrp. (Apogee has claimed the captain’s chair.)'],
     ['F', 'Your Pad is on deck two. A real room, with a real door. Welcome home, pilot.']
-  ], { label: 'Act 2', title: 'Moving Day' }];
+  ], { label: 'Act 2', title: 'Moving Day', cine: 'liftoff' }];
   const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
     : MISSIONS.length === ACT2 ? 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.'
     : MISSIONS.length < ACT3 ? 'The rest of Act 3 is on the way. Gus has been sleeping in the engine room, and nobody knows what to say yet.'
@@ -3240,7 +3247,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['G', 'I’m sorry. I’m so sorry.'],
     ['F', 'We’ll come back. I promise.'],
     ['A', 'Mrrp.']
-  ], { label: 'Act 2 ending', title: 'Drifting Past Home' }] });
+  ], { label: 'Act 2 ending', title: 'Drifting Past Home', cine: 'pastmoon' }] });
   // ---- Act 3, first half: the long drift and Gus's confession ----
   Object.assign(STORY, {
     'catch': { chapter: [19, 'Catch!'],
@@ -3325,6 +3332,18 @@ details.act > .limits { margin: 0 0 8px; }
     if (!held) { const L = lostList(); if (!L.includes('S')) L.push('S'); store.set('ds-lost', JSON.stringify(L)); }
   }
   const nameList = ws => ws.map(w => SIGN[w] || w).join(ws.length === 2 ? ' and ' : ', ');
+  // one mission before each hard call, the results screen names who's at risk, so there's time to spend with them
+  function riskNote(id) {
+    const R = { 'sun-side': [['C'], 3], 'the-overdrive': [PORT_RISK, 2], 'the-envoys': [['S'], 3], 'patchwork': [typeof BUYOUT_RISK !== 'undefined' ? BUYOUT_RISK : [], 2] }[id];
+    if (!R) return '';
+    const who = R[0].filter(w => romMet[w] && romMet[w]() && heartsOf(w) < R[1]);
+    if (!who.length) return '';
+    const names = nameList(who), plural = who.length > 1;
+    if (id === 'sun-side') return 'Kit hasn’t been sure of their place on the crew lately. Spend some time with Kit before the next job.';
+    if (id === 'the-overdrive') return `${names} ${plural ? 'have' : 'has'} been quiet since the storm. Europa has a port, and anyone who feels left out might take it. Spend some time with ${plural ? 'them' : SIGN[who[0]]} first.`;
+    if (id === 'the-envoys') return 'Brix doesn’t quite trust anyone yet. Spend some time with him before Pluto.';
+    return `${names} ${plural ? 'have' : 'has'} been wondering whether working for Apex might be easier. Sable is waiting at Eris. Spend some time with ${plural ? 'them' : SIGN[who[0]]} first.`;
+  }
   function hardCallText(id) {
     if (id === 'storm-front') return CALL_TEXT[callOf('storm')] || '';
     if (id === 'still-crew') { const p = portLeavers(); return p.length ? `${nameList(p)} got off at Europa’s port. ${p.length > 1 ? 'Their bunks stay' : 'Their bunk stays'} empty.` : 'Europa’s port opened its doors, and nobody got off. Everyone’s staying, Gus included.'; }
@@ -3408,7 +3427,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Then we turn. We’re going home, everybody.'],
     ['G', 'Pilot? Thank you for not leaving me behind.'],
     ['A', 'Mrrp.']
-  ], { label: 'Act 3 ending', title: 'Blue in the Dark' }] });
+  ], { label: 'Act 3 ending', title: 'Blue in the Dark', cine: 'relight' }] });
   // ---- Act 4: the long way home ----
   // Hard call 4, the buyout: up to two crewmates with fewer than 2 hearts take Sable's offer and leave on her ship.
   // Story crew are always safe, and the crew who joined on Titan are too new to have been tempted.
@@ -3534,7 +3553,7 @@ details.act > .limits { margin: 0 0 8px; }
       ['F', '…Nobody tell Rex. He’ll want to make a movie about it.'],
       ['R', 'I’m standing right here, darling. And yes. Yes, I will.'],
       ['A', 'Mrrp.']
-    ], { label: 'The end · for now', title: 'Home' }];
+    ], { label: 'The end · for now', title: 'Home', cine: 'homecoming' }];
   } });
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
@@ -4622,7 +4641,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '' };
+    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '', riskText: !d.side ? riskNote(d.id) : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
@@ -6042,6 +6061,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
           ${r.callText ? `<p class="balance call">⚠ ${r.callText}</p>` : ''}
+          ${r.riskText ? `<p class="balance call">♥ ${r.riskText}</p>` : ''}
           ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
@@ -6397,7 +6417,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (storyOn && st && !storySeen.includes(d.id)) {
       world = WORLDS.find(w => w.id === d.world);
       buildMissionTerrain(d); makeBackdrop();
-      playStory(st.intro, chapterFor(i), () => {
+      playStory(st.intro, st.cine ? Object.assign({}, chapterFor(i), { cine: st.cine }) : chapterFor(i), () => {
         if (!storySeen.includes(d.id)) { storySeen.push(d.id); store.set('ds-story', JSON.stringify(storySeen)); }
         setMode('brief');
       });
@@ -6405,7 +6425,170 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // story scenes play on a set that suits whoever opens the conversation; voices with no body (rovers) talk from off stage
   const STORY_BG = { F: 'office', G: 'workshop', W: 'hangarnight', R: 'dressing', J: 'dock', Z: 'market', O: 'lanterns', V: 'embassy', Y: 'embassy', N: 'ice', S: 'fernery', C: 'station', H: 'breaknight', D: 'quiet', T: 'fernery', X: 'hangar', M: 'study' };
+  // ---- Cinematics: short wordless shots of the Second Wind, played before a story scene ----
+  // A full-screen pixel canvas, a slow camera, light and a caption or two. Tap Skip (or press Space/Esc) to skip.
+  function cineShip(c, x, y, o) {
+    o = o || {};
+    const hull = o.dusty ? '#5e5952' : '#8a93ab', top = o.dusty ? '#6e6860' : '#a3acc2', line = o.dusty ? '#4a4640' : '#6a7390';
+    if (o.flame) {   // engine flame out the back
+      const f = o.flame, col = o.blue ? ['#7fd6ff', '#cfefff'] : ['#ff9a3a', '#ffe58a'], fl = 6 + f * 10 + Math.random() * 3 * f;
+      c.fillStyle = col[0]; c.beginPath(); c.moveTo(x - 6, y + 6); c.lineTo(x - 6 - fl, y + 10); c.lineTo(x - 6, y + 14); c.fill();
+      c.fillStyle = col[1]; c.beginPath(); c.moveTo(x - 6, y + 8); c.lineTo(x - 6 - fl * 0.5, y + 10); c.lineTo(x - 6, y + 12); c.fill();
+    }
+    px(c, x - 7, y + 5, 7, 10, o.dusty ? '#4e4a44' : '#6a7390'); px(c, x - 9, y + 4, 3, 12, o.dusty ? '#46423d' : '#5a6380');   // engine bell
+    px(c, x, y + 3, 64, 14, hull); px(c, x + 2, y + 1, 58, 2, top); px(c, x + 64, y + 5, 8, 10, hull); px(c, x + 72, y + 7, 4, 6, top);   // hull and nose
+    for (let k = 8; k < 60; k += 9) px(c, x + k, y + 3, 1, 14, line);
+    if (o.holes) for (const [hx, hy] of [[12, 8], [27, 12], [41, 7], [52, 13]]) px(c, x + hx, y + hy, 3, 2, '#141210');
+    const lit = o.lit == null ? 1 : o.lit, warm = o.red ? '#ff5a4a' : '#ffd27a';
+    for (let k = 0; k < 6; k++) px(c, x + 10 + k * 8, y + 9, 3, 2, k < lit * 6 ? warm : '#1c1a20');
+    for (let k = 0; k < 3; k++) px(c, x + 64 + k * 3, y + 7, 2, 2, lit > 0.5 ? (o.red ? '#ff5a4a' : '#bfefff') : '#1c1a20');
+    if (o.dish !== false) { px(c, x + 46, y - 3, 1, 4, line); px(c, x + 42, y - 4, 9, 2, o.dusty ? '#7a756c' : '#c9cfdc'); }
+    if (o.dusty) for (let k = 0; k < 26; k++) px(c, x + ((k * 23) % 62) + 1, y + 2 + ((k * 7) % 3), 2, 1, 'rgba(150,140,125,0.55)');
+  }
+  function cineShipAt(c, x, y, k, o) { c.save(); c.translate(x, y); c.scale(k, k); cineShip(c, 0, 0, o); c.restore(); }
+  function cineStars(c, n, seed, drift) {
+    for (let i = 0; i < n; i++) { const sx2 = ((i * 97 + seed) % 256 + 256 - (drift || 0) * (1 + i % 3)) % 256, sy2 = (i * 53 + seed * 3) % 144; px(c, sx2, sy2, 1, 1, i % 4 ? '#8a93ab' : '#ffffff'); }
+  }
+  function cineHangar(c, light) {
+    px(c, 0, 0, 256, 144, '#0c0b0a');
+    c.fillStyle = `rgba(110,100,84,${0.18 + light * 0.6})`; c.fillRect(0, 0, 256, 108);
+    for (let x = 0; x < 256; x += 32) px(c, x, 0, 2, 108, `rgba(60,54,46,${0.4 + light * 0.4})`);
+    px(c, 0, 108, 256, 36, light > 0.3 ? '#2a2724' : '#151412'); for (let x = 6; x < 256; x += 22) px(c, x, 112, 12, 2, light > 0.3 ? '#c9a24a' : '#3a3220');
+  }
+  function cineCone(c, x, a) { c.fillStyle = `rgba(255,233,184,${0.16 * a})`; c.beginPath(); c.moveTo(x - 4, 4); c.lineTo(x + 4, 4); c.lineTo(x + 34, 108); c.lineTo(x - 34, 108); c.fill(); px(c, x - 5, 2, 10, 3, a > 0.2 ? '#ffe9b8' : '#3a3428'); }
+  const ease = k => k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
+  const CINES = {
+    dusty: { dur: 10, caps: [[0.5, 'Moon Base · the old hangar'], [3.6, 'The Second Wind. Six years without a flight.'], [7, 'She’s seen better days.']],
+      draw(c, t) {
+        cineHangar(c, 0.12);
+        const fl = Math.random() < 0.06 ? 0.25 : 1, sw = Math.sin(t * 1.3) * 6;
+        cineCone(c, 128 + sw, 0.7 * fl);
+        const ox = 64 - t * 3;
+        px(c, ox + 18, 84, 8, 24, '#2a2724'); px(c, ox + 82, 84, 8, 24, '#2a2724'); px(c, ox + 12, 104, 20, 4, '#3a3430'); px(c, ox + 76, 104, 20, 4, '#3a3430');
+        cineShipAt(c, ox, 56, 1.6, { dusty: true, holes: true, lit: 0 });
+        for (let i = 0; i < 40; i++) { const mx = (i * 37 + t * (4 + i % 5)) % 256, my = (i * 29 + Math.sin(t + i) * 6 + 300) % 108; px(c, mx, my, 1, 1, `rgba(220,205,170,${0.25 + 0.3 * ((i * 13) % 3) / 3})`); }
+      } },
+    powerup: { dur: 10, caps: [[0.3, 'Power…'], [3, 'Lights…'], [6, 'Systems…'], [8.2, 'The Second Wind is awake.']],
+      draw(c, t) {
+        const banks = [1.5, 3, 4.5].filter(b => t >= b).length;
+        cineHangar(c, banks / 3);
+        [64, 128, 192].forEach((x, i) => cineCone(c, x, t >= [1.5, 3, 4.5][i] ? 1 : 0));
+        const lit = Math.min(1, Math.max(0, (t - 6) / 1.5));
+        px(c, 82, 84, 8, 24, '#3a3430'); px(c, 146, 84, 8, 24, '#3a3430'); px(c, 76, 104, 20, 4, '#4a443c'); px(c, 140, 104, 20, 4, '#4a443c');
+        cineShipAt(c, 64, 56, 1.6, { lit, flame: t > 7.5 ? Math.min(1, (t - 7.5) / 0.8) * 0.5 : 0, blue: true });
+        if (t > 8.5) { px(c, 110, 30, 36, 9, '#1a3a2a'); c.font = '700 7px monospace'; c.fillStyle = '#58e0a0'; c.textAlign = 'center'; c.fillText('READY', 128, 37); c.textAlign = 'left'; }
+        if (banks < 3) for (let i = 0; i < 30; i++) px(c, (i * 41) % 256, (i * 17 + t * 20) % 108, 1, 1, 'rgba(220,205,170,0.35)');
+      } },
+    liftoff: { dur: 9, caps: [[0.3, 'The hangar doors open.'], [3, 'Liftoff.'], [6.4, 'For the first time in six years, the Second Wind flies.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 60, 7, 0);
+        const open = ease(t / 2.2), rise = ease((t - 2.5) / 6.5) * 105;
+        cineHangar(c, 1); c.clearRect(128 - open * 128, 0, open * 256, 40); px(c, 128 - open * 128, 0, open * 256, 40, '#05070f'); cineStars(c, 30, 3, 0);
+        px(c, 0, 0, 128 - open * 128, 10, '#3a342c'); px(c, 128 + open * 128, 0, 128, 10, '#3a342c');
+        if (t > 2.5) for (let i = 0; i < 30; i++) { const a = i / 30 * Math.PI, r = (t - 2.5) * 22; px(c, 128 + Math.cos(a) * r * (1 + i % 3 * 0.3), 106 - Math.abs(Math.sin(a)) * r * 0.25, 3, 2, `rgba(170,160,140,${Math.max(0, 0.7 - (t - 2.5) * 0.12)})`); }
+        cineShipAt(c, 64, 56 - rise, 1.6, { flame: t > 2.3 ? 1 : 0 });
+      } },
+    storm: { dur: 9, caps: [[0.5, 'Mercury.'], [2, 'The solar storm hits.'], [5.2, 'The engine goes dark.'], [7.3, 'The Second Wind is adrift.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#07060a'); cineStars(c, 50, 11, 0);
+        const g = c.createRadialGradient(-20, 72, 10, -20, 72, 140); g.addColorStop(0, 'rgba(255,220,140,0.9)'); g.addColorStop(1, 'rgba(255,140,40,0)'); c.fillStyle = g; c.fillRect(0, 0, 256, 144);
+        if (t > 1.6) { const a = Math.min(1, (t - 1.6) / 1.2); for (let i = 0; i < 46; i++) { const wx = ((t - 1.6) * 150 + i * 37) % 300 - 24, wy = (i * 29) % 144; c.fillStyle = `rgba(255,${190 + (i % 3) * 20},120,${0.4 * a})`; c.fillRect(wx, wy, 10 + (i % 4) * 5, 1); } }
+        const alive = t < 5, lit = t < 5.4 ? 1 : Math.max(0, 1 - (t - 5.4) / 1.6), tilt = t > 6 ? (t - 6) * 0.05 : 0;
+        c.save(); c.translate(128, 72); c.rotate(tilt); c.translate(-128, -72);
+        cineShipAt(c, 76, 56, 1.25, { lit, flame: alive ? (t > 3.5 ? 0.4 + Math.random() * 0.6 : 0.8) : 0 });
+        if (t > 3.5 && t < 5.6) for (let i = 0; i < 4; i++) px(c, 66 - Math.random() * 10, 62 + Math.random() * 12, 2, 2, Math.random() < 0.5 ? '#ffe58a' : '#ff6b5e');
+        c.restore();
+        if (t > 5 && t < 5.15) { c.fillStyle = 'rgba(255,255,255,0.5)'; c.fillRect(0, 0, 256, 144); }
+      } },
+    pastmoon: { dur: 9, caps: [[0.5, 'Drifting past the Moon.'], [3.4, 'Down there: the little base. The bills board. Home.'], [7, 'They can’t stop.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 70, 5, t * 2);
+        const mx = 200 - t * 9;
+        c.fillStyle = '#8a877e'; c.beginPath(); c.arc(mx, 190, 110, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#6a6862'; for (const [cx, cy, r] of [[-40, -70, 10], [10, -90, 6], [40, -60, 8], [-10, -50, 5]]) { c.beginPath(); c.arc(mx + cx, 190 + cy, r, 0, Math.PI * 2); c.fill(); }
+        px(c, mx - 6, 86, 10, 5, '#c9c2b0'); px(c, mx + 6, 87, 8, 4, '#a49a88'); px(c, mx - 4, 84, 2, 2, Math.floor(t * 2) % 2 ? '#ffd27a' : '#6a5a3a');
+        c.save(); c.translate(60 + t * 3, 34); c.scale(0.55, 0.55); c.rotate(-0.06 + t * 0.01); cineShip(c, 0, 0, { lit: 1, red: true }); c.restore();
+      } },
+    relight: { dur: 10, caps: [[0.5, 'Eris. The edge of the map.'], [2, 'Come on…'], [5.6, 'She’s burning blue.'], [8, 'Turning for home.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#030308'); cineStars(c, 80, 13, 0);
+        c.fillStyle = '#4a4c58'; c.beginPath(); c.arc(210, 150, 50, 0, Math.PI * 2); c.fill();
+        const on = t >= 5.5, lit = on ? Math.min(1, (t - 6) / 1.5) : 1, turn = t > 8 ? (t - 8) * 0.06 : 0;
+        const puff = [2, 3.2, 4.1].some(p => t > p && t < p + 0.35);
+        c.save(); c.translate(128, 72); c.rotate(-turn); c.translate(-128, -72);
+        cineShipAt(c, 76, 56, 1.25, { lit: on ? lit : 1, red: !on || lit < 0.5, flame: on ? Math.min(1, (t - 5.5) * 2) : puff ? 0.25 : 0, blue: true });
+        c.restore();
+        if (t > 5.5 && t < 5.7) { c.fillStyle = 'rgba(127,214,255,0.5)'; c.fillRect(0, 0, 256, 144); }
+      } },
+    slingshot: { dur: 9, caps: [[0.5, 'Jupiter.'], [3, 'The slingshot.'], [6.4, 'Next stop: everything they know.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#04050c'); cineStars(c, 60, 17, 0);
+        const jx = 110, jy = 80, R = 46;
+        c.save(); c.beginPath(); c.arc(jx, jy, R, 0, Math.PI * 2); c.clip();
+        const bands = ['#c9a27a', '#e8cfa8', '#b07a52', '#e0c090', '#a86a48', '#ecd8b8', '#c08860'];
+        bands.forEach((col, i) => { c.fillStyle = col; c.fillRect(jx - R, jy - R + i * (2 * R / bands.length), 2 * R, 2 * R / bands.length + 1); });
+        c.fillStyle = '#b0503a'; c.beginPath(); c.ellipse(jx + 14, jy + 12, 8, 4, 0, 0, Math.PI * 2); c.fill();
+        c.restore();
+        const path = k => { const a = -2.4 + k * 3.6; return [jx + Math.cos(a) * 78, jy + Math.sin(a) * 52]; };
+        const k = ease(t / 8.5);
+        c.strokeStyle = 'rgba(127,214,255,0.45)'; c.lineWidth = 1.5; c.beginPath();
+        for (let j = 0; j <= 30; j++) { const [x, y] = path(k * j / 30); j ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+        const [sx2, sy2] = path(k), [nx, ny] = path(Math.min(1, k + 0.01)), ang = Math.atan2(ny - sy2, nx - sx2);
+        c.save(); c.translate(sx2, sy2); c.rotate(ang); c.scale(0.45, 0.45); cineShip(c, -36, -10, { flame: 1, blue: true }); c.restore();
+      } },
+    homecoming: { dur: 10, caps: [[0.5, 'The Moon.'], [3.5, 'The little base. The old hangar.'], [7, 'Home.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 60, 23, 0);
+        c.fillStyle = '#3f86c9'; c.beginPath(); c.arc(220, 26, 10, 0, Math.PI * 2); c.fill(); c.fillStyle = '#58b860'; c.beginPath(); c.arc(217, 24, 4, 0, Math.PI * 2); c.fill();
+        px(c, 0, 108, 256, 36, '#8a877e'); c.fillStyle = '#6a6862'; c.beginPath(); c.moveTo(0, 110); for (let x = 0; x <= 256; x += 16) c.lineTo(x, 106 + Math.sin(x * 0.07) * 3); c.lineTo(256, 112); c.fill();
+        px(c, 70, 92, 40, 16, '#c9c2b0'); px(c, 72, 96, 6, 4, '#ffd27a'); px(c, 82, 96, 6, 4, '#ffd27a'); px(c, 92, 96, 6, 4, '#ffd27a');
+        px(c, 118, 84, 90, 24, '#a49a88'); px(c, 122, 88, 82, 20, '#1a1816');
+        cineCone(c, 140, 1); cineCone(c, 186, 1);
+        for (let i = 0; i < 9; i++) { const wx = 26 + i * 5, hop = Math.abs(Math.sin(t * 5 + i)) * (t > 7.5 ? 2 : 0); px(c, wx, 102 - hop, 2, 5, ['#ff8a3a', '#ffd27a', '#c9d4e8', '#ff9ad5', '#7fd6ff'][i % 5]); }
+        const d = ease(t / 8);
+        cineShipAt(c, 132, -40 + d * 132, 0.8, { flame: d < 0.98 ? 0.4 : 0 });
+      } }
+  };
+  function playCine(id, done) {
+    const S = CINES[id];
+    if (!S) { done(); return; }
+    const ov = document.createElement('div'); ov.className = 'cine'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Cutscene');
+    ov.innerHTML = '<canvas width="256" height="144" aria-hidden="true"></canvas><p class="cine-cap" aria-live="polite"></p><button class="btn ghost cine-skip">Skip</button>';
+    document.body.appendChild(ov);
+    const cv = ov.querySelector('canvas'), c = cv.getContext('2d'), cap = ov.querySelector('.cine-cap');
+    let t0 = performance.now(), raf = 0, ended = false, last = null;
+    const key = e => { if (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter') { e.preventDefault(); end(); } };
+    const end = () => {
+      if (ended) return; ended = true; cancelAnimationFrame(raf); window.removeEventListener('keydown', key, true);
+      ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 350);
+    };
+    ov.querySelector('.cine-skip').addEventListener('click', end);
+    window.addEventListener('keydown', key, true);
+    const frame = now => {
+      const t = (now - t0) / 1000;
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 256, 144); c.imageSmoothingEnabled = false;
+      try { S.draw(c, t); } catch (e) { end(); return; }
+      const cp = S.caps.filter(([at]) => t >= at).pop(), txt = cp ? cp[1] : '';
+      if (txt !== last) { last = txt; cap.textContent = txt; cap.classList.remove('in'); void cap.offsetWidth; cap.classList.add('in'); }
+      if (t >= S.dur) { end(); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+  }
+  STORY['final-notice'].cine = 'dusty';
+  EPILOGUES['storm-front'] = [[
+    ['G', 'The engine… it’s gone. Everything’s gone dark.'],
+    ['F', 'Status, Gus.'],
+    ['G', 'No thrust. No steering. We’re drifting, Dottie. Outward.'],
+    ['W', 'Then we drift. And we stay calm. Everybody.']
+  ], { label: 'Act 2', title: 'Adrift', cine: 'storm' }];
+  EPILOGUES['the-slingshot'] = [[
+    ['G', 'We’re around! The engine held! She held!'],
+    ['F', 'Everybody, look out the window. That’s the way home.'],
+    ['R', 'I’m recording all of this. For the movie.']
+  ], { label: 'Act 4', title: 'Around Jupiter', cine: 'slingshot' }];
   function playStory(lines, chapter, after) {
+    if (chapter && chapter.cine && !chapter.cined) { const ch2 = Object.assign({}, chapter, { cined: true }); playCine(chapter.cine, () => playStory(lines, ch2, after)); return; }
     const people = [...new Set(lines.map(l => l[0]).filter(w => w !== 'P' && onStage(w)))];
     if (!people.length) { story = { lines, chapter, after, i: 0, typing: false, timer: 0 }; setMode('story'); return; }
     const host = people[0];
@@ -7964,7 +8147,7 @@ details.act > .limits { margin: 0 0 8px; }
         draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 6, y + 9, 4, 1, '#ff6b5e'); const b = reduceMotion ? 0 : Math.round(Math.sin(t / 500)); px(c, x + 5, y + 3 + b, 6, 4, '#6e6a64'); px(c, x + 6, y + 2 + b, 3, 1, '#827d76'); px(c, x + 9, y + 4 + b, 1, 1, '#4e4a44'); } },
       { id: 's-ganymede', world: 'ganymede', name: 'Ganymede aurora bottle', price: 0, blurb: 'A bottle of Ganymede’s aurora. It glows in the dark and, now and then, plays polka.',
         draw(c, x, y, t) { px(c, x + 5, y + 3, 6, 9, 'rgba(207,227,255,0.3)'); px(c, x + 7, y + 1, 2, 2, 'rgba(207,227,255,0.5)'); px(c, x + 7, y, 2, 1, '#a5835a'); const h = Math.round(reduceMotion ? 150 : 120 + 80 * Math.sin(t / 900)); px(c, x + 6, y + 5, 4, 6, `hsl(${h},85%,62%)`); px(c, x + 6, y + 5, 4, 1, `hsl(${h + 60},85%,72%)`); } },
-      { id: 's-eris', world: 'eris', name: 'Eris beacon lamp', price: 0, blurb: 'A little copy of the Senders’ beacons that Gus made from a jam jar. It glows softly and, every so often, blinks four times.',
+      { id: 's-eris', world: 'eris', name: 'Eris beacon lamp', price: 0, blurb: 'A little copy of the guidance beacons from the first burn, made from a jam jar. It glows softly and, every so often, blinks three times.',
         draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 7, y + 4, 2, 6, '#5a6684'); const on = reduceMotion || Math.floor(t / 400) % 6 < 4; px(c, x + 5, y + 1, 6, 4, on ? '#c9b8ff' : '#6a6290'); if (on) px(c, x + 6, y + 2, 2, 1, '#ffffff'); px(c, x + 5, y + 5, 6, 1, '#8a93ab'); } },
       { id: 'lavalamp', name: 'Lava lamp', price: 300, blurb: 'Blobs of orange goo, rising and falling forever. It’s hypnotic. Gus once watched it through a whole shift.',
         draw(c, x, y, t) { px(c, x + 5, y + 10, 6, 2, '#6c7690'); px(c, x + 6, y + 2, 4, 8, '#5a2a7a'); px(c, x + 6, y + 1, 4, 1, '#6c7690'); const k = reduceMotion ? 3 : Math.floor(t / 400) % 7; px(c, x + 7, y + 8 - k % 6, 2, 2, '#ff9a3d'); px(c, x + 7, y + 3 + (k + 3) % 6, 2, 1, '#ffb547'); } },
@@ -8621,7 +8804,7 @@ details.act > .limits { margin: 0 0 8px; }
       'Kael said your cabin was beige. It is not beige. It’s warm. He’s a liar.', 'Mind if I take my boots off? Diplomacy is very hard on the feet.'],
     R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.',
       'My cabin has a hot tub. And a cold tub. And a medium tub, for when I can’t decide.', 'I’m not visiting. I got lost. Your hallways are confusing. Nice cushions, though.',
-      'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For Mayday. That’s all. This is very awkward. Bye. I’m not leaving yet.']
+      'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For flying me so gently that first day. That’s all. This is very awkward. Bye. I’m not leaving yet.']
   };
   const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.',
     J: 'Good choice. Tidy, too. I approve, and I don’t approve of much.', M: 'WHOA. That is SO cool. Can I have one? Can I have that one?',
@@ -13774,7 +13957,7 @@ details.act > .limits { margin: 0 0 8px; }
         ['W', 'Yes. I’d like that very much. I know a place with a view of Saturn. I’ve been saving it.']],
       notYet: 'You’re sweet. Let’s get to know each other a little more first. I like the scenic route.',
       s8: ['Saturn View', [['W', 'There it is. Saturn, rings and all. I found this spot thirty years ago and never showed anyone.'],
-        ['W', 'I used to come here to think about the signal. Tonight I’m not thinking about the signal at all.'],
+        ['W', 'I used to come here to think about the old days. Tonight I’m not thinking about the old days at all.'],
         ['P', 'What are you thinking about?'],
         ['W', 'You. Obviously. Pass the bread.']]],
       s10: ['Co-Pilot', [['W', 'I had Gus add a second seat to my old lander. Right next to mine.'],
@@ -13787,7 +13970,7 @@ details.act > .limits { margin: 0 0 8px; }
         'When you’re out flying, I listen in on the radio. I tell myself it’s for safety.']
     },
     R: {
-      s3: ['Rex’s Hangar', [['R', 'Welcome to the Apex hangar. Try not to be overwhelmed by the shine. I polish everything myself. Including my hair.'],
+      s3: ['Rex’s Hangar', [['R', 'Welcome to my hangar. Try not to be overwhelmed by the shine. I polish everything myself. Including my hair.'],
         ['R', 'That’s my trophy wall. That’s my other trophy wall. That one’s a mirror.'],
         ['P', 'For what it’s worth, you’re a great pilot.'],
         ['R', 'I KNOW. …Thank you. Nobody says it like they mean it. You’re allowed in the hangar now. Don’t touch the mirror.']]],
@@ -13796,13 +13979,13 @@ details.act > .limits { margin: 0 0 8px; }
         ['P', 'How is Rex doing?'],
         ['R', '…Better, now. Don’t make it weird. It’s weird. I like it.']]],
       ask: [['P', 'Rex, want to go on a date with me?'], ['R', 'Obviously yes. I mean. Ahem. I’ll check my schedule. It’s free. It was always free.'],
-        ['R', 'I’ll pick you up in the Apex. It has heated seats. And a disco ball. I’m not explaining the disco ball.']],
+        ['R', 'I’ll pick you up in my racer. It has heated seats. And a disco ball. I’m not explaining the disco ball.']],
       notYet: 'Slow down, hotshot. Even I need a few more fly-bys first.',
       s8: ['The Disco Ball', [['R', 'Okay, I’ll explain the disco ball. It’s for dancing in zero gravity. Nobody can see your feet.'],
         ['R', 'Hold the rail. Now let go. See? We’re floating. We’re basically dancing.'],
         ['P', 'You’re a surprisingly good dancer.'],
         ['R', 'I’m a surprisingly good everything. But this is the first time I didn’t care who was watching.']]],
-      s10: ['Valor and You', [['R', 'I repainted the Apex. It used to say “REX VALOR” in gold. Now it says “REX VALOR AND”. Gus is helping with the rest.'],
+      s10: ['Valor and You', [['R', 'I repainted my racer. It used to say “REX VALOR” in gold. Now it says “REX VALOR AND”. Gus is helping with the rest.'],
         ['R', 'I spent my whole life trying to be the best pilot in the system. Turns out I just wanted someone to fly next to.'],
         ['P', 'Best pilot in the system is still up for grabs, you know.'],
         ['R', 'Then let’s race for it. Loser buys dinner. I’ll lose on purpose. Don’t tell anyone.']]],
