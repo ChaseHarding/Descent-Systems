@@ -1726,7 +1726,50 @@ details.act > .limits { margin: 0 0 8px; }
       legs: [
         { name: 'Salvage parts between the vents', goals: [{ type: 'visit', pad: 'SALVAGE', text: 'Land at SALVAGE between the vents', done: 'Parts aboard. Gus is very quiet.' }] },
         { name: 'Land at LZ', say: 'ENGINEERING: Got them. Bring her down at LZ. …Thanks.', goals: [{ type: 'land', pad: 'LZ' }] }],
-      pads: [{ id: 'SALVAGE', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] }
+      pads: [{ id: 'SALVAGE', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] },
+    { id: 'still-crew', name: 'Still Crew', world: 'europa', kind: 'land', label: 'In the dark', dark: 24, noSurprise: true, fuel: 420, credits: 640,
+      brief: 'A parts run through an ice cave with Gus on the radio. It’s pitch black: the only light is Biscuit’s headlamp, and the pads show as small blinking beacons. Grab PART1 and PART2, then land on LZ.',
+      spawn: { x: 100, y: 95, vx: 0 }, stars: { fuel: 140, time: 110 },
+      ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
+      legs: [
+        { name: 'Find the first part at PART1', goals: [{ type: 'visit', pad: 'PART1', text: 'Find the beacon at PART1', done: 'Gus: “Got it. That’s the coupling. …Hey. Thanks for coming with me.”' }] },
+        { name: 'Find the second part at PART2', say: 'ENGINEERING: The next one’s across the cave. Go slow. I’ll talk. You don’t have to say anything back.', goals: [{ type: 'visit', pad: 'PART2', text: 'Find the beacon at PART2', done: 'Gus: “I keep thinking about the storm. I’m so sorry. …Okay. Last one.”' }] },
+        { name: 'Bring them home to LZ', say: 'ENGINEERING: You know what? I think we can actually fix her. Land on LZ. I’ll buy you a cocoa. Bao will buy you a cocoa.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'PART1', x1: 16, x2: 36, y: 42 }, { id: 'PART2', x1: 202, x2: 220, y: 50 }, { id: 'LZ', x1: 140, x2: 160, y: 46 }] },
+    { id: 'lantern-light', name: 'Lantern Light', world: 'titan', kind: 'land', label: 'Follow the light', noSurprise: true, fuel: 420, credits: 680,
+      follow: { path: [[40, 104], [70, 96], [96, 84], [122, 88], [148, 72], [172, 58], [191, 46]], speed: 5.5, radius: 15 },
+      brief: 'The drift reaches Saturn. Ollo’s lantern guides you down through Titan’s haze to a shipyard. Stay inside its glow: the lantern waits for you, but the meter drains while you’re outside the light. Then land on LZ.',
+      spawn: { x: 30, y: 108, vx: 0 }, stars: { fuel: 150, time: 70 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      legs: [
+        { name: 'Follow the lantern through the haze', goals: [{ type: 'follow' }] },
+        { name: 'Land at the shipyard on LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 182, x2: 200, y: 32 }] },
+    { id: 'the-envoys', name: 'The Envoys', world: 'titan', kind: 'land', label: 'Ferry', noSurprise: true, fuel: 500, credits: 700,
+      timeLimit: 200, limitText: 'Carry three messages between the docks within 3:20, before the talks collapse', spareText: 'to spare before the talks collapsed',
+      lateReason: 'the talks collapsed before the last message arrived', lateQuip: ['V', 'Both sides walked out. Lyra says we try again after tea.'],
+      nags: [[40, 'KAEL: Forty seconds. Lyra says the east dock is getting very loud.'], [15, 'LYRA: Fifteen seconds! Kael is doing his calm voice. That means panic.']],
+      brief: 'Titan’s shipyard is caught in a trade dispute between the WEST and EAST docks. Ferry envoys Kael and Lyra’s messages back and forth, landing on each dock in turn, before the talks collapse.',
+      spawn: { x: 70, y: 100, vx: 0 }, stars: { fuel: 160, time: 130 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      legs: [
+        { name: 'Carry the first offer to EAST', goals: [{ type: 'visit', pad: 'EAST', refuel: 80, text: 'Land on EAST with the first offer', done: 'East dock: “Insulting. We counter with… slightly less insulting.”' }] },
+        { name: 'Carry the reply to WEST', say: 'LYRA: West dock next. Kael has written “please” on the message four times.', goals: [{ type: 'visit', pad: 'WEST', refuel: 80, text: 'Land on WEST with the reply', done: 'West dock: “Fine. But they bring the snacks. The good biscuits.”' }] },
+        { name: 'Bring the deal to EAST', say: 'LYRA: We have a deal! With snacks! Land on EAST so they can sign it!', goals: [{ type: 'land', pad: 'EAST' }] }],
+      pads: [{ id: 'WEST', x1: 58, x2: 76, y: 42 }, { id: 'EAST', x1: 160, x2: 178, y: 36 }] },
+    { id: 'cold-storage', name: 'Cold Storage', world: 'pluto', kind: 'trip', label: 'Rover trip', noSurprise: true, fuel: 260, credits: 720, battery: 75, battLabel: 'Brix holds the door',
+      icicles: { every: 1.7, hit: 8 }, task: 'Collect the regulator parts',
+      brief: 'An abandoned ice station on Pluto holds the reactor regulator Gus needs. Land on LZ and Crumb drives in. Icicles are falling, and each hit costs time. Brix is holding the door shut behind you, so get the three parts, back up the ramp, launch and dock before he can’t hold it.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 100, time: 100 },
+      ground: [[0, 40], [20, 38], [40, 34], [60, 30], [78, 30], [96, 34], [110, 38], [130, 38], [150, 36], [170, 42], [190, 46], [210, 44], [240, 48]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 38 }],
+      items: [{ x: 96, what: 'sample' }, { x: 150, what: 'sample' }, { x: 174, what: 'sample' }],
+      dock: { x: 150, y: 118 } },
+    { id: 'patchwork', name: 'Patchwork', world: 'eris', kind: 'sling', label: 'Sling load', cargoName: 'engine section', sling: 9, fragile: 1.5, fuel: 460, credits: 760, noSurprise: true,
+      brief: 'At the edge of the map, lower Gus’s rebuilt engine section from PICKUP into place at DROP. It rides on a 9-meter cable under Biscuit, so fly smooth and set it down gently.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 150, time: 80 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -3025,7 +3068,7 @@ details.act > .limits { margin: 0 0 8px; }
   const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
     : MISSIONS.length === ACT2 ? 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.'
     : MISSIONS.length < ACT3 ? 'The rest of Act 3 is on the way. Gus has been sleeping in the engine room, and nobody knows what to say yet.'
-    : 'Act 4 is on the way.';
+    : 'Act 4 is on the way. The Second Wind has turned for home, burning blue.';
   // ---- Hard calls: moments in the story where a crewmate can be lost for good ----
   // Your choice and how close you are to them decide it. Lost crew are missing, never shown dying; their bunk stays empty.
   const callOf = id => store.get('ds-call-' + id, '');
@@ -3053,6 +3096,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DRIFT_STOPS = [['storm-front', 'Mercury'], ['dead-air', 'Venus'], ['dead-air', 'Earth and the Moon'], ['catch', 'Mars'], ['market-day', 'Jupiter'], ['lantern-light', 'Saturn'], ['cold-storage', 'Pluto'], ['patchwork', 'Eris']];
   function driftHtml() {
     if (!storyDone('storm-front')) return '';
+    if (storyDone('patchwork')) return `<div class="tcard drift"><span class="eyebrow">Course · engine online</span><p>Eris · Pluto · Jupiter · Mars · Earth · <b>▶ Home</b></p><p class="limits">The engine is relit. Turning for home the long way round.</p></div>`;
     let at = 0; DRIFT_STOPS.forEach(([id], i) => { if (storyDone(id)) at = i; });
     if (storyDone('dead-air')) at = 2;
     for (let i = 3; i < DRIFT_STOPS.length; i++) if (storyDone(DRIFT_STOPS[i][0])) at = i;
@@ -3192,6 +3236,108 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Everybody, give him some room. We’ll talk tomorrow.'],
     ['A', 'Mrrp. (Apogee sits on Gus’s foot and does not move.)']
   ], { label: 'Act 3', title: 'The Confession' }];
+  // ---- Act 3, second half: forgiving Gus and fixing the engine on the drift ----
+  // Hard call 2, Europa's port: anyone who has lost faith can get off. Up to two crewmates with fewer than 2 hearts take it.
+  // Story crew are always safe, and anyone who joined in Act 3 is too new to give up on you.
+  const PORT_RISK = ['C', 'H', 'J', 'D', 'T', 'M'];
+  const portLeavers = () => { try { return JSON.parse(store.get('ds-call-port', '[]')) || []; } catch (e) { return []; } };
+  function hardCallPort() {
+    if (store.get('ds-call-port', '') !== '') return;
+    const who = PORT_RISK.filter(w => romMet[w] && romMet[w]() && heartsOf(w) < 2).sort((a, b) => (hearts[a] || 0) - (hearts[b] || 0)).slice(0, 2);
+    store.set('ds-call-port', JSON.stringify(who));
+    if (who.length) { const L = lostList(); who.forEach(w => { if (!L.includes(w)) L.push(w); }); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  // Hard call 3, Cold Storage: Brix holds the door. If he trusts you (3+ hearts) he lets go when you call and makes it out.
+  function hardCallDoor() {
+    if (callOf('door')) return;
+    const held = heartsOf('S') >= 3;
+    store.set('ds-call-door', held ? 'out' : 'lost');
+    if (!held) { const L = lostList(); if (!L.includes('S')) L.push('S'); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  const nameList = ws => ws.map(w => SIGN[w] || w).join(ws.length === 2 ? ' and ' : ', ');
+  function hardCallText(id) {
+    if (id === 'storm-front') return CALL_TEXT[callOf('storm')] || '';
+    if (id === 'still-crew') { const p = portLeavers(); return p.length ? `${nameList(p)} got off at Europa’s port. ${p.length > 1 ? 'Their bunks stay' : 'Their bunk stays'} empty.` : 'Europa’s port opened its doors, and nobody got off. Everyone’s staying, Gus included.'; }
+    if (id === 'cold-storage') return callOf('door') === 'out' ? 'Brix trusted you. When you called, he let go of the door and squeezed out just before the station collapsed.' : 'Brix held the door until the station collapsed. He didn’t make it out. He’s somewhere under the ice.';
+    return '';
+  }
+
+  Object.assign(STORY, {
+    'still-crew': { chapter: [24, 'Still Crew'],
+      intro: [
+        ['F', 'Okay. Nobody has really talked to Gus in two days. That stops now.'],
+        ['F', 'Pilot, you’re flying Gus on a parts run through an ice cave on Europa. Just the two of you.'],
+        ['G', 'You don’t have to. I know I wouldn’t want to.'],
+        ['W', 'And Europa has a port. Anyone who wants off this ship can take it. No hard feelings.'],
+        ['G', 'It’s pitch black in there. Grab PART1 and PART2, then land on LZ. I’ll… I’ll talk you through it.']],
+      react: [['G', 'We got them. And you didn’t leave me in a cave. That’s a good start.'],
+        ['G', 'You know, I really missed flying with you.'],
+        ['G', 'Perfect run in the pitch dark. Okay. I think I’m ready to face everyone.']] },
+    'lantern-light': { chapter: [25, 'Lantern Light'],
+      intro: [
+        ['F', 'Saturn. We’ve drifted all the way to Saturn. And there’s a light coming up through Titan’s haze.'],
+        ['O', 'Hello, drifting ship. I am Ollo. My lantern colony has watched you for days. You look tired.'],
+        ['O', 'There is a shipyard below, under the haze. Follow my lantern down. Stay in the light, and you will not get lost.'],
+        ['G', 'A shipyard! A real shipyard! Pilot, don’t lose that lantern.']],
+      react: [['O', 'You stayed in the light. Welcome to Titan, little ship.'],
+        ['O', 'You fly like a moth who knows where it is going. May I come with you? I would like to see where you go.'],
+        ['O', 'Perfect. I will bring my lantern aboard. Your corridors are very dark.']] },
+    'the-envoys': { chapter: [26, 'The Envoys'],
+      intro: [
+        ['G', 'The shipyard can build the engine parts we need. Except the two halves of the shipyard aren’t speaking to each other.'],
+        ['V', 'Kael, envoy. This is my sister Lyra. We carry messages between the WEST and EAST docks.'],
+        ['Y', 'Our shuttle broke. Everything is broken. The talks collapse in three minutes, and nobody here can fly.'],
+        ['F', 'Carry their messages back and forth, landing on each dock in turn. Get them a deal, and we get our parts.']],
+      react: [['V', 'A deal. With snacks. Lyra, we did it.'],
+        ['Y', 'They’re building your engine parts tonight. And we’re coming with you. We’ve always wanted to see the inner planets.'],
+        ['V', 'Flawless ferrying. Lyra wants to name a dock after you. I said a small dock.']] },
+    'cold-storage': { chapter: [27, 'Cold Storage'],
+      intro: [
+        ['G', 'The new parts are aboard, but the engine still needs a reactor regulator. There’s one in an abandoned ice station on Pluto.'],
+        ['F', 'The station is falling apart. Land on LZ, and Crumb drives in for the three regulator parts.'],
+        ['S', 'The station door… will not stay open. I will hold it. For as long as… I can.'],
+        ['K', '*nervous beep* (Crumb would like it noted that he is very brave.)'],
+        ['G', 'Watch for icicles. Get the parts, back up the ramp, and dock. And when you’re clear, call Brix out.']],
+      get react() {
+        const out = callOf('door') !== 'lost';
+        return out ? [['S', 'You called… and I let go. I trusted you. I am glad.'], ['G', 'The regulator is perfect! Brix, you’re a hero.'], ['S', 'I am… very cold. But I am… here.']]
+          : [['F', 'Brix? Brix, come in.'], ['G', 'The door… the whole station came down. He held it until we were clear.'], ['F', 'We are not forgetting him. Nobody forgets him.']];
+      } },
+    'patchwork': { chapter: [28, 'Patchwork'],
+      intro: [
+        ['F', 'Eris. The edge of the map. Nobody has ever flown a mothership this far out.'],
+        ['G', 'Good thing, because I need somewhere very quiet to do this. The rebuilt engine section is ready.'],
+        ['G', 'It hangs on a cable under Biscuit. Lift it at PICKUP and set it down gently at DROP so I can bolt it in.'],
+        ['W', 'Smooth and slow. Like lowering a sleeping cat.']],
+      react: [['G', 'It’s in! It’s bolted! Everybody, stand back from the engine room.'],
+        ['W', 'Gentle as anything. That’s how you do it.'],
+        ['G', 'Perfect placement. I could kiss you. I won’t. I might hug you.']] }
+  });
+  Object.defineProperty(EPILOGUES, 'still-crew', { enumerable: true, get: () => {
+    const p = portLeavers();
+    return [[
+      ['F', 'Gus. Everyone’s here. We talked.'],
+      ['W', 'You made a bad call. I’ve made worse. I once landed on the wrong moon. On purpose.'],
+      ['R', 'You’re still our engineer, darling. Nobody else understands the toaster.'],
+      ['X', 'Apex set the trap. You just stepped in it. That’s on Sable, not you.'],
+      ...(p.length ? [['F', `Not everyone stayed. ${nameList(p)} got off at the port. I don’t blame them. I miss them already.`]] : [['F', 'And nobody got off at the port. Not one person.']]),
+      ['F', 'You’re still crew, Gus. Now help us fix this.'],
+      ['G', 'I… okay. Okay. I have a plan. Three parts, two moons, and one very old shipyard.'],
+      ['A', 'Mrrp.']
+    ], { label: 'Act 3', title: 'Still Crew' }];
+  } });
+  Object.defineProperty(EPILOGUES, 'patchwork', { enumerable: true, get: () => [[
+    ['G', 'Rebuilt engine. Rebuilt drive. Regulator from Pluto. Everybody hold onto something.'],
+    ['F', 'Light her up, Gus.'],
+    ['W', 'Look at that. Blue. She’s burning blue.'],
+    ['R', 'It’s beautiful. I’m not crying. It’s space dust. Edge-of-the-map dust.'],
+    ...(lostList().includes('S') ? [['F', 'Brix should have seen this. He held that door so we could.']] : []),
+    ...(lostList().length && !lostList().includes('S') ? [['F', 'I wish everyone who started this trip could see this.']] : []),
+    ['G', 'She’s not strong enough to fly straight home. But she’s strong enough to turn.'],
+    ['F', 'Then we turn. We’re going home, everybody.'],
+    ['G', 'Pilot? Thank you for not leaving me behind.'],
+    ['A', 'Mrrp.']
+  ], { label: 'Act 3 ending', title: 'Blue in the Dark' }] });
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3261,6 +3407,80 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.fillStyle = '#ffd27a'; ctx.fillRect(X - 1 * s, Y - 0.1 * s, 2 * s, 0.4 * s);
     }
   }
+  // ---- Follow: stay inside the glow of a guide lantern while it leads you through the haze ----
+  // The lantern waits for you if you fall behind, but the meter drains while you're outside its light.
+  function followTick(dt) {
+    const F = mission.def.follow, L = lander, g = currentGoal();
+    const S = mission.fl || (mission.fl = { i: 0, x: F.path[0][0], y: F.path[0][1], meter: 100 });
+    if (!g || g.type !== 'follow') return false;
+    const dist = Math.hypot(L.x - S.x, L.y - S.y);
+    if (S.i < F.path.length - 1 && dist < F.radius * 1.3) {
+      const [tx, ty] = F.path[S.i + 1], dx = tx - S.x, dy = ty - S.y, dd = Math.hypot(dx, dy), step = F.speed * dt;
+      if (dd <= step) { S.x = tx; S.y = ty; S.i++; } else { S.x += dx / dd * step; S.y += dy / dd * step; }
+    }
+    S.meter = dist > F.radius ? Math.max(0, S.meter - 16 * dt) : Math.min(100, S.meter + 12 * dt);
+    if (S.meter <= 0) { failMission('Lost the lantern in the haze', ['O', 'The haze is thick tonight, little ship. Stay close to the light. Again?']); return true; }
+    if (S.i >= F.path.length - 1 && dist < F.radius) { mission.stage++; showToast('The lantern settles over the shipyard. Land on LZ!', 2400); afterGoal(g, null); }
+    return false;
+  }
+  function drawFollow(time) {
+    if (!mission.fl || !mission.def.follow) return;
+    const S = mission.fl, F = mission.def.follow, s = scale, X = sx(S.x), Y = sy(S.y + Math.sin(time / 400) * 0.4), R = F.radius * s;
+    const g = ctx.createRadialGradient(X, Y, 0, X, Y, R);
+    g.addColorStop(0, 'rgba(255,214,120,0.34)'); g.addColorStop(0.75, 'rgba(255,214,120,0.10)'); g.addColorStop(1, 'rgba(255,214,120,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,214,120,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#6b4226'; ctx.fillRect(X - 1.2 * s, Y - 1.7 * s, 2.4 * s, 0.5 * s); ctx.fillRect(X - 1.2 * s, Y + 1.2 * s, 2.4 * s, 0.5 * s);
+    ctx.fillStyle = '#ffd27a'; ctx.fillRect(X - 0.9 * s, Y - 1.2 * s, 1.8 * s, 2.4 * s);
+    for (let k = 0; k < 5; k++) { const a = time / 280 + k * 1.3; ctx.fillStyle = 'rgba(244,241,232,0.85)'; ctx.fillRect(X + Math.cos(a) * 3.2 * s, Y + Math.sin(a * 1.4) * 2.6 * s, 0.7 * s, 0.4 * s); }
+  }
+  // ---- Darkness: the only light is Biscuit's headlamp; pads show as small blinking beacons ----
+  function drawDark(time) {
+    const d = mission.def; if (!d.dark || !lander) return;
+    const s = scale, X = sx(lander.x), Y = sy(lander.y), R = d.dark * s;
+    const g = ctx.createRadialGradient(X, Y + 2 * s, R * 0.2, X, Y + 2 * s, R);
+    g.addColorStop(0, 'rgba(2,4,10,0)'); g.addColorStop(0.65, 'rgba(2,4,10,0.55)'); g.addColorStop(1, 'rgba(2,4,10,0.97)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+    const on = Math.floor(time / 450) % 2 === 0;
+    for (const p of pads) {
+      const goal = isGoalPad(p), px2 = sx((p.x1 + p.x2) / 2), py2 = sy(p.y + 1.2);
+      ctx.fillStyle = goal ? (on ? '#7fd6ff' : 'rgba(127,214,255,0.35)') : 'rgba(255,214,120,0.35)';
+      ctx.beginPath(); ctx.arc(px2, py2, (goal ? 1.1 : 0.7) * s, 0, Math.PI * 2); ctx.fill();
+      if (goal && on) { ctx.fillStyle = 'rgba(127,214,255,0.12)'; ctx.beginPath(); ctx.arc(px2, py2, 4 * s, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+  // ---- Collapse: icicles drop around the rover; each hit costs time off the clock ----
+  function iciclesTick(dt) {
+    const R = mission.rover, cfg = mission.def.icicles;
+    if (!R || R.out < 1 || R.boardT != null) return;
+    const I = mission.ic || (mission.ic = { list: [], next: cfg.every });
+    if ((I.next -= dt) <= 0) {
+      I.next = cfg.every * (0.7 + Math.random() * 0.6);
+      I.list.push({ x: Math.max(4, Math.min(W - 4, R.x + (Math.random() * 16 - 4) * (R.dir || 1))), y: groundAt(R.x) + 30, vy: 0, warn: 1, done: false });
+    }
+    for (const p of I.list) {
+      if (p.done) continue;
+      if (p.warn > 0) { p.warn -= dt; continue; }
+      p.vy += 30 * dt; p.y -= p.vy * dt;
+      if (Math.abs(p.x - R.x) < 2.6 && p.y <= R.y + 2.6) {
+        p.done = true; R.batt -= cfg.hit; popText(`−${cfg.hit}s`, '#7fd6ff', R.x, R.y + 4); spawnSpark(p.x, p.y, '#cfe8ff');
+      } else if (p.y <= groundAt(p.x)) { p.done = true; spawnSpark(p.x, groundAt(p.x), '#cfe8ff'); }
+    }
+  }
+  function drawIcicles(time) {
+    if (!mission.ic) return;
+    const s = scale;
+    for (const p of mission.ic.list) {
+      if (p.done) continue;
+      const X = sx(p.x);
+      if (p.warn > 0) {   // a shadow on the ground and a shiver at the top before it drops
+        ctx.fillStyle = `rgba(127,214,255,${0.25 + 0.25 * Math.sin(time / 60)})`; ctx.fillRect(X - 1.6 * s, sy(groundAt(p.x)) - 0.3 * s, 3.2 * s, 0.6 * s);
+      }
+      const Y = sy(p.y) + (p.warn > 0 ? Math.sin(time / 40) * 0.3 * s : 0);
+      ctx.fillStyle = '#cfe8ff'; ctx.beginPath(); ctx.moveTo(X - 1 * s, Y - 2.4 * s); ctx.lineTo(X + 1 * s, Y - 2.4 * s); ctx.lineTo(X, Y + 1.4 * s); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(X - 0.3 * s, Y - 2.2 * s, 0.4 * s, 2 * s);
+    }
+  }
   function afterGoal(g, pad) {
     const d = mission.def, L = lander;
     if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
@@ -3310,6 +3530,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mission.loading) return `${g.type === 'drop' ? (g.busy || (mission.carrying === 'crew' ? 'Passenger getting off' : 'Unloading')) : g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
     if (g.text) return g.text;
     if (g.type === 'either') return g.text;
+    if (g.type === 'follow') return `Follow the lantern · ${Math.round(mission.fl ? mission.fl.meter : 100)}% in the light`;
     if (g.type === 'catch') { const P = mission.pods || { caught: 0, lost: 0 }; return `Catch supply pods: ${P.caught} of ${g.need}${P.lost ? ` · ${P.lost} lost` : ''}`; }
     if (g.type === 'drop') return `Drop off at ${g.pad}`;
     if (g.type === 'pickup') return `Land on ${g.pad}`;
@@ -3334,19 +3555,21 @@ details.act > .limits { margin: 0 0 8px; }
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
     if (d.comfort) t += ` · ${d.comfortWho || 'Apogee'} ${Math.round(mission.comfort)}%`;
-    if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · battery ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
+    if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · ${d.battLabel || 'battery'} ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
   }
   const objectiveWarn = () => {
     const d = mission.def;
-    return (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
+    return (mission.fl && mission.fl.meter < 40) || (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
   };
   // Per-tick rules for side missions. Returns true if the mission just ended.
   function missionTick(dt) {
     const d = mission.def, L = lander;
     if (mission.pk && !mission.rover) pickupsTick();
     if (d.pods && !mission.rover && podsTick(dt)) return true;
+    if (d.follow && !mission.rover && followTick(dt)) return true;
+    if (d.icicles && mission.rover) iciclesTick(dt);
     copTick();
     if (!mission.rover && mission.docking == null) surpriseTick(dt);
     if (d.timeLimit) {
@@ -4117,6 +4340,8 @@ details.act > .limits { margin: 0 0 8px; }
     const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex);
     if (!d.side && prev === 0) store.set('ds-storyRest', String(shipDay));
     if (d.id === 'storm-front') hardCallStorm(mission.choice);
+    if (d.id === 'still-crew') hardCallPort();
+    if (d.id === 'cold-storage') hardCallDoor();
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
     credits += pay + extra;
     saveCosmetics();
@@ -4127,7 +4352,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, call: d.id === 'storm-front' && prev === 0 ? callOf('storm') : '' };
+    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
@@ -5546,7 +5771,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
-          ${r.call ? `<p class="balance call">⚠ ${CALL_TEXT[r.call]}</p>` : ''}
+          ${r.callText ? `<p class="balance call">⚠ ${r.callText}</p>` : ''}
           ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
@@ -15008,6 +15233,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (mission) { drawMissionProps(time); drawPickups(time); drawPods(time); drawSurprises(time); drawGuide(); }
       if (vents.length) drawVents(time);
       if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
+      if (mission) { drawFollow(time); drawIcicles(time); drawDark(time); }
     }
 
     const sk = skin();
