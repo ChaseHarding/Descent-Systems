@@ -771,6 +771,22 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.mining.eva-play { max-width: 520px; gap: 8px; }
+#evaCv { width: 100%; aspect-ratio: 256 / 176; max-height: 52vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #04050c; touch-action: none; }
+.eva-radio { width: 100%; min-height: 34px; display: flex; align-items: center; gap: 8px; text-align: left; }
+.eva-radio canvas.face { flex: none; width: 28px !important; height: 28px !important; }
+.eva-radio p { margin: 0; font-size: 12px; line-height: 1.35; color: var(--regolith); }
+.eva-radio.pop p { animation: evaPop .3s ease; }
+@keyframes evaPop { from { opacity: 0; transform: translateY(3px); } }
+.eva-pad { width: 100%; display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 8px; }
+.eva-pad .btn { min-height: 54px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.eva-pad .eva-thr { color: var(--flame); border-color: var(--flame); }
+.eva-pad .btn.on { background: rgba(255, 181, 71, .18); }
+.eva .eva-goals { width: fit-content; max-width: 100%; margin: 0 auto; }
+.eva-pad .btn { white-space: nowrap; padding-inline: 6px; letter-spacing: .06em; }
+body:has(.eva-play) #phoneBtn { display: none; }
+body:has(.pz) .objective, body:has(.pz) .toast { visibility: hidden; }
+@media (max-height: 460px) { #evaCv { max-height: 46vh; } .eva-pad .btn { min-height: 44px; } .eva-play .btns .btn { min-height: 30px; padding-block: 4px; font-size: 11px; } }
 #mineCv { width: 100%; aspect-ratio: 200 / 260; max-height: 72vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #05060f; touch-action: none; }
 .haul { display: flex; gap: 22px; justify-content: center; }
 .haul div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -5572,7 +5588,7 @@ details.act > .limits { margin: 0 0 8px; }
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine', 'lift'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (introHold && m !== 'flying' && introEnd) introEnd();
@@ -5645,6 +5661,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'garage') { renderGarage(); return; }
     if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift') { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
+    if (m === 'eva') { eva = null; renderEva('intro'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
     if (m === 'datescene') { renderDate(); return; }
@@ -6325,6 +6342,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function openMission(i) {
     if (restLocked(i)) { showToast(restText(), 4200); return; }
+    { const g = evaGate(i); if (g && missionOpen(i)) { sfx.click(); openEva(g); return; } }
     missionTab = tabOf(i);
     missionSel = i;
     const d = ALL[i], st = STORY[d.id];
@@ -6706,7 +6724,7 @@ details.act > .limits { margin: 0 0 8px; }
   function storyTile(d, i) {
     const w = WORLDS.find(x => x.id === d.world), rest = missionOpen(i) && restLocked(i), open = missionOpen(i) && !rest, st = missionStars[d.id] || 0;
     const nx = i === nextStory();
-    return `<button class="mtile${nx ? ' next' : ''}${rest ? ' rest' : ''}" data-i="${i}"${open ? '' : ' disabled'}${rest ? ` title="${esc(restText())}"` : ''}>${nx && open ? '<i class="mnext">Next</i>' : newChip(d)}
+    return `<button class="mtile${nx ? ' next' : ''}${rest ? ' rest' : ''}" data-i="${i}"${open ? '' : ' disabled'}${rest ? ` title="${esc(restText())}"` : ''}>${nx && open ? `<i class="mnext">${evaGate(i) && !rest ? '🧑‍🚀 Spacewalk first' : 'Next'}</i>` : newChip(d)}
       <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
       <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
       <b>${d.name}</b>
@@ -6760,7 +6778,7 @@ details.act > .limits { margin: 0 0 8px; }
         <canvas width="256" height="96" aria-hidden="true"></canvas>
         <b class="cont-act">${act ? act[2] : 'Story complete'}</b>
         <p class="cont-next">${nd ? `Up next: <b>Mission ${nx + 1} · ${nd.name}</b> on ${WORLDS.find(w => w.id === nd.world).name}` : 'Every story mission flown. The Dome is waiting.'}</p>
-        <p class="cont-status ${rest ? 'rest' : 'go'}">${nd ? (rest ? '💤 Sleep in your bunk before the next story mission' : '● Ready to fly') : '★ Chase three stars, or take a side job'}</p>
+        <p class="cont-status ${rest ? 'rest' : 'go'}">${nd ? (rest ? '💤 Sleep in your bunk before the next story mission' : evaGate(nx) ? `🧑‍🚀 A spacewalk comes first: ${EVAS[evaGate(nx)].name}` : '● Ready to fly') : '★ Chase three stars, or take a side job'}</p>
         <p class="cont-meta">Day ${shipDay} · ${fmt(credits)} credits${un ? ` · 📱 ${un} unread` : ''}</p>
         <div class="btns"><button class="btn" id="contGo">Continue</button>${nd && !rest ? '<button class="btn ghost" id="contMs">Missions</button>' : ''}</div>
       </div>`;
@@ -6794,10 +6812,10 @@ details.act > .limits { margin: 0 0 8px; }
       // the act you're on: the first one that's open and not finished
       let cur = acts.findIndex(([a, b]) => a < MISSIONS.length && missionOpen(a) && completedCount(a, b) < b - a);
       if (cur < 0) cur = acts.length - 1;
-      const nx = nextStory(), nd = nx >= 0 ? MISSIONS[nx] : null, nrest = nd && restLocked(nx);
+      const nx = nextStory(), nd = nx >= 0 ? MISSIONS[nx] : null, nrest = nd && restLocked(nx), ng = nd && !nrest ? evaGate(nx) : null;
       const up = nd ? `<button class="mup${nrest ? ' rest' : ''}" data-i="${nx}"${nrest ? ' disabled' : ''}>
           <i class="orb" style="background:${WORLDS.find(x => x.id === nd.world).orb}" aria-hidden="true"></i>
-          <span><small>${nrest ? '💤 Up next, after you sleep' : 'Up next'} · Mission ${nx + 1}</small><b>${nd.name}</b><em>${WORLDS.find(x => x.id === nd.world).name} · ${nd.label || KIND_LABEL[nd.kind]}</em></span>
+          ${ng ? `<span><small>Up next · Spacewalk</small><b>${EVAS[ng].name}</b><em>Outside the Second Wind · before Mission ${nx + 1}</em></span>` : `<span><small>${nrest ? '💤 Up next, after you sleep' : 'Up next'} · Mission ${nx + 1}</small><b>${nd.name}</b><em>${WORLDS.find(x => x.id === nd.world).name} · ${nd.label || KIND_LABEL[nd.kind]}</em></span>`}
           ${nrest ? '' : '<span class="mup-go" aria-hidden="true">▶</span>'}
         </button>${nrest ? `<p class="limits mup-note">${restText()}</p>` : ''}`
         : completedCount() >= MISSIONS.length ? '<p class="limits mup-note">★ Story complete. Go for three stars everywhere, or take a side job.</p>' : '';
@@ -12083,6 +12101,250 @@ details.act > .limits { margin: 0 0 8px; }
   }
   window.addEventListener('keydown', e => { if (mine && mode === 'mining' && e.key.startsWith('Arrow')) { mine.keys[e.key] = true; e.preventDefault(); } });
   window.addEventListener('keyup', e => { if (mine && e.key.startsWith('Arrow')) mine.keys[e.key] = false; });
+
+  // ---- Spacewalks: out of the airlock in a suit with a little jetpack. No gravity, so every push keeps you drifting. ----
+  // Same three controls as the lander. A tether clips you to the airlock; oxygen is the fuel.
+  const EW = 256, EH = 176, AIR = [128, 128], TETHER = 118, E_THR = 20, E_ROT = 2.8;
+  const EHULL = [[18, 128, 220, 60], [150, 110, 40, 18]];   // the body and the bridge module
+  const EVAS = {
+    'eva-hull': { name: 'Hull Breach', job: 'patch', o2: 45, time: 75, pay: 300,
+      spots: [[40, 121, 0, -1], [197, 119, 1, 0], [226, 121, 0, -1]],
+      intro: 'The storm punched three holes in her skin and we’re leaking air. My back won’t fit in the suit, so it’s you. Patch kit’s on your belt. I’ll talk you through it.',
+      brief: 'Patch the three sparking breaches, then come back to the airlock.',
+      done: 'Pressure’s holding. You hear that? That’s the ship breathing again.' },
+    'eva-cargo': { name: 'Loose Parts', job: 'cargo', o2: 40, time: 95, pay: 350,
+      crates: [[54, 52, 3, -1.5], [200, 44, -2.5, 1], [104, 22, 1.5, 2], [178, 84, -1, -2.5]],
+      intro: 'When we hauled the Overdrive parts aboard, the cargo net tore. Four crates are drifting off the hull, and that’s our engine in those boxes. Bring them home.',
+      brief: 'Grab each drifting crate and bring it back to the airlock.',
+      done: 'All four crates stowed. Every part. Thank you, kid. I mean it.' }
+  };
+  const EVA_GATES = { 'catch': 'eva-hull', 'still-crew': 'eva-cargo' };   // story mission → the spacewalk you do before it
+  let eva = null, evaId = null, evaFrom = null;
+  const evaStars = () => { try { return JSON.parse(store.get('ds-eva', '{}')) || {}; } catch (e) { return {}; } };
+  const evaDone = id => evaStars()[id] > 0;
+  const evaGate = i => { const d = MISSIONS[i], g = d && EVA_GATES[d.id]; return g && !(missionStars[d.id] > 0) && !evaDone(g) ? g : null; };
+  function openEva(id) { evaId = id; evaFrom = mode; setMode('eva'); }
+  function evaBack() { eva = null; if (evaFrom === 'missions' || evaFrom === 'flights' || evaFrom === 'bridge') setMode(evaFrom === 'bridge' ? 'missions' : evaFrom); else setMode(lastRoom); }
+  function renderEva(phase, res) {
+    const E = EVAS[evaId], best = evaStars()[evaId] || 0;
+    if (phase === 'intro') {
+      card.innerHTML = `<div class="mining eva">
+        <span class="eyebrow">Spacewalk</span><h1 class="good">${E.name}</h1>
+        <div class="radio quote">${faceTag('G', 'Gus')}<div class="said"><span class="who" style="color:${SPEAKERS.G.color}">${SPEAKERS.G.name}</span><p>${E.intro}</p></div></div>
+        <p class="sub">${E.brief} No gravity out there: a push keeps you drifting until you push the other way.</p>
+        <ul class="pz-stars eva-goals"><li><b>★</b><span>Finish the job</span><em></em></li><li><b>★</b><span>${E.o2}% oxygen or more left</span><em></em></li><li><b>★</b><span>Within ${E.time} s</span><em></em></li></ul>
+        ${best ? `<p class="limits">Your best: ${starHtml(best)}</p>` : ''}
+        <div class="btns"><button class="btn" id="evaGo">Open the airlock</button><button class="btn ghost" id="back">Not yet</button></div>
+      </div>`;
+      paintFaces(card);
+      $('evaGo').addEventListener('click', () => { sfx.click(); startEva(); });
+      $('back').addEventListener('click', () => { sfx.click(); evaBack(); });
+      setTimeout(() => $('evaGo').focus({ preventScroll: true }), 0);
+      return;
+    }
+    // results
+    const ok = res.ok, prev = best, stars = ok ? 1 + (res.o2 >= E.o2 ? 1 : 0) + (res.time <= E.time ? 1 : 0) : 0;
+    let pay = 0;
+    if (ok) {
+      const all = evaStars(); if (stars > (all[evaId] || 0)) { all[evaId] = stars; store.set('ds-eva', JSON.stringify(all)); }
+      pay = prev ? Math.round(E.pay / 4) : E.pay; credits += pay; saveCosmetics();
+    }
+    card.innerHTML = `<div class="mining eva">
+      <span class="eyebrow">${ok ? 'Spacewalk complete' : 'Out of air'}</span><h1 class="${ok ? 'good' : 'bad'}">${ok ? E.name : 'Gus reels you in'}</h1>
+      ${ok ? `<p class="squares reveal" aria-label="${stars} of 3 stars">${starReveal(stars, prev)}</p>
+        <div class="radio quote">${faceTag('G', 'Gus')}<div class="said"><span class="who" style="color:${SPEAKERS.G.color}">${SPEAKERS.G.name}</span><p>${E.done}</p></div></div>
+        <ul class="pz-stars eva-goals"><li class="ok"><b>★</b><span>Finish the job</span><em>Done</em></li><li class="${res.o2 >= E.o2 ? 'ok' : 'bad'}"><b>★</b><span>${E.o2}% oxygen or more</span><em>${Math.round(res.o2)}% left</em></li><li class="${res.time <= E.time ? 'ok' : 'bad'}"><b>★</b><span>Within ${E.time} s</span><em>${res.time.toFixed(1)} s</em></li></ul>
+        <p class="balance">+<span data-count="${pay}">${fmt(pay)}</span> credits</p>`
+      : `<p class="sub">Your oxygen ran dry, so Gus pulled you back in on the tether. Nobody’s hurt. Catch your breath and try again.</p>`}
+      <div class="btns"><button class="btn${ok ? ' ghost' : ''}" id="evaAgain">${ok ? 'Go again' : 'Try again'}</button><button class="btn${ok ? '' : ' ghost'}" id="back">${ok ? 'Back inside' : 'Not now'}</button></div>
+    </div>`;
+    paintFaces(card);
+    if (ok && !reduceMotion) {
+      card.querySelectorAll('.squares .sq.on').forEach((el, i) => setTimeout(() => { if (mode === 'eva') sfx.star(i); }, 250 + i * 350));
+      if (stars === 3 && prev < 3) setTimeout(() => { if (mode === 'eva') { confetti(80); sfx.cheer(); } }, 250 + 3 * 350);
+      const el = card.querySelector('[data-count]'); if (el) { const goal = +el.dataset.count, t0 = performance.now() + 250 + stars * 350; el.textContent = '0'; const tick = now => { const k = Math.max(0, Math.min(1, (now - t0) / 700)); el.textContent = fmt(Math.round(goal * (1 - Math.pow(1 - k, 3)))); if (k < 1 && el.isConnected) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+    }
+    $('evaAgain').addEventListener('click', () => { sfx.click(); startEva(); });
+    $('back').addEventListener('click', () => { sfx.click(); evaBack(); });
+    setTimeout(() => $(ok ? 'back' : 'evaAgain').focus({ preventScroll: true }), 0);
+  }
+  function startEva() {
+    const E = EVAS[evaId];
+    card.innerHTML = `<div class="mining play eva-play">
+      <canvas id="evaCv" width="${EW * 2}" height="${EH * 2}" role="application" aria-label="Spacewalk outside the ship. Rotate and thrust with the buttons below, or the arrow keys."></canvas>
+      <div class="eva-radio" aria-live="polite">${faceTag('G', '')}<p id="evaSay"></p></div>
+      <div class="eva-pad"><button class="btn ghost" data-k="L" aria-label="Rotate left">◀ ROT</button><button class="btn ghost eva-thr" data-k="T" aria-label="Thrust">THRUST</button><button class="btn ghost" data-k="R" aria-label="Rotate right">ROT ▶</button></div>
+      <div class="btns"><button class="btn ghost" id="evaQuit">Head back inside</button></div></div>`;
+    paintFaces(card);
+    const cv = $('evaCv');
+    eva = { cv, c: cv.getContext('2d'), x: AIR[0], y: AIR[1] - 8, vx: 0, vy: -3, a: 0, o2: 100, el: 0, last: performance.now(), keys: {}, hit: 0, knock: 0, carry: null, said: {}, sayT: 0, done: false, back: false,
+      spots: (E.spots || []).map(([x, y, nx, ny]) => ({ x, y, nx, ny, p: 0, done: false })),
+      crates: (E.crates || []).map(([x, y, vx, vy], i) => ({ x, y, vx, vy, r: i, spin: (i % 2 ? 1 : -1) * 0.8, held: false, home: false })),
+      stars: Array.from({ length: 70 }, (_, i) => [(i * 97) % EW, (i * 53) % EH, i % 4]), fx: [] };
+    evaSay('Airlock’s open. Easy pushes. You can always turn around and brake.', 'start');
+    card.querySelectorAll('.eva-pad [data-k]').forEach(b => {
+      const k = b.dataset.k, on = e => { e.preventDefault(); if (eva) eva.keys[k] = true; b.classList.add('on'); }, off = () => { if (eva) eva.keys[k] = false; b.classList.remove('on'); };
+      b.addEventListener('pointerdown', e => { b.setPointerCapture(e.pointerId); on(e); }); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+      b.addEventListener('contextmenu', e => e.preventDefault());
+    });
+    $('evaQuit').addEventListener('click', () => { sfx.click(); eva = null; renderEva('intro'); });
+    const loop = () => {
+      if (!eva || mode !== 'eva' || !document.body.contains(cv)) return;
+      const t = performance.now(), dt = Math.min(0.05, (t - eva.last) / 1000); eva.last = t;
+      evaStep(dt, t); if (!eva) return; evaDraw(t);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+  function evaSay(text, key) {
+    if (!eva) return;
+    if (key) { if (eva.said[key]) return; eva.said[key] = true; }
+    const el = $('evaSay'); if (el) { el.textContent = text; el.parentElement.classList.remove('pop'); void el.offsetWidth; el.parentElement.classList.add('pop'); }
+    eva.sayT = performance.now(); sfx.radio && sfx.radio();
+  }
+  function evaFinish(ok) {
+    if (!eva) return;
+    const res = { ok, o2: eva.o2, time: eva.el };
+    eva = null; renderEva('result', res);
+  }
+  function evaStep(dt, t) {
+    const v = eva, E = EVAS[evaId];
+    v.el += dt;
+    const L = v.keys.L || v.keys.ArrowLeft || v.keys.KeyA, R = v.keys.R || v.keys.ArrowRight || v.keys.KeyD, T = v.keys.T || v.keys.ArrowUp || v.keys.KeyW || v.keys.Space;
+    if (v.knock > 0) { v.knock -= dt; v.a += v.spinK * dt; }
+    else v.a += ((R ? 1 : 0) - (L ? 1 : 0)) * E_ROT * dt;
+    v.firing = !!T && v.o2 > 0;
+    const mass = v.carry ? 1.8 : 1;
+    if (v.firing) { v.vx += Math.sin(v.a) * E_THR / mass * dt; v.vy -= Math.cos(v.a) * E_THR / mass * dt; v.o2 -= 5.5 * dt; }
+    v.o2 -= 0.75 * dt;
+    if (v.o2 <= 0) { v.o2 = 0; evaFinish(false); return; }
+    if (v.o2 < 25) evaSay('Oxygen’s getting low. Wrap it up and head for the airlock.', 'low');
+    v.x += v.vx * dt; v.y += v.vy * dt;
+    // the tether: past its length it goes taut and pulls you gently back toward the airlock
+    const dx = v.x - AIR[0], dy = v.y - AIR[1], d = Math.hypot(dx, dy);
+    if (d > TETHER) {
+      const ux = dx / d, uy = dy / d, out = v.vx * ux + v.vy * uy;
+      if (out > 0) { v.vx -= out * ux * Math.min(1, 6 * dt) * 1.4; v.vy -= out * uy * Math.min(1, 6 * dt) * 1.4; }
+      v.vx -= ux * (d - TETHER) * 3 * dt; v.vy -= uy * (d - TETHER) * 3 * dt;
+      if (d > TETHER + 2) evaSay('That’s the end of the line. The tether’s got you.', 'taut');
+    }
+    // keep inside the picture
+    if (v.x < 5) { v.x = 5; v.vx = Math.abs(v.vx) * 0.4; } if (v.x > EW - 5) { v.x = EW - 5; v.vx = -Math.abs(v.vx) * 0.4; }
+    if (v.y < 5) { v.y = 5; v.vy = Math.abs(v.vy) * 0.4; }
+    // bumping the hull: a soft bounce, and a hard one costs a little air
+    for (const [hx, hy, hw, hh] of EHULL) {
+      const r = 4;
+      if (v.x > hx - r && v.x < hx + hw + r && v.y > hy - r && v.y < hy + hh + r) {
+        const pen = [[v.x - (hx - r), -1, 0], [hx + hw + r - v.x, 1, 0], [v.y - (hy - r), 0, -1], [hy + hh + r - v.y, 0, 1]].sort((a, b) => a[0] - b[0])[0];
+        const [p, nx, ny] = pen, vn = v.vx * nx + v.vy * ny;
+        v.x += nx * p; v.y += ny * p;
+        if (vn < 0) {
+          v.vx -= (1 + 0.35) * vn * nx; v.vy -= (1 + 0.35) * vn * ny;
+          if (-vn > 16 && t - v.hit > 600) { v.hit = t; v.o2 = Math.max(0, v.o2 - 3); sfx.thud ? sfx.thud() : sfx.click(); v.fx.push({ x: v.x, y: v.y - 6, t, text: 'bonk', col: '#ff9a5e' }); evaSay('Oof. Gentle, kid. That’s the hull, not a trampoline.', 'bonk'); }
+        }
+      }
+    }
+    const sp = Math.hypot(v.vx, v.vy);
+    if (sp > 34) evaSay('Easy… easy… you’re coming in hot. Turn around and burn to slow down.', 'hot');
+    // patching: get close, hold still, and the patch welds on
+    for (const s of v.spots) {
+      if (s.done) continue;
+      const ds = Math.hypot(v.x - s.x, v.y - s.y);
+      if (ds < 8 && sp > 22 && v.knock <= 0) {
+        v.knock = 0.7; v.spinK = (Math.random() < 0.5 ? -1 : 1) * 7; v.vx = s.nx * 14 + (Math.random() - 0.5) * 8; v.vy = s.ny * 14 + (Math.random() - 0.5) * 8; v.o2 = Math.max(0, v.o2 - 4); v.hit = t;
+        sfx.thud ? sfx.thud() : sfx.click(); evaSay('Whoa! The spark spun you. Come in slow and stop right at the hole.', 'spark');
+      } else if (ds < 8 && sp < 6) { s.p += dt / 1.8; if (s.p > 0.05) evaSay('That’s it. Hold steady… steady…', 'weld'); }
+      else s.p = Math.max(0, s.p - dt * 0.6);
+      if (s.p >= 1) { s.done = true; s.p = 1; sfx.coin(); v.fx.push({ x: s.x, y: s.y - 8, t, text: 'patched!', col: '#7cf0b0' }); const left = v.spots.filter(q => !q.done).length; evaSay(left ? `Patched! ${left} to go.` : 'That’s the last one! Come on home to the airlock.'); }
+    }
+    // cargo: crates drift and tumble; touch one gently to grab it, bring it to the airlock to stow it
+    for (const k of v.crates) {
+      if (k.home) continue;
+      if (k.held) { k.x = v.x - Math.sin(v.a) * 8; k.y = v.y + Math.cos(v.a) * 8; k.r += dt * 0.5; continue; }
+      k.x += k.vx * dt; k.y += k.vy * dt; k.r += k.spin * dt;
+      // crates stay within your reach: they bounce off the edge of the tether's circle and the top of the hull
+      const cx = k.x - AIR[0], cy = k.y - AIR[1], cd = Math.hypot(cx, cy), lim = TETHER - 6;
+      if (cd > lim) { const ux = cx / cd, uy = cy / cd, out = k.vx * ux + k.vy * uy; if (out > 0) { k.vx -= 2 * out * ux; k.vy -= 2 * out * uy; } k.x = AIR[0] + ux * lim; k.y = AIR[1] + uy * lim; }
+      if (k.y > 100) { k.vy = -Math.abs(k.vy); k.y = 100; }
+      if (!v.carry && Math.hypot(v.x - k.x, v.y - k.y) < 9) {
+        if (Math.hypot(v.vx - k.vx, v.vy - k.vy) < 24) { k.held = true; v.carry = k; v.vx = (v.vx + k.vx) / 2; v.vy = (v.vy + k.vy) / 2; sfx.pop(); evaSay('Got it! It’s heavy, so give yourself room to stop. Airlock’s home.'); }
+        else if (t - v.hit > 600) { v.hit = t; k.vx += v.vx * 0.5; k.vy += v.vy * 0.5; v.vx *= -0.3; v.vy *= -0.3; sfx.click(); evaSay('You bounced it! Match its speed first, then grab.', 'bounce'); }
+      }
+    }
+    if (v.carry && Math.hypot(v.x - AIR[0], v.y - (AIR[1] - 6)) < 12) {
+      v.carry.home = true; v.carry.held = false; v.carry = null; sfx.coin();
+      v.fx.push({ x: AIR[0], y: AIR[1] - 16, t, text: 'stowed!', col: '#7cf0b0' });
+      const left = v.crates.filter(q => !q.home).length; evaSay(left ? `Stowed. ${left} more out there.` : 'That’s all of them! Come on in.');
+    }
+    // done when the job's finished and you're back at the airlock, slow enough to grab the handle
+    const jobDone = E.job === 'patch' ? v.spots.every(s => s.done) : v.crates.every(k => k.home);
+    if (jobDone && Math.hypot(v.x - AIR[0], v.y - (AIR[1] - 6)) < 12 && sp < 14) { sfx.click(); evaFinish(true); return; }
+    v.fx = v.fx.filter(f => t - f.t < 900);
+    v.jobDone = jobDone;
+  }
+  function evaSuit(c, x, y, a, firing, t) {
+    c.save(); c.translate(Math.round(x), Math.round(y)); c.rotate(a);
+    if (firing) { const f = 3 + (t / 50 | 0) % 3; px(c, -2, 5, 4, f, '#ffb547'); px(c, -1, 5, 2, f - 1, '#ffe58a'); }
+    px(c, -3, 0, 6, 5, '#8a93ab');                       // pack
+    px(c, -3, -4, 6, 8, '#e8edf5'); px(c, -4, -3, 1, 5, '#c9cfdc'); px(c, 3, -3, 1, 5, '#c9cfdc');   // body and arms
+    px(c, -2, -7, 4, 4, '#e8edf5'); px(c, -1, -6, 3, 2, '#ffb547');   // helmet and visor
+    px(c, -2, 4, 2, 2, '#c9cfdc'); px(c, 1, 4, 2, 2, '#c9cfdc');      // boots
+    c.restore();
+  }
+  function evaDraw(t) {
+    const v = eva, c = v.c, E = EVAS[evaId];
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    const sh = t - v.hit < 200 ? (Math.random() - 0.5) * 2 : 0; c.translate(sh, 0);
+    px(c, -4, 0, EW + 8, EH, '#04050c');
+    for (const s of v.stars) px(c, s[0], s[1], 1, 1, s[2] ? '#5a6278' : '#c9cfdc');
+    phDisc(c, 214, 30, 13, '#c9a074'); phOval(c, 214, 30, 21, 3, 'rgba(220,200,160,.55)'); px(c, 201, 26, 26, 2, '#b08a62');   // a ringed planet, far off
+    // the Second Wind, dark and drifting
+    const [bx, by, bw] = EHULL[0];
+    px(c, bx, by, bw, EH - by, '#4e5468'); px(c, bx, by, bw, 2, '#646b82'); for (let k = bx + 12; k < bx + bw; k += 16) px(c, k, by + 2, 1, EH - by, '#40465a');
+    px(c, bx + bw, by + 6, 10, 30, '#4e5468'); px(c, bx - 8, by + 8, 8, 24, '#3a3f50');
+    const [mx, my, mw, mh] = EHULL[1]; px(c, mx, my, mw, mh, '#565d74'); px(c, mx, my, mw, 2, '#6c7390'); px(c, mx + 6, my + 6, 6, 3, '#1a1c26'); px(c, mx + 18, my + 6, 6, 3, '#1a1c26');
+    px(c, 96, by - 8, 1, 8, '#646b82'); px(c, 90, by - 10, 13, 2, '#7a8198');
+    const blink = (t / 600 | 0) % 2;
+    for (const lx of [30, 70, 186, 230]) px(c, lx, by + 10, 3, 2, blink ? '#ff5a4a' : '#3a1a1a');
+    for (let k = 0; k < 10; k++) px(c, 36 + k * 18, by + 22, 6, 3, '#1a1c26');
+    // the airlock
+    px(c, AIR[0] - 7, AIR[1] - 3, 14, 3, '#2a2e3c'); px(c, AIR[0] - 5, AIR[1] - 2, 10, 2, v.jobDone ? '#7cf0b0' : '#ffd27a');
+    if (v.jobDone) { c.strokeStyle = `rgba(124,240,176,${0.4 + 0.3 * Math.sin(t / 200)})`; c.lineWidth = 1; c.beginPath(); c.arc(AIR[0], AIR[1] - 6, 12, 0, Math.PI * 2); c.stroke(); }
+    // breaches: sparking holes until patched
+    v.spots.forEach(s => {
+      const hx = s.x - s.nx * 6, hy = s.y - s.ny * 6;
+      if (s.done) { px(c, hx - 3, hy - 3, 7, 7, '#9aa2b4'); px(c, hx - 3, hy - 3, 7, 1, '#c9cfdc'); return; }
+      px(c, hx - 2, hy - 2, 5, 5, '#0c0d14');
+      if (Math.random() < 0.6) for (let i = 0; i < 3; i++) px(c, hx + s.nx * (2 + Math.random() * 5) + (Math.random() - 0.5) * 6, hy + s.ny * (2 + Math.random() * 5) + (Math.random() - 0.5) * 6, 1, 1, Math.random() < 0.5 ? '#ffe58a' : '#ffb547');
+      c.strokeStyle = 'rgba(124,240,176,.55)'; c.lineWidth = 1; c.beginPath(); c.arc(s.x, s.y, 8, 0, Math.PI * 2); c.stroke();
+      if (s.p > 0) { c.strokeStyle = '#7cf0b0'; c.lineWidth = 2; c.beginPath(); c.arc(s.x, s.y, 8, -Math.PI / 2, -Math.PI / 2 + s.p * Math.PI * 2); c.stroke(); }
+    });
+    // crates
+    v.crates.forEach(k => {
+      if (k.home) return;
+      c.save(); c.translate(k.x, k.y); c.rotate(k.r);
+      px(c, -4, -4, 8, 8, '#c4823a'); px(c, -4, -4, 8, 1, '#e0a050'); px(c, -4, -1, 8, 1, '#8a5a28'); px(c, -1, -4, 1, 8, '#8a5a28');
+      c.restore();
+      if (!k.held) { c.strokeStyle = 'rgba(124,240,176,.5)'; c.lineWidth = 1; c.beginPath(); c.arc(k.x, k.y, 8, 0, Math.PI * 2); c.stroke(); }
+    });
+    // the tether: sags when slack, straight when taut
+    const dx = v.x - AIR[0], dy = v.y - AIR[1], d = Math.hypot(dx, dy), slack = Math.max(0, 1 - d / TETHER);
+    c.strokeStyle = d > TETHER ? '#ffd27a' : '#c9cfdc'; c.lineWidth = 1; c.beginPath(); c.moveTo(AIR[0], AIR[1] - 3);
+    c.quadraticCurveTo((AIR[0] + v.x) / 2 + Math.sin(t / 900) * 10 * slack, (AIR[1] + v.y) / 2 + 26 * slack, v.x, v.y); c.stroke();
+    evaSuit(c, v.x, v.y, v.a, v.firing, t);
+    for (const f of v.fx) { const k = (t - f.t) / 900; c.globalAlpha = 1 - k; c.fillStyle = f.col; c.font = '700 7px monospace'; c.textAlign = 'center'; c.fillText(f.text, f.x, f.y - k * 12); c.textAlign = 'left'; c.globalAlpha = 1; }
+    // HUD: oxygen, the job, the clock
+    c.setTransform(2, 0, 0, 2, 0, 0);
+    px(c, 0, 0, EW, 13, 'rgba(4,5,12,0.82)');
+    c.font = '700 7px monospace'; c.fillStyle = v.o2 < 25 ? '#ff6b5e' : '#e8edf5'; c.fillText('O₂', 5, 9.5);
+    px(c, 17, 4, 50, 5, '#22263a'); px(c, 17, 4, Math.round(50 * v.o2 / 100), 5, v.o2 < 25 ? '#ff6b5e' : v.o2 < E.o2 ? '#ffb547' : '#7fd6ff'); px(c, 17 + Math.round(50 * E.o2 / 100), 3, 1, 7, '#ffd36a');
+    const prog = E.job === 'patch' ? `PATCHED ${v.spots.filter(s => s.done).length}/${v.spots.length}` : `CRATES ${v.crates.filter(k => k.home).length}/${v.crates.length}`;
+    c.fillStyle = '#7cf0b0'; c.textAlign = 'center'; c.fillText(v.jobDone ? 'BACK TO THE AIRLOCK' : prog, EW / 2, 9.5);
+    c.textAlign = 'right'; c.fillStyle = v.el > E.time ? '#8a93ab' : '#e8edf5'; c.fillText(`${v.el.toFixed(0)}s`, EW - 5, 9.5); c.textAlign = 'left';
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  window.addEventListener('keydown', e => { if (eva && mode === 'eva' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'KeyA', 'KeyD', 'KeyW', 'Space'].includes(e.code)) { eva.keys[e.code] = true; e.preventDefault(); } });
+  window.addEventListener('keyup', e => { if (eva) eva.keys[e.code] = false; });
 
   // ---- The galley: cook crops into meals with a quick stirring game ----
   const RECIPES = [
@@ -17473,6 +17735,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'eva') { if (e.code === 'Escape') { if (eva) { eva = null; renderEva('intro'); } else evaBack(); } return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
     if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
     if (mode === 'wardrobe') { if (e.code === 'Escape') { wardUI.trying = null; setMode(wardFrom === 'license' ? 'license' : wardFrom === 'den' ? 'den' : 'title'); } return; }
