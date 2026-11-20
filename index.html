@@ -998,6 +998,26 @@ details.act > .limits { margin: 0 0 8px; }
 .cine-cap { margin: 0; min-height: 2.6em; max-width: 34em; text-align: center; color: #f4f1e8; font: 600 15px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .03em; opacity: 0; transition: opacity .6s; text-wrap: balance; }
 .cine-cap.in { opacity: 1; }
 .cine-skip { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+.icard { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: radial-gradient(ellipse at center, rgba(10,14,28,.55), rgba(10,14,28,.15) 70%); opacity: 0; transition: opacity .3s; touch-action: none; cursor: pointer; }
+.icard.in { opacity: 1; }
+.icard.out { opacity: 0; transition: opacity .3s; }
+.icard-band { width: 100%; max-width: 560px; box-sizing: border-box; padding: 18px 22px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  background: rgba(10,14,28,.95); box-shadow: 0 10px 40px rgba(0,0,0,.45); border-top: 2px solid var(--flame); border-bottom: 1px solid var(--space-2); clip-path: inset(0 50% 0 50%); transition: clip-path .45s cubic-bezier(.2,.8,.2,1); }
+.icard.in .icard-band { clip-path: inset(0 0 0 0); }
+.icard-eye { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--regolith-dim); }
+.icard-name { margin: 0; font: 700 clamp(28px, 7vw, 44px)/1.05 var(--f-display); letter-spacing: .04em; text-transform: uppercase; color: #f4f1e8; text-wrap: balance;
+  opacity: 0; transform: translateY(6px); transition: opacity .35s .2s, transform .35s .2s; }
+.icard-job { font: 600 12px var(--f-display); letter-spacing: .2em; text-transform: uppercase; color: var(--ok); opacity: 0; transition: opacity .3s .35s; }
+.icard-twist { margin: 6px 0 0; max-width: 30em; font-size: 14px; line-height: 1.4; color: var(--flame); text-wrap: balance; opacity: 0; transform: translateY(6px); transition: opacity .35s .6s, transform .35s .6s; }
+.icard-twist b { display: inline-block; margin-right: 8px; padding: 1px 6px; font: 700 10px/1.6 var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--space); background: var(--flame); border-radius: 2px; vertical-align: 2px; }
+.icard-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 4px; opacity: 0; transition: opacity .3s .8s; }
+.icard-chips i { font-style: normal; font-size: 11px; padding: 2px 8px; border: 1px solid var(--space-2); border-radius: 10px; color: var(--regolith); }
+.icard.in .icard-name, .icard.in .icard-twist { opacity: 1; transform: none; }
+.icard.in .icard-job, .icard.in .icard-chips { opacity: 1; }
+.icard-skip { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--regolith-dim); opacity: 0; transition: opacity .3s 1.2s; }
+.icard.in .icard-skip { opacity: .8; }
+@media (max-height: 460px) { .icard { gap: 8px; } .icard-band { padding: 12px 18px 10px; gap: 4px; } .icard-name { font-size: 30px; } .icard-twist { margin-top: 2px; font-size: 13px; } }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -3936,6 +3956,113 @@ details.act > .limits { margin: 0 0 8px; }
       c.strokeStyle = `rgba(255,107,94,${(0.5 * (1 - pulse)).toFixed(2)})`; c.lineWidth = 1.5; c.beginPath(); c.arc(X, Y - 4 * k, (2 + pulse * 6) * k, 0, Math.PI * 2); c.stroke();
     }
   }
+  // ---- Mission intro cards: a quick title card before each launch from the briefing ----
+  // Physics holds while the card is up. Tap, click or any key skips it.
+  const TWISTS = {
+    'final-notice': 'The bank wants its money. Don’t miss.',
+    'scrap-run': 'It gets heavier every stop.',
+    'the-neighbor': 'It’s Wren’s. Not one scratch.',
+    'star-client': 'Rex gets queasy. Fly like glass.',
+    'dark-side': 'Crumb has one battery. Make it count.',
+    'moonquake': 'Three miners. One crater. Go.',
+    'apex-calling': 'Kestrel set the time. Beat it.',
+    'test-fire': 'First burn in six years. Easy does it.',
+    'all-systems-go': 'Four stops. Then she flies.',
+    'liftoff': 'Boulders on the runway.',
+    'first-port': 'Six times the gravity. Short bursts.',
+    'red-dock': 'Tiny pad. Big gusts.',
+    'dust-bowl': 'Beat the storm to the clinic.',
+    'stone-patient': 'Four thousand years old. Don’t drop it.',
+    'overdue': 'Someone’s waiting in Juno’s office.',
+    'sun-side': 'The sun boils your fuel. Hug the shade.',
+    'storm-front': 'Instruments dead. Kit or the cell. Pick one.',
+    'dead-air': 'The resort is going down. Last pickup.',
+    'catch': 'Six pods. None hit the dust.',
+    'market-day': 'Three stalls. Storms rolling through.',
+    'under-the-ice': 'The geysers throw you. Watch for the warning.',
+    'left-behind': 'Apex isn’t coming. You are.',
+    'the-overdrive': 'Land between two lava vents.',
+    'still-crew': 'Pitch black. Headlamp only.',
+    'lantern-light': 'Stay in the glow.',
+    'the-envoys': 'The talks collapse when the clock runs out.',
+    'cold-storage': 'Icicles falling. Brix holds the door.',
+    'patchwork': 'Nine meters of cable. Fly smooth.',
+    'the-buyout': 'Sable Voss wants to talk.',
+    'wrens-old-partner': 'Just enough room to fly level.',
+    'first-burn': 'Don’t land. Fly low.',
+    'sulfur-stop': 'Two depots. One lava vent.',
+    'ice-for-the-road': 'Straight across the geyser field.',
+    'the-slingshot': 'The rings swing. Time your pass.',
+    'homecoming': 'The whole crowd is watching.',
+    'earth-contract': 'Head to head with Kestrel.',
+    'the-rescue': 'Catch her pod before it lands.',
+    'home': 'One last landing.'
+  };
+  function twistFor(d, w) {
+    if (d.twist) return d.twist;
+    if (TWISTS[d.id] && !d.side) return TWISTS[d.id];
+    if (d.comfort) return `${d.comfortWho || 'Apogee'} gets queasy. Fly gentle.`;
+    if (d.melt) return 'Ice cream aboard. The sun melts it.';
+    if (d.sling) return `${d.sling} meters of cable. Fly smooth.`;
+    if (d.fragile) return 'Fragile. Touch down soft.';
+    if (d.timeLimit) return `On the clock: ${d.timeLimit} seconds.`;
+    if (d.meteors) return 'Meteors incoming. Watch the red markers.';
+    if (d.storm) return 'The storm scrambles your instruments.';
+    if (d.pads.some(p => p.move)) return 'The pad won’t sit still.';
+    if (d.legs) return `${d.legs.length} stops. One tank.`;
+    if (d.kind === 'canyon') return 'Mind the ceiling.';
+    if (d.kind === 'trip') return `Crumb’s battery: ${d.battery} seconds.`;
+    if (d.kind === 'route') return `${d.rings.length} markers, in order.`;
+    if (d.kind === 'hop') return `${d.goals.length} pads. Every touchdown counts.`;
+    if (d.kind === 'rescue') return 'Grab them and get out.';
+    if (w.hazard === 'heat') return 'The sun boils your fuel. Hug the shade.';
+    if (w.hazard === 'spin') return 'Vesta’s spin pushes you outward.';
+    if (w.hazard === 'storm') return 'Storms roll through. Watch the field.';
+    if (w.dark) return 'Dark out here. Follow the beacons.';
+    if (w.g < 0.5) return 'Barely any gravity. Feather it.';
+    if (w.g > 5) return 'Heavy gravity. Short bursts.';
+    if (w.wind) return 'Gusty out there. Watch the wind.';
+    return 'Clean job. Don’t get cocky.';
+  }
+  let introPending = false, introHold = false, introEnd = null;
+  function showIntroCard(d) {
+    const w = WORLDS.find(x => x.id === d.world) || world;
+    const host = $('toast').parentElement;
+    const idx = ALL[missionSel] && ALL[missionSel].id === d.id ? missionSel : ALL.findIndex(m => m.id === d.id);
+    const chips = [`${w.g.toFixed(2)} m/s²`, `${d.fuel} kg fuel`];
+    if (d.timeLimit) chips.push(`⏱ ${d.timeLimit} s`);
+    if (d.legs) chips.push(`${d.legs.length} stops`);
+    const el = document.createElement('div');
+    el.className = 'icard';
+    el.innerHTML = `<div class="icard-band">
+        <span class="icard-eye">${idx >= 0 ? missionLabel(idx) : 'Mission'} · ${w.name}</span>
+        <h2 class="icard-name">${d.name}</h2>
+        <span class="icard-job">${d.label || KIND_LABEL[d.kind] || ''}</span>
+        <p class="icard-twist"><b>Twist</b>${twistFor(d, w)}</p>
+        <span class="icard-chips">${chips.map(c => `<i>${c}</i>`).join('')}</span>
+      </div>
+      <span class="icard-skip">Tap to fly</span>`;
+    host.appendChild(el);
+    introHold = true;
+    sfx.radio();
+    let done = false, t1, t2;
+    const key = e => { if (e.repeat) return; e.preventDefault(); e.stopPropagation(); finish(); };
+    const finish = () => {
+      if (done) return; done = true;
+      clearTimeout(t1); clearTimeout(t2);
+      removeEventListener('keydown', key, true);
+      el.classList.add('out');
+      introHold = false;
+      for (const k in keys) keys[k] = false;
+      setTimeout(() => el.remove(), 320);
+      if (mission && mode === 'flying') { showToast(goalText(), 2200); if (mission.cop) setTimeout(() => copSay('go'), 900); }
+    };
+    introEnd = finish;
+    el.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); finish(); });
+    addEventListener('keydown', key, true);
+    t1 = setTimeout(() => el.classList.add('in'), 20);
+    t2 = setTimeout(finish, 2900);
+  }
   function startMission(ghostRun) {
     let d = ALL[missionSel];
     world = WORLDS.find(w => w.id === d.world);
@@ -3957,6 +4084,8 @@ details.act > .limits { margin: 0 0 8px; }
     lander.cat = !!d.comfort;
     lander.sling = null;
     rng = Math.random;
+    const card = introPending && !ghostRun; introPending = false;
+    if (card) { setMode('flying'); showIntroCard(d); return; }
     fly(ghostRun || null);
     if (mission.cop) setTimeout(() => copSay('go'), 1900);
   }
@@ -5287,6 +5416,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    if (introHold && m !== 'flying' && introEnd) introEnd();
     try { if (phoneOpen && PHONE_HIDE.includes(m)) closePhone(); } catch (e) {}
     setTimeout(() => { try { phoneButton(); } catch (e) {} }, 0);
     try { applyEvening(m); } catch (e) {}
@@ -5586,6 +5716,7 @@ details.act > .limits { margin: 0 0 8px; }
           </div>`;
       }
     } else if (m === 'brief') {
+      introPending = true;
       const d = ALL[missionSel];
       world = WORLDS.find(w => w.id === d.world);
       buildMissionTerrain(d); makeBackdrop();
@@ -16743,7 +16874,7 @@ details.act > .limits { margin: 0 0 8px; }
     shake *= Math.exp(-realDt * 7);
     acc += frameDt;
     last = now;
-    if (mode === 'paused') acc = 0;   // freeze the simulation, wind clock included
+    if (mode === 'paused' || introHold) acc = 0;   // freeze the simulation, wind clock included
     else while (acc >= DT) { step(DT); acc -= DT; }
     sfx.update({
       engine: mode === 'flying' && lander.firing,
