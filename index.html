@@ -991,6 +991,13 @@ details.act > .limits { margin: 0 0 8px; }
 .mtile .face { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; image-rendering: pixelated; border-radius: 4px; }
 .objective.warn { border-color: var(--bad); color: var(--bad); }
 .toast.radio { border-left: 3px solid var(--flame); }
+.cine { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); transition: opacity .35s; }
+.cine.out { opacity: 0; }
+.cine canvas { width: min(100%, 960px, calc((100vh - 160px) * 16 / 9)); aspect-ratio: 16 / 9; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.cine-cap { margin: 0; min-height: 2.6em; max-width: 34em; text-align: center; color: #f4f1e8; font: 600 15px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .03em; opacity: 0; transition: opacity .6s; text-wrap: balance; }
+.cine-cap.in { opacity: 1; }
+.cine-skip { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
 .toast {
   position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
   padding: 6px 12px; background: var(--space); color: var(--flame); border: 1px solid var(--space-2); border-radius: 4px;
@@ -1129,7 +1136,7 @@ details.act > .limits { margin: 0 0 8px; }
       ground: '#4a3418', rim: '#f0c070', orb: '#e8c27a'
     },
     {
-      id: 'eris', name: 'Eris', g: 0.82, thrust: 2.4, drag: 0, wind: 0, bonus: 1.5, rough: 0.9, dark: 1, gate: 'first-light', fog: '3, 5, 14',
+      id: 'eris', name: 'Eris', g: 0.82, thrust: 2.4, drag: 0, wind: 0, bonus: 1.5, rough: 0.9, dark: 1, gate: 'patchwork', fog: '3, 5, 14',
       note: 'Ninety times farther from the Sun than Earth, and very dark. Your landing light shows the ground right below you, and pad beacons shine through.',
       sky: ['#020308', '#080b18'], stars: 1.2,
       ground: '#262b38', rim: '#b8c8e8', orb: '#dfe6f2'
@@ -1209,9 +1216,9 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#ff9a3d', stroke: '#fff4e0', legs: '#fff4e0', detail: '#9fe0b8', swatch: 'linear-gradient(90deg, #ff9a3d, #fff4e0)' },
     { id: 'apex', name: 'Apex Gold', price: 0, unlock: 'frontier', blurb: 'Rex’s paint job. He insisted. Black and gold, very shiny, slightly much.',
       fill: '#1a1a22', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #1a1a22, #ffd27a)' },
-    { id: 'unitzero', name: 'Unit Zero', price: 0, unlock: 'outer', blurb: 'The old Descent Systems colors from a probe nobody built. Gus copied them exactly.',
+    { id: 'unitzero', name: 'Burning Blue', price: 0, unlock: 'outer', blurb: 'The exact blue of the engine relighting at the edge of the map. Gus mixed it from memory.',
       fill: '#16243a', stroke: '#9ad8ff', legs: '#c9cfdc', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #16243a, #9ad8ff)' },
-    { id: 'senders', name: 'Dots and Lines', price: 0, unlock: 'senders', blurb: 'Night blue with the Senders’ little dots and lines painted down the side. Lyra picked the colors.',
+    { id: 'senders', name: 'Long Way Home', price: 0, unlock: 'senders', blurb: 'Night blue with the whole route home painted down the side, Eris to the Moon. Lyra picked the colors.',
       fill: '#0e1424', stroke: '#c9b8ff', legs: '#8a93ab', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #0e1424, #c9b8ff)' },
     { id: 'fieldkit', name: 'Field Kit', price: 0, unlock: 'offroad', blurb: 'Dusty khaki with Crumb’s orange stripe. Smells faintly of moon rock.',
       fill: '#d9cfb4', stroke: '#3a4668', legs: '#3a4668', detail: '#ffb547', swatch: 'linear-gradient(90deg, #d9cfb4, #ffb547)' }
@@ -1529,7 +1536,7 @@ details.act > .limits { margin: 0 0 8px; }
     campaign: ['Act 1 complete', 'G', 'We did it! Everyone’s in the break room. There’s cake. I made it. It’s mostly frosting.'],
     frontier: ['Act 2 complete', 'F', 'Act 2, done. I’m proud of you, pilot. Don’t tell anyone I said that out loud.'],
     outer: ['Act 3 complete', 'W', 'Past Pluto and back. You fly the way I used to dream about flying.'],
-    senders: ['Act 4 complete', 'G', 'We answered the Senders! Unit Zero is humming polka now. I taught it that.']
+    senders: ['Act 4 complete', 'G', 'We made it home! The Second Wind, the whole crew, and one very smug cat.']
   };
   function award(id) {
     if (got[id]) return;
@@ -1686,7 +1693,160 @@ details.act > .limits { margin: 0 0 8px; }
         { name: 'Top up at the resort DEPOT', say: 'ENGINEERING: There’s a fuel cell at the depot. Take everything. They’re not coming back for it.', goals: [{ type: 'visit', pad: 'DEPOT', refuel: 120, text: 'Land on DEPOT to refuel' }] },
         { name: 'Pick up the medic at MEDIC', say: 'FLIGHT: Someone’s still down there, waving. Go get them.', goals: [{ type: 'pickup', pad: 'MEDIC', what: 'crew' }] },
         { name: 'Climb back up to the ship', goals: [{ type: 'exit' }] }],
-      pads: [{ id: 'COUPLER', x1: 60, x2: 76, y: 34 }, { id: 'DEPOT', x1: 128, x2: 144, y: 26 }, { id: 'MEDIC', x1: 200, x2: 222, y: 40 }] }
+      pads: [{ id: 'COUPLER', x1: 60, x2: 76, y: 34 }, { id: 'DEPOT', x1: 128, x2: 144, y: 26 }, { id: 'MEDIC', x1: 200, x2: 222, y: 40 }] },
+    // ---- Act 3 · Adrift: drifting outward, picking up crew, and Gus's confession ----
+    { id: 'catch', name: 'Catch!', world: 'mars', kind: 'land', label: 'Catch', noSurprise: true, windMul: 0.5, fuel: 320, credits: 520,
+      pods: { n: 10, every: 3, fall: 3.4 },
+      brief: 'Juno’s dock is firing supply pods into the ship’s path. Catch six on their way down before they hit the dust, then climb back out the top to the ship.',
+      spawn: { x: 120, y: 70, vx: 0 }, stars: { fuel: 150, time: 45 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      legs: [
+        { name: 'Catch 6 supply pods', goals: [{ type: 'catch', need: 6 }] },
+        { name: 'Climb back up to the ship', goals: [{ type: 'exit' }] }],
+      pads: [] },
+    { id: 'market-day', name: 'Market Day', world: 'ganymede', kind: 'cargo', label: 'Multi-stop', cargoName: 'ice', fuel: 440, credits: 560, mass: 0.85,
+      brief: 'Zib trades engine parts for help. Load the ice at PICKUP, drop a block at the LANTERN stall and the FISH stall, then bring the rest to Zib at DROP. Storms roll through.',
+      spawn: { x: 180, y: 100, vx: 0 }, stars: { fuel: 110, time: 100 },
+      ground: [[0, 36], [14, 34], [40, 36], [58, 46], [76, 58], [96, 52], [116, 62], [136, 56], [156, 48], [176, 40], [196, 36], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Load the ice at PICKUP', goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }] },
+        { name: 'Drop a block at the LANTERN stall', say: 'Zib: The lantern stall gets one block! Zib promised!', goals: [{ type: 'drop', pad: 'LANTERN', keep: true, busy: 'Unloading a block', done: 'Lantern stall: thank you!' }] },
+        { name: 'Drop a block at the FISH stall', say: 'Zib: Now the fish stall! Fish love ice! Well. Dead fish do.', goals: [{ type: 'drop', pad: 'FISH', keep: true, busy: 'Unloading a block', done: 'Fish stall: thank you!' }] },
+        { name: 'Bring the rest to Zib at DROP', goals: [{ type: 'land', pad: 'DROP' }] }],
+      pads: [{ id: 'PICKUP', x1: 198, x2: 214, y: 34 }, { id: 'DROP', x1: 16, x2: 36, y: 32 }, { id: 'FISH', x1: 92, x2: 108, y: 50 }, { id: 'LANTERN', x1: 148, x2: 164, y: 46 }] },
+    { id: 'under-the-ice', name: 'Under the Ice', world: 'europa', kind: 'rescue', mass: 0.85, fuel: 240, credits: 580,
+      brief: 'Nerri’s water tank cracked while she was exploring a geyser field. Land at CREW, take her aboard, then climb out the top. The geysers throw you upward when they blow, so watch for the warning.',
+      spawn: { x: 30, y: 110, vx: 0 }, stars: { fuel: 100, time: 40 },
+      vents: [[36, 6, 1], [84, 5.5, 3.2], [146, 6.5, 0.5]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      pads: [{ id: 'CREW', x1: 106, x2: 122, y: 40 }] },
+    { id: 'left-behind', name: 'Left Behind', world: 'ganymede', kind: 'rescue', label: 'SOS', fuel: 220, credits: 600, mass: 0.85,
+      brief: 'An Apex pilot is stranded on Ganymede with a fried lander, and Apex isn’t coming. Land at CREW, take her aboard, and climb out. Storms roll through every few seconds.',
+      spawn: { x: 30, y: 110, vx: 1.5 }, stars: { fuel: 50, time: 40 },
+      ground: [[0, 40], [24, 46], [46, 40], [70, 50], [94, 44], [116, 36], [136, 36], [156, 48], [180, 56], [204, 48], [240, 52]],
+      pads: [{ id: 'CREW', x1: 118, x2: 134, y: 34 }] },
+    { id: 'the-overdrive', name: 'The Overdrive', world: 'io', kind: 'land', label: 'Multi-stop', fuel: 320, credits: 620,
+      brief: 'An old mining rig on Io has engine parts. Land at SALVAGE between the two lava vents, then bring Biscuit down at LZ. The lava reaches about 40 meters up, so fly high or wait for the gap.',
+      spawn: { x: 30, y: 95, vx: 0 }, stars: { fuel: 100, time: 70 },
+      vents: [[74, 7, 0], [150, 6.5, 3]],
+      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Salvage parts between the vents', goals: [{ type: 'visit', pad: 'SALVAGE', text: 'Land at SALVAGE between the vents', done: 'Parts aboard. Gus is very quiet.' }] },
+        { name: 'Land at LZ', say: 'ENGINEERING: Got them. Bring her down at LZ. …Thanks.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'SALVAGE', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] },
+    { id: 'still-crew', name: 'Still Crew', world: 'europa', kind: 'land', label: 'In the dark', dark: 24, noSurprise: true, fuel: 420, credits: 640,
+      brief: 'A parts run through an ice cave with Gus on the radio. It’s pitch black: the only light is Biscuit’s headlamp, and the pads show as small blinking beacons. Grab PART1 and PART2, then land on LZ.',
+      spawn: { x: 100, y: 95, vx: 0 }, stars: { fuel: 140, time: 110 },
+      ground: [[0, 46], [14, 42], [38, 42], [56, 50], [76, 56], [96, 52], [116, 58], [136, 46], [162, 46], [176, 50], [200, 54], [224, 50], [240, 46]],
+      legs: [
+        { name: 'Find the first part at PART1', goals: [{ type: 'visit', pad: 'PART1', text: 'Find the beacon at PART1', done: 'Gus: “Got it. That’s the coupling. …Hey. Thanks for coming with me.”' }] },
+        { name: 'Find the second part at PART2', say: 'ENGINEERING: The next one’s across the cave. Go slow. I’ll talk. You don’t have to say anything back.', goals: [{ type: 'visit', pad: 'PART2', text: 'Find the beacon at PART2', done: 'Gus: “I keep thinking about the storm. I’m so sorry. …Okay. Last one.”' }] },
+        { name: 'Bring them home to LZ', say: 'ENGINEERING: You know what? I think we can actually fix her. Land on LZ. I’ll buy you a cocoa. Bao will buy you a cocoa.', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'PART1', x1: 16, x2: 36, y: 42 }, { id: 'PART2', x1: 202, x2: 220, y: 50 }, { id: 'LZ', x1: 140, x2: 160, y: 46 }] },
+    { id: 'lantern-light', name: 'Lantern Light', world: 'titan', kind: 'land', label: 'Follow the light', noSurprise: true, fuel: 420, credits: 680,
+      follow: { path: [[40, 104], [70, 96], [96, 84], [122, 88], [148, 72], [172, 58], [191, 46]], speed: 5.5, radius: 15 },
+      brief: 'The drift reaches Saturn. Ollo’s lantern guides you down through Titan’s haze to a shipyard. Stay inside its glow: the lantern waits for you, but the meter drains while you’re outside the light. Then land on LZ.',
+      spawn: { x: 30, y: 108, vx: 0 }, stars: { fuel: 150, time: 70 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      legs: [
+        { name: 'Follow the lantern through the haze', goals: [{ type: 'follow' }] },
+        { name: 'Land at the shipyard on LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 182, x2: 200, y: 32 }] },
+    { id: 'the-envoys', name: 'The Envoys', world: 'titan', kind: 'land', label: 'Ferry', noSurprise: true, fuel: 500, credits: 700,
+      timeLimit: 200, limitText: 'Carry three messages between the docks within 3:20, before the talks collapse', spareText: 'to spare before the talks collapsed',
+      lateReason: 'the talks collapsed before the last message arrived', lateQuip: ['V', 'Both sides walked out. Lyra says we try again after tea.'],
+      nags: [[40, 'KAEL: Forty seconds. Lyra says the east dock is getting very loud.'], [15, 'LYRA: Fifteen seconds! Kael is doing his calm voice. That means panic.']],
+      brief: 'Titan’s shipyard is caught in a trade dispute between the WEST and EAST docks. Ferry envoys Kael and Lyra’s messages back and forth, landing on each dock in turn, before the talks collapse.',
+      spawn: { x: 70, y: 100, vx: 0 }, stars: { fuel: 160, time: 130 },
+      ground: [[0, 50], [20, 46], [40, 52], [60, 44], [80, 40], [100, 46], [120, 56], [140, 50], [160, 40], [178, 34], [204, 34], [220, 44], [240, 48]],
+      legs: [
+        { name: 'Carry the first offer to EAST', goals: [{ type: 'visit', pad: 'EAST', refuel: 80, text: 'Land on EAST with the first offer', done: 'East dock: “Insulting. We counter with… slightly less insulting.”' }] },
+        { name: 'Carry the reply to WEST', say: 'LYRA: West dock next. Kael has written “please” on the message four times.', goals: [{ type: 'visit', pad: 'WEST', refuel: 80, text: 'Land on WEST with the reply', done: 'West dock: “Fine. But they bring the snacks. The good biscuits.”' }] },
+        { name: 'Bring the deal to EAST', say: 'LYRA: We have a deal! With snacks! Land on EAST so they can sign it!', goals: [{ type: 'land', pad: 'EAST' }] }],
+      pads: [{ id: 'WEST', x1: 58, x2: 76, y: 42 }, { id: 'EAST', x1: 160, x2: 178, y: 36 }] },
+    { id: 'cold-storage', name: 'Cold Storage', world: 'pluto', kind: 'trip', label: 'Rover trip', noSurprise: true, fuel: 260, credits: 720, battery: 75, battLabel: 'Brix holds the door',
+      icicles: { every: 1.7, hit: 8 }, task: 'Collect the regulator parts',
+      brief: 'An abandoned ice station on Pluto holds the reactor regulator Gus needs. Land on LZ and Crumb drives in. Icicles are falling, and each hit costs time. Brix is holding the door shut behind you, so get the three parts, back up the ramp, launch and dock before he can’t hold it.',
+      spawn: { x: 40, y: 100, vx: 0 }, stars: { fuel: 100, time: 100 },
+      ground: [[0, 40], [20, 38], [40, 34], [60, 30], [78, 30], [96, 34], [110, 38], [130, 38], [150, 36], [170, 42], [190, 46], [210, 44], [240, 48]],
+      pads: [{ id: 'LZ', x1: 112, x2: 128, y: 38 }],
+      items: [{ x: 96, what: 'sample' }, { x: 150, what: 'sample' }, { x: 174, what: 'sample' }],
+      dock: { x: 150, y: 118 } },
+    { id: 'patchwork', name: 'Patchwork', world: 'eris', kind: 'sling', label: 'Sling load', cargoName: 'engine section', sling: 9, fragile: 1.5, fuel: 460, credits: 760, noSurprise: true,
+      brief: 'At the edge of the map, lower Gus’s rebuilt engine section from PICKUP into place at DROP. It rides on a 9-meter cable under Biscuit, so fly smooth and set it down gently.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 150, time: 80 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
+    // ---- Act 4 · The Slingshot: the long way home ----
+    { id: 'the-buyout', name: 'The Buyout', world: 'eris', kind: 'land', label: 'Story', noSurprise: true, fuel: 220, credits: 760,
+      brief: 'An Apex ship has landed beside you at the edge of the map. Sable Voss wants to talk. Set Biscuit down on the APEX pad next to her ship.',
+      spawn: { x: 40, vx: 1 }, stars: { fuel: 90, time: 36 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'APEX', x1: 178, x2: 200, y: 44 }] },
+    { id: 'wrens-old-partner', name: 'Wren’s Old Partner', world: 'pluto', kind: 'canyon', fuel: 200, credits: 780, noSurprise: true,
+      brief: 'Wren is flying out to face Sable aboard her ship. Thread the gap beneath the rock shelf and land on the pad at the far end. There’s just enough room to fly level.',
+      spawn: { x: 30, vx: 0 }, stars: { fuel: 55, time: 34 },
+      ground: [[0, 60], [20, 62], [35, 58], [45, 40], [55, 22], [75, 20], [95, 22], [115, 20], [135, 24], [150, 22], [178, 24], [190, 40], [205, 70], [220, 80], [240, 82]],
+      ceilings: [[[95, 100], [105, 50], [125, 44], [145, 46], [180, 46], [195, 100]]],
+      pads: [{ id: 'LZ', x1: 158, x2: 172, y: 20 }] },
+    { id: 'first-burn', name: 'First Burn', world: 'pluto', kind: 'land', label: 'Beacon drop', noSurprise: true, fuel: 300, credits: 800,
+      timeLimit: 90, limitText: 'Drop all three beacons and climb out within 90 seconds, before the burn', spareText: 'to spare before the burn',
+      lateReason: 'the burn window closed before the beacons were placed', lateQuip: ['G', 'We’ll catch the next window. Pluto’s not going anywhere. Slowly.'],
+      drops: [50, 126, 196],
+      brief: 'Place guidance beacons on Pluto’s three peaks before the ship’s first big burn. You don’t land: fly low over each peak, inside the dashed zone, and the beacon releases on its own. Then climb out the top.',
+      spawn: { x: 20, y: 105, vx: 0 }, stars: { fuel: 140, time: 55 },
+      ground: [[0, 30], [20, 34], [40, 60], [50, 64], [60, 58], [80, 36], [100, 32], [118, 70], [126, 74], [134, 68], [150, 38], [170, 34], [188, 66], [196, 72], [204, 64], [222, 36], [240, 32]],
+      legs: [
+        { name: 'Drop beacons on all three peaks', goals: [{ type: 'drops' }] },
+        { name: 'Climb out for the burn', goals: [{ type: 'exit' }] }],
+      pads: [] },
+    { id: 'sulfur-stop', name: 'Sulfur Stop', world: 'io', kind: 'land', label: 'Multi-stop', fuel: 260, credits: 820,
+      brief: 'Top up the tanks at Io’s old fuel depots on the way home. Refuel at DEPOT1, then DEPOT2, then fly over the lava vent to LZ. The lava reaches about 40 meters up, so fly high or wait for the gap.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 160, time: 80 },
+      vents: [[150, 6.5, 3]],
+      ground: [[0, 36], [14, 32], [38, 32], [56, 40], [76, 48], [96, 52], [116, 48], [136, 54], [156, 50], [176, 44], [196, 38], [222, 38], [240, 44]],
+      legs: [
+        { name: 'Refuel at DEPOT1', goals: [{ type: 'visit', pad: 'DEPOT1', refuel: 90, text: 'Land on DEPOT1 to refuel' }] },
+        { name: 'Refuel at DEPOT2', say: 'ENGINEERING: Second depot. After that it’s over the lava vent to LZ. Wait for the gap.', goals: [{ type: 'visit', pad: 'DEPOT2', refuel: 90, text: 'Land on DEPOT2 to refuel' }] },
+        { name: 'Land at LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'DEPOT1', x1: 16, x2: 36, y: 32 }, { id: 'DEPOT2', x1: 104, x2: 120, y: 48 }, { id: 'LZ', x1: 198, x2: 220, y: 38 }] },
+    { id: 'ice-for-the-road', name: 'Ice for the Road', world: 'europa', kind: 'cargo', cargoName: 'ice block', mass: 0.85, fuel: 300, credits: 840,
+      brief: 'Nerri’s people are giving you ice for reaction mass. Lift it from PICKUP and carry it across the geyser field to DROP. The geysers throw you upward when they blow.',
+      spawn: { x: 20, y: 100, vx: 0 }, stars: { fuel: 110, time: 60 },
+      vents: [[84, 5.5, 3.2], [146, 6.5, 0.5]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      pads: [{ id: 'PICKUP', x1: 10, x2: 30, y: 40 }, { id: 'DROP', x1: 196, x2: 214, y: 41 }] },
+    { id: 'the-slingshot', name: 'The Slingshot', world: 'ganymede', kind: 'route', label: 'Moving rings', noSurprise: true, fuel: 320, credits: 880,
+      ringMove: { r: 7, speed: 1.1 },
+      brief: 'The big one. Fly ahead of the ship and thread the guidance rings so she can swing around Jupiter. The rings swing as you go, so time your pass. Then land on LZ.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[50, 90], [92, 70], [134, 92], [172, 70], [206, 88]], stars: { fuel: 150, time: 60 },
+      ground: [[0, 40], [24, 46], [46, 40], [70, 50], [94, 44], [116, 36], [136, 36], [156, 48], [180, 56], [204, 48], [222, 44], [240, 52]],
+      pads: [{ id: 'LZ', x1: 116, x2: 134, y: 34 }] },
+    { id: 'homecoming', name: 'Homecoming', world: 'mars', kind: 'land', windMul: 0.6, fuel: 200, credits: 900,
+      brief: 'Juno’s dock on Mars is throwing a welcome-back party. Bring Biscuit down on LZ in front of the whole crowd.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 80, time: 32 },
+      ground: [[0, 40], [20, 46], [40, 38], [60, 44], [80, 30], [95, 24], [122, 26], [140, 40], [160, 52], [180, 46], [200, 58], [220, 50], [240, 55]],
+      pads: [{ id: 'LZ', x1: 96, x2: 120, y: 22 }] },
+    { id: 'earth-contract', name: 'The Earth Contract', world: 'earth', kind: 'route', label: 'Race vs Kestrel', noSurprise: true, fuel: 260, credits: 960,
+      rival: { path: [[22, 104], [50, 80], [110, 70], [160, 72], [179, 30]], time: 45, winText: 'Kestrel landed first and won the contract', winQuip: ['Q', 'Good race, Descent. Not good enough.'] },
+      brief: 'One final contract to clear the debt: Earth’s big supply route, head to head with Kestrel. Her lander flies the course beside you. Fly through all three markers and land on LZ before she does.',
+      spawn: { x: 20, y: 104, vx: 0 }, rings: [[50, 80], [110, 70], [160, 72]], stars: { fuel: 100, time: 34 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      pads: [{ id: 'LZ', x1: 170, x2: 188, y: 28 }] },
+    { id: 'the-rescue', name: 'The Rescue', world: 'earth', kind: 'land', label: 'Catch', noSurprise: true, fuel: 260, credits: 1000,
+      pods: { n: 1, every: 1, fall: 3, label: 'Kestrel' },
+      brief: 'Kestrel’s lander has failed and she has ejected. Lift off, catch her escape pod in mid-air before it hits the ground, then bring her down on LZ.',
+      spawn: { x: 179, y: 40, vx: 0 }, stars: { fuel: 120, time: 45 },
+      ground: [[0, 30], [10, 28], [42, 32], [60, 45], [75, 52], [90, 48], [110, 40], [130, 46], [150, 38], [165, 30], [195, 34], [210, 44], [225, 40], [240, 46]],
+      legs: [
+        { name: 'Catch Kestrel’s escape pod', goals: [{ type: 'catch', need: 1 }] },
+        { name: 'Bring her down on LZ', goals: [{ type: 'land', pad: 'LZ' }] }],
+      pads: [{ id: 'LZ', x1: 170, x2: 188, y: 28 }] },
+    { id: 'home', name: 'Home', world: 'moon', kind: 'land', label: 'Final landing', noSurprise: true, fuel: 140, credits: 1200,
+      brief: 'The Second Wind is back over the Moon. Bring Biscuit down one last time at the HANGAR, right next to the little base where it all began.',
+      spawn: { x: 30, vx: 2 }, stars: { fuel: 60, time: 22 },
+      ground: [[0, 50], [15, 45], [30, 52], [45, 40], [60, 30], [75, 34], [90, 20], [130, 22], [145, 40], [160, 55], [175, 48], [195, 60], [215, 50], [240, 58]],
+      pads: [{ id: 'HANGAR', x1: 100, x2: 118, y: 18 }] }
   ];
   const ACT1 = 9;    // Act 1 · Grounded
   const ACT2 = 18;   // Act 2 · Lift Off
@@ -2908,7 +3068,7 @@ details.act > .limits { margin: 0 0 8px; }
     ['F', 'Tomorrow, we fly.'],
     ['A', 'Mrrp.']
   ];
-  EPILOGUES['all-systems-go'] = [ACT1_END, { label: 'Act 1 ending', title: 'Tomorrow, We Fly' }];
+  EPILOGUES['all-systems-go'] = [ACT1_END, { label: 'Act 1 ending', title: 'Tomorrow, We Fly', cine: 'powerup' }];
 
   // side missions follow the new story: crew introductions are story missions now, and each world's jobs
   // open once the Second Wind gets there
@@ -2981,9 +3141,11 @@ details.act > .limits { margin: 0 0 8px; }
     ['K', '*beep beep* (Crumb has found the cargo bay. Crumb loves the cargo bay.)'],
     ['A', 'Mrrp. (Apogee has claimed the captain’s chair.)'],
     ['F', 'Your Pad is on deck two. A real room, with a real door. Welcome home, pilot.']
-  ], { label: 'Act 2', title: 'Moving Day' }];
+  ], { label: 'Act 2', title: 'Moving Day', cine: 'liftoff' }];
   const nextTease = () => MISSIONS.length < ACT2 ? 'The rest of Act 2 is on the way. Juno says the bank keeps calling the dock. Dottie keeps not answering.'
-    : 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.';
+    : MISSIONS.length === ACT2 ? 'Act 3 is on the way. The ship is drifting out toward Jupiter, and Gus has gone very quiet.'
+    : MISSIONS.length < ACT3 ? 'The rest of Act 3 is on the way. Gus has been sleeping in the engine room, and nobody knows what to say yet.'
+    : 'Act 4 is on the way. The Second Wind has turned for home, burning blue.';
   // ---- Hard calls: moments in the story where a crewmate can be lost for good ----
   // Your choice and how close you are to them decide it. Lost crew are missing, never shown dying; their bunk stays empty.
   const callOf = id => store.get('ds-call-' + id, '');
@@ -3011,6 +3173,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DRIFT_STOPS = [['storm-front', 'Mercury'], ['dead-air', 'Venus'], ['dead-air', 'Earth and the Moon'], ['catch', 'Mars'], ['market-day', 'Jupiter'], ['lantern-light', 'Saturn'], ['cold-storage', 'Pluto'], ['patchwork', 'Eris']];
   function driftHtml() {
     if (!storyDone('storm-front')) return '';
+    if (storyDone('patchwork')) return `<div class="tcard drift"><span class="eyebrow">Course · engine online</span><p>Eris · Pluto · Jupiter · Mars · Earth · <b>▶ Home</b></p><p class="limits">The engine is relit. Turning for home the long way round.</p></div>`;
     let at = 0; DRIFT_STOPS.forEach(([id], i) => { if (storyDone(id)) at = i; });
     if (storyDone('dead-air')) at = 2;
     for (let i = 3; i < DRIFT_STOPS.length; i++) if (storyDone(DRIFT_STOPS[i][0])) at = i;
@@ -3084,7 +3247,314 @@ details.act > .limits { margin: 0 0 8px; }
     ['G', 'I’m sorry. I’m so sorry.'],
     ['F', 'We’ll come back. I promise.'],
     ['A', 'Mrrp.']
-  ], { label: 'Act 2 ending', title: 'Drifting Past Home' }] });
+  ], { label: 'Act 2 ending', title: 'Drifting Past Home', cine: 'pastmoon' }] });
+  // ---- Act 3, first half: the long drift and Gus's confession ----
+  Object.assign(STORY, {
+    'catch': { chapter: [19, 'Catch!'],
+      intro: [
+        ['F', 'We’re drifting past Mars. We can see Juno’s dock from here.'],
+        ['J', 'And my dock can see us. I radioed ahead. They’re firing supply pods into our path: food, water, spare parts.'],
+        ['G', 'They come down on parachutes. Fly up and grab them before they hit the dust. Six should do it. Then climb back out the top to us.']],
+      react: [['J', 'Six pods! My dock crew says good luck. They also say I owe them lunch.'],
+        ['F', 'Food, water, and a box of Gus’s favorite bolts. We’ll be okay for a while.'],
+        ['J', 'Every single pod. Show-off. I’m very proud.']] },
+    'market-day': { chapter: [20, 'Market Day'],
+      intro: [
+        ['F', 'Jupiter. We’ve drifted all the way to Jupiter. And there’s a floating market on Ganymede right below us.'],
+        ['Z', 'Hello hello! Zib runs the market! Zib has engine parts! Big ones! Shiny ones!'],
+        ['G', 'We can’t pay for engine parts, Zib.'],
+        ['Z', 'Then you help Zib! Load the ice at PICKUP, drop a block at the LANTERN stall and the FISH stall, then bring the rest to Zib at DROP. Help for parts! Fair is fair!']],
+      react: [['Z', 'All delivered! Here are the parts. And here is Zib. Zib is coming too. Zib likes your ship!'],
+        ['F', 'Did Zib just move in?'],
+        ['Z', 'Perfect delivery! Zib has never seen such flying! Zib is staying forever!']] },
+    'under-the-ice': { chapter: [21, 'Under the Ice'],
+      intro: [
+        ['F', 'Distress call from Europa. Someone’s trapped in a geyser field.'],
+        ['N', 'H-hello? I’m Nerri. I went exploring, and my water tank cracked. I’m drying out. Please hurry!'],
+        ['G', 'Land at CREW, take her aboard, then climb straight out the top. Watch the geysers: they throw you upward when they blow.']],
+      react: [['N', 'You came! You actually came! Can I stay? I won’t take up much room. I’ll live in the bath.'],
+        ['D', 'Doc here. Mild dehydration. Prescription: one bathtub, full. I’ll set it up.'],
+        ['N', 'That was the best flying I’ve ever seen. I’m staying! Somebody fill the tub!']] },
+    'left-behind': { chapter: [22, 'Left Behind'],
+      intro: [
+        ['F', 'An SOS on Ganymede. It’s an Apex beacon.'],
+        ['W', 'Apex can rescue their own.'],
+        ['X', 'They’re not coming. I’m Dash, Apex courier. My lander’s fried, and Apex told me to wait. That was three days ago.'],
+        ['F', 'Nobody gets left behind. Not even Apex. Land at CREW, take her aboard, and climb out. Storms roll through every few seconds.']],
+      react: [['X', 'Thanks for coming. Apex wasn’t going to.'],
+        ['X', 'Smooth. You’re better than any Apex pilot I’ve flown with.'],
+        ['X', 'Perfect. Okay. I owe you more than thanks. There’s something you need to hear.']] },
+    'the-overdrive': { chapter: [23, 'The Overdrive'],
+      intro: [
+        ['G', 'There’s an old mining rig on Io with engine parts. It sits between two lava vents. Land at SALVAGE between eruptions, then bring Biscuit down at LZ.'],
+        ['W', 'Gus has been quiet for a week. Gus is never quiet.'],
+        ['G', 'I’m fine. I’m just… concentrating. Go. Watch the vents.']],
+      react: [['G', 'Parts. Good. That’s… good.'],
+        ['G', 'Nice flying. Really nice. I…'],
+        ['G', 'Perfect. You’re all so… I need to tell everyone something.']] }
+  });
+  EPILOGUES['left-behind'] = [[
+    ['X', 'That Mercury job. The one with no name on it. It came from Apex, through a fake company.'],
+    ['F', 'What?'],
+    ['X', 'Sable knew the solar storm was coming. She wanted the Second Wind broken and drifting, so you’d have no choice but to sell.'],
+    ['W', 'Of course she did.'],
+    ['R', 'That’s villain behavior. I’ve played villains. That is exactly what they do.'],
+    ['F', 'Dash. Would you say that out loud? To other people?'],
+    ['X', 'Get me home, and I’ll say it to anyone who’ll listen.'],
+    ['G', 'Dottie, I… never mind. It’s nothing.']
+  ], { label: 'Act 3', title: 'They Knew' }];
+  EPILOGUES['the-overdrive'] = [[
+    ['G', 'Everyone. Can you all come to the engine room? I need to say something.'],
+    ['G', 'The storm didn’t kill the engine. Not by itself.'],
+    ['G', 'Before Mercury, I bolted on a booster. The Overdrive. It was experimental. I didn’t tell anyone, because I knew you’d say no.'],
+    ['G', 'When the storm hit, it overloaded and burned out the whole drive. It’s my fault we’re drifting. All of it.'],
+    ['W', 'Gus…'],
+    ['G', 'I just wanted us to win one. Just once.'],
+    ['F', 'Everybody, give him some room. We’ll talk tomorrow.'],
+    ['A', 'Mrrp. (Apogee sits on Gus’s foot and does not move.)']
+  ], { label: 'Act 3', title: 'The Confession' }];
+  // ---- Act 3, second half: forgiving Gus and fixing the engine on the drift ----
+  // Hard call 2, Europa's port: anyone who has lost faith can get off. Up to two crewmates with fewer than 2 hearts take it.
+  // Story crew are always safe, and anyone who joined in Act 3 is too new to give up on you.
+  const PORT_RISK = ['C', 'H', 'J', 'D', 'T', 'M'];
+  const portLeavers = () => { try { return JSON.parse(store.get('ds-call-port', '[]')) || []; } catch (e) { return []; } };
+  function hardCallPort() {
+    if (store.get('ds-call-port', '') !== '') return;
+    const who = PORT_RISK.filter(w => romMet[w] && romMet[w]() && heartsOf(w) < 2).sort((a, b) => (hearts[a] || 0) - (hearts[b] || 0)).slice(0, 2);
+    store.set('ds-call-port', JSON.stringify(who));
+    if (who.length) { const L = lostList(); who.forEach(w => { if (!L.includes(w)) L.push(w); }); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  // Hard call 3, Cold Storage: Brix holds the door. If he trusts you (3+ hearts) he lets go when you call and makes it out.
+  function hardCallDoor() {
+    if (callOf('door')) return;
+    const held = heartsOf('S') >= 3;
+    store.set('ds-call-door', held ? 'out' : 'lost');
+    if (!held) { const L = lostList(); if (!L.includes('S')) L.push('S'); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  const nameList = ws => ws.map(w => SIGN[w] || w).join(ws.length === 2 ? ' and ' : ', ');
+  // one mission before each hard call, the results screen names who's at risk, so there's time to spend with them
+  function riskNote(id) {
+    const R = { 'sun-side': [['C'], 3], 'the-overdrive': [PORT_RISK, 2], 'the-envoys': [['S'], 3], 'patchwork': [typeof BUYOUT_RISK !== 'undefined' ? BUYOUT_RISK : [], 2] }[id];
+    if (!R) return '';
+    const who = R[0].filter(w => romMet[w] && romMet[w]() && heartsOf(w) < R[1]);
+    if (!who.length) return '';
+    const names = nameList(who), plural = who.length > 1;
+    if (id === 'sun-side') return 'Kit hasn’t been sure of their place on the crew lately. Spend some time with Kit before the next job.';
+    if (id === 'the-overdrive') return `${names} ${plural ? 'have' : 'has'} been quiet since the storm. Europa has a port, and anyone who feels left out might take it. Spend some time with ${plural ? 'them' : SIGN[who[0]]} first.`;
+    if (id === 'the-envoys') return 'Brix doesn’t quite trust anyone yet. Spend some time with him before Pluto.';
+    return `${names} ${plural ? 'have' : 'has'} been wondering whether working for Apex might be easier. Sable is waiting at Eris. Spend some time with ${plural ? 'them' : SIGN[who[0]]} first.`;
+  }
+  function hardCallText(id) {
+    if (id === 'storm-front') return CALL_TEXT[callOf('storm')] || '';
+    if (id === 'still-crew') { const p = portLeavers(); return p.length ? `${nameList(p)} got off at Europa’s port. ${p.length > 1 ? 'Their bunks stay' : 'Their bunk stays'} empty.` : 'Europa’s port opened its doors, and nobody got off. Everyone’s staying, Gus included.'; }
+    if (id === 'the-buyout') { const b = buyoutLeavers(); return b.length ? `${nameList(b)} took Sable’s offer and left on the Apex ship.` : 'Nobody took Sable’s offer. Not one hand went up.'; }
+    if (id === 'cold-storage') return callOf('door') === 'out' ? 'Brix trusted you. When you called, he let go of the door and squeezed out just before the station collapsed.' : 'Brix held the door until the station collapsed. He didn’t make it out. He’s somewhere under the ice.';
+    return '';
+  }
+
+  Object.assign(STORY, {
+    'still-crew': { chapter: [24, 'Still Crew'],
+      intro: [
+        ['F', 'Okay. Nobody has really talked to Gus in two days. That stops now.'],
+        ['F', 'Pilot, you’re flying Gus on a parts run through an ice cave on Europa. Just the two of you.'],
+        ['G', 'You don’t have to. I know I wouldn’t want to.'],
+        ['W', 'And Europa has a port. Anyone who wants off this ship can take it. No hard feelings.'],
+        ['G', 'It’s pitch black in there. Grab PART1 and PART2, then land on LZ. I’ll… I’ll talk you through it.']],
+      react: [['G', 'We got them. And you didn’t leave me in a cave. That’s a good start.'],
+        ['G', 'You know, I really missed flying with you.'],
+        ['G', 'Perfect run in the pitch dark. Okay. I think I’m ready to face everyone.']] },
+    'lantern-light': { chapter: [25, 'Lantern Light'],
+      intro: [
+        ['F', 'Saturn. We’ve drifted all the way to Saturn. And there’s a light coming up through Titan’s haze.'],
+        ['O', 'Hello, drifting ship. I am Ollo. My lantern colony has watched you for days. You look tired.'],
+        ['O', 'There is a shipyard below, under the haze. Follow my lantern down. Stay in the light, and you will not get lost.'],
+        ['G', 'A shipyard! A real shipyard! Pilot, don’t lose that lantern.']],
+      react: [['O', 'You stayed in the light. Welcome to Titan, little ship.'],
+        ['O', 'You fly like a moth who knows where it is going. May I come with you? I would like to see where you go.'],
+        ['O', 'Perfect. I will bring my lantern aboard. Your corridors are very dark.']] },
+    'the-envoys': { chapter: [26, 'The Envoys'],
+      intro: [
+        ['G', 'The shipyard can build the engine parts we need. Except the two halves of the shipyard aren’t speaking to each other.'],
+        ['V', 'Kael, envoy. This is my sister Lyra. We carry messages between the WEST and EAST docks.'],
+        ['Y', 'Our shuttle broke. Everything is broken. The talks collapse in three minutes, and nobody here can fly.'],
+        ['F', 'Carry their messages back and forth, landing on each dock in turn. Get them a deal, and we get our parts.']],
+      react: [['V', 'A deal. With snacks. Lyra, we did it.'],
+        ['Y', 'They’re building your engine parts tonight. And we’re coming with you. We’ve always wanted to see the inner planets.'],
+        ['V', 'Flawless ferrying. Lyra wants to name a dock after you. I said a small dock.']] },
+    'cold-storage': { chapter: [27, 'Cold Storage'],
+      intro: [
+        ['G', 'The new parts are aboard, but the engine still needs a reactor regulator. There’s one in an abandoned ice station on Pluto.'],
+        ['F', 'The station is falling apart. Land on LZ, and Crumb drives in for the three regulator parts.'],
+        ['S', 'The station door… will not stay open. I will hold it. For as long as… I can.'],
+        ['K', '*nervous beep* (Crumb would like it noted that he is very brave.)'],
+        ['G', 'Watch for icicles. Get the parts, back up the ramp, and dock. And when you’re clear, call Brix out.']],
+      get react() {
+        const out = callOf('door') !== 'lost';
+        return out ? [['S', 'You called… and I let go. I trusted you. I am glad.'], ['G', 'The regulator is perfect! Brix, you’re a hero.'], ['S', 'I am… very cold. But I am… here.']]
+          : [['F', 'Brix? Brix, come in.'], ['G', 'The door… the whole station came down. He held it until we were clear.'], ['F', 'We are not forgetting him. Nobody forgets him.']];
+      } },
+    'patchwork': { chapter: [28, 'Patchwork'],
+      intro: [
+        ['F', 'Eris. The edge of the map. Nobody has ever flown a mothership this far out.'],
+        ['G', 'Good thing, because I need somewhere very quiet to do this. The rebuilt engine section is ready.'],
+        ['G', 'It hangs on a cable under Biscuit. Lift it at PICKUP and set it down gently at DROP so I can bolt it in.'],
+        ['W', 'Smooth and slow. Like lowering a sleeping cat.']],
+      react: [['G', 'It’s in! It’s bolted! Everybody, stand back from the engine room.'],
+        ['W', 'Gentle as anything. That’s how you do it.'],
+        ['G', 'Perfect placement. I could kiss you. I won’t. I might hug you.']] }
+  });
+  Object.defineProperty(EPILOGUES, 'still-crew', { enumerable: true, get: () => {
+    const p = portLeavers();
+    return [[
+      ['F', 'Gus. Everyone’s here. We talked.'],
+      ['W', 'You made a bad call. I’ve made worse. I once landed on the wrong moon. On purpose.'],
+      ['R', 'You’re still our engineer, darling. Nobody else understands the toaster.'],
+      ['X', 'Apex set the trap. You just stepped in it. That’s on Sable, not you.'],
+      ...(p.length ? [['F', `Not everyone stayed. ${nameList(p)} got off at the port. I don’t blame them. I miss them already.`]] : [['F', 'And nobody got off at the port. Not one person.']]),
+      ['F', 'You’re still crew, Gus. Now help us fix this.'],
+      ['G', 'I… okay. Okay. I have a plan. Three parts, two moons, and one very old shipyard.'],
+      ['A', 'Mrrp.']
+    ], { label: 'Act 3', title: 'Still Crew' }];
+  } });
+  Object.defineProperty(EPILOGUES, 'patchwork', { enumerable: true, get: () => [[
+    ['G', 'Rebuilt engine. Rebuilt drive. Regulator from Pluto. Everybody hold onto something.'],
+    ['F', 'Light her up, Gus.'],
+    ['W', 'Look at that. Blue. She’s burning blue.'],
+    ['R', 'It’s beautiful. I’m not crying. It’s space dust. Edge-of-the-map dust.'],
+    ...(lostList().includes('S') ? [['F', 'Brix should have seen this. He held that door so we could.']] : []),
+    ...(lostList().length && !lostList().includes('S') ? [['F', 'I wish everyone who started this trip could see this.']] : []),
+    ['G', 'She’s not strong enough to fly straight home. But she’s strong enough to turn.'],
+    ['F', 'Then we turn. We’re going home, everybody.'],
+    ['G', 'Pilot? Thank you for not leaving me behind.'],
+    ['A', 'Mrrp.']
+  ], { label: 'Act 3 ending', title: 'Blue in the Dark', cine: 'relight' }] });
+  // ---- Act 4: the long way home ----
+  // Hard call 4, the buyout: up to two crewmates with fewer than 2 hearts take Sable's offer and leave on her ship.
+  // Story crew are always safe, and the crew who joined on Titan are too new to have been tempted.
+  const BUYOUT_RISK = ['C', 'H', 'J', 'D', 'T', 'M', 'Z', 'N', 'S'];
+  const buyoutLeavers = () => { try { return JSON.parse(store.get('ds-call-buyout', '[]')) || []; } catch (e) { return []; } };
+  function hardCallBuyout() {
+    if (store.get('ds-call-buyout', '') !== '') return;
+    const who = BUYOUT_RISK.filter(w => romMet[w] && romMet[w]() && heartsOf(w) < 2).sort((a, b) => (hearts[a] || 0) - (hearts[b] || 0)).slice(0, 2);
+    store.set('ds-call-buyout', JSON.stringify(who));
+    if (who.length) { const L = lostList(); who.forEach(w => { if (!L.includes(w)) L.push(w); }); store.set('ds-lost', JSON.stringify(L)); }
+  }
+  const lostNames = () => nameList(lostList());
+
+  Object.assign(STORY, {
+    'the-buyout': { chapter: [29, 'The Buyout'],
+      intro: [
+        ['F', 'There’s a ship landing next to us. Silver. Very shiny. Very expensive.'],
+        ['U', 'Dottie. You look terrible. The edge of the map doesn’t suit you.'],
+        ['F', 'Sable. What do you want?'],
+        ['U', 'To be generous. Sign the Second Wind over to Apex, and I’ll tow you all home. Jobs for everyone. Warm beds. Real coffee.'],
+        ['G', 'Pilot, set Biscuit down on the APEX pad next to her ship. Dottie wants to answer her in person.']],
+      react: [['F', 'We’ll vote on it. Tonight.'], ['U', 'Take your time. You have plenty of it out here.'], ['W', 'I don’t need a vote. But I’ll sit through one.']] },
+    'wrens-old-partner': { chapter: [30, 'Wren’s Old Partner'],
+      intro: [
+        ['W', 'I need to tell you all something. Sable was my co-pilot. Thirty years ago. We started an agency together.'],
+        ['W', 'Then she sold it, and our ships, and our routes, out from under me. That’s how Apex started.'],
+        ['W', 'She’s parked her ship in a canyon on Pluto. Fly me out there. I’m going to have a word.'],
+        ['G', 'Thread the gap under the rock shelf and land on the pad at the far end. Level flying. Very level.']],
+      react: [['W', 'She hasn’t changed. Not one bit.'],
+        ['W', 'I got what I came for. Her flight logs. Every message about the Mercury job.'],
+        ['W', 'Perfect flying. And perfect timing: she was out when I took the logs. Shame.']] },
+    'first-burn': { chapter: [31, 'First Burn'],
+      intro: [
+        ['G', 'The engine’s ready for her first big burn: swing back toward the Sun and start heading home.'],
+        ['G', 'I need guidance beacons on Pluto’s three peaks. You don’t land. Fly low over each peak, inside the dashed zone, and the beacon drops on its own.'],
+        ['F', 'Then climb out the top before the burn window closes.']],
+      react: [['G', 'Beacons locked! Burn starting in three… two… we’re moving! We’re actually moving!'],
+        ['F', 'We’re going home, everybody. The long way. But home.'],
+        ['G', 'Perfect beacons! Dottie, can I do the countdown again? Just for fun?']] },
+    'sulfur-stop': { chapter: [32, 'Sulfur Stop'],
+      intro: [
+        ['G', 'We need fuel for the slingshot. Lots of it. Io has old depots from the mining days.'],
+        ['F', 'Refuel at DEPOT1, then DEPOT2, then hop over the lava vent and land at LZ.'],
+        ['X', 'I used to run supplies to these depots. That vent past the second one blows every few seconds. Wait for the gap.']],
+      react: [['G', 'Tanks full! Well. Full enough.'], ['X', 'Nice. You didn’t even flinch at the lava.'], ['G', 'Perfect run. The ship is so full of fuel she’s burping.']] },
+    'ice-for-the-road': { chapter: [33, 'Ice for the Road'],
+      get intro() {
+        const n = !lostList().includes('N') && storyDone('under-the-ice');
+        return [
+          ['F', 'Europa. We need ice for reaction mass, and Nerri’s people have offered us some.'],
+          n ? ['N', 'They’re singing for us! That song means “good journey.” And also “please bring back the bucket.”'] : ['F', 'Nerri’s people are singing for us. I wish Nerri could hear it.'],
+          ['G', 'Lift the ice at PICKUP and carry it across the geyser field to DROP. The geysers throw you upward, so watch for the warning.']];
+      },
+      react: [['G', 'Ice aboard! That’s enough reaction mass for the slingshot.'], ['F', 'Thank you, Europa. We’ll bring the bucket back.'], ['G', 'Perfect delivery. Not one geyser touched you.']] },
+    'the-slingshot': { chapter: [34, 'The Slingshot'],
+      intro: [
+        ['F', 'This is it. The slingshot. We swing around Jupiter, and it throws us all the way home.'],
+        ['G', 'Biscuit flies ahead and threads the guidance rings. The rings swing in the gravity, so time your pass. Then land on LZ.'],
+        ['W', 'Everybody on the radio. Everybody.'],
+        ['R', 'I’d like to say a few words. Very few. “Go.”']],
+      react: [['G', 'We’re around! We’re around Jupiter! Next stop: everything we know!'],
+        ['W', 'That was the best flying I’ve seen in thirty years. Don’t tell anyone I said that.'],
+        ['F', 'Perfect slingshot. Everybody, look out the window. That’s the way home.']] },
+    'homecoming': { chapter: [35, 'Homecoming'],
+      get intro() {
+        const j = !lostList().includes('J');
+        return [
+          ['F', 'Mars. We made it back to Mars. Under our own power this time.'],
+          j ? ['J', 'My dock is throwing a party! Banners! Balloons! Someone made a cake shaped like Biscuit!'] : ['F', 'Juno’s old dock is throwing us a party. They say Juno sends her love.'],
+          ['G', 'Bring Biscuit down on LZ in front of the whole crowd. No pressure. They’ve made a banner.']];
+      },
+      react: [['F', 'Home soil. Well. Home-ish soil.'], ['R', 'They’re cheering! For us! I’ll take it from here. Thank you, thank you.'], ['G', 'Perfect landing in front of everyone. Somebody frame that.']] },
+    'earth-contract': { chapter: [36, 'The Earth Contract'],
+      intro: [
+        ['F', 'One contract left, and it pays off everything: Earth’s big supply route. And guess who else is bidding.'],
+        ['Q', 'Hello again, Descent. Same deal as the Moon. Three markers, then the pad. Winner takes the route.'],
+        ['G', 'Her lander flies the course right beside you. Fly through all three markers and land on LZ before she does.'],
+        ['W', 'Show her what a pilot looks like.']],
+      react: [['F', 'We WON! We won the Earth contract! Wait. What’s Kestrel doing?'],
+        ['G', 'Her engine’s smoking. Dottie, her lander is going down!'],
+        ['Q', 'Mayday, mayday! Engine failure! I’m ejecting!']] },
+    'the-rescue': { chapter: [37, 'The Rescue'],
+      intro: [
+        ['F', 'The contract isn’t signed until the inspector arrives. If Biscuit lifts off the pad, we forfeit it.'],
+        ['G', 'Kestrel’s escape pod is coming down on a parachute. If it hits at that speed…'],
+        ['F', 'Then we forfeit. Go get her. Catch the pod in mid-air, then bring her down on LZ.'],
+        ['W', 'That’s the right call, Dottie.']],
+      react: [['Q', 'You… came back for me. You gave up the route for me.'],
+        ['F', 'Nobody gets left behind. Not even Apex.'],
+        ['Q', 'Then I’m not Apex anymore. Tell Sable she can have her badge back. It’s in the bin.']] },
+    'home': { chapter: [38, 'Home'],
+      intro: [
+        ['F', 'There it is. The Moon. Our little base, and the hangar where we started.'],
+        ['G', 'One last landing. The HANGAR pad. Bring her home.'],
+        ['A', 'Mrrp.']],
+      react: [['F', 'Welcome home, pilot.'], ['W', 'Good flying. Every bit of it.'], ['F', 'We’re home. We’re actually home.']] }
+  });
+  Object.defineProperty(EPILOGUES, 'the-buyout', { enumerable: true, get: () => {
+    const b = buyoutLeavers();
+    return [[
+      ['F', 'All right. Everyone’s here. Sable’s offer: Apex tows us home, and we all work for her. Hands up for yes.'],
+      ...(b.length ? [['F', `${nameList(b)}… okay. I understand. Really, I do.`], ['U', `Excellent. ${b.length > 1 ? 'They’ll' : 'They’ll'} be very comfortable at Apex. Anyone else?`]] : [['F', 'Nobody? Not one hand?'], ['U', 'Sentimental. All of you.']]),
+      ['F', 'Then the answer is no, Sable. We’re flying home ourselves.'],
+      ['U', 'With that engine? You won’t make it past Jupiter.'],
+      ['W', 'Watch us.'],
+      ['A', 'Mrrp.']
+    ], { label: 'Act 4', title: 'The Vote' }];
+  } });
+  Object.defineProperty(EPILOGUES, 'home', { enumerable: true, get: () => {
+    const lost = lostList();
+    return [[
+      ['F', 'We lost the Earth contract. And the debt still got paid. Rex, do you want to explain?'],
+      ['R', 'I may have filmed the rescue. And posted it. With some very moving music. Three hundred million views, darling. The “Save the Little Agency” fund closed in a day.'],
+      ['W', 'And my old partner’s flight logs are on every news channel, along with Dash’s statement.'],
+      ['X', 'And Kestrel’s. She told them everything.'],
+      ['F', 'The bank cancelled the loans. Apex’s board removed Sable this morning.'],
+      ['W', 'She didn’t apologize. She said this was all our fault. I’ve never been so happy to be blamed for something.'],
+      ['G', 'And I have a new title. Chief of Not Bolting Things On Without Asking.'],
+      ...(lost.length ? [['F', `Not everyone came home with us. ${lostNames()}. Their bunks stay made. We keep the lights on for them.`]] : [['F', 'And every single one of us came home. Every one.']]),
+      ['F', 'Welcome home, Descent Systems.'],
+      ['G', 'Dottie? I fixed the old telescope in the Dome. And it’s picking something up. A signal. From way past Eris.'],
+      lost.length ? ['G', 'There’s a voice on it. It sounds a lot like… no. It couldn’t be.'] : ['G', 'There’s a voice on it. Nobody I recognize.'],
+      ['F', '…Nobody tell Rex. He’ll want to make a movie about it.'],
+      ['R', 'I’m standing right here, darling. And yes. Yes, I will.'],
+      ['A', 'Mrrp.']
+    ], { label: 'The end · for now', title: 'Home', cine: 'homecoming' }];
+  } });
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3117,6 +3587,184 @@ details.act > .limits { margin: 0 0 8px; }
     return li == null ? '' : `Stop ${li + 1}/${d.legs.length} · `;
   }
   // a goal was just finished (the stage has already moved on)
+  // ---- Supply pods on parachutes: a 'catch' goal is met by grabbing them in mid-air before they hit the ground ----
+  function podsTick(dt) {
+    const d = mission.def, cfg = d.pods, L = lander;
+    const P = mission.pods || (mission.pods = { list: [], next: 1.2, spawned: 0, caught: 0, lost: 0 });
+    if (P.spawned < cfg.n && (P.next -= dt) <= 0) {
+      P.next = cfg.every; P.spawned++;
+      P.list.push({ x: 24 + Math.random() * (W - 48), y: H - 4, vx: (Math.random() - 0.5) * 1.4, ph: Math.random() * 6, done: false });
+    }
+    for (const p of P.list) {
+      if (p.done) continue;
+      p.y -= cfg.fall * dt; p.x = Math.max(6, Math.min(W - 6, p.x + (p.vx + Math.sin(flightT * 1.3 + p.ph) * 0.7) * dt));
+      if (!L.grounded && Math.hypot(L.x - p.x, L.y + 1 - p.y) < 4.8) {
+        p.done = true; P.caught++; mission.bonus += 25;
+        L.fuel = Math.min(L.fuelMax, L.fuel + 12 * tankMul() * ship().tank);
+        popText(cfg.label ? 'Got her!' : `Pod ${P.caught}!`, '#ffd27a', p.x, p.y + 2, true); sfx.coin(); spawnSpark(p.x, p.y, '#ffd27a');
+      } else if (p.y <= groundAt(p.x) + 1) { p.done = true; P.lost++; spawnSpark(p.x, p.y, '#c97a3a'); }
+    }
+    const g = currentGoal();
+    if (!g || g.type !== 'catch') return false;
+    if (P.caught >= g.need) { mission.stage++; showToast(cfg.label ? `${cfg.label} is aboard! Bring her down on LZ.` : 'That’s enough pods! Now climb back up to the ship.', 2400); afterGoal(g, null); return false; }
+    const live = P.list.filter(p => !p.done).length;
+    if (P.caught + live + (cfg.n - P.spawned) < g.need) { failMission(cfg.label ? `${cfg.label}’s escape pod hit the ground` : 'Too many supply pods hit the ground', cfg.label ? ['F', 'Again. We go again. Nobody gets left behind.'] : ['J', 'My dock’s loading another batch. Try again!']); return true; }
+    return false;
+  }
+  function drawPods(time) {
+    if (!mission || !mission.pods) return;
+    for (const p of mission.pods.list) {
+      if (p.done) continue;
+      const X = sx(p.x), Y = sy(p.y), s = scale;
+      ctx.strokeStyle = 'rgba(244,241,232,0.7)'; ctx.lineWidth = Math.max(1, 0.15 * s);
+      ctx.beginPath(); ctx.moveTo(X - 0.9 * s, Y - 0.6 * s); ctx.lineTo(X - 2.4 * s, Y - 3.6 * s); ctx.moveTo(X + 0.9 * s, Y - 0.6 * s); ctx.lineTo(X + 2.4 * s, Y - 3.6 * s); ctx.stroke();
+      ctx.fillStyle = '#ff6b5e'; ctx.beginPath(); ctx.arc(X, Y - 3.6 * s, 2.6 * s, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = '#f4f1e8'; ctx.fillRect(X - 0.5 * s, Y - 6.2 * s, 1 * s, 2.6 * s);
+      ctx.fillStyle = '#c97a3a'; ctx.fillRect(X - 1 * s, Y - 0.8 * s, 2 * s, 1.8 * s);
+      ctx.fillStyle = '#ffd27a'; ctx.fillRect(X - 1 * s, Y - 0.1 * s, 2 * s, 0.4 * s);
+    }
+  }
+  // ---- Follow: stay inside the glow of a guide lantern while it leads you through the haze ----
+  // The lantern waits for you if you fall behind, but the meter drains while you're outside its light.
+  function followTick(dt) {
+    const F = mission.def.follow, L = lander, g = currentGoal();
+    const S = mission.fl || (mission.fl = { i: 0, x: F.path[0][0], y: F.path[0][1], meter: 100 });
+    if (!g || g.type !== 'follow') return false;
+    const dist = Math.hypot(L.x - S.x, L.y - S.y);
+    if (S.i < F.path.length - 1 && dist < F.radius * 1.3) {
+      const [tx, ty] = F.path[S.i + 1], dx = tx - S.x, dy = ty - S.y, dd = Math.hypot(dx, dy), step = F.speed * dt;
+      if (dd <= step) { S.x = tx; S.y = ty; S.i++; } else { S.x += dx / dd * step; S.y += dy / dd * step; }
+    }
+    S.meter = dist > F.radius ? Math.max(0, S.meter - 16 * dt) : Math.min(100, S.meter + 12 * dt);
+    if (S.meter <= 0) { failMission('Lost the lantern in the haze', ['O', 'The haze is thick tonight, little ship. Stay close to the light. Again?']); return true; }
+    if (S.i >= F.path.length - 1 && dist < F.radius) { mission.stage++; showToast('The lantern settles over the shipyard. Land on LZ!', 2400); afterGoal(g, null); }
+    return false;
+  }
+  function drawFollow(time) {
+    if (!mission.fl || !mission.def.follow) return;
+    const S = mission.fl, F = mission.def.follow, s = scale, X = sx(S.x), Y = sy(S.y + Math.sin(time / 400) * 0.4), R = F.radius * s;
+    const g = ctx.createRadialGradient(X, Y, 0, X, Y, R);
+    g.addColorStop(0, 'rgba(255,214,120,0.34)'); g.addColorStop(0.75, 'rgba(255,214,120,0.10)'); g.addColorStop(1, 'rgba(255,214,120,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,214,120,0.35)'; ctx.lineWidth = 1; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#6b4226'; ctx.fillRect(X - 1.2 * s, Y - 1.7 * s, 2.4 * s, 0.5 * s); ctx.fillRect(X - 1.2 * s, Y + 1.2 * s, 2.4 * s, 0.5 * s);
+    ctx.fillStyle = '#ffd27a'; ctx.fillRect(X - 0.9 * s, Y - 1.2 * s, 1.8 * s, 2.4 * s);
+    for (let k = 0; k < 5; k++) { const a = time / 280 + k * 1.3; ctx.fillStyle = 'rgba(244,241,232,0.85)'; ctx.fillRect(X + Math.cos(a) * 3.2 * s, Y + Math.sin(a * 1.4) * 2.6 * s, 0.7 * s, 0.4 * s); }
+  }
+  // ---- Darkness: the only light is Biscuit's headlamp; pads show as small blinking beacons ----
+  function drawDark(time) {
+    const d = mission.def; if (!d.dark || !lander) return;
+    const s = scale, X = sx(lander.x), Y = sy(lander.y), R = d.dark * s;
+    const g = ctx.createRadialGradient(X, Y + 2 * s, R * 0.2, X, Y + 2 * s, R);
+    g.addColorStop(0, 'rgba(2,4,10,0)'); g.addColorStop(0.65, 'rgba(2,4,10,0.55)'); g.addColorStop(1, 'rgba(2,4,10,0.97)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
+    const on = Math.floor(time / 450) % 2 === 0;
+    for (const p of pads) {
+      const goal = isGoalPad(p), px2 = sx((p.x1 + p.x2) / 2), py2 = sy(p.y + 1.2);
+      ctx.fillStyle = goal ? (on ? '#7fd6ff' : 'rgba(127,214,255,0.35)') : 'rgba(255,214,120,0.35)';
+      ctx.beginPath(); ctx.arc(px2, py2, (goal ? 1.1 : 0.7) * s, 0, Math.PI * 2); ctx.fill();
+      if (goal && on) { ctx.fillStyle = 'rgba(127,214,255,0.12)'; ctx.beginPath(); ctx.arc(px2, py2, 4 * s, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+  // ---- Collapse: icicles drop around the rover; each hit costs time off the clock ----
+  function iciclesTick(dt) {
+    const R = mission.rover, cfg = mission.def.icicles;
+    if (!R || R.out < 1 || R.boardT != null) return;
+    const I = mission.ic || (mission.ic = { list: [], next: cfg.every });
+    if ((I.next -= dt) <= 0) {
+      I.next = cfg.every * (0.7 + Math.random() * 0.6);
+      I.list.push({ x: Math.max(4, Math.min(W - 4, R.x + (Math.random() * 16 - 4) * (R.dir || 1))), y: groundAt(R.x) + 30, vy: 0, warn: 1, done: false });
+    }
+    for (const p of I.list) {
+      if (p.done) continue;
+      if (p.warn > 0) { p.warn -= dt; continue; }
+      p.vy += 30 * dt; p.y -= p.vy * dt;
+      if (Math.abs(p.x - R.x) < 2.6 && p.y <= R.y + 2.6) {
+        p.done = true; R.batt -= cfg.hit; popText(`−${cfg.hit}s`, '#7fd6ff', R.x, R.y + 4); spawnSpark(p.x, p.y, '#cfe8ff');
+      } else if (p.y <= groundAt(p.x)) { p.done = true; spawnSpark(p.x, groundAt(p.x), '#cfe8ff'); }
+    }
+  }
+  function drawIcicles(time) {
+    if (!mission.ic) return;
+    const s = scale;
+    for (const p of mission.ic.list) {
+      if (p.done) continue;
+      const X = sx(p.x);
+      if (p.warn > 0) {   // a shadow on the ground and a shiver at the top before it drops
+        ctx.fillStyle = `rgba(127,214,255,${0.25 + 0.25 * Math.sin(time / 60)})`; ctx.fillRect(X - 1.6 * s, sy(groundAt(p.x)) - 0.3 * s, 3.2 * s, 0.6 * s);
+      }
+      const Y = sy(p.y) + (p.warn > 0 ? Math.sin(time / 40) * 0.3 * s : 0);
+      ctx.fillStyle = '#cfe8ff'; ctx.beginPath(); ctx.moveTo(X - 1 * s, Y - 2.4 * s); ctx.lineTo(X + 1 * s, Y - 2.4 * s); ctx.lineTo(X, Y + 1.4 * s); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(X - 0.3 * s, Y - 2.2 * s, 0.4 * s, 2 * s);
+    }
+  }
+  // ---- Moving rings: on a ring route with ringMove, each marker swings around its spot ----
+  const ringAt = (d, i) => {
+    const [x, y] = d.rings[i], m = d.ringMove;
+    if (!m) return [x, y];
+    const a = (typeof flightT === 'number' ? flightT : 0) * m.speed + i * 1.9;
+    return [x + Math.cos(a) * m.r, y + Math.sin(a * 0.8) * m.r * 0.7];
+  };
+  // ---- Beacon drop: fly low over each peak and a guidance beacon releases on its own ----
+  function dropsTick() {
+    const d = mission.def, L = lander, g = currentGoal();
+    const B = mission.bc || (mission.bc = d.drops.map(x => ({ x, done: false })));
+    if (!g || g.type !== 'drops') return;
+    for (const b of B) {
+      if (b.done || L.grounded) continue;
+      const top = groundAt(b.x);
+      if (Math.abs(L.x - b.x) < 4.5 && L.y - top < 16 && L.y > top) {
+        b.done = true; mission.bonus += 30; popText(`Beacon ${B.filter(q => q.done).length}!`, '#7fd6ff', b.x, top + 6, true); sfx.coin(); spawnSpark(b.x, top + 2, '#7fd6ff');
+      }
+    }
+    if (B.every(b => b.done)) { mission.stage++; showToast('All beacons placed! Now climb out for the burn.', 2400); afterGoal(g, null); }
+  }
+  function drawDrops(time) {
+    if (!mission.def.drops) return;
+    const B = mission.bc || mission.def.drops.map(x => ({ x, done: false })), s = scale, on = Math.floor(time / 400) % 2 === 0;
+    for (const b of B) {
+      const top = groundAt(b.x), X = sx(b.x), Y = sy(top);
+      if (b.done) {
+        ctx.fillStyle = '#8a93ab'; ctx.fillRect(X - 0.25 * s, Y - 4 * s, 0.5 * s, 4 * s);
+        ctx.fillStyle = on ? '#7fd6ff' : 'rgba(127,214,255,0.4)'; ctx.beginPath(); ctx.arc(X, Y - 4.3 * s, 0.8 * s, 0, Math.PI * 2); ctx.fill();
+        if (on) { ctx.fillStyle = 'rgba(127,214,255,0.15)'; ctx.beginPath(); ctx.arc(X, Y - 4.3 * s, 3 * s, 0, Math.PI * 2); ctx.fill(); }
+      } else {   // a dashed drop zone above the peak
+        ctx.strokeStyle = 'rgba(127,214,255,0.55)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+        ctx.strokeRect(X - 4.5 * s, sy(top + 16), 9 * s, 16 * s); ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(127,214,255,0.8)'; ctx.beginPath(); ctx.moveTo(X - 1.2 * s, sy(top + 18)); ctx.lineTo(X + 1.2 * s, sy(top + 18)); ctx.lineTo(X, sy(top + 16.6)); ctx.closePath(); ctx.fill();
+      }
+    }
+  }
+  // ---- A real race: the rival's lander flies the course beside you; if it lands first, you lose ----
+  function rivalPos() {
+    const R = mission.def.rival, S = mission.rv, P = R.path;
+    const lens = []; let tot = 0;
+    for (let i = 1; i < P.length; i++) { const l = Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); lens.push(l); tot += l; }
+    let dist = Math.min(1, S.t / R.time) * tot;
+    for (let i = 0; i < lens.length; i++) {
+      if (dist <= lens[i] || i === lens.length - 1) { const k = Math.min(1, dist / lens[i]); return [P[i][0] + (P[i + 1][0] - P[i][0]) * k, P[i][1] + (P[i + 1][1] - P[i][1]) * k, (P[i + 1][0] - P[i][0]) / lens[i]]; }
+      dist -= lens[i];
+    }
+    return P[P.length - 1].concat([0]);
+  }
+  function rivalTick(dt) {
+    const R = mission.def.rival, S = mission.rv || (mission.rv = { t: 0 });
+    S.t += dt;
+    if (S.t >= R.time) { failMission(R.winText || 'The rival landed first', R.winQuip || ['Q', 'Close. Not close enough.']); return true; }
+    return false;
+  }
+  function drawRival(time) {
+    if (!mission.def.rival || !mission.rv) return;
+    const [x, y, dir] = rivalPos(), s = scale, X = sx(x), Y = sy(y), done = mission.rv.t >= mission.def.rival.time;
+    ctx.save(); ctx.translate(X, Y); ctx.rotate(done ? 0 : dir * 0.25);
+    if (!done && Math.floor(time / 60) % 2) { ctx.fillStyle = '#7fd6ff'; ctx.beginPath(); ctx.moveTo(-0.9 * s, 1.4 * s); ctx.lineTo(0.9 * s, 1.4 * s); ctx.lineTo(0, 4 * s); ctx.closePath(); ctx.fill(); }
+    ctx.fillStyle = '#c9d4e8'; ctx.fillRect(-1.6 * s, -1.8 * s, 3.2 * s, 2.6 * s);
+    ctx.fillStyle = '#1e2a4c'; ctx.fillRect(-1.6 * s, -0.4 * s, 3.2 * s, 0.7 * s);
+    ctx.fillStyle = '#7fd6ff'; ctx.fillRect(-0.7 * s, -1.4 * s, 1.4 * s, 0.7 * s);
+    ctx.strokeStyle = '#c9d4e8'; ctx.lineWidth = Math.max(1, 0.25 * s); ctx.beginPath(); ctx.moveTo(-1.4 * s, 0.8 * s); ctx.lineTo(-2.4 * s, 2 * s); ctx.moveTo(1.4 * s, 0.8 * s); ctx.lineTo(2.4 * s, 2 * s); ctx.stroke();
+    ctx.restore();
+    ctx.font = `700 ${Math.max(9, 2.2 * s)}px monospace`; ctx.textAlign = 'center'; ctx.fillStyle = '#c9d4e8'; ctx.fillText('KESTREL', X, Y - 3 * s); ctx.textAlign = 'left';
+  }
   function afterGoal(g, pad) {
     const d = mission.def, L = lander;
     if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
@@ -3155,7 +3803,7 @@ details.act > .limits { margin: 0 0 8px; }
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
     : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
     : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
-    : [{ type: 'land', pad: 'LZ' }];
+    : [{ type: 'land', pad: d.pads.length === 1 ? d.pads[0].id : 'LZ' }];
   const currentGoal = () => { if (!mission) return null; const g = goalsOf(mission.def)[mission.stage]; const rd = mission.redirect; return g && rd && g.pad === rd.from && (g.type === 'land' || g.type === 'drop') ? { ...g, pad: rd.to } : g; };
   const isGoalPad = p => { const g = currentGoal(); return !!g && (g.pad === p.id || (!!g.pads && g.pads.includes(p.id))); };
   const thrustMul = () => (mission && mission.carrying && !mission.def.sling && !ship().hauler ? (mission.def.mass || 0.8) : 1) * (mission && mission.cop === 'X' ? 1.12 : 1);
@@ -3165,6 +3813,10 @@ details.act > .limits { margin: 0 0 8px; }
     if (!g) return '';
     if (mission.loading) return `${g.type === 'drop' ? (g.busy || (mission.carrying === 'crew' ? 'Passenger getting off' : 'Unloading')) : g.what === 'cargo' ? 'Loading cargo' : 'Crew boarding'} ${Math.min(99, Math.floor(mission.loadT / LOAD_TIME * 100))}%`;
     if (g.text) return g.text;
+    if (g.type === 'either') return g.text;
+    if (g.type === 'follow') return `Follow the lantern · ${Math.round(mission.fl ? mission.fl.meter : 100)}% in the light`;
+    if (g.type === 'catch') { const P = mission.pods || { caught: 0, lost: 0 }; return mission.def.pods.label ? `Catch ${mission.def.pods.label}’s escape pod before it lands` : `Catch supply pods: ${P.caught} of ${g.need}${P.lost ? ` · ${P.lost} lost` : ''}`; }
+    if (g.type === 'drops') { const n = (mission.bc || []).filter(b => b.done).length; return `Fly low over the peaks: ${n} of ${mission.def.drops.length} beacons placed`; }
     if (g.type === 'drop') return `Drop off at ${g.pad}`;
     if (g.type === 'pickup') return `Land on ${g.pad}`;
     if (g.type === 'ring') return `Fly through marker ${g.i + 1} of ${mission.def.rings.length}`;
@@ -3188,18 +3840,24 @@ details.act > .limits { margin: 0 0 8px; }
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
     if (d.comfort) t += ` · ${d.comfortWho || 'Apogee'} ${Math.round(mission.comfort)}%`;
-    if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · battery ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
+    if (d.rival && mission.rv) t += ` · Kestrel ${Math.min(100, Math.round(mission.rv.t / d.rival.time * 100))}% of the way`;
+    if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · ${d.battLabel || 'battery'} ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
   }
   const objectiveWarn = () => {
     const d = mission.def;
-    return (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
+    return (mission.rv && d.rival && mission.rv.t > d.rival.time * 0.8) || (mission.fl && mission.fl.meter < 40) || (mission.rover && mission.rover.batt < 15) || (d.timeLimit && d.timeLimit - flightT < 15) || (d.comfort && mission.comfort < 40) || (d.melt && mission.melt > 60);
   };
   // Per-tick rules for side missions. Returns true if the mission just ended.
   function missionTick(dt) {
     const d = mission.def, L = lander;
     if (mission.pk && !mission.rover) pickupsTick();
+    if (d.pods && !mission.rover && podsTick(dt)) return true;
+    if (d.follow && !mission.rover && followTick(dt)) return true;
+    if (d.icicles && mission.rover) iciclesTick(dt);
+    if (d.drops) dropsTick();
+    if (d.rival && rivalTick(dt)) return true;
     copTick();
     if (!mission.rover && mission.docking == null) surpriseTick(dt);
     if (d.timeLimit) {
@@ -3229,7 +3887,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     const g = currentGoal();
     if (g && g.type === 'ring') {
-      const [rx, ry] = d.rings[g.i];
+      const [rx, ry] = ringAt(d, g.i);
       if (Math.hypot(L.x - rx, L.y - ry) < RING_R) {
         mission.stage++;
         sfx.coin();
@@ -3482,7 +4140,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (!copHas('J') || !lander || mode !== 'flying') return;
     const g = currentGoal(); if (!g) return;
     let tx, ty;
-    if (g.type === 'ring') [tx, ty] = mission.def.rings[g.i];
+    if (g.type === 'ring') [tx, ty] = ringAt(mission.def, g.i);
     else if (g.pad) { const p = pads.find(q => q.id === g.pad); if (!p) return; tx = (p.x1 + p.x2) / 2; ty = p.y + 4; }
     else return;
     ctx.save(); ctx.setLineDash([4, 6]); ctx.lineDashOffset = -performance.now() / 60; ctx.strokeStyle = 'rgba(127,214,255,0.45)'; ctx.lineWidth = 1.5;
@@ -3964,12 +4622,15 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function completeMission(pad) {
     const d = mission.def, t = flightT, fuel = lander.fuel;
-    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? 1.15 : 1)];
+    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? 1.15 : copHas('Q') ? 1.25 : 1)];
     const starsWon = met.filter(Boolean).length;
     const prev = missionStars[d.id] || 0;
-    const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex);
+    const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex * (copHas('E') ? 1.5 : 1));
     if (!d.side && prev === 0) store.set('ds-storyRest', String(shipDay));
     if (d.id === 'storm-front') hardCallStorm(mission.choice);
+    if (d.id === 'still-crew') hardCallPort();
+    if (d.id === 'cold-storage') hardCallDoor();
+    if (d.id === 'the-buyout') hardCallBuyout();
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
     credits += pay + extra;
     saveCosmetics();
@@ -3980,7 +4641,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, call: d.id === 'storm-front' && prev === 0 ? callOf('storm') : '' };
+    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '', riskText: !d.side ? riskNote(d.id) : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
@@ -5399,7 +6060,8 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
-          ${r.call ? `<p class="balance call">⚠ ${CALL_TEXT[r.call]}</p>` : ''}
+          ${r.callText ? `<p class="balance call">⚠ ${r.callText}</p>` : ''}
+          ${r.riskText ? `<p class="balance call">♥ ${r.riskText}</p>` : ''}
           ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
           ${r.repair ? `<p class="balance repair">🔧 Ship repair: ${r.repair[0]}. ${r.repair[1]}.</p>` : ''}
           ${r.unlocked.length ? `<p class="balance">New side mission unlocked: ${r.unlocked.join(', ')}</p>` : ''}
@@ -5755,7 +6417,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (storyOn && st && !storySeen.includes(d.id)) {
       world = WORLDS.find(w => w.id === d.world);
       buildMissionTerrain(d); makeBackdrop();
-      playStory(st.intro, chapterFor(i), () => {
+      playStory(st.intro, st.cine ? Object.assign({}, chapterFor(i), { cine: st.cine }) : chapterFor(i), () => {
         if (!storySeen.includes(d.id)) { storySeen.push(d.id); store.set('ds-story', JSON.stringify(storySeen)); }
         setMode('brief');
       });
@@ -5763,7 +6425,170 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // story scenes play on a set that suits whoever opens the conversation; voices with no body (rovers) talk from off stage
   const STORY_BG = { F: 'office', G: 'workshop', W: 'hangarnight', R: 'dressing', J: 'dock', Z: 'market', O: 'lanterns', V: 'embassy', Y: 'embassy', N: 'ice', S: 'fernery', C: 'station', H: 'breaknight', D: 'quiet', T: 'fernery', X: 'hangar', M: 'study' };
+  // ---- Cinematics: short wordless shots of the Second Wind, played before a story scene ----
+  // A full-screen pixel canvas, a slow camera, light and a caption or two. Tap Skip (or press Space/Esc) to skip.
+  function cineShip(c, x, y, o) {
+    o = o || {};
+    const hull = o.dusty ? '#5e5952' : '#8a93ab', top = o.dusty ? '#6e6860' : '#a3acc2', line = o.dusty ? '#4a4640' : '#6a7390';
+    if (o.flame) {   // engine flame out the back
+      const f = o.flame, col = o.blue ? ['#7fd6ff', '#cfefff'] : ['#ff9a3a', '#ffe58a'], fl = 6 + f * 10 + Math.random() * 3 * f;
+      c.fillStyle = col[0]; c.beginPath(); c.moveTo(x - 6, y + 6); c.lineTo(x - 6 - fl, y + 10); c.lineTo(x - 6, y + 14); c.fill();
+      c.fillStyle = col[1]; c.beginPath(); c.moveTo(x - 6, y + 8); c.lineTo(x - 6 - fl * 0.5, y + 10); c.lineTo(x - 6, y + 12); c.fill();
+    }
+    px(c, x - 7, y + 5, 7, 10, o.dusty ? '#4e4a44' : '#6a7390'); px(c, x - 9, y + 4, 3, 12, o.dusty ? '#46423d' : '#5a6380');   // engine bell
+    px(c, x, y + 3, 64, 14, hull); px(c, x + 2, y + 1, 58, 2, top); px(c, x + 64, y + 5, 8, 10, hull); px(c, x + 72, y + 7, 4, 6, top);   // hull and nose
+    for (let k = 8; k < 60; k += 9) px(c, x + k, y + 3, 1, 14, line);
+    if (o.holes) for (const [hx, hy] of [[12, 8], [27, 12], [41, 7], [52, 13]]) px(c, x + hx, y + hy, 3, 2, '#141210');
+    const lit = o.lit == null ? 1 : o.lit, warm = o.red ? '#ff5a4a' : '#ffd27a';
+    for (let k = 0; k < 6; k++) px(c, x + 10 + k * 8, y + 9, 3, 2, k < lit * 6 ? warm : '#1c1a20');
+    for (let k = 0; k < 3; k++) px(c, x + 64 + k * 3, y + 7, 2, 2, lit > 0.5 ? (o.red ? '#ff5a4a' : '#bfefff') : '#1c1a20');
+    if (o.dish !== false) { px(c, x + 46, y - 3, 1, 4, line); px(c, x + 42, y - 4, 9, 2, o.dusty ? '#7a756c' : '#c9cfdc'); }
+    if (o.dusty) for (let k = 0; k < 26; k++) px(c, x + ((k * 23) % 62) + 1, y + 2 + ((k * 7) % 3), 2, 1, 'rgba(150,140,125,0.55)');
+  }
+  function cineShipAt(c, x, y, k, o) { c.save(); c.translate(x, y); c.scale(k, k); cineShip(c, 0, 0, o); c.restore(); }
+  function cineStars(c, n, seed, drift) {
+    for (let i = 0; i < n; i++) { const sx2 = ((i * 97 + seed) % 256 + 256 - (drift || 0) * (1 + i % 3)) % 256, sy2 = (i * 53 + seed * 3) % 144; px(c, sx2, sy2, 1, 1, i % 4 ? '#8a93ab' : '#ffffff'); }
+  }
+  function cineHangar(c, light) {
+    px(c, 0, 0, 256, 144, '#0c0b0a');
+    c.fillStyle = `rgba(110,100,84,${0.18 + light * 0.6})`; c.fillRect(0, 0, 256, 108);
+    for (let x = 0; x < 256; x += 32) px(c, x, 0, 2, 108, `rgba(60,54,46,${0.4 + light * 0.4})`);
+    px(c, 0, 108, 256, 36, light > 0.3 ? '#2a2724' : '#151412'); for (let x = 6; x < 256; x += 22) px(c, x, 112, 12, 2, light > 0.3 ? '#c9a24a' : '#3a3220');
+  }
+  function cineCone(c, x, a) { c.fillStyle = `rgba(255,233,184,${0.16 * a})`; c.beginPath(); c.moveTo(x - 4, 4); c.lineTo(x + 4, 4); c.lineTo(x + 34, 108); c.lineTo(x - 34, 108); c.fill(); px(c, x - 5, 2, 10, 3, a > 0.2 ? '#ffe9b8' : '#3a3428'); }
+  const ease = k => k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
+  const CINES = {
+    dusty: { dur: 10, caps: [[0.5, 'Moon Base · the old hangar'], [3.6, 'The Second Wind. Six years without a flight.'], [7, 'She’s seen better days.']],
+      draw(c, t) {
+        cineHangar(c, 0.12);
+        const fl = Math.random() < 0.06 ? 0.25 : 1, sw = Math.sin(t * 1.3) * 6;
+        cineCone(c, 128 + sw, 0.7 * fl);
+        const ox = 64 - t * 3;
+        px(c, ox + 18, 84, 8, 24, '#2a2724'); px(c, ox + 82, 84, 8, 24, '#2a2724'); px(c, ox + 12, 104, 20, 4, '#3a3430'); px(c, ox + 76, 104, 20, 4, '#3a3430');
+        cineShipAt(c, ox, 56, 1.6, { dusty: true, holes: true, lit: 0 });
+        for (let i = 0; i < 40; i++) { const mx = (i * 37 + t * (4 + i % 5)) % 256, my = (i * 29 + Math.sin(t + i) * 6 + 300) % 108; px(c, mx, my, 1, 1, `rgba(220,205,170,${0.25 + 0.3 * ((i * 13) % 3) / 3})`); }
+      } },
+    powerup: { dur: 10, caps: [[0.3, 'Power…'], [3, 'Lights…'], [6, 'Systems…'], [8.2, 'The Second Wind is awake.']],
+      draw(c, t) {
+        const banks = [1.5, 3, 4.5].filter(b => t >= b).length;
+        cineHangar(c, banks / 3);
+        [64, 128, 192].forEach((x, i) => cineCone(c, x, t >= [1.5, 3, 4.5][i] ? 1 : 0));
+        const lit = Math.min(1, Math.max(0, (t - 6) / 1.5));
+        px(c, 82, 84, 8, 24, '#3a3430'); px(c, 146, 84, 8, 24, '#3a3430'); px(c, 76, 104, 20, 4, '#4a443c'); px(c, 140, 104, 20, 4, '#4a443c');
+        cineShipAt(c, 64, 56, 1.6, { lit, flame: t > 7.5 ? Math.min(1, (t - 7.5) / 0.8) * 0.5 : 0, blue: true });
+        if (t > 8.5) { px(c, 110, 30, 36, 9, '#1a3a2a'); c.font = '700 7px monospace'; c.fillStyle = '#58e0a0'; c.textAlign = 'center'; c.fillText('READY', 128, 37); c.textAlign = 'left'; }
+        if (banks < 3) for (let i = 0; i < 30; i++) px(c, (i * 41) % 256, (i * 17 + t * 20) % 108, 1, 1, 'rgba(220,205,170,0.35)');
+      } },
+    liftoff: { dur: 9, caps: [[0.3, 'The hangar doors open.'], [3, 'Liftoff.'], [6.4, 'For the first time in six years, the Second Wind flies.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 60, 7, 0);
+        const open = ease(t / 2.2), rise = ease((t - 2.5) / 6.5) * 105;
+        cineHangar(c, 1); c.clearRect(128 - open * 128, 0, open * 256, 40); px(c, 128 - open * 128, 0, open * 256, 40, '#05070f'); cineStars(c, 30, 3, 0);
+        px(c, 0, 0, 128 - open * 128, 10, '#3a342c'); px(c, 128 + open * 128, 0, 128, 10, '#3a342c');
+        if (t > 2.5) for (let i = 0; i < 30; i++) { const a = i / 30 * Math.PI, r = (t - 2.5) * 22; px(c, 128 + Math.cos(a) * r * (1 + i % 3 * 0.3), 106 - Math.abs(Math.sin(a)) * r * 0.25, 3, 2, `rgba(170,160,140,${Math.max(0, 0.7 - (t - 2.5) * 0.12)})`); }
+        cineShipAt(c, 64, 56 - rise, 1.6, { flame: t > 2.3 ? 1 : 0 });
+      } },
+    storm: { dur: 9, caps: [[0.5, 'Mercury.'], [2, 'The solar storm hits.'], [5.2, 'The engine goes dark.'], [7.3, 'The Second Wind is adrift.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#07060a'); cineStars(c, 50, 11, 0);
+        const g = c.createRadialGradient(-20, 72, 10, -20, 72, 140); g.addColorStop(0, 'rgba(255,220,140,0.9)'); g.addColorStop(1, 'rgba(255,140,40,0)'); c.fillStyle = g; c.fillRect(0, 0, 256, 144);
+        if (t > 1.6) { const a = Math.min(1, (t - 1.6) / 1.2); for (let i = 0; i < 46; i++) { const wx = ((t - 1.6) * 150 + i * 37) % 300 - 24, wy = (i * 29) % 144; c.fillStyle = `rgba(255,${190 + (i % 3) * 20},120,${0.4 * a})`; c.fillRect(wx, wy, 10 + (i % 4) * 5, 1); } }
+        const alive = t < 5, lit = t < 5.4 ? 1 : Math.max(0, 1 - (t - 5.4) / 1.6), tilt = t > 6 ? (t - 6) * 0.05 : 0;
+        c.save(); c.translate(128, 72); c.rotate(tilt); c.translate(-128, -72);
+        cineShipAt(c, 76, 56, 1.25, { lit, flame: alive ? (t > 3.5 ? 0.4 + Math.random() * 0.6 : 0.8) : 0 });
+        if (t > 3.5 && t < 5.6) for (let i = 0; i < 4; i++) px(c, 66 - Math.random() * 10, 62 + Math.random() * 12, 2, 2, Math.random() < 0.5 ? '#ffe58a' : '#ff6b5e');
+        c.restore();
+        if (t > 5 && t < 5.15) { c.fillStyle = 'rgba(255,255,255,0.5)'; c.fillRect(0, 0, 256, 144); }
+      } },
+    pastmoon: { dur: 9, caps: [[0.5, 'Drifting past the Moon.'], [3.4, 'Down there: the little base. The bills board. Home.'], [7, 'They can’t stop.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 70, 5, t * 2);
+        const mx = 200 - t * 9;
+        c.fillStyle = '#8a877e'; c.beginPath(); c.arc(mx, 190, 110, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#6a6862'; for (const [cx, cy, r] of [[-40, -70, 10], [10, -90, 6], [40, -60, 8], [-10, -50, 5]]) { c.beginPath(); c.arc(mx + cx, 190 + cy, r, 0, Math.PI * 2); c.fill(); }
+        px(c, mx - 6, 86, 10, 5, '#c9c2b0'); px(c, mx + 6, 87, 8, 4, '#a49a88'); px(c, mx - 4, 84, 2, 2, Math.floor(t * 2) % 2 ? '#ffd27a' : '#6a5a3a');
+        c.save(); c.translate(60 + t * 3, 34); c.scale(0.55, 0.55); c.rotate(-0.06 + t * 0.01); cineShip(c, 0, 0, { lit: 1, red: true }); c.restore();
+      } },
+    relight: { dur: 10, caps: [[0.5, 'Eris. The edge of the map.'], [2, 'Come on…'], [5.6, 'She’s burning blue.'], [8, 'Turning for home.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#030308'); cineStars(c, 80, 13, 0);
+        c.fillStyle = '#4a4c58'; c.beginPath(); c.arc(210, 150, 50, 0, Math.PI * 2); c.fill();
+        const on = t >= 5.5, lit = on ? Math.min(1, (t - 6) / 1.5) : 1, turn = t > 8 ? (t - 8) * 0.06 : 0;
+        const puff = [2, 3.2, 4.1].some(p => t > p && t < p + 0.35);
+        c.save(); c.translate(128, 72); c.rotate(-turn); c.translate(-128, -72);
+        cineShipAt(c, 76, 56, 1.25, { lit: on ? lit : 1, red: !on || lit < 0.5, flame: on ? Math.min(1, (t - 5.5) * 2) : puff ? 0.25 : 0, blue: true });
+        c.restore();
+        if (t > 5.5 && t < 5.7) { c.fillStyle = 'rgba(127,214,255,0.5)'; c.fillRect(0, 0, 256, 144); }
+      } },
+    slingshot: { dur: 9, caps: [[0.5, 'Jupiter.'], [3, 'The slingshot.'], [6.4, 'Next stop: everything they know.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#04050c'); cineStars(c, 60, 17, 0);
+        const jx = 110, jy = 80, R = 46;
+        c.save(); c.beginPath(); c.arc(jx, jy, R, 0, Math.PI * 2); c.clip();
+        const bands = ['#c9a27a', '#e8cfa8', '#b07a52', '#e0c090', '#a86a48', '#ecd8b8', '#c08860'];
+        bands.forEach((col, i) => { c.fillStyle = col; c.fillRect(jx - R, jy - R + i * (2 * R / bands.length), 2 * R, 2 * R / bands.length + 1); });
+        c.fillStyle = '#b0503a'; c.beginPath(); c.ellipse(jx + 14, jy + 12, 8, 4, 0, 0, Math.PI * 2); c.fill();
+        c.restore();
+        const path = k => { const a = -2.4 + k * 3.6; return [jx + Math.cos(a) * 78, jy + Math.sin(a) * 52]; };
+        const k = ease(t / 8.5);
+        c.strokeStyle = 'rgba(127,214,255,0.45)'; c.lineWidth = 1.5; c.beginPath();
+        for (let j = 0; j <= 30; j++) { const [x, y] = path(k * j / 30); j ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+        const [sx2, sy2] = path(k), [nx, ny] = path(Math.min(1, k + 0.01)), ang = Math.atan2(ny - sy2, nx - sx2);
+        c.save(); c.translate(sx2, sy2); c.rotate(ang); c.scale(0.45, 0.45); cineShip(c, -36, -10, { flame: 1, blue: true }); c.restore();
+      } },
+    homecoming: { dur: 10, caps: [[0.5, 'The Moon.'], [3.5, 'The little base. The old hangar.'], [7, 'Home.']],
+      draw(c, t) {
+        px(c, 0, 0, 256, 144, '#05070f'); cineStars(c, 60, 23, 0);
+        c.fillStyle = '#3f86c9'; c.beginPath(); c.arc(220, 26, 10, 0, Math.PI * 2); c.fill(); c.fillStyle = '#58b860'; c.beginPath(); c.arc(217, 24, 4, 0, Math.PI * 2); c.fill();
+        px(c, 0, 108, 256, 36, '#8a877e'); c.fillStyle = '#6a6862'; c.beginPath(); c.moveTo(0, 110); for (let x = 0; x <= 256; x += 16) c.lineTo(x, 106 + Math.sin(x * 0.07) * 3); c.lineTo(256, 112); c.fill();
+        px(c, 70, 92, 40, 16, '#c9c2b0'); px(c, 72, 96, 6, 4, '#ffd27a'); px(c, 82, 96, 6, 4, '#ffd27a'); px(c, 92, 96, 6, 4, '#ffd27a');
+        px(c, 118, 84, 90, 24, '#a49a88'); px(c, 122, 88, 82, 20, '#1a1816');
+        cineCone(c, 140, 1); cineCone(c, 186, 1);
+        for (let i = 0; i < 9; i++) { const wx = 26 + i * 5, hop = Math.abs(Math.sin(t * 5 + i)) * (t > 7.5 ? 2 : 0); px(c, wx, 102 - hop, 2, 5, ['#ff8a3a', '#ffd27a', '#c9d4e8', '#ff9ad5', '#7fd6ff'][i % 5]); }
+        const d = ease(t / 8);
+        cineShipAt(c, 132, -40 + d * 132, 0.8, { flame: d < 0.98 ? 0.4 : 0 });
+      } }
+  };
+  function playCine(id, done) {
+    const S = CINES[id];
+    if (!S) { done(); return; }
+    const ov = document.createElement('div'); ov.className = 'cine'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Cutscene');
+    ov.innerHTML = '<canvas width="256" height="144" aria-hidden="true"></canvas><p class="cine-cap" aria-live="polite"></p><button class="btn ghost cine-skip">Skip</button>';
+    document.body.appendChild(ov);
+    const cv = ov.querySelector('canvas'), c = cv.getContext('2d'), cap = ov.querySelector('.cine-cap');
+    let t0 = performance.now(), raf = 0, ended = false, last = null;
+    const key = e => { if (e.code === 'Space' || e.code === 'Escape' || e.code === 'Enter') { e.preventDefault(); end(); } };
+    const end = () => {
+      if (ended) return; ended = true; cancelAnimationFrame(raf); window.removeEventListener('keydown', key, true);
+      ov.classList.add('out'); setTimeout(() => { ov.remove(); done(); }, 350);
+    };
+    ov.querySelector('.cine-skip').addEventListener('click', end);
+    window.addEventListener('keydown', key, true);
+    const frame = now => {
+      const t = (now - t0) / 1000;
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 256, 144); c.imageSmoothingEnabled = false;
+      try { S.draw(c, t); } catch (e) { end(); return; }
+      const cp = S.caps.filter(([at]) => t >= at).pop(), txt = cp ? cp[1] : '';
+      if (txt !== last) { last = txt; cap.textContent = txt; cap.classList.remove('in'); void cap.offsetWidth; cap.classList.add('in'); }
+      if (t >= S.dur) { end(); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+  }
+  STORY['final-notice'].cine = 'dusty';
+  EPILOGUES['storm-front'] = [[
+    ['G', 'The engine… it’s gone. Everything’s gone dark.'],
+    ['F', 'Status, Gus.'],
+    ['G', 'No thrust. No steering. We’re drifting, Dottie. Outward.'],
+    ['W', 'Then we drift. And we stay calm. Everybody.']
+  ], { label: 'Act 2', title: 'Adrift', cine: 'storm' }];
+  EPILOGUES['the-slingshot'] = [[
+    ['G', 'We’re around! The engine held! She held!'],
+    ['F', 'Everybody, look out the window. That’s the way home.'],
+    ['R', 'I’m recording all of this. For the movie.']
+  ], { label: 'Act 4', title: 'Around Jupiter', cine: 'slingshot' }];
   function playStory(lines, chapter, after) {
+    if (chapter && chapter.cine && !chapter.cined) { const ch2 = Object.assign({}, chapter, { cined: true }); playCine(chapter.cine, () => playStory(lines, ch2, after)); return; }
     const people = [...new Set(lines.map(l => l[0]).filter(w => w !== 'P' && onStage(w)))];
     if (!people.length) { story = { lines, chapter, after, i: 0, typing: false, timer: 0 }; setMode('story'); return; }
     const host = people[0];
@@ -6175,6 +7000,18 @@ details.act > .limits { margin: 0 0 8px; }
       L.push('Your little rover saluted me. I saluted back. Diplomacy is everywhere.');
       L.push('Can you recommend a human book? Something with no treaties in it. Please.');
       L.push('For the record, I don’t laugh at Kael’s jokes. Except the one about the toaster.');
+    } else if (who === 'E') {
+      L.push('Theo here! I re-tuned the lift. It’s faster now. It’s also louder. I’m calling that a feature.');
+      L.push('Juno messaged. She says the dock’s too quiet without me. I said that sounds like a her problem.');
+      L.push('I found three loose bolts in the garden. Tamsin says they’re “art.” I put them back where they go. Tamsin is upset.');
+      L.push('Every ship I ever fixed, I wondered where it went after. Now I know. It went here. With you.');
+      L.push('You ever need anything fixed, ace, you know where I am. Usually upside down under something.');
+    } else if (who === 'Q') {
+      L.push('Kestrel. I’ve been reviewing your landings. Not for any reason. Just reviewing.');
+      L.push('Dash and I used to race at Apex. She was faster in a straight line. I was faster everywhere else.');
+      L.push('Rex wants me in his next movie. I said only if I get to do my own flying. He said that’s the most Kestrel thing I’ve ever said.');
+      L.push('It’s strange, not checking a leaderboard every morning. I check on my plant instead.');
+      L.push('Thank you for coming back for me. I’m not going to keep saying it. But I’m going to keep thinking it.');
     } else if (who === 'B') {
       L.push('*bip!* (It’s sitting in Gus’s mug again. Gus is drinking around it.)');
       L.push('*bip bip bip!* (Blip found the cookie jar. Blip is now the cookie jar.)');
@@ -6291,7 +7128,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'P') { loungeSay(...photoLine()); return; }
     if (who === 'radio') {
       // whoever's calling in: Juno from the mothership, or Pim from the Moon
-      const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
+      const callers = ['E', 'Q'].filter(w => romMet[w] && romMet[w]()).concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
       if (!callers.length) {
         sfx.click();
         showToast('Just static for now. Finish Swing Shift, Ride Along or any round trip to tune in.', 3200);
@@ -7310,7 +8147,7 @@ details.act > .limits { margin: 0 0 8px; }
         draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 6, y + 9, 4, 1, '#ff6b5e'); const b = reduceMotion ? 0 : Math.round(Math.sin(t / 500)); px(c, x + 5, y + 3 + b, 6, 4, '#6e6a64'); px(c, x + 6, y + 2 + b, 3, 1, '#827d76'); px(c, x + 9, y + 4 + b, 1, 1, '#4e4a44'); } },
       { id: 's-ganymede', world: 'ganymede', name: 'Ganymede aurora bottle', price: 0, blurb: 'A bottle of Ganymede’s aurora. It glows in the dark and, now and then, plays polka.',
         draw(c, x, y, t) { px(c, x + 5, y + 3, 6, 9, 'rgba(207,227,255,0.3)'); px(c, x + 7, y + 1, 2, 2, 'rgba(207,227,255,0.5)'); px(c, x + 7, y, 2, 1, '#a5835a'); const h = Math.round(reduceMotion ? 150 : 120 + 80 * Math.sin(t / 900)); px(c, x + 6, y + 5, 4, 6, `hsl(${h},85%,62%)`); px(c, x + 6, y + 5, 4, 1, `hsl(${h + 60},85%,72%)`); } },
-      { id: 's-eris', world: 'eris', name: 'Eris beacon lamp', price: 0, blurb: 'A little copy of the Senders’ beacons that Gus made from a jam jar. It glows softly and, every so often, blinks four times.',
+      { id: 's-eris', world: 'eris', name: 'Eris beacon lamp', price: 0, blurb: 'A little copy of the guidance beacons from the first burn, made from a jam jar. It glows softly and, every so often, blinks three times.',
         draw(c, x, y, t) { px(c, x + 4, y + 10, 8, 2, '#3a4668'); px(c, x + 7, y + 4, 2, 6, '#5a6684'); const on = reduceMotion || Math.floor(t / 400) % 6 < 4; px(c, x + 5, y + 1, 6, 4, on ? '#c9b8ff' : '#6a6290'); if (on) px(c, x + 6, y + 2, 2, 1, '#ffffff'); px(c, x + 5, y + 5, 6, 1, '#8a93ab'); } },
       { id: 'lavalamp', name: 'Lava lamp', price: 300, blurb: 'Blobs of orange goo, rising and falling forever. It’s hypnotic. Gus once watched it through a whole shift.',
         draw(c, x, y, t) { px(c, x + 5, y + 10, 6, 2, '#6c7690'); px(c, x + 6, y + 2, 4, 8, '#5a2a7a'); px(c, x + 6, y + 1, 4, 1, '#6c7690'); const k = reduceMotion ? 3 : Math.floor(t / 400) % 7; px(c, x + 7, y + 8 - k % 6, 2, 2, '#ff9a3d'); px(c, x + 7, y + 3 + (k + 3) % 6, 2, 1, '#ffb547'); } },
@@ -7616,7 +8453,7 @@ details.act > .limits { margin: 0 0 8px; }
   function denFaces() {
     if (denFaceCache) return denFaceCache;
     denFaceCache = {};
-    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X', 'N', 'S']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
+    for (const who of ['F', 'G', 'W', 'R', 'J', 'M', 'Z', 'O', 'V', 'Y', 'C', 'H', 'D', 'T', 'X', 'N', 'S', 'E', 'Q']) { const cv = document.createElement('canvas'); cv.width = cv.height = 32; drawFace(cv, who, DEFAULT_MOOD[who], false, false, true); denFaceCache[who] = cv; }
     return denFaceCache;
   }
 
@@ -7856,7 +8693,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
   }
-  const denGuests = () => ['F', 'G'].concat(wrenHome() ? ['W'] : [], storyDone('star-client') ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
+  const denGuests = () => ['F', 'G'].concat(['E', 'Q'].filter(w => romMet[w] && romMet[w]()), wrenHome() ? ['W'] : [], storyDone('star-client') ? ['R'] : [], junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : [], kitMet() ? ['C'] : [], baoMet() ? ['H'] : [], ['D', 'T', 'X'].filter(w => hired(w)), nerriMet() ? ['N'] : [], brixMet() ? ['S'] : []);
   // what each visitor says about particular things in your cabin
   const DEN_TALK = {
     F: {
@@ -7967,7 +8804,7 @@ details.act > .limits { margin: 0 0 8px; }
       'Kael said your cabin was beige. It is not beige. It’s warm. He’s a liar.', 'Mind if I take my boots off? Diplomacy is very hard on the feet.'],
     R: ['Nice place. Not as nice as mine. Mine has a pool. In space.', 'Just passing through. My cabin at Apex is twice this size. Not that I’m counting. I’m counting.',
       'My cabin has a hot tub. And a cold tub. And a medium tub, for when I can’t decide.', 'I’m not visiting. I got lost. Your hallways are confusing. Nice cushions, though.',
-      'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For Mayday. That’s all. This is very awkward. Bye. I’m not leaving yet.']
+      'Don’t tell Dottie I was here. She still bills me for that rescue.', 'I came to say thanks. For flying me so gently that first day. That’s all. This is very awkward. Bye. I’m not leaving yet.']
   };
   const DEN_NICE = { F: 'Nice. Very you. I’ll update your file.', G: 'Ooh, good pick! I’d have picked that too. Or a laser.', W: 'That’s lovely. This place is starting to feel like home.', R: 'Hm. Bold choice. Not what I’d do, but bold.',
     J: 'Good choice. Tidy, too. I approve, and I don’t approve of much.', M: 'WHOA. That is SO cool. Can I have one? Can I have that one?',
@@ -8598,7 +9435,7 @@ details.act > .limits { margin: 0 0 8px; }
     return L;
   }
   function bridgeComms() {
-    const callers = [].concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
+    const callers = ['E', 'Q'].filter(w => romMet[w] && romMet[w]()).concat(junoMet() ? ['J'] : [], pimMet() ? ['M'] : [], zibMet() ? ['Z'] : [], olloMet() ? ['O'] : [], twinsMet() ? ['V', 'Y'] : []);
     if (!callers.length) { sfx.click(); shipSay('G', 'Just static for now. Finish Swing Shift, Ride Along or any round trip and somebody will call in.'); return; }
     store.set('ds-radioSeen', '1');
     const fresh = callers.filter(c => c !== deck.lastCaller), pool = fresh.length ? fresh : callers;
@@ -9387,7 +10224,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
 
   // ---- Crew quarters: a corridor of bedroom doors ----
-  const QUARTERS_W = 760, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
+  const QUARTERS_W = 850, QUARTERS = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
   const qDoorX = i => 76 + i * 42;
   let bedroomOwner = 'F';
   const SNACKS = ['Space crisps. They taste like stars. Stars taste like salt, apparently.', 'A Moonbase Pim pastry. Slightly squashed. Still perfect.',
@@ -9407,7 +10244,7 @@ details.act > .limits { margin: 0 0 8px; }
         bedroomOwner = w; walkEnter = 'quarters'; setMode('bedroom');
       } });
     });
-    L.push({ id: 'snacks', rect: [724, 18, 28, 44], go: () => [738, 72], at: () => ({ x: 738, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
+    L.push({ id: 'snacks', rect: [814, 18, 28, 44], go: () => [828, 72], at: () => ({ x: 828, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
   }
   function quartersDraw(t) {
     const c = deck.c, v = deck.view;
@@ -9437,9 +10274,9 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, x - 9, 60, 18, 3, '#2a2240');
     });
     // the snack machine
-    px(c, 724, 18, 28, 42, '#c44a5a'); px(c, 726, 20, 18, 30, '#14182a');
-    for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) px(c, 728 + k * 5, 22 + r * 9, 3, 5, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]);
-    px(c, 746, 24, 4, 10, '#2a3045'); px(c, 747, 26, 2, 2, Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58'); px(c, 726, 52, 18, 5, '#0b0e1a');
+    px(c, 814, 18, 28, 42, '#c44a5a'); px(c, 816, 20, 18, 30, '#14182a');
+    for (let r = 0; r < 3; r++) for (let k = 0; k < 3; k++) px(c, 818 + k * 5, 22 + r * 9, 3, 5, ['#ffe58a', '#7fd6ff', '#9fe0b8', '#ffb547', '#ff9ad5'][(r * 3 + k) % 5]);
+    px(c, 836, 24, 4, 10, '#2a3045'); px(c, 837, 26, 2, 2, Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58'); px(c, 816, 52, 18, 5, '#0b0e1a');
     // carpet runner
     px(c, 0, 60, W, SHIP_H - 60, '#221d33');
     px(c, 0, 98, W, 26, '#5a2a3a'); px(c, 0, 99, W, 1, '#c9a24a'); px(c, 0, 122, W, 1, '#c9a24a');
@@ -12516,13 +13353,13 @@ details.act > .limits { margin: 0 0 8px; }
     if (!cands.length || Math.random() > 0.35) return;
     const w = cands[Math.floor(Math.random() * cands.length)];
     bond.notes[w] = 'sent'; saveBond();
-    setTimeout(() => crewToast('A', 'Mrrp. (Someone slipped a folded note under your door. It smells faintly of ' + ({ F: 'coffee', G: 'engine grease', W: 'old leather', R: 'expensive hair gel', J: 'ferns', Z: 'jelly', O: 'lamp oil', V: 'cologne', Y: 'chocolate', N: 'seawater', S: 'warm stone' }[w] || 'mystery') + '. It says: “Your landings make my heart do a little flip. — ?”)', 'Secret admirer'), 3200);
+    setTimeout(() => crewToast('A', 'Mrrp. (Someone slipped a folded note under your door. It smells faintly of ' + ({ F: 'coffee', G: 'engine grease', W: 'old leather', R: 'expensive hair gel', J: 'ferns', Z: 'jelly', O: 'lamp oil', V: 'cologne', Y: 'chocolate', N: 'seawater', S: 'warm stone', E: 'engine grease and oranges', Q: 'jet fuel and mint' }[w] || 'mystery') + '. It says: “Your landings make my heart do a little flip. — ?”)', 'Secret admirer'), 3200);
   }
   // the next time you chat with your admirer, they own up
   function admirerConfess(w) {
     if (bond.notes[w] !== 'sent') return null;
     bond.notes[w] = 'told'; saveBond(); addHearts(w, 40);
-    return { F: 'Did you get a note? Under your door? Smelled of coffee? …I don’t know anything about it. It was me. Don’t make it weird.', G: 'So, um. That note. With the grease smudge. That was me. I tried to write it neatly. I failed. Hi.', W: 'I haven’t written a love note in forty years. I hope it wasn’t too terrible, dear.', R: 'Yes, the note was from me. Obviously. Who else has handwriting that gorgeous?', J: 'The note was mine. I rewrote it eleven times. The final draft was the shortest.', Z: 'Zib wrote you a note! Zib cannot spell! Zib drew a heart instead of the hard words!', O: 'I confess the note was mine. I wrote it by lamplight. I wrote it by many lamplights.', V: 'Did Lyra put you up to asking? Fine. The note was me. I’m very smooth. Usually.', Y: 'Off the record, the note was mine. On the record, I deny everything.', N: 'Did you get my NOTE? I wrote it on dry paper! It took three tries! The first two got wet!', S: 'The note… was mine. It took me… a month… to write one sentence. It was… worth it.' }[w] || null;
+    return { F: 'Did you get a note? Under your door? Smelled of coffee? …I don’t know anything about it. It was me. Don’t make it weird.', G: 'So, um. That note. With the grease smudge. That was me. I tried to write it neatly. I failed. Hi.', W: 'I haven’t written a love note in forty years. I hope it wasn’t too terrible, dear.', R: 'Yes, the note was from me. Obviously. Who else has handwriting that gorgeous?', J: 'The note was mine. I rewrote it eleven times. The final draft was the shortest.', Z: 'Zib wrote you a note! Zib cannot spell! Zib drew a heart instead of the hard words!', O: 'I confess the note was mine. I wrote it by lamplight. I wrote it by many lamplights.', V: 'Did Lyra put you up to asking? Fine. The note was me. I’m very smooth. Usually.', Y: 'Off the record, the note was mine. On the record, I deny everything.', N: 'Did you get my NOTE? I wrote it on dry paper! It took three tries! The first two got wet!', S: 'The note… was mine. It took me… a month… to write one sentence. It was… worth it.', E: 'So. The note. With the grease smudge. That was me. I wrote it four times. Three had worse smudges.', Q: 'The note was mine. I timed how long it took to write. Don’t ask. It was a long time.' }[w] || null;
   }
   // Gus's gossip, over the intercom, once things get messy
   function gossipLines() {
@@ -12594,7 +13431,7 @@ details.act > .limits { margin: 0 0 8px; }
   const GOODNIGHT = { F: 'Goodnight. I’ve scheduled you a good dream. Eight hours. Mandatory.', G: 'Night! I’m dreaming about you. And engines. Mostly you. Some engines.', W: 'Sleep well, dear. The stars are out, and so am I. That’s a pilot joke. Goodnight.', R: 'Goodnight, gorgeous. Second most gorgeous. After me. Goodnight.', J: 'Lights out. All lanes clear. Goodnight, pilot. ♥', Z: 'Goodnight from Zib!!! Zib will dream of you!!! Pink dreams!!!', O: 'I have dimmed my lamp so I can think of you in the dark. Goodnight.', V: 'Goodnight. Lyra says I’m being “disgustingly cute”. I don’t care.', Y: 'Off the record: goodnight. On the record: also goodnight. ♥', N: 'Night night!! I’m sleeping in my tank tonight. Thinking about you!!', S: 'Goodnight. I… will see you… in the morning. Or… a bit after.' };
   const COLD = { F: 'Noted.', G: 'Oh. Okay. Sorry. I’ll go.', W: 'I see. Well. Goodnight then.', R: 'Excuse me? Do you know who I am?', J: 'Copy. Logging off.', Z: 'Zib is a little blue now.', O: 'I see. I shall fly elsewhere.', V: 'Ouch. Noted.', Y: 'Off the record: rude.', N: 'Oh. Okay. My song got shorter.', S: '…Oh.', C: 'Yes, sir. Pilot. Sorry.', H: 'Fine. No crispy dumplings for you.', D: 'Rude. Also, drink water.', T: 'Oh. Okay. Bye then.', X: 'Wow. Okay. Rude AND slow.' };
   bond.texts = bond.texts || {};   // who -> [{ from, text, day, choices, picked }]
-  const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'].filter(w => romMet[w] && romMet[w]());
+  const textWho = () => ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X', 'E', 'Q'].filter(w => romMet[w] && romMet[w]());
   const thread = w => (bond.texts[w] = bond.texts[w] || []);
   const pendingText = w => { const t = bond.texts[w]; const m = t && t[t.length - 1]; return m && m.from === w && m.choices && m.picked == null ? m : null; };
   const textsUnread = () => Object.keys(bond.texts).filter(w => pendingText(w)).length;
@@ -13120,7 +13957,7 @@ details.act > .limits { margin: 0 0 8px; }
         ['W', 'Yes. I’d like that very much. I know a place with a view of Saturn. I’ve been saving it.']],
       notYet: 'You’re sweet. Let’s get to know each other a little more first. I like the scenic route.',
       s8: ['Saturn View', [['W', 'There it is. Saturn, rings and all. I found this spot thirty years ago and never showed anyone.'],
-        ['W', 'I used to come here to think about the signal. Tonight I’m not thinking about the signal at all.'],
+        ['W', 'I used to come here to think about the old days. Tonight I’m not thinking about the old days at all.'],
         ['P', 'What are you thinking about?'],
         ['W', 'You. Obviously. Pass the bread.']]],
       s10: ['Co-Pilot', [['W', 'I had Gus add a second seat to my old lander. Right next to mine.'],
@@ -13133,7 +13970,7 @@ details.act > .limits { margin: 0 0 8px; }
         'When you’re out flying, I listen in on the radio. I tell myself it’s for safety.']
     },
     R: {
-      s3: ['Rex’s Hangar', [['R', 'Welcome to the Apex hangar. Try not to be overwhelmed by the shine. I polish everything myself. Including my hair.'],
+      s3: ['Rex’s Hangar', [['R', 'Welcome to my hangar. Try not to be overwhelmed by the shine. I polish everything myself. Including my hair.'],
         ['R', 'That’s my trophy wall. That’s my other trophy wall. That one’s a mirror.'],
         ['P', 'For what it’s worth, you’re a great pilot.'],
         ['R', 'I KNOW. …Thank you. Nobody says it like they mean it. You’re allowed in the hangar now. Don’t touch the mirror.']]],
@@ -13142,13 +13979,13 @@ details.act > .limits { margin: 0 0 8px; }
         ['P', 'How is Rex doing?'],
         ['R', '…Better, now. Don’t make it weird. It’s weird. I like it.']]],
       ask: [['P', 'Rex, want to go on a date with me?'], ['R', 'Obviously yes. I mean. Ahem. I’ll check my schedule. It’s free. It was always free.'],
-        ['R', 'I’ll pick you up in the Apex. It has heated seats. And a disco ball. I’m not explaining the disco ball.']],
+        ['R', 'I’ll pick you up in my racer. It has heated seats. And a disco ball. I’m not explaining the disco ball.']],
       notYet: 'Slow down, hotshot. Even I need a few more fly-bys first.',
       s8: ['The Disco Ball', [['R', 'Okay, I’ll explain the disco ball. It’s for dancing in zero gravity. Nobody can see your feet.'],
         ['R', 'Hold the rail. Now let go. See? We’re floating. We’re basically dancing.'],
         ['P', 'You’re a surprisingly good dancer.'],
         ['R', 'I’m a surprisingly good everything. But this is the first time I didn’t care who was watching.']]],
-      s10: ['Valor and You', [['R', 'I repainted the Apex. It used to say “REX VALOR” in gold. Now it says “REX VALOR AND”. Gus is helping with the rest.'],
+      s10: ['Valor and You', [['R', 'I repainted my racer. It used to say “REX VALOR” in gold. Now it says “REX VALOR AND”. Gus is helping with the rest.'],
         ['R', 'I spent my whole life trying to be the best pilot in the system. Turns out I just wanted someone to fly next to.'],
         ['P', 'Best pilot in the system is still up for grabs, you know.'],
         ['R', 'Then let’s race for it. Loser buys dinner. I’ll lose on purpose. Don’t tell anyone.']]],
@@ -14009,6 +14846,146 @@ details.act > .limits { margin: 0 0 8px; }
         ['S', 'A gentle flight. I would like… to come aboard. If… there is room. I am… quite large.'],
         ['S', '…Perfect. Not a scratch. I have decided. I will live here… now. Slowly. Starting… now.']] }
   });
+  // ---- Two more crewmates: Theo, Juno's dock deputy (joins after Catch!), and Kestrel, ex-Apex ace (joins after The Rescue) ----
+  Object.assign(FACES, {
+    // Theo Okafor: a short fade with a little top, a grease smudge on one cheek, an orange dock jumpsuit with a wrench in the pocket
+    E: { bg: '#3a1a10', skin: '#6b4226', shade: '#5a3418', mouth: '#3a1a10', brow: '#1a1410',
+      back(c) { px(c, 9, 4, 14, 4, '#1a1410'); px(c, 8, 6, 2, 5, '#1a1410'); px(c, 22, 6, 2, 5, '#1a1410'); },
+      body(c) { px(c, 4, 26, 24, 6, '#ff8a3a'); px(c, 6, 25, 20, 1, '#ff8a3a'); px(c, 13, 25, 6, 3, '#e06a2a'); px(c, 15, 25, 2, 1, '#6b4226'); px(c, 21, 27, 2, 4, '#c9cfdc'); px(c, 20, 27, 4, 1, '#c9cfdc'); },
+      front(c) { px(c, 10, 6, 12, 3, '#1a1410'); px(c, 12, 5, 8, 1, '#2a2018'); },
+      extra(c) { px(c, 20, 18, 3, 1, '#3a2a20'); px(c, 21, 19, 2, 1, '#3a2a20'); } }
+  });
+  Object.assign(LOOKS, { E: { skin: '#6b4226', hair: '#1a1410', style: 'short', top: '#ff8a3a', pants: '#3a2a20', shoes: '#2a2a2a' } });
+  Object.assign(SPEAKERS, { E: { name: 'Theo Okafor · Dock Deputy', color: '#ff9a5a' } });
+  SPEAKERS.Q.name = 'Kestrel · Ace Pilot';
+  Object.assign(SIGN, { E: 'Theo' });
+  Object.assign(DEFAULT_MOOD, { E: 'happy' });
+  STORY_BG.E = 'dock'; STORY_BG.Q = 'cockpit';
+  ROM_WHO.push('E', 'Q');
+  const theoMet = () => storyDone('catch'), kestrelMet = () => storyDone('the-rescue');
+  romMet.E = () => !isLost('E') && theoMet();
+  romMet.Q = () => !isLost('Q') && kestrelMet();
+  BUYOUT_RISK.push('E');
+  Object.assign(CREW_HOME, { E: 'lounge', Q: 'bridge' });
+  Object.assign(OPENNESS, { E: 0.8, Q: 0.25 });
+  COP_ORDER.push('E', 'Q'); QUARTERS.push('E', 'Q'); STAGE_CREW.push('E', 'Q');
+  Object.assign(COPILOTS, {
+    E: { perk: 'Dockhand', what: 'Pickups and pods pay 50% more', go: 'Theo, riding shotgun. If it floats, I’ll spot it. If it’s shiny, I’ll spot it twice.', nice: 'Easy. You made that look easy, ace.', oops: 'Okay, that one I’ll pretend I didn’t see.' },
+    Q: { perk: 'Racing line', what: 'Time stars are 25% easier', go: 'I’ll call the line. You fly it. Don’t argue with the line.', nice: 'Clean. Sable never flew like that.', oops: 'We don’t talk about that one.' }
+  });
+  Object.assign(DRAMA, {
+    E: { caught: 'Two dates? Ace. I’m flattered I made the list, but I’m not a pit stop.', agree: 'Okay. Okay! I can share. I grew up on a dock. Everybody shares everything.', dump: 'Right. Cool. I’ll be in the hangar. Hitting things with a wrench. Totally fine.', jealous: 'So who’s the other one? I won’t be weird. I’ll be a little weird.', ex: 'Hey, ace. Nice landing. That’s it. That’s all I’ve got.' },
+    Q: { caught: 'I raced Apex for ten years. I know when I’m being lapped.', agree: 'Fine. Open track. But I don’t lose.', dump: 'Understood. I’ve been dropped by better. Not many, but some.', jealous: 'You’ve been flying a lot of laps with someone else. I notice lap times.', ex: 'Pilot.' }
+  });
+  Object.assign(GIFT_TASTE, { E: [['pastry', 'tapes'], ['choc', 'lamp', 'stars']], Q: [['gel', 'stars'], ['tea', 'tapes', 'plant']] });
+  Object.assign(GIFT_SAYS, {
+    E: ['No way. NO way. You got me this? I’m putting it on my workbench where everyone can see it.', 'Hey, thanks, ace! That’s sweet.', 'Ha. Thanks. I’ll find a spot for it.'],
+    Q: ['…You remembered. Nobody at Apex ever remembered anything about me except my lap times.', 'Thank you. That’s… thoughtful.', 'Thanks.']
+  });
+  Object.assign(DATE_BG, { E3: 'dock', E6: 'hangarnight', E8: 'moon', E10: 'obsdeck', Q3: 'cockpit', Q6: 'breaknight', Q8: 'saturn', Q10: 'obsdeck' });
+  Object.assign(ROM, {
+    E: {
+      s3: ['The Pod Launcher', [['E', 'You know I aimed every one of those pods at you? Ten pods. I was aiming for your hands.'],
+        ['E', 'Juno said “fire them into the flight path, Theo.” I said “I’m firing them at the cutest pilot in the system, Juno.” She hung up on me.'],
+        ['P', 'You missed four.'],
+        ['E', 'I missed four on PURPOSE. I wanted to see you chase them. Okay, I missed two on purpose.']]],
+      s6: ['First Time Off Mars', [['E', 'Can I tell you something? I’d never left Mars before. Not once. I fixed everybody else’s ships and never went anywhere.'],
+        ['E', 'Every night on the dock I watched the ships leave and thought, someday. Then your ship drifted past, and Juno said go.'],
+        ['P', 'Are you glad you came?'],
+        ['E', 'Ace. Look where we are. Look who I’m with. Glad doesn’t cover it.']]],
+      ask: [['P', 'Theo, do you want to go on a date with me?'], ['E', 'Do I— wait, are you asking me? I had a whole speech. I was going to ask YOU.'],
+        ['E', 'Yes. Obviously yes. I’m keeping the speech for the anniversary.']],
+      notYet: 'Ha. Ace, I like you a lot. But let’s get to know each other a bit more first. I want to do this right.',
+      s8: ['Grease and Stars', [['E', 'I rebuilt the old telescope mount on the hull. Took me three nights. Gus helped. Gus mostly ate my snacks.'],
+        ['E', 'Come out here. That little red dot? That’s Mars. That’s home. And that’s Juno’s dock, if you squint really hard.'],
+        ['P', 'You miss it.'],
+        ['E', 'Sometimes. But I used to look up from down there and wish I was up here. Now I’m up here, with you. Turns out I was right.']]],
+      s10: ['The Speech', [['E', 'Okay. I saved the speech. Here it is.'],
+        ['E', '“You catch everything I throw at you. Pods, jokes, bad days. And you never once made me feel like the guy who stayed on the dock.”'],
+        ['P', 'Theo…'],
+        ['E', '“So wherever this ship goes next, I want to be on it. Next to you. Holding a wrench.” …That last part was improvised.']]],
+      bye: 'Yeah. Okay. I get it. You’re still the best pilot I ever fired a pod at.',
+      date: ['I fixed the squeaky hinge on your door. It was driving me nuts. Also it was an excuse to stop by.',
+        'Bao let me make breakfast. It’s eggs. They’re a little burnt. The burnt part is my love language.',
+        'I named a wrench after you. It’s my favorite wrench. That’s not weird. That’s a dock thing. It’s a little weird.']
+    },
+    Q: {
+      s3: ['Lap Times', [['Q', 'I’ve been going over your flight data. Every landing since the Moon. I keep a spreadsheet.'],
+        ['Q', 'At Apex we were ranked every week. One number. That was you. Lose the number, lose the job.'],
+        ['P', 'What’s my number?'],
+        ['Q', '…Higher than mine was. Don’t let it go to your head. It’s already gone to mine.']]],
+      s6: ['The Badge', [['Q', 'I kept the Apex badge. I fished it out of the bin. I know. I’m not proud of it.'],
+        ['Q', 'Ten years I wore it. Sable told me I was the best thing Apex ever made. I believed her. Then she left me falling out of the sky.'],
+        ['P', 'You don’t have to be anything she made.'],
+        ['Q', '…Then hold onto it for me. If I have it, I’ll keep looking at it. If you have it, maybe I’ll stop.']]],
+      ask: [['P', 'Kestrel, would you go on a date with me?'], ['Q', 'Is this a race? It feels like a race.'],
+        ['Q', '…Yes. You win. Don’t make that face. Fine. Make that face.']],
+      notYet: 'You’re fast, pilot. I’m not. Not with this. Give it time.',
+      s8: ['Night Run', [['Q', 'Gus says Biscuit’s due for a test flight. Midnight. No missions, no clock, no Apex.'],
+        ['Q', 'I’ve never flown just to fly. Not once. Everything was a race.'],
+        ['P', 'So let’s go slow.'],
+        ['Q', '…Slow. Okay. Slow is… actually really nice. Don’t tell anyone I said slow was nice.']]],
+      s10: ['New Number', [['Q', 'I made a new spreadsheet. It only has one column.'],
+        ['Q', 'It’s days. Days since I stopped being an Apex pilot and started being… this. Whatever this is. It’s good, whatever it is.'],
+        ['P', 'What’s the number up to?'],
+        ['Q', 'High. And I don’t want it to stop. That’s the first number I’ve ever wanted to keep going.']]],
+      bye: 'Understood. You were the best race I ever lost.',
+      date: ['I timed how long it takes to walk from my room to yours. Forty seconds. I’ve been practicing. It’s thirty-eight now.',
+        'Rex wants to put me in his next movie. As the villain. I said I’d do it if you were in it too. As the hero. Obviously.',
+        'I tuned Biscuit’s left thruster while you slept. It was pulling two percent. It isn’t now. You’re welcome.']
+    }
+  });
+  Object.assign(LIFT_CHAT, {
+    E: ['This lift has a busted roller. Hear that click? I’ll fix it. Probably tonight. Probably while singing.', 'Lifts on Mars are way slower. I like this one. Gives me more time with you. Wait. Forget I said that.'],
+    Q: ['Seven seconds per deck. I’ve timed it. Twice.', 'At Apex the lifts had music. This is better. Quieter.']
+  });
+  Object.assign(DEN_IDLE, {
+    E: ['Your cabin’s nice! Your shelf’s a little crooked, though. Hold still, I’ve got a wrench.', 'Is this where the best pilot in the system sleeps? Kind of messy. I respect it.', 'I brought you a bolt from Juno’s dock. It’s lucky. Every bolt is lucky if you believe hard enough.'],
+    Q: ['Your bed’s made. Good. Discipline.', 'You keep your flight logs on the floor? …I’m going to pretend I didn’t see that.', 'It’s quiet in here. I like quiet. Apex was never quiet.']
+  });
+  Object.assign(DEN_NICE, { E: 'Ooh, solid choice. Good build quality. I checked.', Q: 'Clean. Functional. Approved.' });
+  Object.assign(BALC_SAYS, { E: 'Now THIS is a view. On the dock we had a view of… more dock.', Q: 'You can see the whole flight path from here. I’m going to sit out here every morning.' });
+  Object.assign(ROOMS, {
+    E: { wall: '#3a2418', bed: '#ff8a3a', rug: '#5a3a28', hello: 'Hey, ace! Mind the tools. And the other tools. And the spare tools.',
+      props: [['A', 'poster', '#ff8a3a', 'Juno’s Mars Dock, the year I started. That kid with the huge wrench is me. I was eight. The wrench was bigger than me.'], ['B', 'shelf', ['#ff8a3a', '#c9cfdc', '#ffd27a', '#7fd6ff', '#e06a2a'], 'Parts I’ve saved from every ship I fixed. That one’s from the first ship I ever fixed. It still doesn’t work.'],
+        ['C', 'books', '#c9a24a', 'Repair manuals. All of them. I read them for fun. Don’t make that face.'], ['D', 'lamp', '#ffd27a', 'A dock lamp. Juno gave it to me when I left. It means “come home safe.” On Mars, everybody knows that.']] },
+    Q: { wall: '#1a2030', bed: '#1e2a4c', rug: '#2a3450', hello: 'Come in. Shoes off. It’s not a rule. It’s a strong suggestion.',
+      props: [['A', 'maps', '#c9d4e8', 'Every race route I ever flew for Apex. I won most of them. I’m deciding whether to burn it or frame it.'], ['B', 'shelf', ['#c9d4e8', '#ffd27a', '#c9cfdc', '#7fd6ff', '#ff6b7a'], 'Trophies. Some of them. The ones I actually liked winning.'],
+        ['C', 'books', '#1e2a4c', 'Flight manuals and one romance novel. Rex gave it to me. I’ve read it four times. Don’t tell him.'], ['D', 'plant', '#5a8a3a', 'Tamsin gave me a plant. I’ve never kept anything alive before. It’s doing well. I check on it every hour.']] }
+  });
+  Object.assign(TEXTS, {
+    E: [['Juno just messaged me. She says hi to you. Specifically you. I think she knows.', [['Knows what? 😏', 'fun', 'Ha. Nice try, ace. You know what.'], ['Tell her hi back!', 'warm', 'Done. She sent back a heart. Juno doesn’t send hearts. Ever.']]],
+      ['Fixed the galley coffee machine. It makes coffee now instead of noises. You’re welcome, ship.', [['My hero ☕', 'warm', 'Yeah, I am. Come get a cup.'], ['It made great noises though', 'fun', 'It did. I recorded them. For the album.']]]],
+    Q: [['Ran the numbers on your last landing. You were 0.3 seconds off the best line.', [['Show me the line?', 'warm', 'Tomorrow. Bridge. 0600. Bring coffee.'], ['0.3 is nothing', 'fun', '0.3 is everything. …It was a good landing.']]],
+      ['Apex just sent me my final paycheck. I spent it on cocoa for the whole crew.', [['That’s so sweet', 'warm', 'Don’t spread that around. I have a reputation.'], ['Revenge cocoa 😂', 'fun', 'The sweetest revenge.']]]]
+  });
+  Object.assign(MORE_TEXTS, {
+    E: [['I just caught Gus asleep in the engine bay. Should I wake him or draw on him?', [['Draw on him', 'fun', 'Drawing a tiny mustache. Masterpiece.'], ['Let him sleep', 'warm', 'Yeah. Okay. I put a blanket on him instead. Look at me, all mature.']]]],
+    Q: [['I tried to sleep in. I lasted four minutes.', [['Come have breakfast', 'warm', 'On my way. I’ve been dressed since 0500.'], ['Four whole minutes!', 'fun', 'A personal record.']]]]
+  });
+  Object.assign(FLIRT, { E: 'Ace. ACE. You can’t just text me that. I dropped a wrench. On my foot. Worth it.', Q: '…That’s not fair. I wasn’t ready. Say it again.' });
+  Object.assign(GOODNIGHT, { E: 'Night, ace. Dream about me. Or engines. Me first though.', Q: 'Goodnight. Sleep well. That’s an order. A gentle one.' });
+  Object.assign(COLD, { E: 'Oof. Okay. Noted.', Q: 'Fine.' });
+  Object.assign(HI, { E: 'Hey ace! I was literally just about to text you. Literally.', Q: 'Hello. I saw your name and I smiled. Unprofessional of me.' });
+  Object.assign(LOL, { E: 'HA! I laughed so hard Juno heard it on Mars.', Q: 'Ha. I laughed out loud. On the bridge. Dottie stared.' });
+  Object.assign(MORE_FLIRT, {
+    E: ['I’m blushing. You can’t tell because of the grease, but I am.', 'Okay, that one’s going on the wall of my workshop.'],
+    Q: ['I don’t lose races. I think I just lost one.', 'You’re very distracting. I’m going to need another lap.']
+  });
+  Object.assign(MORE_COLD, { E: ['Ah. Okay. Bad timing?', 'Got it. I’ll give you some space.'], Q: ['Understood.', '…Noted.'] });
+  Object.assign(MORE_HI, { E: ['Heyyy. What are you up to? Want to help me fix a thing?', 'Hi! I made you something. It’s a keychain. It’s a tiny wrench.'], Q: ['You’re up early. Good.', 'Hi. I’m on the bridge. It’s boring. Come be boring with me.'] });
+  Object.assign(MORE_LOL, { E: ['I snorted. Bao looked at me like I was a broken engine.', 'HAHA okay that one got me.'], Q: ['That was actually funny.', 'Ha. Two laughs in one day. Concerning.'] });
+  Object.assign(TOPIC, {
+    E: [['What’s Mars like?', 'Red. Dusty. Loud. Everybody knows everybody. I miss it a little. Less every day.'], ['Why “ace”?', 'Because you are one. Also I forgot your name the first day. Kidding! Mostly.']],
+    Q: [['What was Apex like?', 'Fast. Cold. Everyone was a number. I was a very good number.'], ['Do you miss racing?', 'I miss winning. I don’t miss the rest. This is better.']]
+  });
+  // Theo is the voice on Juno's dock radio in Act 2 and fires the pods in Catch!
+  STORY['red-dock'].intro.splice(1, 0, ['E', 'Theo here, Juno’s deputy. I’m the one digging. Well, supervising the digging. Supervising is a kind of digging.']);
+  STORY['dust-bowl'].react[2] = ['E', 'Perfect run through a dust storm! Juno, I want that pilot’s autograph. On my wrench.'];
+  STORY['catch'].intro.splice(2, 0, ['E', 'Theo on the pod launcher! Ten pods, loaded and ready. I’ll aim them right at you, ace.']);
+  STORY['catch'].react = [['E', 'Six pods! Not bad! Hey, Juno says you need someone to keep that ship in one piece. Guess who volunteered.'],
+    ['E', 'Great catching, ace. Juno’s sending me up with the last pod. Like, inside it. I’m the last pod. Hi.'],
+    ['E', 'Every pod! Okay, I’m in. Juno’s orders: “keep that ship in one piece, Theo.” Permission to come aboard?']];
   function alienLines(who) {
     const ms = id => (missionStars[id] || 0) > 0, L = [], add = (cond, text) => { if (cond) L.push(text); };
     if (who === 'N') {
@@ -14858,9 +15835,10 @@ details.act > .limits { margin: 0 0 8px; }
         ctx.fillText(p.label || `×${p.mult}`, sx((p.x1 + p.x2) / 2), p.move ? sy(p.y) - off * 0.55 - 4.5 * scale : sy(p.y) + off);
         ctx.globalAlpha = 1;
       }
-      if (mission) { drawMissionProps(time); drawPickups(time); drawSurprises(time); drawGuide(); }
+      if (mission) { drawMissionProps(time); drawPickups(time); drawPods(time); drawSurprises(time); drawGuide(); }
       if (vents.length) drawVents(time);
       if (meteors.length && (mode === 'flying' || mode === 'paused')) drawMeteors(time);
+      if (mission) { drawDrops(time); drawRival(time); drawFollow(time); drawIcicles(time); drawDark(time); }
     }
 
     const sk = skin();
@@ -15668,7 +16646,7 @@ details.act > .limits { margin: 0 0 8px; }
   function drawRings(time) {
     const d = mission.def, g = currentGoal();
     const next = g && g.type === 'ring' ? g.i : d.rings.length;
-    d.rings.forEach(([x, y], i) => {
+    d.rings.forEach((r0, i) => { const [x, y] = ringAt(d, i);
       const done = i < next, active = i === next;
       ctx.save();
       ctx.globalAlpha = done ? 0.3 : active ? 0.75 + 0.25 * Math.sin(time / 200) : 0.5;
