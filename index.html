@@ -4515,10 +4515,145 @@ details.act > .limits { margin: 0 0 8px; }
     const its = mission.items.filter(i => !i.done);
     return mission.def.ordered ? its.slice(0, 1) : its;
   };
+  // ---- Crumb's rover runs, more fun: a jet hop, bolt trails with combos, battery cells, boulders and geysers ----
+  const ROV_ROCKY = ['moon', 'mars', 'vesta', 'mercury', 'ceres', 'ganymede'], ROV_ICY = ['europa', 'enceladus', 'pluto', 'eris', 'triton'];
+  const JET_TIME = 0.9;
+  const hopHeight = () => Math.min(8, 2 * Math.sqrt(1.62 / world.g));
+  function roverFunInit(R) {
+    const d = mission.def, [fx] = rampFoot(lander), hh = hopHeight();
+    R.jet = JET_TIME; R.bolts = 0; R.combo = 0; R.best = 0; R.lastBolt = -9; R.face = null; R.t = 0; R.wasGround = true; R.pvy = 0;
+    // bolt trails: little arcs along the way to each job, some over the ground, some up high
+    const stops = [fx].concat(mission.items.map(i => i.x)).sort((a, b) => a - b), bolts = [], cells = [];
+    for (let k = 0; k < stops.length - 1; k++) {
+      const a = stops[k], b = stops[k + 1], len = b - a; if (len < 10) continue;
+      const groups = Math.max(1, Math.floor(len / 22));
+      for (let g = 0; g < groups; g++) {
+        const cx = a + len * (g + 1) / (groups + 1), high = (g + k) % 2 === 1;
+        for (let q = -2; q <= 2; q++) {
+          const x = cx + q * 1.6, gy = groundAt(x);
+          const lift = high ? Math.min(hh * 0.85 + 0.9, 4.2) - Math.abs(q) * 0.45 : 0.9 + (2 - Math.abs(q)) * 0.35;
+          bolts.push({ x, y: gy + lift, got: false, ph: Math.random() * 6 });
+        }
+      }
+      if (len > 26 && cells.length < 3) { const x = a + len * (cells.length % 2 ? 0.3 : 0.7); cells.push({ x, y: groundAt(x) + Math.min(hh + 1.2, 5), got: false }); }
+    }
+    R.boltList = bolts; R.cells = cells;
+    // geysers on icy worlds; boulders roll on rocky ones
+    R.geysers = [];
+    if (ROV_ICY.includes(world.id)) {
+      const avoid = stops.map(s => [s - 6, s + 6]);
+      for (let k = 0; k < stops.length - 1 && R.geysers.length < 3; k++) { const x = (stops[k] + stops[k + 1]) / 2 + 4; if (!avoid.some(([l, h]) => x > l && x < h)) R.geysers.push({ x, ph: k * 1.3 }); }
+    }
+    R.rocks = []; R.rockT = 6; R.rocky = ROV_ROCKY.includes(world.id) && !d.icicles;
+  }
+  const roverFace = (R, k, s) => { R.face = { k, until: R.t + s }; };
+  function roverFunTick(dt) {
+    const R = mission.rover; if (!R || R.boardT != null || R.out < 1) return;
+    R.t += dt;
+    // jet hop: keep holding thrust after a hop and his little jet fires
+    R.jetOn = false;
+    if (R.ground) R.jet = JET_TIME;
+    else if (keys.thrust && R.jet > 0 && R.vy < 4) { R.vy += world.g * 1.15 * dt; R.jet -= dt; R.batt -= dt * 0.5; R.jetOn = true; if (Math.random() < 0.6) spawnDust(R.x - R.dir * 0.4, R.y - 0.2, 1, 0.25); }
+    // a hard landing jolts him
+    if (R.ground && !R.wasGround && R.pvy < -7.5) { R.batt -= 3; roverFace(R, 'hit', 0.9); popText('−3s', '#7fd6ff', R.x, R.y + 3); }
+    R.wasGround = R.ground; R.pvy = R.vy;
+    const cx = R.x, cy = R.y + 0.9;
+    // bolts, with a combo for grabbing them close together
+    for (const b of R.boltList) {
+      if (b.got || Math.hypot(b.x - cx, b.y - cy) > 1.35) continue;
+      b.got = true; R.bolts++;
+      R.combo = R.t - R.lastBolt < 1.6 ? R.combo + 1 : 1; R.lastBolt = R.t; R.best = Math.max(R.best, R.combo);
+      const m = Math.min(R.combo, 5), cr = 4 * m; mission.bonus += cr;
+      popText(m > 1 ? `+${cr} ×${m}` : `+${cr}`, m >= 3 ? '#ffd36a' : '#e8c46a', b.x, b.y + 1, m >= 4);
+      roverFace(R, m >= 3 ? 'wow' : 'love', 0.7);
+      sfx.bolt(m);
+    }
+    for (const c of R.cells) {
+      if (c.got || Math.hypot(c.x - cx, c.y - cy) > 1.5) continue;
+      c.got = true; R.batt += 8; popText('+8s ⚡', '#7cf0b0', c.x, c.y + 1, true); roverFace(R, 'love', 1); sfx.coin(); spawnSpark(c.x, c.y, '#7cf0b0');
+    }
+    // geysers erupt every few seconds and launch him if he's on top
+    for (const g of R.geysers) {
+      const ph = (R.t + g.ph) % 4.2; g.on = ph > 3;
+      if (g.on && Math.random() < 0.5) particles.push({ x: g.x + (Math.random() - 0.5) * 0.6, y: groundAt(g.x) + 0.3, vx: (Math.random() - 0.5) * 1.2, vy: 7 + Math.random() * 5, g: 3, life: 0.9, max: 0.9, kind: 'spark', colr: '#e8f8ff' });
+      if (g.on && Math.abs(R.x - g.x) < 1.3 && R.y - groundAt(g.x) < 1 && !(g.cool > R.t)) { R.vy = hopV() * 1.9; R.ground = false; g.cool = R.t + 1.2; roverFace(R, 'wow', 1.2); sfx.click(); }
+    }
+    // boulders roll in from the side; hop over them
+    if (R.rocky) {
+      R.rockT -= dt;
+      if (R.rockT <= 0) {
+        R.rockT = 6 + Math.random() * 4;
+        const from = Math.random() < 0.5 ? -1 : 1, x = Math.max(4, Math.min(W - 4, R.x + from * 34));
+        R.rocks.push({ x, v: -from * (2.6 + Math.random() * 1.4), r: 0.7 + Math.random() * 0.35, rot: 0, life: 14 });
+      }
+      for (const k of R.rocks) {
+        const sl = (groundAt(k.x + 0.5) - groundAt(k.x - 0.5));
+        k.v += -sl * world.g * 0.4 * dt; k.v = Math.max(-6, Math.min(6, k.v)); k.x += k.v * dt; k.rot += k.v * dt / k.r; k.life -= dt;
+        if (!k.hit && Math.abs(k.x - R.x) < k.r + 0.9 && R.y - groundAt(R.x) < k.r * 1.6) {
+          k.hit = true; R.batt -= 4; R.vx = Math.sign(R.x - k.x || 1) * 4; R.vy = 2.5; R.ground = false;
+          roverFace(R, 'hit', 1); popText('−4s', '#7fd6ff', R.x, R.y + 3); spawnDust(k.x, groundAt(k.x), 10, 0.8); sfx.thud();
+        }
+      }
+      R.rocks = R.rocks.filter(k => !k.hit && k.life > 0 && k.x > 1 && k.x < W - 1);
+    }
+  }
+  function roverFunSummary(R) {
+    const parts = Math.floor(R.bolts / 10);
+    if (parts) store.set('ds-crumbParts', String(crumbParts() + parts));
+    const n = R.boltList.length;
+    return `🔩 ${R.bolts}/${n} bolts${R.best > 1 ? ` · best combo ×${Math.min(R.best, 5)}` : ''}${parts ? ` · ⚙️ +${parts} part${parts === 1 ? '' : 's'} for Crumb` : ''}`;
+  }
+  function drawRoverFun(time) {
+    const R = mission.rover; if (!R || !R.boltList) return;
+    for (const b of R.boltList) {
+      if (b.got) continue;
+      inMetres(b.x, b.y + Math.sin(time / 300 + b.ph) * 0.12, () => {
+        ctx.rotate(time / 400 + b.ph);
+        ctx.fillStyle = '#e8c46a'; ctx.beginPath(); for (let q = 0; q < 6; q++) { const a = q / 6 * Math.PI * 2; ctx.lineTo(Math.cos(a) * 0.6, Math.sin(a) * 0.6); } ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#fff2b0'; ctx.lineWidth = 0.08; ctx.stroke();
+        ctx.fillStyle = '#7a5c2a'; ctx.beginPath(); ctx.arc(0, 0, 0.22, 0, Math.PI * 2); ctx.fill();
+      });
+    }
+    for (const c of R.cells) {
+      if (c.got) continue;
+      const p = 0.5 + 0.5 * Math.sin(time / 250);
+      inMetres(c.x, c.y, () => {
+        ctx.scale(1.35, 1.35);
+        ctx.fillStyle = `rgba(124,240,176,${0.15 + 0.15 * p})`; ctx.beginPath(); ctx.arc(0, 0, 1.1, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#2a3045'; ctx.fillRect(-0.35, -0.6, 0.7, 1.15); ctx.fillRect(-0.15, -0.72, 0.3, 0.14);
+        ctx.fillStyle = '#7cf0b0'; ctx.fillRect(-0.25, -0.5 + (1 - p) * 0.2, 0.5, 0.95 - (1 - p) * 0.2);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-0.06, -0.3, 0.12, 0.5);
+      });
+    }
+    for (const g of R.geysers) {
+      const gy = groundAt(g.x);
+      inMetres(g.x, gy, () => {
+        ctx.fillStyle = '#5a6478'; ctx.beginPath(); ctx.ellipse(0, 0, 0.9, 0.3, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#1a2030'; ctx.beginPath(); ctx.ellipse(0, -0.05, 0.45, 0.14, 0, 0, Math.PI * 2); ctx.fill();
+        const ph = (R.t + g.ph) % 4.2;
+        if (ph > 2.4 && !g.on) { ctx.fillStyle = `rgba(232,248,255,${(ph - 2.4) / 0.6 * 0.5})`; ctx.beginPath(); ctx.ellipse(0, -0.4, 0.4, 0.3, 0, 0, Math.PI * 2); ctx.fill(); }
+        if (g.on) { const h = 5 + Math.sin(time / 60) * 0.6; const gr = ctx.createLinearGradient(0, 0, 0, -h); gr.addColorStop(0, 'rgba(232,248,255,.85)'); gr.addColorStop(1, 'rgba(232,248,255,0)'); ctx.fillStyle = gr; ctx.fillRect(-0.45, -h, 0.9, h); }
+      });
+    }
+    for (const k of R.rocks) {
+      inMetres(k.x, groundAt(k.x) + k.r, () => {
+        ctx.rotate(-k.rot); ctx.fillStyle = '#7a7480'; ctx.beginPath();
+        for (let q = 0; q < 8; q++) { const a = q / 8 * Math.PI * 2, rr = k.r * (0.82 + 0.18 * Math.sin(q * 2.7)); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        ctx.fill(); ctx.fillStyle = '#5a5460'; ctx.beginPath(); ctx.arc(k.r * 0.3, -k.r * 0.2, k.r * 0.25, 0, Math.PI * 2); ctx.fill();
+      });
+    }
+    // combo meter above Crumb while it's live
+    if (R.combo > 1 && R.t - R.lastBolt < 1.6) {
+      const k = 1 - (R.t - R.lastBolt) / 1.6;
+      ctx.fillStyle = 'rgba(10,14,28,.7)'; ctx.fillRect(sx(R.x) - 18, sy(R.y + 4.4) - 6, 36, 12);
+      ctx.fillStyle = '#ffd36a'; ctx.fillRect(sx(R.x) - 16, sy(R.y + 4.4) + 3, 32 * k, 2);
+      ctx.font = `700 9px ${C('--f-mono')}`; ctx.textAlign = 'center'; ctx.fillText(`×${Math.min(R.combo, 5)} combo`, sx(R.x), sy(R.y + 4.4) + 1); ctx.textAlign = 'left';
+    }
+  }
   function deployRover() {
     const [fx, fy] = rampFoot(lander);
     mission.stage++;
     mission.rover = { x: fx, y: fy, vx: 0, vy: 0, a: 0, ground: true, out: 0, dir: 1, batt: Math.round(mission.def.battery * (1 + 0.15 * crumbLvl('battery'))), hopHeld: true, boardT: null, spin: 0 };
+    roverFunInit(mission.rover);
     holdCard = null;
     setTimeout(() => { if (mission && mission.rover) showToast(`Crumb: *happy beeps* ${mission.def.task}!`, 2200); }, 400);
     sfx.click();
@@ -4528,8 +4663,9 @@ details.act > .limits { margin: 0 0 8px; }
     if (R.boardT != null) {
       R.boardT += dt;
       if (R.boardT >= 0.8) {
+        const sum = R.boltList ? roverFunSummary(R) : '';
         mission.rover = null; mission.stage++;
-        showToast('Crumb: *sleepy beep* He’s aboard. Launch and dock with the mothership!', 2400); sfx.coin();
+        showToast(`Crumb’s aboard! ${sum ? sum + '. ' : ''}Launch and dock with the mothership!`, 3800); sfx.coin();
       }
       return false;
     }
@@ -5144,6 +5280,7 @@ details.act > .limits { margin: 0 0 8px; }
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
       whale() { tone(196, 'sawtooth', 0, 0.45, 0.07); tone(147, 'sawtooth', 0.3, 0.6, 0.07); tone(98, 'sawtooth', 0.75, 0.8, 0.06); },
+      bolt(m) { tone(880 + Math.min(m, 5) * 110, 'square', 0, 0.06, 0.06); },
       alarm() { for (let k = 0; k < 3; k++) { tone(880, 'square', k * 0.36, 0.16, 0.08); tone(660, 'square', k * 0.36 + 0.18, 0.16, 0.08); } },
       star(i) { const f = [784, 988, 1175][i] || 1175; tone(f, 'square', 0, 0.09, 0.1); tone(f * 1.5, 'square', 0.07, 0.24, 0.08); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
@@ -5453,7 +5590,7 @@ details.act > .limits { margin: 0 0 8px; }
       flightT += dt;
       const fi = Math.floor(flightT * 60);
       while (recording.length <= fi) recording.push([L.x, L.y, L.a, 0]);
-      if (!missionTick(dt)) { if (mission.rover) roverStep(dt); else dockStep(dt); }
+      if (!missionTick(dt)) { if (mission.rover) { if (!roverStep(dt) && mission && mission.rover) roverFunTick(dt); } else dockStep(dt); }
     } else if (mode === 'flying') {
       let rot = 0;
       if (keys.left) rot -= 1;
@@ -17938,8 +18075,14 @@ details.act > .limits { margin: 0 0 8px; }
       // neck and camera head, his screen face looking ahead
       ctx.fillStyle = '#3a4668'; ctx.fillRect(0.2, -1.85, 0.25, 0.3); ctx.fillRect(-0.05, -2.75, 1.25, 0.95);
       ctx.fillStyle = '#0e1a24'; ctx.fillRect(0.08, -2.62, 1.0, 0.7);
-      ctx.fillStyle = '#7cf0b0'; const happy = R.batt > 10; ctx.fillRect(0.28, happy ? -2.42 : -2.36, 0.16, happy ? 0.12 : 0.18); ctx.fillRect(0.72, happy ? -2.42 : -2.36, 0.16, happy ? 0.12 : 0.18);
-      if (happy) ctx.fillRect(0.42, -2.18, 0.32, 0.08);
+      ctx.fillStyle = '#7cf0b0';
+      const fk = R.face && R.t < R.face.until ? R.face.k : R.batt <= 10 ? 'worried' : 'happy', E = (x, y, w, h) => ctx.fillRect(x, y, w, h);
+      if (fk === 'love') { E(0.4, -2.45, 0.14, 0.12); E(0.62, -2.45, 0.14, 0.12); E(0.34, -2.35, 0.48, 0.12); E(0.42, -2.23, 0.32, 0.1); E(0.52, -2.13, 0.12, 0.08); }
+      else if (fk === 'hit') { for (const ex of [0.24, 0.68]) { E(ex, -2.48, 0.08, 0.08); E(ex + 0.16, -2.48, 0.08, 0.08); E(ex + 0.08, -2.4, 0.08, 0.08); E(ex, -2.32, 0.08, 0.08); E(ex + 0.16, -2.32, 0.08, 0.08); } E(0.44, -2.14, 0.28, 0.07); }
+      else if (fk === 'wow') { E(0.24, -2.5, 0.22, 0.22); E(0.68, -2.5, 0.22, 0.22); E(0.5, -2.2, 0.16, 0.12); }
+      else if (fk === 'worried') { E(0.26, -2.36, 0.2, 0.08); E(0.7, -2.36, 0.2, 0.08); E(0.44, -2.16, 0.28, 0.06); }
+      else { E(0.28, -2.42, 0.16, 0.12); E(0.72, -2.42, 0.16, 0.12); E(0.42, -2.18, 0.32, 0.08); }
+      if (R.jetOn) { const fl = 0.5 + Math.random() * 0.4; ctx.fillStyle = '#ffb547'; ctx.beginPath(); ctx.moveTo(-0.5, -0.05); ctx.lineTo(0.5, -0.05); ctx.lineTo(0, fl); ctx.fill(); ctx.fillStyle = '#ffe58a'; ctx.beginPath(); ctx.moveTo(-0.25, -0.05); ctx.lineTo(0.25, -0.05); ctx.lineTo(0, fl * 0.6); ctx.fill(); }
       // antenna with a blinking light
       ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(0.15, -2.75); ctx.lineTo(0.1, -3.3); ctx.stroke();
       ctx.fillStyle = Math.floor(time / 350) % 2 ? '#ff6b5e' : '#7a2a2a'; ctx.fillRect(-0.05, -3.5, 0.3, 0.3);
@@ -17974,6 +18117,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (mission.def.ordered && !it.done && !act.includes(it)) continue;   // Apogee is only ever in one place
       drawItem(it, act.includes(it), time);
     }
+    drawRoverFun(time);
     if (mission.rover) {   // the ramp
       const [hx, hy] = hatchOf(lander), [fx, fy] = rampFoot(lander);
       ctx.strokeStyle = '#c9cfdc'; ctx.lineWidth = Math.max(2, scale * 0.35);
