@@ -6384,10 +6384,11 @@ details.act > .limits { margin: 0 0 8px; }
     return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
   }
   function openMission(i) {
-    if (restLocked(i)) { showToast(restText(), 4200); return; }
-    if (emergActive()) { showToast(emergBlockText(), 4200); return; }
-    if (emergBeforeMission()) return;
-    if (encSkip === i) encSkip = null; else if (encBefore(i)) return;
+    if (restLocked(i)) { showToast(restText(), 4200); if (mode === 'encounter') { encSkip = null; setMode('missions'); } return; }
+    const fromEnc = encSkip === i; encSkip = null;
+    if (emergActive()) { showToast(emergBlockText(), 4200); if (mode === 'encounter') setMode('missions'); return; }
+    if (!fromEnc && emergBeforeMission()) return;
+    if (!fromEnc && encBefore(i)) return;
     store.set('ds-lastWorld', ALL[i].world);
     missionTab = tabOf(i);
     missionSel = i;
@@ -12148,7 +12149,8 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Spacewalks: out of the airlock in a suit with a little jetpack. No gravity, so every push keeps you drifting. ----
   // Same three controls as the lander. A tether clips you to the airlock; oxygen is the fuel.
   const EW = 256, EH = 176, AIR = [128, 128], TETHER = 118, E_THR = 20, E_ROT = 2.8;
-  const EHULL = [[18, 128, 220, 60], [150, 110, 40, 18]];   // the body and the bridge module
+  const EHULL = [[18, 128, 220, 60], [150, 110, 40, 18]];
+  const EDISH = [96, 106];   // the comms dish on its mast   // the body and the bridge module
   const EVAS = {
     'eva-hull': { name: 'Hull Breach', job: 'patch', o2: 45, time: 75, pay: 300,
       spots: [[40, 121, 0, -1], [197, 119, 1, 0], [226, 121, 0, -1]],
@@ -12223,6 +12225,7 @@ details.act > .limits { margin: 0 0 8px; }
     eva = { cv, c: cv.getContext('2d'), x: AIR[0], y: AIR[1] - 8, vx: 0, vy: -3, a: 0, o2: 100, el: 0, last: performance.now(), keys: {}, hit: 0, knock: 0, carry: null, said: {}, sayT: 0, done: false, back: false,
       spots: (E.spots || []).map(([x, y, nx, ny]) => ({ x, y, nx, ny, p: 0, done: false })),
       crates: (E.crates || []).map(([x, y, vx, vy], i) => ({ x, y, vx, vy, r: i, spin: (i % 2 ? 1 : -1) * 0.8, held: false, home: false })),
+      dish: E.job === 'dish' ? { a: E.dishA, target: E.dishT, grab: false, cd: 0, lock: 0, done: false } : null, rocks: [], rockT: 1.5,
       stars: Array.from({ length: 70 }, (_, i) => [(i * 97) % EW, (i * 53) % EH, i % 4]), fx: [] };
     evaSay('Airlock’s open. Easy pushes. You can always turn around and brake.', 'start');
     card.querySelectorAll('.eva-pad [data-k]').forEach(b => {
@@ -12254,9 +12257,22 @@ details.act > .limits { margin: 0 0 8px; }
     const v = eva, E = EVAS[evaId];
     v.el += dt;
     const L = v.keys.L || v.keys.ArrowLeft || v.keys.KeyA, R = v.keys.R || v.keys.ArrowRight || v.keys.KeyD, T = v.keys.T || v.keys.ArrowUp || v.keys.KeyW || v.keys.Space;
+    const D = v.dish;
+    if (D && D.grab) {
+      // holding the dish handle: the turn buttons turn the dish, thrust lets go
+      D.a = Math.max(-1.4, Math.min(1.4, D.a + ((R ? 1 : 0) - (L ? 1 : 0)) * 0.8 * dt));
+      const hx = EDISH[0] + Math.sin(D.a) * 14, hy = EDISH[1] - Math.cos(D.a) * 14;
+      v.x = hx + Math.sin(D.a) * 4; v.y = hy - Math.cos(D.a) * 4; v.vx = 0; v.vy = 0; v.a = D.a;
+      const diff = Math.abs(D.a - D.target);
+      if (diff < 0.07) { D.lock += dt; evaSay('That’s the signal! Hold it right there…', 'lock'); } else D.lock = 0;
+      if (D.lock >= 1.4) { D.done = true; D.grab = false; D.cd = 1; v.vx = Math.sin(D.a) * 6; v.vy = -Math.cos(D.a) * 6; sfx.coin(); v.fx.push({ x: EDISH[0], y: EDISH[1] - 22, t, text: 'locked!', col: '#7cf0b0' }); evaSay('Signal locked! I can hear Mars radio again. Head on home.'); }
+      else if (T && v.o2 > 0) { D.grab = false; D.cd = 0.8; v.vx = Math.sin(D.a) * 10; v.vy = -Math.cos(D.a) * 10; sfx.click(); }
+      v.firing = false;
+    } else {
     if (v.knock > 0) { v.knock -= dt; v.a += v.spinK * dt; }
     else v.a += ((R ? 1 : 0) - (L ? 1 : 0)) * E_ROT * dt;
     v.firing = !!T && v.o2 > 0;
+    }
     const mass = v.carry ? 1.8 : 1;
     if (v.firing) { v.vx += Math.sin(v.a) * E_THR / mass * dt; v.vy -= Math.cos(v.a) * E_THR / mass * dt; v.o2 -= 5.5 * dt; }
     v.o2 -= 0.75 * dt;
@@ -12288,6 +12304,25 @@ details.act > .limits { margin: 0 0 8px; }
       }
     }
     const sp = Math.hypot(v.vx, v.vy);
+    if (D && !D.done && !D.grab) {
+      D.cd = Math.max(0, D.cd - dt);
+      const hx = EDISH[0] + Math.sin(D.a) * 14, hy = EDISH[1] - Math.cos(D.a) * 14;
+      if (D.cd <= 0 && Math.hypot(v.x - hx, v.y - hy) < 8 && sp < 14) { D.grab = true; sfx.pop(); evaSay('Got the handle! Now turn her with ◀ ROT and ROT ▶ till the signal’s full. Thrust lets go.', 'grab'); }
+    }
+    // drifting debris: a rock that hits you knocks you spinning and costs air
+    if (E.debris) {
+      v.rockT -= dt;
+      if (v.rockT <= 0) { v.rockT = 1.8 + Math.random() * 1.8; const left = Math.random() < 0.5; v.rocks.push({ x: left ? -8 : EW + 8, y: 10 + Math.random() * 92, vx: (left ? 1 : -1) * (16 + Math.random() * 12), vy: (Math.random() - 0.5) * 8, r: 3 + Math.random() * 2.5, rot: 0, spin: (Math.random() - 0.5) * 4, seed: Math.random() }); }
+      for (const k of v.rocks) {
+        k.x += k.vx * dt; k.y += k.vy * dt; k.rot += k.spin * dt;
+        if (!k.hit && Math.hypot(v.x - k.x, v.y - k.y) < k.r + 4 && t - v.hit > 700) {
+          k.hit = true; v.hit = t; v.knock = 0.6; v.spinK = (Math.random() < 0.5 ? -1 : 1) * 6; v.vx += k.vx * 0.6; v.vy += k.vy * 0.6 + (Math.random() - 0.5) * 6; v.o2 = Math.max(0, v.o2 - 5);
+          if (D) D.grab = false;
+          sfx.thud ? sfx.thud() : sfx.click(); v.fx.push({ x: v.x, y: v.y - 8, t, text: 'ow!', col: '#ff9a5e' }); evaSay('Rock! You okay? Keep an eye on the edges.', 'rock');
+        }
+      }
+      v.rocks = v.rocks.filter(k => !k.hit && k.x > -14 && k.x < EW + 14 && k.y < 126 && k.y > -10);
+    }
     if (sp > 34) evaSay('Easy… easy… you’re coming in hot. Turn around and burn to slow down.', 'hot');
     // patching: get close, hold still, and the patch welds on
     for (const s of v.spots) {
@@ -12320,7 +12355,7 @@ details.act > .limits { margin: 0 0 8px; }
       const left = v.crates.filter(q => !q.home).length; evaSay(left ? `Stowed. ${left} more out there.` : 'That’s all of them! Come on in.');
     }
     // done when the job's finished and you're back at the airlock, slow enough to grab the handle
-    const jobDone = E.job === 'patch' ? v.spots.every(s => s.done) : v.crates.every(k => k.home);
+    const jobDone = E.job === 'patch' ? v.spots.every(s => s.done) : E.job === 'dish' ? v.dish.done : v.crates.every(k => k.home);
     if (jobDone && Math.hypot(v.x - AIR[0], v.y - (AIR[1] - 6)) < 12 && sp < 14) { sfx.click(); evaFinish(true); return; }
     v.fx = v.fx.filter(f => t - f.t < 900);
     v.jobDone = jobDone;
@@ -12346,7 +12381,7 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, bx, by, bw, EH - by, '#4e5468'); px(c, bx, by, bw, 2, '#646b82'); for (let k = bx + 12; k < bx + bw; k += 16) px(c, k, by + 2, 1, EH - by, '#40465a');
     px(c, bx + bw, by + 6, 10, 30, '#4e5468'); px(c, bx - 8, by + 8, 8, 24, '#3a3f50');
     const [mx, my, mw, mh] = EHULL[1]; px(c, mx, my, mw, mh, '#565d74'); px(c, mx, my, mw, 2, '#6c7390'); px(c, mx + 6, my + 6, 6, 3, '#1a1c26'); px(c, mx + 18, my + 6, 6, 3, '#1a1c26');
-    px(c, 96, by - 8, 1, 8, '#646b82'); px(c, 90, by - 10, 13, 2, '#7a8198');
+    if (!v.dish) { px(c, 96, by - 8, 1, 8, '#646b82'); px(c, 90, by - 10, 13, 2, '#7a8198'); }
     const blink = (t / 600 | 0) % 2;
     for (const lx of [30, 70, 186, 230]) px(c, lx, by + 10, 3, 2, blink ? '#ff5a4a' : '#3a1a1a');
     for (let k = 0; k < 10; k++) px(c, 36 + k * 18, by + 22, 6, 3, '#1a1c26');
@@ -12374,6 +12409,24 @@ details.act > .limits { margin: 0 0 8px; }
     const dx = v.x - AIR[0], dy = v.y - AIR[1], d = Math.hypot(dx, dy), slack = Math.max(0, 1 - d / TETHER);
     c.strokeStyle = d > TETHER ? '#ffd27a' : '#c9cfdc'; c.lineWidth = 1; c.beginPath(); c.moveTo(AIR[0], AIR[1] - 3);
     c.quadraticCurveTo((AIR[0] + v.x) / 2 + Math.sin(t / 900) * 10 * slack, (AIR[1] + v.y) / 2 + 26 * slack, v.x, v.y); c.stroke();
+    if (v.dish) {
+      const D = v.dish, [dx, dy] = EDISH;
+      px(c, dx - 1, dy, 2, EHULL[0][1] - dy, '#646b82'); px(c, dx - 4, EHULL[0][1] - 3, 8, 3, '#565d74');
+      c.save(); c.translate(dx, dy); c.rotate(D.a);
+      c.fillStyle = '#c9cfdc'; c.beginPath(); c.ellipse(0, 0, 10, 4, 0, Math.PI, 0); c.fill(); px(c, -10, -1, 20, 2, '#9aa2b4');
+      px(c, 0, -12, 1, 12, '#8a93ab'); px(c, -1, -14, 3, 3, D.done ? '#7cf0b0' : '#ffd27a');
+      c.restore();
+      if (!D.done) {
+        const hx = dx + Math.sin(D.a) * 14, hy = dy - Math.cos(D.a) * 14;
+        c.strokeStyle = D.grab ? '#7cf0b0' : 'rgba(124,240,176,.55)'; c.lineWidth = 1; c.beginPath(); c.arc(hx, hy, 7, 0, Math.PI * 2); c.stroke();
+        const ta = D.target; c.strokeStyle = 'rgba(127,214,255,.35)'; c.setLineDash([2, 3]); c.beginPath(); c.moveTo(dx, dy); c.lineTo(dx + Math.sin(ta) * 60, dy - Math.cos(ta) * 60); c.stroke(); c.setLineDash([]);
+      }
+    }
+    for (const k of v.rocks) {
+      c.save(); c.translate(k.x, k.y); c.rotate(k.rot); c.fillStyle = '#6a6470'; c.beginPath();
+      for (let q = 0; q < 7; q++) { const a = q / 7 * Math.PI * 2, rr = k.r * (0.75 + 0.25 * Math.sin(q * 2.3 + k.seed * 9)); c.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      c.fill(); c.fillStyle = '#4c4752'; c.fillRect(-1, -1, 2, 2); c.restore();
+    }
     evaSuit(c, v.x, v.y, v.a, v.firing, t);
     for (const f of v.fx) { const k = (t - f.t) / 900; c.globalAlpha = 1 - k; c.fillStyle = f.col; c.font = '700 7px monospace'; c.textAlign = 'center'; c.fillText(f.text, f.x, f.y - k * 12); c.textAlign = 'left'; c.globalAlpha = 1; }
     // HUD: oxygen, the job, the clock
@@ -12381,7 +12434,7 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 0, 0, EW, 13, 'rgba(4,5,12,0.82)');
     c.font = '700 7px monospace'; c.fillStyle = v.o2 < 25 ? '#ff6b5e' : '#e8edf5'; c.fillText('O₂', 5, 9.5);
     px(c, 17, 4, 50, 5, '#22263a'); px(c, 17, 4, Math.round(50 * v.o2 / 100), 5, v.o2 < 25 ? '#ff6b5e' : v.o2 < E.o2 ? '#ffb547' : '#7fd6ff'); px(c, 17 + Math.round(50 * E.o2 / 100), 3, 1, 7, '#ffd36a');
-    const prog = E.job === 'patch' ? `PATCHED ${v.spots.filter(s => s.done).length}/${v.spots.length}` : `CRATES ${v.crates.filter(k => k.home).length}/${v.crates.length}`;
+    const prog = E.job === 'patch' ? `PATCHED ${v.spots.filter(s => s.done).length}/${v.spots.length}` : E.job === 'dish' ? `SIGNAL ${Math.round(Math.max(0, 1 - Math.abs(v.dish.a - v.dish.target) / 0.7) * 100)}%` : `CRATES ${v.crates.filter(k => k.home).length}/${v.crates.length}`;
     c.fillStyle = '#7cf0b0'; c.textAlign = 'center'; c.fillText(v.jobDone ? 'BACK TO THE AIRLOCK' : prog, EW / 2, 9.5);
     c.textAlign = 'right'; c.fillStyle = v.el > E.time ? '#8a93ab' : '#e8edf5'; c.fillText(`${v.el.toFixed(0)}s`, EW - 5, 9.5); c.textAlign = 'left';
     c.setTransform(1, 0, 0, 1, 0, 0);
@@ -12397,8 +12450,12 @@ details.act > .limits { margin: 0 0 8px; }
       before: 'Hold the launch. Pressure’s dropping. Something hit the hull. Nobody flies until it’s patched.' },
     cargo: { title: 'Cargo loose', banner: 'Cargo door blew · suit up in the hangar', job: 'cargo',
       texts: ['The cargo door popped! Crates are floating off into space. Suit up in the hangar!', 'Bad latch on the cargo door. Our supplies are drifting away. Hangar locker, quick.', 'Kid! The cargo bay vented. Grab those crates before they’re gone for good.'],
-      before: 'Hold the launch. The cargo door just blew open. We’re losing supplies. Fix it first.' }
+      before: 'Hold the launch. The cargo door just blew open. We’re losing supplies. Fix it first.' },
+    dish: { title: 'Dish knocked out', banner: 'Comms dish knocked out · suit up in the hangar', job: 'dish',
+      texts: ['Something clipped the comms dish. We’re deaf and blind out here. Suit up in the hangar and knock her back into line.', 'No signal. Not even Rex’s fan mail. The dish got knocked crooked. Hangar, suit, go.', 'The dish is pointing at nothing. Grab the handle and turn her till the signal comes back.'],
+      before: 'Hold the launch. We’ve lost the comms dish. Nobody flies blind. Fix it first.' }
   };
+  const emergPickKind = () => { const r = Math.random(); return r < 0.45 ? 'hull' : r < 0.75 ? 'cargo' : 'dish'; };
   const EMERG_SPOTS = [[40, 121, 0, -1], [70, 121, 0, -1], [106, 121, 0, -1], [146, 103, 0, -1], [197, 119, 1, 0], [143, 119, -1, 0], [214, 121, 0, -1], [230, 121, 0, -1]];
   const emerg = () => { try { return JSON.parse(store.get('ds-emerg', 'null')); } catch (e) { return null; } };
   const emergActive = () => !!emerg();
@@ -12416,13 +12473,13 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'dead-air' && !evaDone('eva-hull')) { emergStart('hull', 'eva-hull', 'after'); return; }
     if (d.id === 'the-overdrive' && !evaDone('eva-cargo')) { emergStart('cargo', 'eva-cargo', 'after'); return; }
     if (!emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return;
-    if (Math.random() < 0.17) emergStart(Math.random() < 0.6 ? 'hull' : 'cargo', null, 'after');
+    if (Math.random() < 0.17) emergStart(emergPickKind(), null, 'after');
   }
   // heading out: a smaller chance it happens right as you try to launch
   function emergBeforeMission() {
     if (emergActive() || !emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return false;
     if (Math.random() >= 0.07) return false;
-    const kind = Math.random() < 0.6 ? 'hull' : 'cargo';
+    const kind = emergPickKind();
     emergStart(kind, null, 'before');
     const e = emerg(); e.told = true; emergSave(e);
     sfx.alarm ? sfx.alarm() : sfx.radio();
@@ -12466,12 +12523,17 @@ details.act > .limits { margin: 0 0 8px; }
       def.spots = Array.from({ length: n }, () => pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
       def.brief = `Patch ${n === 1 ? 'the sparking breach' : `the ${n} sparking breaches`}, then come back to the airlock.`;
       def.time = 30 + n * 14;
+    } else if (K.job === 'dish') {
+      def.dishT = (rnd() - 0.5) * 0.8; def.dishA = def.dishT + (rnd() < 0.5 ? -1 : 1) * (0.6 + rnd() * 0.5);
+      def.brief = 'Float to the dish and grab its handle. ◀ ROT and ROT ▶ turn it until the signal’s full, then hold it there. THRUST lets go.';
+      def.time = 50;
     } else {
       const n = 2 + Math.floor(rnd() * 2);
       def.crates = Array.from({ length: n }, () => { const a = -Math.PI * (0.12 + rnd() * 0.76), r = 60 + rnd() * 46; return [AIR[0] + Math.cos(a) * r, Math.min(96, AIR[1] + Math.sin(a) * r), (rnd() - 0.5) * 6, (rnd() - 0.5) * 6]; });
       def.brief = `Catch the ${n} drifting crates and bring each one back to the airlock.`;
       def.time = 30 + n * 20;
     }
+    if (rnd() < 0.35) { def.debris = true; def.brief += ' Rocks are still drifting through, so watch the edges.'; def.intro += ' And heads up, there’s still debris out there.'; def.time += 10; }
     EVAS['eva-rand'] = def;
     return 'eva-rand';
   }
@@ -12777,7 +12839,48 @@ details.act > .limits { margin: 0 0 8px; }
         { label: 'Take Dottie’s safe route', hint: '−15 kg fuel this landing · Dottie ♥', fx: { fuel: -15, hearts: { F: 14 } }, out: 'The long way, and not a single scratch.', react: ['F', 'Thank you. I’ll remember this.'] },
         { label: 'Thread straight through', hint: 'Free · a little risky', fx: { chance: [0.7, { hearts: { G: 8 }, note: 'Not a scratch!' }, { emerg: 'hull', note: 'A chunk clipped the hull' }] }, out: '' }
       ] }
+    ,{ id: 'stowaway', title: 'A stowaway', art: 'stowaway', who: 'G',
+      text: 'Gus opens a crate in the cargo bay and a teenager in oversized overalls pops out. Pip, apprentice mechanic, headed for the shipyards. They brought their own wrenches.',
+      say: 'Found ’em in the spare-parts crate. They’d already fixed two things in there. TWO things.',
+      choices: [
+        { label: 'Give Pip a ride', hint: '+20 kg fuel this landing (Pip tunes the engine) · Gus ♥', fx: { fuel: 20, hearts: { G: 16 }, later: ['G', 'Pip sent a postcard from the shipyard. They got the job! They drew you on it. You have very big arms in the drawing.'] }, out: 'Pip spends the whole trip elbow-deep in the engine with Gus. Somehow she runs smoother than ever.', react: ['G', 'That kid’s good. Don’t tell ’em I said so.'] },
+        { label: 'Hand Pip over at the next port', hint: '+60 credits reward · Dottie ♥', fx: { credits: 60, hearts: { F: 10 } }, out: 'The port authority thanks you for the report. Pip waves goodbye with a wrench.', react: ['F', 'Rules exist for a reason. …I also packed them a sandwich.'] },
+        { label: 'Put Pip to work in the galley', hint: 'Bao ♥ · 🍫 for your basket', need: 'H', fx: { hearts: { H: 14 }, basket: { choc: 1 } }, out: 'Pip peels a mountain of potatoes and leaves you a chocolate bar as a thank-you.', react: ['H', 'Kid peels like a professional. I’m keeping them. Kidding. Mostly.'] }
+      ] },
+    { id: 'quiz', title: 'Live on the radio', art: 'quiz', who: 'R',
+      text: 'The radio crackles: “This is DJ Nova with Space Trivia Hour, and our random caller is… the Second Wind! One question, one jackpot!”',
+      say: 'Pick the right answer and we’re famous. Pick the wrong one and we’re also famous. It’s a win-win.',
+      make: () => {
+        const Q = [['What color are sunsets on Mars?', 'Blue', 'Red', 'Green'], ['Which planet has the Great Red Spot?', 'Jupiter', 'Mars', 'Venus'], ['How many moons does Mars have?', 'Two', 'None', 'Twelve'],
+          ['Which is the hottest planet?', 'Venus', 'Mercury', 'Mars'], ['Which planet spins on its side?', 'Uranus', 'Saturn', 'Neptune'], ['About how long does sunlight take to reach Earth?', 'About 8 minutes', 'About 8 seconds', 'About 8 hours'],
+          ['Which moon shoots geysers of water out through its ice?', 'Enceladus', 'Phobos', 'Our Moon'], ['What fills Titan’s sky?', 'Thick orange haze', 'Clear blue air', 'Pink clouds']];
+        const [q, right, ...wrong] = Q[Math.floor(Math.random() * Q.length)];
+        const ans = [right, ...wrong].map(a => [Math.random(), a]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+        return { text: `The radio crackles: “This is DJ Nova with Space Trivia Hour, and our random caller is… the Second Wind! For the jackpot: ${q}”`,
+          choices: ans.map(a => a === right
+            ? { label: a, hint: 'Final answer?', fx: { credits: 150, hearts: { R: 8 }, note: 'Correct!' }, out: `“${a}! That’s RIGHT!” The studio audience goes wild. A jackpot of 150 credits lands in your account.`, react: ['R', 'I knew that. I was going to say that. I was literally about to say that.'] }
+            : { label: a, hint: 'Final answer?', fx: { note: `Wrong! It was ${right}` }, out: `“Ooh, so close! The answer was ${right}.” DJ Nova sends a consolation prize: a bumper sticker.`, react: ['G', 'I’m putting the sticker on my toolbox.'] }) };
+      } },
+    { id: 'kestrel', title: 'A challenger', art: 'kestrel', who: 'Q', guest: true, can: () => storyDone('apex-calling') && !storyDone('the-rescue'),
+      text: 'A red-and-white racer screams past your nose and loops back around. Kestrel, Apex’s star pilot. “Race you to the next buoy. Loser buys fuel.”',
+      say: 'Unless you’re scared. It’s fine to be scared.',
+      make: () => {
+        const done = MISSIONS.filter(d => missionStars[d.id] > 0), three = done.filter(d => missionStars[d.id] >= 3).length;
+        const p = Math.min(0.85, 0.3 + 0.55 * three / Math.max(1, done.length)), pct = Math.round(p * 100);
+        return { choices: [
+          { label: 'Race her', hint: `Win: +200 credits · Lose: −30 kg fuel · your odds ${pct}% (from your 3-star landings)`, fx: { chance: [p, { credits: 200, note: 'You won!' }, { fuel: -30, note: 'Kestrel won' }] }, out: '' },
+          { label: 'Pass', hint: 'No cost. She’ll remember.', fx: {}, out: 'You let her go. She waggles her wings at you like a laugh.', react: ['Q', '…Boring. See you on the course.'] }] };
+      } },
+    { id: 'drone', title: 'A lost drone', art: 'drone', who: 'G',
+      text: 'A little delivery drone is circling the hull, beeping sadly. Its package says FRAGILE: CAKE. Its map screen just says ?????.',
+      say: 'It keeps bumping into the window. I think it wants a hug. Or directions.',
+      choices: [
+        { label: 'Fix its map and send it home', hint: 'Gus ♥ · a thank-you later', fx: { hearts: { G: 14 }, later: ['G', 'The bakery that lost that drone sent us a whole cake. A WHOLE cake. Bao is pretending he’s not jealous.'] }, out: 'Gus fixes its map in two minutes. The drone does a happy loop and zips away.', react: ['G', 'Go home, little guy. Go home to your cake people.'] },
+        { label: 'Deliver the cake yourself', hint: '+90 credits delivery fee · −15 kg fuel this landing', fx: { credits: 90, fuel: -15 }, out: 'You drop the cake at a station bakery. They pay a delivery fee and throw in a cookie.', react: ['F', 'Unscheduled stop. Profitable unscheduled stop. I’ll allow it.'] },
+        { label: 'Eat the cake', hint: 'The whole crew ♥ · Dottie is horrified', fx: { crew: 6 }, out: 'It’s a very good cake. Nobody ever speaks of this again.', react: ['F', 'We are thieves now. …Pass me another slice.'] }
+      ] }
   ];
+  const encMake = E => E.make ? Object.assign({}, E, E.make()) : E;
   let enc = null, encSkip = null;
   const encSeen = () => { try { return JSON.parse(store.get('ds-encSeen', '{}')) || {}; } catch (e) { return {}; } };
   // on the way to a mission on another world, once the ship has left the Moon, about one time in three
@@ -12787,13 +12890,13 @@ details.act > .limits { margin: 0 0 8px; }
     if (!last || last === d.world) return false;
     if (emergCount() - +store.get('ds-encLast', '-9') < 2) return false;
     if (Math.random() >= 0.33) return false;
-    const seen = encSeen(), pool = ENCOUNTERS.filter(e => crewIn(e.who) && (!e.can || e.can()));
+    const seen = encSeen(), pool = ENCOUNTERS.filter(e => (e.guest || crewIn(e.who)) && (!e.can || e.can()));
     if (!pool.length) return false;
     const low = Math.min(...pool.map(e => seen[e.id] || 0)), fresh = pool.filter(e => (seen[e.id] || 0) === low);
     const E = fresh[Math.floor(Math.random() * fresh.length)];
     seen[E.id] = (seen[E.id] || 0) + 1; store.set('ds-encSeen', JSON.stringify(seen));
     store.set('ds-encLast', String(emergCount()));
-    enc = { E, i, to: WORLDS.find(w => w.id === d.world) }; encFuel = 0; encFuelFor = i;
+    enc = { E: encMake(E), i, to: WORLDS.find(w => w.id === d.world) }; encFuel = 0; encFuelFor = i;
     setMode('encounter');
     return true;
   }
@@ -12819,7 +12922,7 @@ details.act > .limits { margin: 0 0 8px; }
         <canvas id="encCv" width="512" height="200" aria-hidden="true"></canvas>
         <p class="sub">${E.text}</p>
         <div class="radio quote">${faceTag(E.who, SIGN[E.who])}<div class="said"><span class="who" style="color:${SPEAKERS[E.who].color}">${SPEAKERS[E.who].name}</span><p>${E.say}</p></div></div>
-        <div class="enc-choices">${E.choices.filter(ch => !ch.fx.crumb || crumbHome()).map((ch, k) => `<button class="enc-ch" data-k="${E.choices.indexOf(ch)}"><b>${ch.label}</b><small>${ch.hint}</small></button>`).join('')}</div>
+        <div class="enc-choices">${E.choices.filter(ch => (!ch.fx.crumb || crumbHome()) && (!ch.need || crewIn(ch.need))).map((ch, k) => `<button class="enc-ch" data-k="${E.choices.indexOf(ch)}"><b>${ch.label}</b><small>${ch.hint}</small></button>`).join('')}</div>
       </div>`;
       paintFaces(card); encArt();
       card.querySelectorAll('.enc-ch').forEach(b => b.addEventListener('click', () => { sfx.click(); renderEncounter('out', +b.dataset.k); }));
@@ -12837,8 +12940,8 @@ details.act > .limits { margin: 0 0 8px; }
     } else {
       const ok = encApply(ch.fx, notes);
       if (ch.fx.chance && !out) {
-        const goodNotes = { goons: ['It works. The red ships drift past, scanning, and lose you.', ['F', 'Textbook.']], patrol: ['Rex flashes his famous smile. The officer asks for an autograph and waves you through.', ['R', 'It’s a gift. A burden, but a gift.']], ice: ['You thread the ice field like a needle. Not a scratch!', ['G', 'Did you SEE that?']] };
-        const badNotes = { goons: ['They spot you. One of them fires a warning shot into the rocks, and the debris peppers your hull.', ['G', 'They hit us! We’re leaking. Suit up before we land!']], patrol: ['Rex starts a speech about his career. The officer fines you for it.', ['F', 'Rex. REX.']], ice: ['Almost through… then a chunk of ice clips the hull with a bang.', ['G', 'That’s a breach. Patch it before we land, kid.']] };
+        const goodNotes = { goons: ['It works. The red ships drift past, scanning, and lose you.', ['F', 'Textbook.']], patrol: ['Rex flashes his famous smile. The officer asks for an autograph and waves you through.', ['R', 'It’s a gift. A burden, but a gift.']], ice: ['You thread the ice field like a needle. Not a scratch!', ['G', 'Did you SEE that?']], kestrel: ['You cut inside her on the last turn and touch the buoy first. The radio goes quiet. Then: “…Huh.”', ['Q', 'Rematch. Soon. Don’t get comfortable.']] };
+        const badNotes = { goons: ['They spot you. One of them fires a warning shot into the rocks, and the debris peppers your hull.', ['G', 'They hit us! We’re leaking. Suit up before we land!']], patrol: ['Rex starts a speech about his career. The officer fines you for it.', ['F', 'Rex. REX.']], ice: ['Almost through… then a chunk of ice clips the hull with a bang.', ['G', 'That’s a breach. Patch it before we land, kid.']], kestrel: ['She beats you by a wingspan and does a victory roll. Then another one, just to be sure.', ['Q', 'Fuel’s on you. Thanks for the race.']] };
         [out, react] = (ok ? goodNotes : badNotes)[E.id];
       }
     }
@@ -12889,6 +12992,10 @@ details.act > .limits { margin: 0 0 8px; }
     if (art === 'whale') { const y = 50 + Math.sin(t * 0.7) * 4; phOval(c, 186, y, 60, 18, '#2a4a6e'); phOval(c, 186, y - 3, 56, 13, '#3f6a96'); px(c, 240, y - 12, 14, 6, '#2a4a6e'); px(c, 244, y + 4, 12, 6, '#2a4a6e'); phDisc(c, 146, y - 4, 2, '#e8f4ff'); for (let k = 0; k < 8; k++) px(c, 160 + k * 9, y - 6 + (k % 2) * 4, 1, 1, '#c9cfdc'); c.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4); c.fillStyle = '#7fd6ff'; c.font = '700 8px monospace'; c.fillText('♪', 120 + Math.sin(t) * 4, y - 20); c.fillText('♫', 104, y - 30 + Math.sin(t * 1.3) * 3); c.globalAlpha = 1; }
     if (art === 'patrol') { const x = 176 + Math.sin(t) * 2; px(c, x, 38, 50, 14, '#e8edf5'); px(c, x, 46, 50, 3, '#4a7ac8'); px(c, x + 34, 32, 10, 6, '#c9cfdc'); px(c, x + 36, 30, 3, 2, bl ? '#ff4a3a' : '#4a7ac8'); px(c, x + 40, 30, 3, 2, bl ? '#4a7ac8' : '#ff4a3a'); px(c, x + 6, 41, 6, 3, '#1a1c26'); px(c, x + 16, 41, 6, 3, '#1a1c26'); }
     if (art === 'capsule') { c.save(); c.translate(190, 48); c.rotate(Math.sin(t) * 0.6); px(c, -10, -3, 20, 6, '#c9cfdc'); px(c, -10, -3, 20, 1, '#ffffff'); px(c, -2, -5, 4, 10, '#ff9ad5'); px(c, -4, -7, 3, 3, '#ff9ad5'); px(c, 1, -7, 3, 3, '#ff9ad5'); c.restore(); }
+    if (art === 'stowaway') { px(c, 168, 30, 40, 34, '#c4823a'); px(c, 168, 30, 40, 3, '#e0a050'); px(c, 168, 46, 40, 2, '#8a5a28'); px(c, 186, 30, 2, 34, '#8a5a28'); px(c, 172, 22, 30, 10, '#1a1410'); const peek = Math.sin(t * 1.5) > 0 ? 0 : 2; px(c, 178, 22 + peek, 4, 4, '#f4f1e8'); px(c, 190, 22 + peek, 4, 4, '#f4f1e8'); px(c, 179, 23 + peek, 2, 2, '#15151f'); px(c, 191, 23 + peek, 2, 2, '#15151f'); px(c, 204, 16, 3, 14, '#9aa2b4'); px(c, 202, 14, 7, 3, '#9aa2b4'); }
+    if (art === 'quiz') { px(c, 196, 20, 3, 60, '#8a93ab'); px(c, 184, 78, 28, 4, '#646b82'); phDisc(c, 197, 18, 5, '#c9cfdc'); for (let k = 1; k <= 3; k++) { c.strokeStyle = `rgba(255,154,213,${0.7 - k * 0.15 + 0.15 * Math.sin(t * 4 - k)})`; c.lineWidth = 1; c.beginPath(); c.arc(197, 18, 6 + k * 8, Math.PI * 1.1, Math.PI * 1.9); c.stroke(); } px(c, 150, 40, 30, 12, bl ? '#ff4a6a' : '#7a2236'); c.fillStyle = '#ffffff'; c.font = '700 7px monospace'; c.fillText('ON AIR', 153, 49); }
+    if (art === 'kestrel') { const x = 150 + Math.sin(t * 2) * 20, y = 44 + Math.sin(t * 3) * 6; for (let k = 0; k < 6; k++) px(c, x + 30 + k * 7, y + 2 + (k % 3) * 3, 5, 1, 'rgba(255,255,255,.5)'); px(c, x, y, 28, 7, '#f4f1e8'); px(c, x - 6, y + 2, 8, 3, '#f4f1e8'); px(c, x + 4, y + 2, 20, 2, '#e03a2a'); px(c, x + 8, y - 4, 10, 4, '#e03a2a'); px(c, x - 2, y + 1, 4, 3, '#7fd6ff'); px(c, x + 28, y + 2, 3 + (t * 20 | 0) % 3, 3, '#ffb547'); }
+    if (art === 'drone') { const x = 190 + Math.sin(t * 1.7) * 14, y = 40 + Math.sin(t * 2.3) * 5; px(c, x - 8, y, 16, 5, '#c9cfdc'); px(c, x - 12, y - 2, 6, 1, (t * 30 | 0) % 2 ? '#e8edf5' : '#8a93ab'); px(c, x + 6, y - 2, 6, 1, (t * 30 | 0) % 2 ? '#8a93ab' : '#e8edf5'); px(c, x - 1, y + 5, 1, 4, '#8a93ab'); px(c, x - 5, y + 9, 10, 8, '#ff9ad5'); px(c, x - 5, y + 12, 10, 1, '#ffffff'); c.fillStyle = '#ffd36a'; c.font = '700 8px monospace'; c.fillText('?', x - 2, y - 6 - Math.abs(Math.sin(t * 3)) * 3); }
     if (art === 'ice') { for (let k = 0; k < 22; k++) { const x = 120 + (k * 37) % 136 - (t * 6) % 20, y = 8 + (k * 23) % 84, r = 2 + k % 4; c.save(); c.translate(x, y); c.rotate(t * 0.3 + k); px(c, -r, -r, r * 2, r * 2, k % 3 ? '#9fb4cc' : '#e8f4ff'); c.restore(); } }
   }
 
