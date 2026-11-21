@@ -873,6 +873,16 @@ body.emerg #card > :first-child { margin-top: 34px; }
 .eva .eva-goals { width: fit-content; max-width: 100%; margin: 0 auto; }
 .eva-pad .btn { white-space: nowrap; padding-inline: 6px; letter-spacing: .06em; }
 body:has(.eva-play) #phoneBtn { display: none; }
+.eva-keys { display: none; margin: 0; font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; color: var(--regolith-dim); }
+.eva-keys kbd { font: inherit; color: var(--regolith); border: 1px solid var(--space-2); border-radius: 4px; padding: 1px 6px; }
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) and (min-height: 560px) {
+  .card:has(.eva-play) { max-width: min(76rem, 96vw); width: min(76rem, 96vw); }
+  .mining.eva-play { max-width: none; width: 100%; }
+  #evaCv { width: auto; height: 74vh; max-height: none; max-width: 100%; margin-inline: auto; }
+  .eva-pad { display: none; }
+  .eva-keys { display: block; }
+  .eva-radio { max-width: 60rem; margin-inline: auto; }
+}
 body:has(.pz) .objective, body:has(.pz) .toast { visibility: hidden; }
 @media (max-height: 460px) { #evaCv { max-height: 46vh; } .eva-pad .btn { min-height: 44px; } .eva-play .btns .btn { min-height: 30px; padding-block: 4px; font-size: 11px; } }
 #mineCv { width: 100%; aspect-ratio: 200 / 260; max-height: 72vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #05060f; touch-action: none; }
@@ -986,6 +996,8 @@ body:has(.pz) .objective, body:has(.pz) .toast { visibility: hidden; }
 .den .sub { margin: 0; font-size: 13px; color: var(--regolith-dim); text-wrap: balance; }
 .den .sub .cr { color: var(--flame); margin-left: 6px; white-space: nowrap; }
 .den canvas.room.padroom { aspect-ratio: 200 / 148; touch-action: none; }
+.den canvas.room.padroom.lng { max-height: 74vh; object-fit: contain; }
+@media (min-width: 900px) { .card.wide:has(canvas.padroom.lng) { max-width: min(76rem, 96vw); } .den .bay.viewing:has(canvas.padroom.lng) { max-width: none; } }
 .den canvas.room.padroom:focus-visible { outline: 2px solid var(--flame); outline-offset: 2px; }
 .den canvas.room { display: block; width: 100%; aspect-ratio: 2 / 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--space-2); cursor: pointer; }
 .den .spots { display: flex; flex-wrap: wrap; gap: 5px; }
@@ -9408,7 +9420,7 @@ details.act > .limits { margin: 0 0 8px; }
       <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : inBase() ? 'Your corner of the Moon base. Walk around, or tap Decorate to change things.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
-          <canvas class="room padroom" id="denCv" width="${PW * PS}" height="${PH * PS}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
+          <canvas class="room padroom${padLounge() ? ' lng' : ''}" id="denCv" width="${padVW() * PS}" height="${PH * PS}" style="aspect-ratio: ${padVW()} / ${PH}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
           ${denTourPanel()}
           <div class="radio quote" id="denSay" aria-live="polite"></div>
           <div class="who-row">
@@ -10995,6 +11007,7 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'sprinkler', name: 'Garden sprinklers', who: 'G', cost: 3000, blurb: 'A little sprinkler head on every planter, so the garden waters itself.', what: 'The garden waters itself every new day.', done: 'Sprinklers in! The garden waters itself every morning now. Don’t stand too close at six a.m.' },
     { id: 'lounge', name: 'Hallway lounge corner', who: 'F', cost: 4000, blurb: 'A couch, a rug and a lamp halfway down the hallway. Somewhere to sit that isn’t the break room. Or my desk.', what: 'A cosy corner in the hallway, near your Pad.', done: 'The lounge corner is done. It has a couch. I have already napped on it. Professionally.' },
     { id: 'jukebox', name: 'Break room jukebox', who: 'W', cost: 5000, blurb: 'There’s an old jukebox in storage. A new needle, some wiring and a polish, and the break room has music again.', what: 'A working jukebox in the break room.', done: 'Listen to that. Forty years old and it still plays. Just like me.' },
+    { id: 'spare', name: 'Knock through to the spare room', who: 'G', cost: 6000, blurb: 'Behind the wall at the end of your Pad there’s a spare room full of crates. Knock it through, put in a proper window, and it’s a lounge: couch, TV, fish tank, telescope.', what: 'A lounge next to your Pad, all in one room. TV, fish, telescope and a very soft couch.', done: 'The spare room is open! Couch, TV, fish tank, telescope, and a window I’m quite proud of. The fish are called Pebble, Comet and Little Gus. Don’t ask.' },
     { id: 'dome', name: 'Repair the observation dome', who: 'G', cost: 12000, blurb: 'Re-seal the dome glass, re-pressurise it and clean the telescope. Best view on the ship, once it stops leaking into space.', what: 'Opens the observation dome off the hallway.', done: 'The dome is open! Re-sealed, re-pressurised and only slightly smudged. Go and look up!' }
   ];
   let projPaid = (() => { try { return JSON.parse(store.get('ds-projects', '{}')) || {}; } catch (e) { return {}; } })();
@@ -11738,6 +11751,190 @@ details.act > .limits { margin: 0 0 8px; }
     if (!reduceMotion) for (let i = 0; i < 16; i++) { const y = (t / 30 + i * 37) % (DH + 10) - 6, x = (i * 53 + Math.sin(t / 500 + i) * 4) % W; px(c, x, y, 2, 1, ev.cols[i % ev.cols.length]); }
   }
 
+  // ---- The spare room: a lounge through an opening on the right of the Pad (a Gus project on the hallway board) ----
+  // The Pad's world is 400 wide: the cabin (0-200), a short divider (198-208) and the lounge (208-400).
+  // On a wide screen you see all of it; on a phone the view is 240 wide and slides along with you.
+  const SR_WW = 400, SR_X = 208, SR_DOOR = 386;
+  const spareOpen = () => projDone('spare');
+  const padLounge = () => !inBalc() && !inBase();
+  const padWW = () => padLounge() ? SR_WW : PW;
+  const padVW = () => {
+    if (!padLounge() || (denUI && denUI.edit)) return PW;   // decorating: just the cabin, up close
+    const w = Math.min(innerWidth || 800, document.documentElement.clientWidth || 800);
+    return w >= 640 ? SR_WW : 240;
+  };
+  const padRight = () => padLounge() && spareOpen() ? SR_DOOR - 4 : PAD_B[2];
+  const padDoorX = () => padLounge() && spareOpen() ? SR_DOOR : 186;
+  const SR_COUCH = [296, 106, 72, 14];   // the couch's footprint on the floor: you walk around it
+  const srBlocked = (x, y) => padLounge() && spareOpen() && x > SR_COUCH[0] && x < SR_COUCH[0] + SR_COUCH[2] && y > SR_COUCH[1] && y < SR_COUCH[1] + SR_COUCH[3];
+  const srFed = () => store.get('ds-fishFed', '') === shipDayKey();
+  const SR_TV = [
+    'Channel 2: a cooking show where the chef keeps losing the spatula in zero-g. Week six. Still no spatula.',
+    'Channel 5: the Mars Cup rover final. Again. The red team still trips over the same rock.',
+    'Channel 7: a nature documentary about a very slow moss. It’s gripping, somehow.',
+    'Channel 9: a quiz show. The answer to every question tonight seems to be “Jupiter.”',
+    'Channel 11: “Docking Disasters.” Every pilot on board pretends not to watch it. Every pilot on board watches it.',
+    'Channel 13: a weather report for a planet nobody lives on. Sunny, minus two hundred.',
+    'Channel 4: an old cartoon about a cat who runs a space station. Apogee would approve.'
+  ];
+  const SR_SCOPE = [
+    'Through the telescope: a ringed planet, close enough to count three of the rings. Four, if you squint.',
+    'Through the telescope: a comet with a long, lazy tail, going nowhere in particular.',
+    'Through the telescope: a supply freighter, blinking hello. You blink the lounge lights back.',
+    'Through the telescope: a smudge that turns out to be a fingerprint on the lens. Still pretty.',
+    'Through the telescope: a pair of moons, one chasing the other round and round.'
+  ];
+  const SR_COUCH_SAYS = [
+    'The couch is very soft. Someone has already lost a sock down the side of it.',
+    'Best couch on the ship. Don’t tell the break room.',
+    'There’s a dent in one cushion exactly the size of a cat.'
+  ];
+  function srWho(pw) { return pw.guest ? pw.guest.who : crumbAround() ? 'K' : 'F'; }
+  function srThings(pw, L) {
+    if (!padLounge()) return;
+    if (!spareOpen()) {
+      L.push({ id: 'tape', rect: [184, 30, 36, 60], go: () => [180, 112], at: () => ({ x: 204, y: 112 }), act: () => {
+        sfx.click(); const paid = Math.min(projPaid.spare || 0, 6000);
+        denSay('G', `That’s the spare room. I’m knocking it through the moment it’s paid for: ${fmt(paid)} of 6,000 credits so far. It’s on the hallway board.`);
+      } });
+      return;
+    }
+    L.push({ id: 'tv', rect: [350, 30, 48, 50], go: () => [378, 98], at: () => ({ x: 374, y: 60 }), act: () => {
+      sfx.click(); denUI.srCh = ((denUI.srCh ?? Math.floor(Math.random() * SR_TV.length)) + 1) % SR_TV.length; denSay(srWho(pw), SR_TV[denUI.srCh]);
+    } });
+    L.push({ id: 'tank', rect: [212, 40, 38, 40], go: () => [231, 96], at: () => ({ x: 231, y: 60 }), act: () => {
+      if (srFed()) { sfx.click(); denSay(srWho(pw), 'The fish have eaten today. They say they haven’t. Pebble, Comet and Little Gus are all liars.'); return; }
+      store.set('ds-fishFed', shipDayKey()); denUI.srFeed = performance.now(); sfx.coin();
+      denSay(srWho(pw), 'A pinch of flakes. Pebble, Comet and Little Gus race to the top like it’s the first food they’ve ever seen.');
+    } });
+    L.push({ id: 'scope', rect: [332, 34, 20, 46], go: () => [340, 98], at: () => ({ x: 338, y: 50 }), act: () => { sfx.click(); denSay(srWho(pw), SR_SCOPE[Math.floor(Math.random() * SR_SCOPE.length)]); } });
+    L.push({ id: 'couch', rect: [294, 98, 76, 24], go: () => [332, 128], at: () => ({ x: 332, y: 112 }), act: () => { sfx.click(); denSay(srWho(pw), SR_COUCH_SAYS[Math.floor(Math.random() * SR_COUCH_SAYS.length)]); } });
+  }
+  // the lounge's back wall and floor (before the cabin is laid over the left half)
+  function srDrawBack(c, look, t) {
+    const W = denItem('wall', look.wall), [base, edge, seam, ceil] = W.cols, strip = denItem('light', look.light).strip(t);
+    const fl = denItem('floorStyle', look.floorStyle);
+    for (let k = 0; k < 4; k++) { c.save(); c.translate(200, 22 * k); fl.draw(c, t); c.restore(); }
+    const g = c.createLinearGradient(200, 0, SR_WW, 0);
+    g.addColorStop(0, base); g.addColorStop(0.85, base); g.addColorStop(1, edge);
+    c.fillStyle = g; c.fillRect(200, 0, 200, 78);
+    if (W.stars) denStars(c, 208, 8, 192, 70, t);
+    px(c, 200, 52, 200, 1, seam); for (const x of [256, 350]) px(c, x, 8, 1, 70, seam);
+    px(c, 200, 0, 200, 7, ceil); px(c, 200, 6, 200, 1, strip);
+    const cg = c.createLinearGradient(0, 7, 0, 22); cg.addColorStop(0, strip); cg.addColorStop(1, 'rgba(0,0,0,0)');
+    c.globalAlpha = 0.28; c.fillStyle = cg; c.fillRect(200, 7, 200, 15); c.globalAlpha = 1;
+    for (let x = 210; x < SR_WW; x += 28) px(c, x, 2, 3, 2, '#fff6e0');
+    px(c, 200, 77, 200, 2, edge);
+  }
+  // the furniture, or the building site before it's paid for
+  function srDrawRoom(c, look, t) {
+    const open = spareOpen(), tt = reduceMotion ? 0 : t;
+    if (open) {
+      // fish tank on its cabinet
+      px(c, 212, 60, 38, 18, '#7a5c44'); px(c, 212, 60, 38, 2, '#9a7656'); px(c, 215, 65, 14, 9, '#5a4232'); px(c, 233, 65, 14, 9, '#5a4232'); px(c, 221, 69, 2, 1, '#ffd36a'); px(c, 239, 69, 2, 1, '#ffd36a');
+      px(c, 213, 40, 36, 20, '#2f78a8'); px(c, 213, 40, 36, 2, '#bfe8f8'); px(c, 213, 55, 36, 5, '#d8c49a');
+      px(c, 216, 47, 2, 9, '#3f8a4a'); px(c, 244, 45, 2, 11, '#3f8a4a'); px(c, 241, 50, 2, 6, '#4fa85a');
+      const feed = performance.now() - (denUI.srFeed || -1e9) < 6000;
+      [['#ff9a3d', 0], ['#ffd36a', 9], ['#ff6b5e', 17]].forEach(([col, o], i) => {
+        const k = (tt / (1400 + i * 300) + o / 26) % 2, fwd = k < 1, fx = 215 + (fwd ? k : 2 - k) * 28, fy = feed ? 43 + (i % 2) : 46 + i * 2 + Math.round(Math.sin(tt / 500 + i) * 1);
+        px(c, Math.round(fx), fy, 4, 2, col); px(c, Math.round(fx) + (fwd ? -1 : 4), fy, 1, 2, col);
+      });
+      if (feed) for (let i = 0; i < 5; i++) px(c, 220 + i * 5, 42 + ((tt / 300 + i) % 3 | 0), 1, 1, '#e8c890');
+      if (!reduceMotion) for (let i = 0; i < 3; i++) px(c, 244, 54 - ((t / 90 + i * 5) % 14), 1, 1, '#e8f8ff');
+      // plant
+      px(c, 254, 66, 9, 12, '#c46a2c'); px(c, 254, 66, 9, 2, '#d8803c'); px(c, 258, 46, 2, 20, '#3f8a4a'); px(c, 251, 52, 7, 2, '#4fa85a'); px(c, 260, 56, 7, 2, '#4fa85a'); px(c, 253, 46, 10, 2, '#4fa85a');
+      // the big window, framed like the cabin's
+      c.fillStyle = '#f4ead6'; rrect(c, 266, 5, 82, 48, 12); c.fill();
+      c.fillStyle = '#b9a98c'; rrect(c, 268, 7, 78, 44, 10); c.fill();
+      c.save(); rrect(c, 270, 9, 74, 40, 9); c.clip();
+      px(c, 270, 9, 74, 40, '#070a18'); denStars(c, 270, 9, 74, 40, t);
+      c.fillStyle = '#c9a074'; c.beginPath(); c.arc(324, 23, 8, 0, Math.PI * 2); c.fill(); px(c, 316, 22, 16, 2, '#a8825e');
+      c.fillStyle = 'rgba(220,200,160,0.7)'; c.fillRect(310, 22, 28, 1);
+      c.fillStyle = '#9aa2b4'; c.beginPath(); c.ellipse(300, 62, 46, 16, 0, Math.PI, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.07)'; c.beginPath(); c.moveTo(278, 9); c.lineTo(288, 9); c.lineTo(274, 49); c.lineTo(270, 49); c.lineTo(270, 30); c.closePath(); c.fill();
+      c.restore();
+      // telescope, peering at the window
+      px(c, 339, 50, 2, 28, '#8a93ab'); px(c, 333, 77, 14, 2, '#5a6478'); px(c, 335, 72, 2, 6, '#8a93ab'); px(c, 343, 72, 2, 6, '#8a93ab');
+      c.save(); c.translate(340, 50); c.rotate(-0.55); px(c, -8, -3, 22, 5, '#c9cfdc'); px(c, -8, -3, 22, 1, '#eef1f6'); px(c, 13, -4, 3, 7, '#ffd36a'); c.restore();
+      // TV up on a media stand, with a games console
+      px(c, 350, 62, 48, 15, '#7a5c44'); px(c, 350, 62, 48, 2, '#9a7656'); px(c, 353, 66, 20, 8, '#5a4232'); px(c, 375, 66, 20, 8, '#5a4232'); px(c, 362, 69, 2, 1, '#ffd36a'); px(c, 384, 69, 2, 1, '#ffd36a');
+      px(c, 352, 77, 2, 2, '#2a2230'); px(c, 394, 77, 2, 2, '#2a2230');
+      px(c, 354, 58, 10, 4, '#3a3e4e'); px(c, 355, 59, 2, 1, '#7cf0b0');
+      px(c, 372, 56, 4, 6, '#2a2e3c'); px(c, 366, 61, 16, 1, '#2a2e3c');
+      px(c, 352, 31, 44, 26, '#1a1c26'); px(c, 354, 33, 40, 22, '#20304a');
+      const ch = denUI.srCh ?? 0, scr = [['#3f8a4a', '#ffd36a'], ['#b9472f', '#ffd36a'], ['#2a6a4a', '#9fe0b8'], ['#4a3a8a', '#ff9ad5'], ['#8a2a2a', '#ffb547'], ['#2a4a8a', '#f4f1e8'], ['#3a6a9a', '#ff9a3d']][ch % 7];
+      px(c, 354, 45, 40, 10, scr[0]); px(c, 360 + ((tt / 200) % 24 | 0), 39, 5, 6, scr[1]); px(c, 382, 36, 7, 7, '#ffd36a');
+      c.globalAlpha = 0.18; c.fillStyle = '#9fd8ff'; c.fillRect(348, 57, 52, 20); c.globalAlpha = 1;
+      // rug in front of the TV
+      c.fillStyle = '#6a4f9a'; c.beginPath(); c.ellipse(334, 116, 50, 10, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = '#8a6fba'; c.lineWidth = 1; c.beginPath(); c.ellipse(334, 116, 44, 7.5, 0, 0, Math.PI * 2); c.stroke();
+    } else {
+      // a building site: bare panels, a taped-off window hole, crates, a dust sheet, a work lamp and a ladder
+      px(c, SR_X, 7, 192, 71, 'rgba(120,100,70,0.25)');
+      for (let x = SR_X + 8; x < SR_WW; x += 24) px(c, x, 7, 1, 71, 'rgba(60,45,30,0.35)');
+      for (let k = 0; k < 7; k++) px(c, 216 + k * 26, 20 + (k % 2) * 16, 9, 1, 'rgba(60,45,30,0.4)');
+      px(c, 270, 12, 74, 38, '#8a7a60'); px(c, 272, 14, 70, 34, '#6a5c46');
+      c.strokeStyle = '#ffd36a'; c.lineWidth = 2; c.beginPath(); c.moveTo(272, 14); c.lineTo(342, 48); c.moveTo(342, 14); c.lineTo(272, 48); c.stroke();
+      // sign with how much is paid in
+      const paid = Math.min(projPaid.spare || 0, 6000);
+      px(c, 214, 26, 46, 22, '#1a1c26'); px(c, 215, 27, 44, 20, '#2a2e3c');
+      c.fillStyle = '#ffd36a'; c.font = '700 6px "IBM Plex Mono", monospace'; c.fillText('SPARE ROOM', 217, 35);
+      px(c, 217, 40, 40, 3, '#10121a'); px(c, 217, 40, Math.round(40 * paid / 6000), 3, '#7cf0b0');
+      // crates, a sheet over the couch-to-be, a paint pot
+      px(c, 222, 84, 20, 16, '#9a7656'); px(c, 222, 84, 20, 2, '#b48e6a'); px(c, 225, 90, 14, 1, '#7a5c44'); px(c, 230, 74, 16, 11, '#a8825e'); px(c, 230, 74, 16, 2, '#c09a74');
+      c.fillStyle = '#e8e2d6'; c.beginPath(); c.moveTo(300, 122); c.quadraticCurveTo(302, 104, 320, 102); c.quadraticCurveTo(345, 97, 362, 104); c.quadraticCurveTo(372, 110, 373, 122); c.closePath(); c.fill();
+      c.strokeStyle = '#c9c1b0'; c.lineWidth = 1; c.beginPath(); c.moveTo(322, 104); c.quadraticCurveTo(326, 114, 324, 121); c.moveTo(350, 101); c.quadraticCurveTo(348, 112, 352, 121); c.stroke();
+      px(c, 262, 112, 9, 8, '#7fd6ff'); px(c, 262, 112, 9, 2, '#c9cfdc');
+      // work lamp on a tripod
+      px(c, 280, 74, 2, 34, '#5a6478'); px(c, 274, 107, 14, 2, '#5a6478'); px(c, 275, 68, 11, 7, '#ffd36a');
+      c.fillStyle = 'rgba(255,214,106,0.12)'; c.beginPath(); c.moveTo(275, 75); c.lineTo(286, 75); c.lineTo(320, 140); c.lineTo(240, 140); c.fill();
+      // ladder against the far wall
+      px(c, 378, 40, 2, 64, '#8a93ab'); px(c, 392, 40, 2, 64, '#8a93ab'); for (let y = 46; y < 104; y += 9) px(c, 378, y, 16, 2, '#8a93ab');
+      c.fillStyle = 'rgba(14,12,22,0.34)'; c.fillRect(SR_X, 0, SR_WW - SR_X, PH);
+      // a sawhorse barrier across the way through
+      px(c, 204, 108, 3, 14, '#5a5048'); px(c, 222, 108, 3, 14, '#5a5048');
+      for (let k = 0; k < 6; k++) px(c, 200 + k * 5, 106, 5, 4, k % 2 ? '#1a1c26' : '#ffd36a');
+    }
+  }
+  // the divider between the cabin and the lounge, with rounded corners curving into each room
+  function srDrawDivider(c, look, t) {
+    const strip = denItem('light', look.light).strip(t), open = spareOpen();
+    px(c, 208, 7, 5, 71, 'rgba(40,28,16,0.10)');
+    px(c, 198, 0, 10, 79, '#f4ead6'); px(c, 198, 0, 1, 79, '#fffaf0'); px(c, 206, 0, 2, 79, '#b9a98c');
+    px(c, 198, 6, 10, 1, strip);
+    c.fillStyle = '#f4ead6';
+    c.beginPath(); c.moveTo(198, 7); c.lineTo(198, 14); c.arc(191, 14, 7, 0, -Math.PI / 2, true); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(208, 7); c.lineTo(208, 14); c.arc(215, 14, 7, Math.PI, -Math.PI / 2, false); c.closePath(); c.fill();
+    c.strokeStyle = '#b9a98c'; c.lineWidth = 1;
+    c.beginPath(); c.arc(191, 14, 7, 0, -Math.PI / 2, true); c.stroke();
+    c.beginPath(); c.arc(215, 14, 7, Math.PI, -Math.PI / 2, false); c.stroke();
+    px(c, 201, 28, 4, 5, '#ffd36a'); px(c, 200, 33, 6, 1, '#b9a98c');
+    c.fillStyle = 'rgba(255,214,106,0.13)'; c.beginPath(); c.moveTo(201, 34); c.lineTo(205, 34); c.lineTo(212, 58); c.lineTo(194, 58); c.fill();
+    px(c, 197, 72, 12, 6, '#c9b897'); px(c, 197, 72, 12, 1, '#e0d2b4');
+    px(c, 195, 79, 16, 2, '#7a5c44');
+    if (!open) {
+      // caution tape across the divider
+      for (const [y0, y1] of [[38, 54], [56, 40]]) { c.save(); c.translate(194, y0); c.rotate(Math.atan2(y1 - y0, 18)); for (let k = 0; k < 6; k++) px(c, k * 4, -1.5, 4, 3, k % 2 ? '#1a1c26' : '#ffd36a'); c.restore(); }
+    }
+  }
+  // the couch sits in the room, so people walk behind and in front of it
+  function srDrawCouch(c) {
+    px(c, 296, 117, 3, 3, '#2a2230'); px(c, 365, 117, 3, 3, '#2a2230');
+    px(c, 302, 98, 12, 7, '#ffb547'); px(c, 302, 98, 12, 1, '#ffd27a'); px(c, 346, 99, 11, 6, '#ff9ad5');
+    px(c, 296, 103, 72, 14, '#3f6a96'); px(c, 296, 103, 72, 3, '#5a86b4'); px(c, 331, 106, 1, 11, '#355a80');
+    px(c, 292, 105, 6, 13, '#355a80'); px(c, 366, 105, 6, 13, '#355a80'); px(c, 292, 105, 6, 1, '#4a76a4'); px(c, 366, 105, 6, 1, '#4a76a4');
+  }
+  // turning a phone or resizing a window can change how much of the Pad fits: redraw at the new size
+  let srResize = 0;
+  window.addEventListener('resize', () => { clearTimeout(srResize); srResize = setTimeout(() => {
+    const cv = $('denCv'); if (mode === 'den' && cv && denUI && cv.width !== padVW() * PS) renderDen(true);
+  }, 200); });
+  // the cabin's lighting carries on into the lounge
+  function srLight(c, look, t) {
+    const L = denItem('light', look.light);
+    c.save(); c.beginPath(); c.rect(198, 0, SR_WW - 198, RH); c.clip(); c.translate(200, 0); L.overlay(c, t); c.restore();
+  }
+
   // ---- The walkable Pad: your decorated cabin on the back wall, a floor to walk on in front ----
   const PW = 200, PH = 148, PAD_B = [8, 86, 182, 140], PS = 2;   // the canvas is drawn at 2x; people at 1.5x the room's scale
   let padOff = null, denNoRim = false;
@@ -11749,7 +11946,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (!pw) {
       const from = walkEnter; walkEnter = null;
       if (from) roomBack.den = from === 'hall' ? 'hall' : 'lounge';
-      pw = denUI.walk = { me: from === 'lounge' || from === 'hall' ? { x: 176, y: 122, dir: 1 } : { x: 100, y: 124, dir: 3 }, target: null, keys: {}, guest: null,
+      pw = denUI.walk = { me: from === 'lounge' || from === 'hall' ? { x: padDoorX() - 10, y: 122, dir: 1 } : { x: 100, y: 124, dir: 3 }, target: null, keys: {}, guest: null,
         crumb: crumbAround() ? { x: 20 + Math.random() * 120, y: 130, dir: 1, pause: 1 } : null };
       Object.assign(pw.me, { goal: null, moving: false });
     }
@@ -11757,7 +11954,8 @@ details.act > .limits { margin: 0 0 8px; }
     pw.look = look; pw.acts = { pick, pet, chat, crumbTalk };
     if (denUI.visitor && (!pw.guest || pw.guest.who !== denUI.visitor)) pw.guest = { who: denUI.visitor, x: pw.me.x < 100 ? 140 : 60, y: 100, dir: 0, goal: null, timer: 2 };
     if (!denUI.visitor) pw.guest = null;
-    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * PW / b.width, (e.clientY - b.top) * PH / b.height]; };
+    pw.vw = padVW(); pw.ww = padWW(); if (pw.cam == null || pw.cam > pw.ww - pw.vw) pw.cam = padCamAim(pw);
+    const toWorld = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * pw.vw / b.width + pw.cam, (e.clientY - b.top) * PH / b.height]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
       const [x, y] = toWorld(e);
@@ -11770,12 +11968,14 @@ details.act > .limits { margin: 0 0 8px; }
       pw.last = t;
       padStep(pw, dt);
       if (!denUI || denUI.walk !== pw || !document.body.contains(cv)) return;
-      padDraw(pw, t); eventDecor(pw.c, () => pw.c.setTransform(PS, 0, 0, PS, 0, 0), PW, PH, t, 'den');
+      padDraw(pw, t); eventDecor(pw.c, () => pw.c.setTransform(PS, 0, 0, PS, -Math.round(pw.cam * PS), 0), pw.ww, PH, t, 'den');
       pw.raf = requestAnimationFrame(loop);
     };
     pw.raf = requestAnimationFrame(loop);
   }
-  const clampP = (x, y) => [Math.max(PAD_B[0], Math.min(PAD_B[2], x)), Math.max(PAD_B[1], Math.min(PAD_B[3], y))];
+  const clampP = (x, y) => [Math.max(PAD_B[0], Math.min(padRight(), x)), Math.max(PAD_B[1], Math.min(PAD_B[3], y))];
+  // where the view wants to sit: following you on a phone, at home on the cabin while decorating
+  const padCamAim = pw => { const room = pw.ww - pw.vw; if (room <= 0 || denUI.edit) return 0; return Math.max(0, Math.min(room, pw.me.x - pw.vw / 2)); };
   function padThings(pw) {
     const L = [], look = pw.look();
     const g = pw.guest;
@@ -11784,7 +11984,9 @@ details.act > .limits { margin: 0 0 8px; }
     if (denUI.cat && !inBalc()) { const at = denCatSpot(denUI.cat, look); L.push({ id: 'cat', rect: [at.x - 6, at.y - 7, 23, 16], go: () => clampP(at.x + 5, at.y + 14), at: () => ({ x: at.x + 5, y: at.y }), act: () => pw.acts.pet() }); }
     if (inBalc()) L.push({ id: 'door', rect: [184, 88, 16, 52], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => balcGo(false) });
     else {
-      L.push({ id: 'door', rect: [184, 92, 16, 48], go: () => [182, 118], at: () => ({ x: 200, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode(roomBack.den); } });
+      srThings(pw, L);
+      const dx = padDoorX();
+      L.push({ id: 'door', rect: [dx - 2, 92, 16, 48], go: () => [dx - 4, 118], at: () => ({ x: dx + 14, y: 118 }), act: () => { sfx.click(); walkEnter = 'den'; setMode(roomBack.den); } });
       if (!intro) L.push({ id: 'balc', rect: [0, 88, 18, 52], go: () => [10, 118], at: () => ({ x: 0, y: 118 }), act: () => { if (balcOpen()) balcGo(true); else { sfx.click(); denSay('G', 'That hatch opens onto an old observation balcony. It needs new glass first. Chip in on the repair board in the hallway: “Open the Pad balcony”.'); } } });
     }
     // decorations are only tappable while decorating; otherwise a tap just walks you there (good for posing in photos)
@@ -11807,18 +12009,27 @@ details.act > .limits { margin: 0 0 8px; }
     pw.me.dir = faceToward(pw.me, th.at());
     th.act();
   }
+  // step to (x, y), sliding along the couch if it's in the way; false if you couldn't move at all
+  function padMove(me, x, y) {
+    if (!srBlocked(x, y)) { me.x = x; me.y = y; return true; }
+    if (!srBlocked(x, me.y) && x !== me.x) { me.x = x; return true; }
+    if (!srBlocked(me.x, y) && y !== me.y) { me.y = y; return true; }
+    return false;
+  }
   function padStep(pw, dt) {
+    pw.cam += (padCamAim(pw) - pw.cam) * Math.min(1, dt * 5);
     const me = pw.me, SPEED = 50;
     const kx = (pw.keys.ArrowRight ? 1 : 0) - (pw.keys.ArrowLeft ? 1 : 0), ky = (pw.keys.ArrowDown ? 1 : 0) - (pw.keys.ArrowUp ? 1 : 0);
     me.moving = false;
     if (kx || ky) {
       me.goal = null; pw.target = null;
-      const n = Math.hypot(kx, ky); [me.x, me.y] = clampP(me.x + kx / n * SPEED * dt, me.y + ky / n * SPEED * dt);
+      const n = Math.hypot(kx, ky); padMove(me, ...clampP(me.x + kx / n * SPEED * dt, me.y + ky / n * SPEED * dt));
       me.dir = Math.abs(kx) > Math.abs(ky) ? (kx < 0 ? 1 : 2) : (ky < 0 ? 3 : 0); me.moving = true;
     } else if (me.goal) {
       const dx = me.goal[0] - me.x, dy = me.goal[1] - me.y, d = Math.hypot(dx, dy);
       if (d < 1.2) { me.goal = null; padArrive(pw); return; }
-      const st = Math.min(d, SPEED * dt); me.x += dx / d * st; me.y += dy / d * st;
+      const st = Math.min(d, SPEED * dt);
+      if (!padMove(me, me.x + dx / d * st, me.y + dy / d * st)) { me.goal = null; if (pw.target && d < 26) padArrive(pw); else pw.target = null; return; }
       me.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); me.moving = true;
     }
     footstep(me, me.moving, dt, 'carpet');
@@ -11828,10 +12039,10 @@ details.act > .limits { margin: 0 0 8px; }
       if (g.goal) {
         const dx = g.goal[0] - g.x, dy = g.goal[1] - g.y, d = Math.hypot(dx, dy);
         if (d < 1.2) { g.goal = null; g.timer = 3 + Math.random() * 5; g.dir = Math.random() < 0.6 ? 3 : 0; }
-        else { const st = Math.min(d, 26 * dt); g.x += dx / d * st; g.y += dy / d * st; g.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
+        else { const st = Math.min(d, 26 * dt); if (!padMove(g, g.x + dx / d * st, g.y + dy / d * st)) { g.goal = null; g.timer = 2; } g.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
       } else if ((g.timer -= dt) <= 0 && denUI.talking !== g.who) {
         let gx, gy, k = 0;
-        do { gx = 20 + Math.random() * 150; gy = 90 + Math.random() * 40; k++; } while (k < 8 && Math.hypot(gx - me.x, gy - me.y) < 24);
+        do { gx = 20 + Math.random() * (padRight() - 30); gy = 90 + Math.random() * 40; k++; } while (k < 12 && (Math.hypot(gx - me.x, gy - me.y) < 24 || srBlocked(gx, gy)));
         g.goal = [gx, gy];
       }
     }
@@ -11841,14 +12052,16 @@ details.act > .limits { margin: 0 0 8px; }
       else {
         cr.x += cr.dir * 9 * dt; cr.moving = true;
         if (cr.x < 10) { cr.x = 10; cr.dir = 1; cr.pause = 1; }
-        if (cr.x > 166) { cr.x = 166; cr.dir = -1; cr.pause = 1; }
+        if (cr.x > padRight() - 16) { cr.x = padRight() - 16; cr.dir = -1; cr.pause = 1; }
         if (Math.random() < dt * 0.2) { cr.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) cr.dir *= -1; }
       }
     }
   }
   function padDraw(pw, t) {
     const c = pw.c, look = pw.look();
-    c.setTransform(PS, 0, 0, PS, 0, 0);
+    const camPx = -Math.round(pw.cam * PS), lng = padLounge();
+    c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#0a0e1c'; c.fillRect(0, 0, c.canvas.width, c.canvas.height);
+    c.setTransform(PS, 0, 0, PS, camPx, 0);
     c.imageSmoothingEnabled = false;
     if (!padOff) { padOff = document.createElement('canvas'); padOff.width = RW; padOff.height = RH; }
     // your cabin exactly as decorated, with the spot you're editing outlined
@@ -11857,18 +12070,22 @@ details.act > .limits { margin: 0 0 8px; }
     // the floor carries on toward you, in whatever flooring you picked
     if (inBalc()) { const dk = denItem('bdeck', look.bdeck); for (const k of [36, 72]) { c.save(); c.translate(0, k); dk.draw(c, t); c.restore(); } }
     else { const fl = denItem('floorStyle', look.floorStyle); for (let k = 1; k < 4; k++) { c.save(); c.translate(0, 22 * k); fl.draw(c, t); c.restore(); } }
+    if (lng) srDrawBack(c, look, t);
     const fade = c.createLinearGradient(0, 100, 0, PH); fade.addColorStop(0, 'rgba(0,0,0,0.05)'); fade.addColorStop(1, 'rgba(0,0,0,0.28)');
-    c.fillStyle = fade; c.fillRect(0, 100, PW, PH - 100);
+    c.fillStyle = fade; c.fillRect(0, 100, pw.ww, PH - 100);
     c.drawImage(padOff, 0, 0);
+    if (lng) { srDrawRoom(c, look, t); srLight(c, look, t); srDrawDivider(c, look, t); }
     // the door back to the break room (or, on the balcony, back inside), and the balcony door
     if (inBalc()) drawBalcDoor(c, 184, 'in');
     else { if (!intro) drawBalcDoor(c, 0, balcOpen() ? 'out' : 'locked');
+    c.save(); c.translate(padDoorX() - 186, 0);
     px(c, 186, 92, 14, 48, '#c9b897'); px(c, 188, 94, 12, 46, '#2a2f45'); px(c, 190, 96, 10, 42, '#3a4060'); px(c, 191, 117, 2, 3, '#ffb547');
-    px(c, 187, 86, 12, 5, '#ffb547'); px(c, 188, 87, 10, 3, '#2a1d0a'); px(c, 190, 88, 2, 1, '#ffb547'); px(c, 193, 88, 2, 1, '#ffb547'); px(c, 196, 88, 1, 1, '#ffb547'); }
+    px(c, 187, 86, 12, 5, '#ffb547'); px(c, 188, 87, 10, 3, '#2a1d0a'); px(c, 190, 88, 2, 1, '#ffb547'); px(c, 193, 88, 2, 1, '#ffb547'); px(c, 196, 88, 1, 1, '#ffb547'); c.restore(); }
     if (pw.tap && t - pw.tap.t < 500) { const k = (t - pw.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(pw.tap.x, pw.tap.y, 4 + k * 5, 2 + k * 2.5, 0, 0, Math.PI * 2); c.stroke(); }
     // people and rovers, back to front, drawn at 1.5x so they're the right size for the furniture
-    const big = (wx, wy, ox, oy, fn) => { c.save(); c.setTransform(PS * 1.5, 0, 0, PS * 1.5, Math.round(PS * wx - ox * PS * 1.5), Math.round(PS * wy - oy * PS * 1.5)); fn(); c.restore(); };
+    const big = (wx, wy, ox, oy, fn) => { c.save(); c.setTransform(PS * 1.5, 0, 0, PS * 1.5, Math.round(PS * wx - ox * PS * 1.5) + camPx, Math.round(PS * wy - oy * PS * 1.5)); fn(); c.restore(); };
     const things = [], me = pw.me;
+    if (lng && spareOpen()) things.push([119, () => srDrawCouch(c)]);
     things.push([me.y, () => big(me.x, me.y, 8, 24, () => drawPerson(c, 'P', 0, 0, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t))]);
     const g = pw.guest;
     if (g) { const bob = denUI.talking === g.who && Math.floor(t / 90) % 2 ? -1 : 0; things.push([g.y, () => big(g.x, g.y, 8, 24 - bob, () => drawPerson(c, g.who, 0, 0, g.dir, g.goal ? Math.floor(t / 150) % 4 : 0, t))]); }
@@ -11876,7 +12093,7 @@ details.act > .limits { margin: 0 0 8px; }
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     // the rim around the whole room
     c.setTransform(1, 0, 0, 1, 0, 0);
-    const Wd = PW * PS, Hd = PH * PS;
+    const Wd = pw.vw * PS, Hd = PH * PS;
     c.fillStyle = '#0a0e1c'; c.beginPath(); c.rect(0, 0, Wd, Hd); rrectPath(c, 2, 2, Wd - 4, Hd - 4, 20); c.fill('evenodd');
     c.strokeStyle = 'rgba(201,207,220,0.35)'; c.lineWidth = 2; rrect(c, 3, 3, Wd - 6, Hd - 6, 19); c.stroke();
   }
@@ -12575,9 +12792,10 @@ details.act > .limits { margin: 0 0 8px; }
   function startEva() {
     const E = EVAS[evaId];
     card.innerHTML = `<div class="mining play eva-play">
-      <canvas id="evaCv" width="${EW * 2}" height="${EH * 2}" role="application" aria-label="Spacewalk outside the ship. Rotate and thrust with the buttons below, or the arrow keys."></canvas>
+      <canvas id="evaCv" width="${EW * 2}" height="${EH * 2}" role="application" aria-label="Spacewalk outside the ship. Rotate and thrust with the buttons, or the arrow keys and Space."></canvas>
       <div class="eva-radio" aria-live="polite">${faceTag('G', '')}<p id="evaSay"></p></div>
       <div class="eva-pad"><button class="btn ghost" data-k="L" aria-label="Rotate left">◀ ROT</button><button class="btn ghost eva-thr" data-k="T" aria-label="Thrust">THRUST</button><button class="btn ghost" data-k="R" aria-label="Rotate right">ROT ▶</button></div>
+      <p class="eva-keys"><kbd>←</kbd> <kbd>→</kbd> rotate &nbsp;·&nbsp; <kbd>↑</kbd> or <kbd>Space</kbd> thrust</p>
       <div class="btns"><button class="btn ghost" id="evaQuit">Head back inside</button></div></div>`;
     paintFaces(card);
     const cv = $('evaCv');
