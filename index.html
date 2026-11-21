@@ -771,6 +771,17 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.mining.enc { max-width: 480px; }
+#encCv { width: 100%; aspect-ratio: 256 / 100; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #04050c; }
+.enc-choices { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.enc-ch { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--space-2); background: rgba(255,255,255,.03); color: var(--regolith); font: inherit; text-align: left; cursor: pointer; }
+.enc-ch:hover, .enc-ch:focus-visible { border-color: var(--flame); background: rgba(255,181,71,.08); }
+.enc-ch b { font-family: var(--f-display); font-size: 14px; letter-spacing: .03em; color: #f4f1e8; }
+.enc-ch small { font-size: 11px; color: var(--regolith-dim); }
+.enc-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.enc-notes li { font-size: 11px; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--ok); color: var(--ok); }
+.enc-notes li.bad { border-color: #ff6b5e; color: #ff6b5e; }
+@media (max-height: 460px) { .enc .sub { font-size: 12px; } .enc-ch { padding: 6px 12px; } #encCv { max-height: 28vh; object-fit: contain; } }
 .mining.cf-play { gap: 8px; }
 #cfCv { width: 100%; aspect-ratio: 200 / 180; max-height: 50vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #2a2030; touch-action: none; }
 .cf-tip { margin: 0; min-height: 2.6em; font-size: 12px; line-height: 1.35; color: var(--regolith); text-align: center; text-wrap: balance; }
@@ -4279,6 +4290,8 @@ details.act > .limits { margin: 0 0 8px; }
     levelFuel = d.fuel;
     spawn(d.spawn);
     if (copHas('Y')) { lander.fuel *= 1.1; lander.fuelMax *= 1.1; }
+    if (encFuel && !ghostRun && encFuelFor === missionSel) { lander.fuel = Math.max(20, lander.fuel + encFuel); if (lander.fuel > lander.fuelMax) lander.fuelMax = lander.fuel; popText(`${encFuel > 0 ? '+' : '−'}${Math.abs(encFuel)} kg fuel`, encFuel > 0 ? '#7cf0b0' : '#ff9a5e', lander.x, lander.y + 6, true); }
+    encFuel = 0;
     lander.cat = !!d.comfort;
     lander.sling = null;
     rng = Math.random;
@@ -5615,7 +5628,7 @@ details.act > .limits { margin: 0 0 8px; }
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'engine', 'lift'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { emergUi(m); } catch (e) {}
@@ -5691,6 +5704,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'eva') { eva = null; renderEva('intro'); return; }
     if (m === 'coffee') { cof = null; renderCoffee('intro'); return; }
+    if (m === 'encounter') { if (!enc) { setMode('missions'); return; } renderEncounter('scene'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
     if (m === 'datescene') { renderDate(); return; }
@@ -6373,6 +6387,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (restLocked(i)) { showToast(restText(), 4200); return; }
     if (emergActive()) { showToast(emergBlockText(), 4200); return; }
     if (emergBeforeMission()) return;
+    if (encSkip === i) encSkip = null; else if (encBefore(i)) return;
+    store.set('ds-lastWorld', ALL[i].world);
     missionTab = tabOf(i);
     missionSel = i;
     const d = ALL[i], st = STORY[d.id];
@@ -12150,7 +12166,7 @@ details.act > .limits { margin: 0 0 8px; }
   const evaDone = id => evaStars()[id] > 0;
   const evaGate = i => null;
   function openEva(id) { evaId = id; evaFrom = mode; setMode('eva'); }
-  function evaBack() { eva = null; if (evaFrom === 'garage') { walkEnter = null; setMode('garage'); return; } if (evaFrom === 'missions' || evaFrom === 'flights' || evaFrom === 'bridge') setMode(evaFrom === 'bridge' ? 'missions' : evaFrom); else setMode(lastRoom); }
+  function evaBack() { eva = null; if (evaFrom === 'encounter' && enc) { encGo(); return; } if (evaFrom === 'garage') { walkEnter = null; setMode('garage'); return; } if (evaFrom === 'missions' || evaFrom === 'flights' || evaFrom === 'bridge') setMode(evaFrom === 'bridge' ? 'missions' : evaFrom); else setMode(lastRoom); }
   function renderEva(phase, res) {
     const E = EVAS[evaId], best = evaStars()[evaId] || 0;
     if (phase === 'intro') {
@@ -12174,7 +12190,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (ok) {
       if (!E.random) { const all = evaStars(); if (stars > (all[evaId] || 0)) { all[evaId] = stars; store.set('ds-eva', JSON.stringify(all)); } }
       pay = E.random ? Math.round(E.pay * (0.6 + 0.2 * stars)) : prev ? Math.round(E.pay / 4) : E.pay; credits += pay; saveCosmetics();
-      const em = emerg(); if (em && (E.random || em.story === evaId)) emergFixed();
+      const em = emerg(); if (em && ((E.random && !E.salvage) || em.story === evaId)) emergFixed();
     }
     card.innerHTML = `<div class="mining eva">
       <span class="eyebrow">${ok ? 'Spacewalk complete' : 'Out of air'}</span><h1 class="${ok ? 'good' : 'bad'}">${ok ? E.name : 'Gus reels you in'}</h1>
@@ -12183,7 +12199,7 @@ details.act > .limits { margin: 0 0 8px; }
         <ul class="pz-stars eva-goals"><li class="ok"><b>★</b><span>Finish the job</span><em>Done</em></li><li class="${res.o2 >= E.o2 ? 'ok' : 'bad'}"><b>★</b><span>${E.o2}% oxygen or more</span><em>${Math.round(res.o2)}% left</em></li><li class="${res.time <= E.time ? 'ok' : 'bad'}"><b>★</b><span>Within ${E.time} s</span><em>${res.time.toFixed(1)} s</em></li></ul>
         <p class="balance">+<span data-count="${pay}">${fmt(pay)}</span> credits</p>`
       : `<p class="sub">Your oxygen ran dry, so Gus pulled you back in on the tether. Nobody’s hurt. Catch your breath and try again.</p>`}
-      <div class="btns">${ok && E.random ? '' : `<button class="btn${ok ? ' ghost' : ''}" id="evaAgain">${ok ? 'Go again' : 'Try again'}</button>`}<button class="btn${ok ? '' : ' ghost'}" id="back">${ok ? 'Back inside' : 'Not now'}</button></div>
+      <div class="btns">${ok && E.random || E.salvage ? '' : `<button class="btn${ok ? ' ghost' : ''}" id="evaAgain">${ok ? 'Go again' : 'Try again'}</button>`}<button class="btn${ok || E.salvage ? '' : ' ghost'}" id="back">${E.salvage ? 'Back on course' : ok ? 'Back inside' : 'Not now'}</button></div>
     </div>`;
     paintFaces(card);
     if (ok && !reduceMotion) {
@@ -12686,6 +12702,195 @@ details.act > .limits { margin: 0 0 8px; }
   }
   window.addEventListener('keydown', e => { if (cof && mode === 'coffee' && (e.code === 'Space' || e.code === 'ArrowUp')) { e.preventDefault(); if (e.repeat) return; if (cof.stage === 'sugar') cofSugar(); else cof.hold = true; } if (cof && mode === 'coffee' && e.code === 'Enter' && cof.stage !== 'pump') { e.preventDefault(); cofNext(); } });
   window.addEventListener('keyup', e => { if (cof && (e.code === 'Space' || e.code === 'ArrowUp')) cof.hold = false; });
+
+  // ---- Travel encounters: on the way to a mission on another world, sometimes something happens out there. ----
+  // A scene, a crewmate's take, two or three choices with clear costs, and what came of it. Then on to the mission.
+  const ENC_GIFT = { gem: '💎 Gem', flowers: '🌸 Moonflowers', choc: '🍫 Chocolate', tea: '🍵 Tea', coffee: '☕ Coffee beans' };
+  const crewIn = w => w === 'F' || w === 'G' || (romMet[w] && romMet[w]() && !isLost(w));
+  const ENCOUNTERS = [
+    { id: 'distress', title: 'Distress call', art: 'pod', who: 'F',
+      text: 'A tiny mining pod is tumbling off course, blinking SOS. One pilot inside, out of fuel and extremely embarrassed about it.',
+      say: 'Their beacon says “PLEASE HELP” and also “THIS IS VERY AWKWARD.”',
+      choices: [
+        { label: 'Tow them to the nearest port', hint: '−35 kg fuel this landing · Wren ♥', fx: { fuel: -35, hearts: { W: 22 }, later: ['W', 'That miner you towed? Their whole family sent us soup. Out here, we look after each other. Proud of you.'], credits: 0 }, out: 'You hook the pod on a tow line and drop it at a mining port. The pilot waves until you’re out of sight.', react: ['W', 'That’s my pilot.'] },
+        { label: 'Radio their position to the port', hint: 'Free · Dottie ♥', fx: { hearts: { F: 14 } }, out: 'A port tug is on its way. Dottie logs it, with a gold star next to your name.', react: ['F', 'Efficient AND kind. Logging it.'] },
+        { label: 'Keep flying', hint: 'No cost. Wren notices.', fx: {}, out: 'You fly on. Somebody else will get them. Probably.', react: ['W', '…Hm.'] }
+      ] },
+    { id: 'derelict', title: 'A derelict', art: 'derelict', who: 'G',
+      text: 'A dead freighter drifts across your path, lights out, hatches open. Crates are floating out of a hole in her side.',
+      say: 'Free parts. Free PARTS, kid. Nobody’s home. I checked. I yelled “hello” on every channel.',
+      choices: [
+        { label: 'Suit up and salvage', hint: 'Spacewalk · catch the crates for credits', fx: { eva: true }, out: '' },
+        { label: 'Send Crumb over', hint: 'Free · Crumb picks something. Anything.', fx: { crumb: true }, out: '' },
+        { label: 'Leave it alone', hint: 'No cost', fx: { hearts: { R: 8 } }, out: 'You leave the freighter to drift.', react: ['R', 'Good call. That ship was haunted. One hundred percent haunted.'] }
+      ] },
+    { id: 'goons', title: 'You’re being followed', art: 'goons', who: 'F', can: () => storyDone('liftoff') && !storyDone('home'),
+      text: 'Two red ships with no markings slide in behind you and match your speed. Sable’s people. They don’t answer hails.',
+      say: 'They want us nervous. Let’s not give them the satisfaction.',
+      choices: [
+        { label: 'Hide in an asteroid’s shadow', hint: 'Free · usually works', fx: { chance: [0.65, { hearts: { F: 12 } }, { emerg: 'hull' }] }, out: '' },
+        { label: 'Punch it and outrun them', hint: '−25 kg fuel this landing · always works', fx: { fuel: -25, hearts: { G: 10 } }, out: 'Gus opens the throttle all the way. The red ships shrink to dots and give up.', react: ['G', 'She’s FAST when she wants to be!'] },
+        { label: 'Pay their “toll”', hint: '−150 credits · they leave', fx: { credits: -150 }, out: 'You transfer the credits. The red ships peel away without a word.', react: ['F', 'I hate this. I’m writing it down. One day it goes in a report.'] }
+      ] },
+    { id: 'bazaar', title: 'The Wandering Market', art: 'bazaar', who: 'H',
+      text: 'A patchwork ship strung with lanterns pulls alongside. A sign flickers: WANDERING MARKET · OPEN · NO REFUNDS · NO QUESTIONS.',
+      say: 'Spices. They have SPICES. Pilot, please. I’m begging. Politely.',
+      choices: [
+        { label: 'Buy a rare gem', hint: '−180 credits · 💎 for your gift basket', fx: { credits: -180, basket: { gem: 1 } }, out: 'The trader hands you a gem wrapped in something that might be a sock.', react: ['H', 'A gem! Somebody on this ship is getting spoiled.'] },
+        { label: 'Buy a spare fuel cell', hint: '−90 credits · +40 kg fuel this landing', fx: { credits: -90, fuel: 40 }, out: 'One slightly dented fuel cell, plugged straight into the lander.', react: ['G', 'Dented means character.'] },
+        { label: 'Buy Bao his spices', hint: '−60 credits · Bao ♥ · 🍫 for your basket', fx: { credits: -60, hearts: { H: 24 }, basket: { choc: 1 } }, out: 'Bao comes back with three bags of spices and a chocolate bar “for the pilot”.', react: ['H', 'Tonight, we feast. Tomorrow, we feast again.'] }
+      ] },
+    { id: 'comet', title: 'A comet', art: 'comet', who: 'N', can: () => crewIn('N'),
+      text: 'A comet is crossing your path, close enough to see its tail glittering. The whole crew drifts to the windows.',
+      say: 'Pilot!!! COMET!!! Can we stop?! Five minutes?! Two?! ONE?!',
+      choices: [
+        { label: 'Stop and watch it pass', hint: 'The crew ♥', fx: { crew: 10 }, out: 'You cut the engines. For a few minutes nobody says anything. Even Rex.', react: ['N', 'I’m never forgetting this. Not ever.'] },
+        { label: 'Keep going, slow and steady', hint: 'Free · Dottie ♥', fx: { hearts: { F: 10 } }, out: 'You keep your course. The comet slides past the windows anyway.', react: ['F', 'On schedule. I appreciate you.'] }
+      ] },
+    { id: 'whale', title: 'Something big', art: 'whale', who: 'G',
+      text: 'Something enormous is drifting alongside the ship. It’s… a whale? A space whale. It’s singing. The coffee machine in the break room starts singing back.',
+      say: 'I KNEW IT. I knew that machine was trying to talk to someone.',
+      choices: [
+        { label: 'Let them sing it out', hint: 'Gus ♥ · something nice later', fx: { hearts: { G: 20 }, later: ['G', 'Update: the Whale (the machine) has made the best coffee of its life every morning since. I think it made a friend.'] }, out: 'The whale and the coffee machine sing for ten whole minutes. Then the whale dives off into the dark.', react: ['G', 'Best day of that machine’s life.'] },
+        { label: 'Take a photo for science', hint: '+120 credits from a science journal', fx: { credits: 120 }, out: 'A science journal buys the photo. The headline is “LOCAL COFFEE MACHINE MAKES FIRST CONTACT”.', react: ['R', 'I should have been in that photo.'] },
+        { label: 'Back away very slowly', hint: 'No cost', fx: {}, out: 'You ease away. The whale doesn’t seem to mind. The coffee machine sulks all day.', react: ['G', 'You hurt her feelings.'] }
+      ] },
+    { id: 'patrol', title: 'Port patrol', art: 'patrol', who: 'F',
+      text: 'A white patrol cutter flashes its lights and asks you to hold for inspection.',
+      say: 'Everything is in order. I made sure. Twice. Please nobody say anything weird.',
+      choices: [
+        { label: 'Show your pilot license', hint: 'Free · always fine', fx: { hearts: { F: 8 } }, out: 'The officer scans your license, nods, and waves you on.', react: ['F', 'See? Paperwork saves lives.'] },
+        { label: 'Let Rex do the talking', hint: 'A gamble', fx: { chance: [0.5, { hearts: { R: 18 }, credits: 0, note: 'The officer wanted an autograph' }, { credits: -80, note: 'Fined 80 credits for “excessive charisma”' }] }, out: '' },
+        { label: 'Pay the inspection fee', hint: '−60 credits · quick', fx: { credits: -60 }, out: 'Sixty credits, a stamp, and a sticker that says I WAS INSPECTED.', react: ['G', 'I’m putting the sticker on my toolbox.'] }
+      ] },
+    { id: 'capsule', title: 'A mail capsule', art: 'capsule', who: 'C', can: () => crewIn('C'),
+      text: 'A little silver mail capsule is tumbling past, its delivery beacon broken. The label is smudged.',
+      say: 'Lost mail is a SAFETY ISSUE, pilot! Probably! Can we keep it?! I mean deliver it!',
+      choices: [
+        { label: 'Deliver it to the next port', hint: 'Kit ♥ · a thank-you later', fx: { hearts: { C: 18 }, later: ['C', 'THE MAIL CAPSULE WAS A BIRTHDAY CARD FOR SOMEBODY’S GRANDMA AND SHE CRIED AND SENT US 100 CREDITS!!!'], laterCredits: 100 }, out: 'You drop the capsule at the next mail buoy. Kit salutes it the whole way.', react: ['C', 'Mission accomplished! Unofficially!'] },
+        { label: 'Open it (just a peek)', hint: '🌸 for your basket · Dottie won’t love it', fx: { basket: { flowers: 2 } }, out: 'It’s full of moonflower seeds, packed in glitter. You keep them. Dottie pretends not to see.', react: ['F', 'I saw nothing. I see nothing. I am a wall.'] }
+      ] },
+    { id: 'ice', title: 'An ice field', art: 'ice', who: 'F',
+      text: 'A field of ice chunks is spread across your route. You can go around the long way, or thread right through it.',
+      say: 'I’ve plotted a safe route around. It is long. It is safe. Did I mention safe?',
+      choices: [
+        { label: 'Take Dottie’s safe route', hint: '−15 kg fuel this landing · Dottie ♥', fx: { fuel: -15, hearts: { F: 14 } }, out: 'The long way, and not a single scratch.', react: ['F', 'Thank you. I’ll remember this.'] },
+        { label: 'Thread straight through', hint: 'Free · a little risky', fx: { chance: [0.7, { hearts: { G: 8 }, note: 'Not a scratch!' }, { emerg: 'hull', note: 'A chunk clipped the hull' }] }, out: '' }
+      ] }
+  ];
+  let enc = null, encSkip = null;
+  const encSeen = () => { try { return JSON.parse(store.get('ds-encSeen', '{}')) || {}; } catch (e) { return {}; } };
+  // on the way to a mission on another world, once the ship has left the Moon, about one time in three
+  function encBefore(i) {
+    const d = MISSIONS[i] || ALL[i]; if (!d || !emergEligible()) return false;
+    const last = store.get('ds-lastWorld', '');
+    if (!last || last === d.world) return false;
+    if (emergCount() - +store.get('ds-encLast', '-9') < 2) return false;
+    if (Math.random() >= 0.33) return false;
+    const seen = encSeen(), pool = ENCOUNTERS.filter(e => crewIn(e.who) && (!e.can || e.can()));
+    if (!pool.length) return false;
+    const low = Math.min(...pool.map(e => seen[e.id] || 0)), fresh = pool.filter(e => (seen[e.id] || 0) === low);
+    const E = fresh[Math.floor(Math.random() * fresh.length)];
+    seen[E.id] = (seen[E.id] || 0) + 1; store.set('ds-encSeen', JSON.stringify(seen));
+    store.set('ds-encLast', String(emergCount()));
+    enc = { E, i, to: WORLDS.find(w => w.id === d.world) }; encFuel = 0; encFuelFor = i;
+    setMode('encounter');
+    return true;
+  }
+  function encGo() { const i = enc.i, d = ALL[i]; store.set('ds-lastWorld', d.world); enc = null; encSkip = i; openMission(i); }
+  let encFuel = 0, encFuelFor = -1;   // a fuel change from an encounter applies only to the mission it happened on the way to
+  function encApply(fx, notes) {
+    if (fx.chance) { const [p, good, bad] = fx.chance, ok = Math.random() < p; return encApply(ok ? good : bad, notes), ok; }
+    if (fx.note) notes.push(fx.note);
+    if (fx.credits) { credits = Math.max(0, credits + fx.credits); saveCosmetics(); notes.push(`${fx.credits > 0 ? '+' : '−'}${fmt(Math.abs(fx.credits))} credits`); }
+    if (fx.fuel) { encFuel += fx.fuel; notes.push(`${fx.fuel > 0 ? '+' : '−'}${Math.abs(fx.fuel)} kg fuel on this landing`); }
+    if (fx.hearts) for (const [w, n] of Object.entries(fx.hearts)) if (crewIn(w)) { addHearts(w, n); notes.push(`${SIGN[w]} ♥`); }
+    if (fx.crew) { const ws = ROM_WHO.filter(crewIn); ws.forEach(w => addHearts(w, fx.crew)); notes.push('The whole crew ♥'); }
+    if (fx.basket) for (const [k, n] of Object.entries(fx.basket)) { garden.basket[k] = (garden.basket[k] || 0) + n; saveGarden(); notes.push(`${ENC_GIFT[k] || k} ×${n} in your gift basket`); }
+    if (fx.later && crewIn(fx.later[0])) { const [w, t] = fx.later, cr = fx.laterCredits || 0; setTimeout(() => { sendText(w, t); if (cr) { credits += cr; saveCosmetics(); } }, 2000); notes.push(`${SIGN[w]} will text you about it`); }
+    if (fx.emerg) { emergStart(fx.emerg, null, 'before'); const e = emerg(); e.told = true; emergSave(e); notes.push('⚠ Hull breach! Fix it before you land'); }
+    return true;
+  }
+  function renderEncounter(phase, pick) {
+    const { E, to } = enc;
+    if (phase === 'scene') {
+      card.innerHTML = `<div class="mining enc">
+        <span class="eyebrow">On the way to ${to.name}</span><h1 class="good">${E.title}</h1>
+        <canvas id="encCv" width="512" height="200" aria-hidden="true"></canvas>
+        <p class="sub">${E.text}</p>
+        <div class="radio quote">${faceTag(E.who, SIGN[E.who])}<div class="said"><span class="who" style="color:${SPEAKERS[E.who].color}">${SPEAKERS[E.who].name}</span><p>${E.say}</p></div></div>
+        <div class="enc-choices">${E.choices.filter(ch => !ch.fx.crumb || crumbHome()).map((ch, k) => `<button class="enc-ch" data-k="${E.choices.indexOf(ch)}"><b>${ch.label}</b><small>${ch.hint}</small></button>`).join('')}</div>
+      </div>`;
+      paintFaces(card); encArt();
+      card.querySelectorAll('.enc-ch').forEach(b => b.addEventListener('click', () => { sfx.click(); renderEncounter('out', +b.dataset.k); }));
+      setTimeout(() => { const f = card.querySelector('.enc-ch'); if (f) f.focus({ preventScroll: true }); }, 0);
+      return;
+    }
+    const ch = E.choices[pick], notes = [];
+    if (ch.fx.eva) { encSalvage(); return; }
+    let out = ch.out, react = ch.react;
+    if (ch.fx.crumb) {
+      const r = Math.random();
+      if (r < 0.5) { encApply({ credits: 180 }, notes); out = 'Crumb rolls back across on his tether with a box of good parts. Gus sells them on the spot.'; react = ['K', '*proud beeping*'];
+      } else if (r < 0.8) { encApply({ basket: { gem: 1 } }, notes); out = 'Crumb comes back with something shiny clamped in his arm. It’s a gem!'; react = ['K', '*beep beep BEEP* (He would like it known that he found it.)'];
+      } else { notes.push('A lampshade'); out = 'Crumb comes back very pleased with himself, carrying a lampshade. Just a lampshade.'; react = ['G', 'It’s a great lampshade, buddy. The best.']; }
+    } else {
+      const ok = encApply(ch.fx, notes);
+      if (ch.fx.chance && !out) {
+        const goodNotes = { goons: ['It works. The red ships drift past, scanning, and lose you.', ['F', 'Textbook.']], patrol: ['Rex flashes his famous smile. The officer asks for an autograph and waves you through.', ['R', 'It’s a gift. A burden, but a gift.']], ice: ['You thread the ice field like a needle. Not a scratch!', ['G', 'Did you SEE that?']] };
+        const badNotes = { goons: ['They spot you. One of them fires a warning shot into the rocks, and the debris peppers your hull.', ['G', 'They hit us! We’re leaking. Suit up before we land!']], patrol: ['Rex starts a speech about his career. The officer fines you for it.', ['F', 'Rex. REX.']], ice: ['Almost through… then a chunk of ice clips the hull with a bang.', ['G', 'That’s a breach. Patch it before we land, kid.']] };
+        [out, react] = (ok ? goodNotes : badNotes)[E.id];
+      }
+    }
+    const d = ALL[enc.i], em = emergActive();
+    card.innerHTML = `<div class="mining enc">
+      <span class="eyebrow">On the way to ${to.name}</span><h1 class="good">${E.title}</h1>
+      <p class="sub">${out}</p>
+      ${react ? `<div class="radio quote">${faceTag(react[0], SIGN[react[0]])}<div class="said"><span class="who" style="color:${SPEAKERS[react[0]].color}">${SPEAKERS[react[0]].name}</span><p>${react[1]}</p></div></div>` : ''}
+      ${notes.length ? `<ul class="enc-notes">${notes.map(n => `<li class="${/^−|⚠|Fined|lampshade/i.test(n) ? 'bad' : ''}">${n}</li>`).join('')}</ul>` : ''}
+      <div class="btns">${em ? '<button class="btn emerg-btn" id="encSuit">🧑‍🚀 Suit up in the hangar</button>' : `<button class="btn" id="encGo">On to ${to.name}: ${d.name}</button>`}</div>
+    </div>`;
+    paintFaces(card);
+    const g = $('encGo'); if (g) g.addEventListener('click', () => { sfx.click(); encGo(); });
+    const s = $('encSuit'); if (s) s.addEventListener('click', () => { sfx.click(); store.set('ds-lastWorld', d.world); enc = null; walkEnter = null; setMode('garage'); });
+    setTimeout(() => { const f = g || s; if (f) f.focus({ preventScroll: true }); }, 0);
+  }
+  // salvage the derelict: a spacewalk to catch its drifting crates, then on to the mission
+  function encSalvage() {
+    const n = 2 + Math.floor(Math.random() * 2);
+    EVAS['eva-rand'] = { name: 'Salvage', job: 'cargo', o2: 40, time: 30 + n * 20, pay: 260, random: true, salvage: true,
+      intro: 'Crates are drifting out of that freighter. Grab what you can and bring it to our airlock. Anything you catch, I can sell.',
+      brief: `Catch the ${n} drifting crates and bring each one back to the airlock.`, done: 'Good haul! Nobody tell the freighter.',
+      crates: Array.from({ length: n }, () => { const a = -Math.PI * (0.12 + Math.random() * 0.76), r = 60 + Math.random() * 46; return [AIR[0] + Math.cos(a) * r, Math.min(96, AIR[1] + Math.sin(a) * r), (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6]; }) };
+    evaId = 'eva-rand'; evaFrom = 'encounter'; setMode('eva');
+  }
+  function encArt() {
+    const cv = $('encCv'); if (!cv) return;
+    const c = cv.getContext('2d'), art = enc.E.art, t0 = performance.now();
+    const loop = now => {
+      if (!cv.isConnected) return;
+      const t = (now - t0) / 1000;
+      c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+      px(c, 0, 0, 256, 100, '#04050c');
+      for (let i = 0; i < 60; i++) { const x = ((i * 89) % 256 - (t * 18 * (1 + i % 3)) % 256 + 256) % 256, y = (i * 47) % 100; px(c, x, y, i % 3 === 2 ? 2 : 1, 1, i % 4 ? '#5a6278' : '#c9cfdc'); }
+      cineShipAt(c, 16, 38 + Math.sin(t * 1.3) * 2, 0.9, { flame: 0.6 + Math.random() * 0.3, blue: storyDone('patchwork'), lit: shipDark() ? 0.3 : 1 });
+      encDraw(c, art, t);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+  function encDraw(c, art, t) {
+    const bl = (t * 2 | 0) % 2;
+    if (art === 'pod') { c.save(); c.translate(190, 46); c.rotate(t * 0.8); px(c, -6, -4, 12, 8, '#c9cfdc'); px(c, -3, -3, 5, 3, '#7fd6ff'); px(c, 6, -2, 3, 4, '#8a93ab'); c.restore(); px(c, 189, 34, 2, 2, bl ? '#ff4a3a' : '#5a1a1a'); }
+    if (art === 'derelict') { px(c, 150, 30, 90, 28, '#3a3f50'); px(c, 150, 30, 90, 2, '#4e5468'); px(c, 236, 36, 10, 16, '#2e3240'); px(c, 176, 40, 10, 8, '#04050c'); px(c, 206, 34, 6, 6, '#04050c'); for (let k = 0; k < 3; k++) { c.save(); c.translate(184 + k * 14 + Math.sin(t + k) * 4, 62 + k * 6 + t * 2 % 10); c.rotate(t * (0.5 + k * 0.2)); px(c, -3, -3, 6, 6, '#c4823a'); c.restore(); } }
+    if (art === 'goons') { for (let k = 0; k < 2; k++) { const x = 160 + k * 40 + Math.sin(t * 1.4 + k) * 3, y = 30 + k * 22; px(c, x, y, 16, 6, '#8a2a2a'); px(c, x - 4, y + 2, 6, 2, '#5a1a1a'); px(c, x + 14, y + 1, 3, 4, '#ff6b5e'); c.fillStyle = 'rgba(255,107,94,.12)'; c.beginPath(); c.moveTo(x, y + 3); c.lineTo(x - 70, y - 8); c.lineTo(x - 70, y + 14); c.fill(); } }
+    if (art === 'bazaar') { px(c, 160, 34, 70, 22, '#6a4a7a'); px(c, 170, 28, 50, 8, '#c9a24a'); for (let k = 0; k < 8; k++) px(c, 162 + k * 9, 30 + Math.sin(t * 2 + k) * 1.5, 3, 3, ['#ff9ad5', '#ffd36a', '#7fd6ff', '#9fe0b8'][k % 4]); px(c, 172, 44, 18, 8, '#ffd36a'); px(c, 198, 44, 22, 8, '#2a1a30'); }
+    if (art === 'comet') { const x = 230 - (t * 14) % 120, y = 20 + (t * 4) % 30; for (let k = 0; k < 40; k++) { c.globalAlpha = 1 - k / 40; px(c, x + k * 2.2, y - k * 0.6 + Math.sin(k + t * 3) * 1.2, 2, 2, k % 3 ? '#7fd6ff' : '#e8f8ff'); } c.globalAlpha = 1; phDisc(c, x, y, 3, '#ffffff'); }
+    if (art === 'whale') { const y = 50 + Math.sin(t * 0.7) * 4; phOval(c, 186, y, 60, 18, '#2a4a6e'); phOval(c, 186, y - 3, 56, 13, '#3f6a96'); px(c, 240, y - 12, 14, 6, '#2a4a6e'); px(c, 244, y + 4, 12, 6, '#2a4a6e'); phDisc(c, 146, y - 4, 2, '#e8f4ff'); for (let k = 0; k < 8; k++) px(c, 160 + k * 9, y - 6 + (k % 2) * 4, 1, 1, '#c9cfdc'); c.globalAlpha = 0.6 + 0.4 * Math.sin(t * 4); c.fillStyle = '#7fd6ff'; c.font = '700 8px monospace'; c.fillText('♪', 120 + Math.sin(t) * 4, y - 20); c.fillText('♫', 104, y - 30 + Math.sin(t * 1.3) * 3); c.globalAlpha = 1; }
+    if (art === 'patrol') { const x = 176 + Math.sin(t) * 2; px(c, x, 38, 50, 14, '#e8edf5'); px(c, x, 46, 50, 3, '#4a7ac8'); px(c, x + 34, 32, 10, 6, '#c9cfdc'); px(c, x + 36, 30, 3, 2, bl ? '#ff4a3a' : '#4a7ac8'); px(c, x + 40, 30, 3, 2, bl ? '#4a7ac8' : '#ff4a3a'); px(c, x + 6, 41, 6, 3, '#1a1c26'); px(c, x + 16, 41, 6, 3, '#1a1c26'); }
+    if (art === 'capsule') { c.save(); c.translate(190, 48); c.rotate(Math.sin(t) * 0.6); px(c, -10, -3, 20, 6, '#c9cfdc'); px(c, -10, -3, 20, 1, '#ffffff'); px(c, -2, -5, 4, 10, '#ff9ad5'); px(c, -4, -7, 3, 3, '#ff9ad5'); px(c, 1, -7, 3, 3, '#ff9ad5'); c.restore(); }
+    if (art === 'ice') { for (let k = 0; k < 22; k++) { const x = 120 + (k * 37) % 136 - (t * 6) % 20, y = 8 + (k * 23) % 84, r = 2 + k % 4; c.save(); c.translate(x, y); c.rotate(t * 0.3 + k); px(c, -r, -r, r * 2, r * 2, k % 3 ? '#9fb4cc' : '#e8f4ff'); c.restore(); } }
+  }
 
   // ---- The galley: cook crops into meals with a quick stirring game ----
   const RECIPES = [
@@ -18076,6 +18281,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'encounter') return;
     if (mode === 'coffee') { if (e.code === 'Escape') { if (cof) { cof = null; renderCoffee('intro'); } else { walkEnter = null; setMode(cofFrom); } } return; }
     if (mode === 'eva') { if (e.code === 'Escape') { if (eva) { eva = null; renderEva('intro'); } else evaBack(); } return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
