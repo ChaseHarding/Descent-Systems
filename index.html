@@ -771,6 +771,13 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.shiproom.scene .btns, .shiproom.scene .gpanel, .shiproom.scene ~ * .btns { display: none !important; }
+.shiproom.scene h1 { opacity: .35; }
+.shiproom.scene #shipSay { border-color: var(--flame); box-shadow: 0 0 0 1px var(--flame), 0 8px 24px rgba(0,0,0,.4); cursor: pointer; position: relative; padding-right: 30px; }
+.shiproom.scene #shipSay::after { content: '▶'; position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: var(--flame); animation: sceneNext 1s ease-in-out infinite; }
+@keyframes sceneNext { 50% { transform: translateX(3px); opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .shiproom.scene #shipSay::after { animation: none; } }
+.scene-skip { align-self: flex-end; min-height: 32px; padding: 4px 12px; font-size: 11px; }
 .crumb-note { margin: 0 0 8px; font-size: 12px; color: var(--ok); }
 .crumb-parts { font-size: 11px; font-weight: 500; color: var(--flame); margin-left: 6px; letter-spacing: 0; text-transform: none; }
 .crumb-ups { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -9815,8 +9822,20 @@ details.act > .limits { margin: 0 0 8px; }
     const bx = s.rel ? deck.me.x : 0, clampX = x => Math.max(20, Math.min(deck.W - 20, x));
     const cast = s.cast.filter(([w]) => rsHere(w));
     deck.npcs = cast.map(([w, x, y, gx]) => ({ who: w, x: clampX(bx + x), y, dir: 0, baseDir: 0, goal: gx != null ? [clampX(bx + gx), y] : null, pause: 0, moving: false, script: true }));
-    deck.scene = { s, bx, lines: s.lines.filter(([w]) => rsHere(w)), i: -1, timer: 0, speaker: null };
-    roomSceneNext();
+    deck.scene = { s, bx, lines: s.lines.filter(([w]) => rsHere(w)), i: -1, timer: 0, speaker: null, ready: false };
+    const me = deck.me; me.goal = null; me.moving = false; me.sit = false; deck.target = null; deck.keys = {};
+    const box = card.querySelector('.shiproom'); if (box) box.classList.add('scene');
+    const sk = $('sceneSkip'); if (sk) sk.hidden = false;
+    try { deck.cv.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' }); } catch (e) {}
+    const S0 = deck.scene;
+    setTimeout(() => { if (deck && deck.scene === S0) { S0.ready = true; roomSceneNext(); } }, 650);
+  }
+  // where the camera looks during a scene: whoever is talking, or the middle of the cast
+  function sceneFocus() {
+    const S = deck.scene, sp = S && deck.npcs.find(n => n.who === S.speaker);
+    if (sp) return [sp.x, sp.y - 8];
+    if (!deck.npcs.length) return [deck.me.x, deck.me.y];
+    return [deck.npcs.reduce((a, n) => a + n.x, 0) / deck.npcs.length, deck.npcs.reduce((a, n) => a + n.y, 0) / deck.npcs.length - 8];
   }
   function roomSceneNext() {
     const S = deck && deck.scene; if (!S) return;
@@ -9826,14 +9845,16 @@ details.act > .limits { margin: 0 0 8px; }
     if (cue && cue.to) { const n = deck.npcs.find(o => o.who === w); if (n) n.goal = [Math.max(20, Math.min(deck.W - 20, (S.s.rel ? S.bx : 0) + cue.to[0])), cue.to[1]]; }
     S.speaker = w;
     shipSay(w, text);
-    S.timer = setTimeout(roomSceneNext, 2600 + text.length * 40);
+    S.timer = setTimeout(roomSceneNext, 6000 + text.length * 55);   // a slow fallback; a tap moves things along
   }
   function endRoomScene() {
-    const S = deck.scene; deck.scene = null;
+    const S = deck.scene; deck.scene = null; if (!S) return; clearTimeout(S.timer);
+    const box = card.querySelector('.shiproom'); if (box) box.classList.remove('scene');
+    const sk = $('sceneSkip'); if (sk) sk.hidden = true;
     const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
     for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
   }
-  document.addEventListener('click', e => { if (deck && deck.scene && e.target && e.target.closest && e.target.closest('#shipSay')) roomSceneNext(); });
+  document.addEventListener('click', e => { if (!deck || !deck.scene || !e.target || !e.target.closest) return; if (e.target.closest('#sceneSkip')) { sfx.click(); endRoomScene(); return; } if (e.target.closest('#shipSay') && deck.scene.ready) roomSceneNext(); });
   function shipSay(who, text) {
     const box = $('shipSay'); if (!box) return;
     box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
@@ -9863,6 +9884,7 @@ details.act > .limits { margin: 0 0 8px; }
       <h1 class="good">${T[0]}</h1>
       <canvas class="room walkroom" id="shipCv" width="512" height="320" tabindex="0" role="application" aria-label="${T[1]}"></canvas>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
+      <button class="btn ghost scene-skip" id="sceneSkip" hidden>Skip scene ⏭</button>
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}${lift ? '<div class="gpanel" id="liftPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
@@ -9895,6 +9917,7 @@ details.act > .limits { margin: 0 0 8px; }
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
+      if (deck.scene) { if (deck.scene.ready) roomSceneNext(); return; }
       const [x, y] = toWorld(e), me = deck.me, B = deck.B;
       const hit = shipThings().find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
       deck.target = hit || null; me.sit = false;
@@ -9913,6 +9936,9 @@ details.act > .limits { margin: 0 0 8px; }
       shipStep(dt);
       if (!deck) return;
       draw(t); eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
+      deck.bar = (deck.bar || 0) + ((deck.scene ? 1 : 0) - (deck.bar || 0)) * Math.min(1, dt * 7);
+      if (deck.bar > 0.01) { const c = deck.c, h = Math.round(deck.cv.height * 0.12 * deck.bar); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#05070f'; c.fillRect(0, 0, deck.cv.width, h); c.fillRect(0, deck.cv.height - h, deck.cv.width, h);
+        if (deck.scene && deck.scene.ready && !reduceMotion) { c.fillStyle = `rgba(255,181,71,${0.5 + 0.5 * Math.sin(t / 220)})`; const bx = deck.cv.width - 26, by = deck.cv.height - h / 2; c.beginPath(); c.moveTo(bx, by - 7); c.lineTo(bx + 12, by); c.lineTo(bx, by + 7); c.fill(); } }
       if (shipDark()) { const c = deck.c; c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = `rgba(40,0,8,${!reduceMotion && Math.floor(t / 1900) % 11 === 0 ? 0.42 : 0.28})`; c.fillRect(0, 0, deck.cv.width, deck.cv.height); }
       requestAnimationFrame(loop);
     };
@@ -10035,7 +10061,8 @@ details.act > .limits { margin: 0 0 8px; }
   function shipStep(dt) {
     npcStep(dt);
     const me = deck.me, B = deck.B, SPEED = 56;
-    const kx = (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
+    const lock = !!deck.scene, kx = lock ? 0 : (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = lock ? 0 : (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
+    if (lock) { me.goal = null; const sp = deck.npcs.find(n => n.who === deck.scene.speaker); if (sp) me.dir = faceToward(me, sp); }
     me.moving = false;
     if (kx || ky) {
       me.goal = null; deck.target = null; me.sit = false;
@@ -10061,7 +10088,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     footstep(me, me.moving, dt, ROOM_FLOOR[deck.kind]);
     hallCatStep(dt);
-    camAim(deck.view, me.x, me.y, deck.W, SHIP_H, dt);
+    if (deck.scene) { const [fx, fy] = sceneFocus(); camAim(deck.view, fx, fy, deck.W, SHIP_H, dt * 0.45); } else camAim(deck.view, me.x, me.y, deck.W, SHIP_H, dt);
   }
   // a little amber plate with a word on it
   function doorPlate(c, cx, y, label, lit) {
@@ -10499,7 +10526,9 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
   }
   window.addEventListener('keydown', e => {
-    if (!deck || mode !== deck.kind || document.activeElement !== deck.cv) return;
+    if (!deck || mode !== deck.kind) return;
+    if (deck.scene) { if (e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') { e.preventDefault(); if (deck.scene.ready) roomSceneNext(); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); endRoomScene(); } else if (e.key.startsWith('Arrow')) e.preventDefault(); return; }
+    if (document.activeElement !== deck.cv) return;
     if (e.key.startsWith('Arrow')) { deck.keys[e.key] = true; e.preventDefault(); }
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
