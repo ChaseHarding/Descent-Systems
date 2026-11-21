@@ -20,11 +20,13 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Five landers** that fly differently: Biscuit the all-rounder, Rex's fast and thirsty Apex Vector, Wren's slow, steady Lark, Dottie's Workhorse cargo hauler and Whisker, the twitchy little lander Gus built for Apogee. Each keeps its own paint, flame and flag
 - **Credits and a hangar** where you spend your banked points on hull finishes and engine flames
 - **Gus's workshop**: upgrades for a bigger fuel tank, a more efficient engine, softer landing struts and a landing radar that shows where you'll touch down
-- **Mission campaign**: 34 hand-built missions in four acts (and more on the way), with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
-- **Side missions**: twenty-three optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
+- **Mission campaign**: a brand-new story of 38 missions in four acts, with Act 1 playable now, with precision landings, cargo runs, canyon flying and rescues, each rated 1–3 stars, plus a story told over the radio by a small pixel-art cast
+- **Two more aliens to date**: Nerri, a bubbly ocean-dweller from under Europa's ice, and Brix, a gentle stone poet from Vesta, each with a full romance arc
+- **New crew to meet**: Bao runs the kitchen, Kit the cadet stows away once the ship flies, and a botanist auditions to join as you progress
+- **Side missions**: twenty-one optional jobs from the crew, each with its own twist: fragile cargo, a coffee countdown, a cat passenger, a survey route through the clouds of Venus, melting ice cream on Mercury, skipping across an asteroid, a blind landing in a magnetic storm, landing on a moving rover, flying a telescope on a swinging cable, landing through a meteor shower, a pad-hopping race against a rival, aurora photography and shadow hopping on Mercury
 - **Round trips**: nine missions where landing is only the start. Crumb the rover rolls down a ramp to grab samples, fix beacons or find a runaway cat, then you launch again and dock with the mothership
 - **Break room**: hang out with the crew between flights. They chat about how your career is going, and Apogee the cat naps somewhere new every visit. It also holds a bulletin board, a postcard album and Biscuit's maintenance log
-- **The ship**: the break room, Pad and hangar are joined by a walkable **hallway**, which leads to **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. A **garden** where you grow homegrown gifts for the crew, and sealed doors to an observation dome and the crew quarters that hint at rooms still to come
+- **The ship**: three decks (Command, Living and Engines), each with its own corridor, joined by a **lift** the crew ride too, with a live **ship map** and intercom announcements. The rooms include **the Bridge**, where you pick missions at the nav console, take calls on comms and sit in the captain's chair. A **garden** where you grow homegrown gifts for the crew, and sealed doors to an observation dome and the crew quarters that hint at rooms still to come
 - **The Pad**: your own cozy spaceship cabin to walk around in. Walk up to any spot in the room to decorate it with posters, shelf trinkets, desk gadgets, rugs, bedding, seating, wall finishes, flooring, glowing light strips and the view out the big window
 - **Endless run**: one lander, random worlds, fuel that carries over, and a perk from Gus after every landing
 - **Hot-seat mode** for two players taking turns on the same descents
@@ -34,8 +36,10 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 - **Generated music**: slow, drifting pads on the menus, a cozy swung track in the break room, and flight music that speeds up and builds as you get closer to the ground. It's all composed in code as you play
 - **Daily challenge**: the same world and terrain for every pilot each day, with a shareable result
 - **Crew requests**: three small jobs from the crew every day, like soft landings, ×5 pads, rovers or petting Apogee, each paying credits, with a bonus for finishing all three
-- **38 badges** to earn, 29 of which unlock exclusive cosmetics
+- **An engine room**: Gus's workshop and the ship's glowing core, with three paid pipe-puzzle repair jobs every ship day
+- **39 badges** to earn, 29 of which unlock exclusive cosmetics
 - **Celebrations**: confetti, a fanfare and a cheer from the crew when you finish an act, complete a ship project, buy your first outfit, level up a friendship or start dating someone
+- **Ship events**: every fourth ship day is a holiday, like Harvest Festival, Polka Night or Apogee's Birthday, with decorations in every room, one small goal, a party with the crew and a keepsake for your shelf
 - **Evening glow**: the more you fly in a ship day, the warmer and dimmer the ship's rooms get, until you sleep
 - **Pause** with P or Esc, and automatic pausing when you switch tabs
 - **Touch controls** on phones and tablets
@@ -56,20 +60,47 @@ The whole game is a single `index.html` file: plain HTML, CSS and JavaScript on 
 | Mars | 3.71 m/s² | Thin air, gusting dust storms | ×1.5 |
 | Earth | 9.81 m/s² | Fast falls, strong wind | ×2.5 |
 | Venus | 8.87 m/s² | Extreme mode: crushing air, hurricane winds, and clouds that hide everything except the pad beacons | ×3 |
-| Eris | 0.82 m/s² | So far from the Sun that it's nearly pitch dark. Your landing light shows the ground right below you, and pad beacons shine through. Opens for free flight after First Light in Act 4 | ×1.5 |
+| Eris | 0.82 m/s² | So far from the Sun that it's nearly pitch dark. Your landing light shows the ground right below you, and pad beacons shine through. Opens for free flight after Patchwork, at the end of Act 3 | ×1.5 |
+
+### What each world looks like
+
+Every world has its own sky and ground, drawn around the flight without changing the terrain or the physics:
+
+- **Something in the sky.** Charon hangs over Pluto. Earth turns slowly above the Moon. A huge banded Jupiter with its red spot looms over Europa, Ganymede and Io. Saturn and its rings show through Titan's haze. Mars has its two tiny moons, Phobos and Deimos. Earth has the Moon and drifting clouds. Venus is all cloud bands and a smothered sun glow. Distant suns burn as bright pinpricks over Vesta, Pluto and Eris, and little asteroids tumble past above Vesta.
+- **Distant ridges** in two layers that drift slower than the ground as the camera moves: jagged peaks on the Moon and Mercury, ice spikes on Europa, flat-topped mesas on Mars, rolling hills on Earth and Titan, and Io's volcano cones puffing sulfur plumes.
+- **Textured ground** that's lit near the surface and darker underneath, with layers that follow the shape of the land, pebbles and a soft glow along the rim. Then each world gets its own detail: craters on the Moon, Mercury, Pluto, Vesta, Ganymede and Eris, glowing blue cracks in Europa's ice, pulsing lava veins under Io, grooved terrain on Ganymede, and rock layers on Mars, Titan, Earth and Venus. Worlds with air get a haze along the horizon.
+
+<p align="center"><img src="media/worlds.png" alt="Six worlds: Pluto with Charon in the sky and cratered ground, the Moon with Earth overhead, Europa under a giant Jupiter with blue ice cracks, Titan with Saturn behind the haze, Io with lava veins under Jupiter, and Earth with clouds and green hills" width="720"></p>
 
 ## Life on the ship
 
-There's no title menu. The game opens inside the ship, in **your Pad**, and everything is a room you walk to. Your Pad's door opens onto the **hallway**, which links the **Bridge**, the **break room**, the **garden** and the **hangar** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
+There's no title menu. The game opens in **your Pad**, and everything is a room you walk to. In Act 1 home is the **Moon base** (see below); the ship's decks open once the Second Wind lifts off. Your Pad's door opens onto the deck 2 corridor, and a lift takes you up to the **Bridge** or down to the **hangar** and the **engine room** (see [The ship](#the-ship)). When you finish a flight or close a screen, **Back to the ship** returns you to whichever room you were last in.
 
 **Moving around** feels like one ship: walking through a door fades through black with a soft whoosh, your footsteps change with the floor (metal in the hallway, carpet in the quarters, tile in the garden and galley, wood in the break room), and each room has its own quiet background sound: the Bridge's engine hum, drips in the garden, the galley's sizzle, the hangar's machinery, an airy hush in the dome. **The crew notice you**: when you walk in they turn and wave, hallway wanderers stop to say hi as you pass, and a little **!** bubble floats over anyone you haven't chatted with today. Chat with them and you get a ♥ (first chat of the day) or a … bubble. Sometimes Apogee turns up in the hallway and trots after you for a while before curling up for a nap; tap her for a purr.
 
 **The menu.** Every room has a **☰ Menu** button (or press Escape) that opens a tabbed menu, a bit like pausing in Stardew Valley:
 
-- **Ship:** jump straight to any room, with **New** tags where something is waiting: fresh postcards or a radio call in the break room, new missions on the Bridge, a crop ready in the garden, new decorations in the Pad. The flight deck is here too.
+- The **Ship** map and the **Today** list used to live here. They're on your phone now (see below).
 - **Crew ♥:** everyone you've met, with their face, hearts, friendship status and whether you've chatted and given a gift today. A **Hang out ♥** tag shows when a heart scene is ready. **Gifts and hangouts** opens the full Friends ♥ screen.
-- **Today:** today's three crew requests with progress, what's growing in the garden and what's in your basket, how many new missions are waiting and where today's daily challenge is.
 - **Journal:** your **postcards**, the **bulletin board**, Gus's **maintenance log**, **badges**, your **pilot license** and **settings**, plus **How to play** (the tutorial) and **Install app** where your browser supports it.
+
+**Radio lines don't vanish.** Lines like "FLIGHT: …" stay up long enough to read (longer lines stay longer) and can't be overwritten for their first couple of seconds. Anything that arrives meanwhile waits its turn.
+
+**Your phone.** A little phone sits on the right edge of the screen. It wiggles and shows a red count when something new arrives, and hides while you're flying and during cutscenes. Tap it for the home screen and four apps:
+
+- **Texts.** The crew text you overnight (one or two people a day), after missions (each crewmate in their own voice, with different lines for a three-star run and an okay one, sometimes about the kind of job: "Crumb’s back and won’t stop beeping happily"; the two reply options and their answers vary every time), and your partner says goodnight. Every text comes with reply choices, so you're never typing:
+  - **Warm** replies grow hearts the most, **funny** ones a bit less, and **cold** ones ("k.") cost you.
+  - Once someone's at 4 hearts (with Romance on) there's a **flirty** option. Flirting by text with someone else while you're dating makes your partner suspicious.
+  - **Text first.** Tap **✏️ New text** (or open anyone's thread when it's your turn). Each day you get a fresh set of openers: something warm, something funny, a **personal topic** for that person ("How's Biscuit doing?" for Gus, "How's Pebble?" for Brix, "Sing me something?" for Nerri) and, once you're close, something flirty. You can start one conversation per person per ship day. They type back (watch the dots) and like you a little more.
+  - **Variety.** Everyone has five or so texts they might send you, several different comebacks for each kind of reply, and the flirty and cold reply options change from text to text, so conversations don't repeat.
+  - **Real photos.** Picture texts show up as actual pixel-art photos in the thread, drawn with the crew's own faces: Gus's greasy thumbs-up selfie, Biscuit in a party hat, Wren's old Kepler crew in faded sepia, Rex mid-hair-flip, Dottie's improvement graph, Brix with a ladybug, Bao's dumplings (one shaped like Biscuit), Kit's rainbow supply closet, Theo's blue Mars sunset, Kestrel's lap-time chart with your line circled, and more (16 in all). Tap one to see it full screen.
+  - **Crew group chat.** After 12 big story moments, the whole crew talks at once in the **Second Wind crew 🚀** thread: roll call after the storm, Gus texting by flashlight in the dark, Theo and Kestrel joining, the vote, coming home. Messages arrive one at a time with typing dots while you watch, and each moment ends with two replies for you. Crew who haven't joined yet, or who were lost, never post.
+  - Gus sends photos (Biscuit in a tiny party hat, a wrench with googly eyes), Zib shouts in all caps, and Brix's "good morning" arrives at night. Leave someone on read and they'll send a "Hello?? 😢". An ex doesn't text at all.
+- **Inbox.** Crew messages, radio calls during flights and intercom announcements still pop up as before, but they're also saved here (the newest 120, grouped by ship day) so nothing is missed. **Clear all** empties it.
+- **Ship map.** All three decks, where you are and where everyone is. There's no fast travel: you get around on foot, through doors and the lift. Missions and every flight mode are on the Bridge's nav console (Deck 1).
+- **Today.** Upcoming events, today's crew requests (with a button to open them), the garden, ship projects, Crumb and flights. Each card says where to go (📍 The Garden · Deck 2) rather than taking you there.
+
+<p align="center"><img src="media/phone.png" alt="Four phone screens: the home screen with Texts, Inbox, Ship map and Today apps, the Texts list with Dottie, Nerri, Gus and Brix, a text thread where Gus is flustered by a flirty reply, and the Today app with crew requests" width="640"></p>
 
 A dot on a tab means something new is inside it. Screens you open from the menu come back to the menu, and **Back to** returns you to the room you were in.
 
@@ -85,12 +116,12 @@ A dot on a tab means something new is inside it. Screens you open from the menu 
 
 Brand-new players get a short guided start, about two to three minutes:
 
-1. **Welcome aboard.** Dottie comes on the radio, and six quick illustrated cards introduce Descent Systems: the supply-closet head office, Biscuit (Gus would like you not to scratch her), the bake sale that paid for her, and Apogee, who technically outranks you.
+1. **Welcome aboard.** Dottie comes on the radio, and six quick illustrated cards introduce Descent Systems: the cozy Moon base, the Second Wind waiting in the hangar, Biscuit (Gus would like you not to scratch her), the bake sale that paid for her, and Apogee, who technically outranks you.
 2. **Your pilot license.** Type your name and pick your look, then Dottie stamps it **LICENSED · CADET**.
 3. **The certification flight.** This is the tutorial. It holds the lander in place while you learn to fire the engine and tilt, then switches gravity on and walks you through your first landing, with a nervous Gus on the radio.
 4. **Meet the crew.** A short guided tour of the break room: the crew, the bulletin board, today's crew requests, your first postcard, Gus's maintenance log and Apogee.
 5. **Your Pad.** Gus brings a housewarming gift (pick a lander poster, a fern or a rug) and shows you how decorating works, while Apogee claims your bunk.
-6. You're left in your Pad, and Dottie points you to the Bridge, where **Missions** on the flight deck is marked **Start here**.
+6. You're left in your bunk at the Moon base, and Dottie points you down the corridor to the **OFFICE**, where **Missions** on her desk is marked **Start here**.
 
 <p align="center"><img src="media/intro.png" alt="The first-launch intro: a pixel-art Biscuit parked on a pad under the stars, with Gus on the radio saying she's their only lander and asking you, please, not to scratch her" width="480"></p>
 
@@ -157,9 +188,9 @@ The top of the hangar shows your five landers. Tap one to fly it. Each lander re
 | Lander | Who it's from | How it flies | How to get it |
 |---|---|---|---|
 | **Biscuit** | Gus | The all-rounder: balanced in every way | You start with her |
-| **Apex Vector** | Rex | 22% stronger engine, turns 45% faster, but burns 40% more fuel from a 15% smaller tank, with stiffer legs (safe touchdown 0.2 m/s lower) and more wind push | Finish Mayday, or buy it for 6,000 credits |
-| **Lark** | Wren | 12% weaker engine, turns 30% slower, but a 45% bigger tank, 15% thriftier engine, soft legs (safe touchdown 0.4 m/s higher) and only 60% of the wind push | Finish Last Light, or buy it for 3,000 credits |
-| **Workhorse** | Dottie | 5% stronger engine and a 25% bigger tank, but burns 10% more and turns 15% slower. Cargo doesn't weigh it down, sling loads feel 40% lighter, its legs are tougher (safe touchdown 0.2 m/s higher) and wind pushes it 15% less | Finish Heavy Lift, or buy it for 5,000 credits |
+| **Apex Vector** | Rex | 22% stronger engine, turns 45% faster, but burns 40% more fuel from a 15% smaller tank, with stiffer legs (safe touchdown 0.2 m/s lower) and more wind push | Finish Star Client, or buy it for 6,000 credits |
+| **Lark** | Wren | 12% weaker engine, turns 30% slower, but a 45% bigger tank, 15% thriftier engine, soft legs (safe touchdown 0.4 m/s higher) and only 60% of the wind push | Finish The Neighbor, or buy it for 3,000 credits |
+| **Workhorse** | Dottie | 5% stronger engine and a 25% bigger tank, but burns 10% more and turns 15% slower. Cargo doesn't weigh it down, sling loads feel 40% lighter, its legs are tougher (safe touchdown 0.2 m/s higher) and wind pushes it 15% less | Finish First Port, or buy it for 5,000 credits |
 | **Whisker** | Apogee (via Gus) | Turns 60% faster with free side thrusters (no fuel for RCS) and springy legs (safe touchdown 0.6 m/s higher), but an 8% weaker engine, a 20% smaller tank and 30% more wind push | Finish Stowaway, or buy it for 2,000 credits |
 
 The Vector comes with its own **Vector Red** paint, the Lark with **Surveyor Olive**, the Workhorse with **Dottie Navy** and the Whisker with **Tabby**. The daily challenge always uses Biscuit, so everyone competes on the same lander. Hot-seat players share whichever lander is selected.
@@ -187,61 +218,134 @@ Badge rewards (Grand Tour, Champion, Pathfinder, Spa Day, Wren's Original and mo
 
 ## Missions
 
-Open **Missions** from the flight deck on the Bridge. The campaign has 34 hand-built missions in four acts, and finishing one unlocks the next. Act 2 opens once you finish Last Light, Act 3 once you finish Sunrise, and Act 4 once you finish Unit Zero. More acts are on the way. The mission list has three tabs, **Story**, **Side jobs** and **Round trips**, each with its star total. Missions that have just unlocked get a **New** tag, and tabs holding new ones get a dot. The Break room and the Pad get the same tags when something new turns up, like a fresh Radio caller or a souvenir you haven't placed yet. In Story, finished acts fold away and the act you're on stays open. In the other two, the jobs you can fly come first.
+Open **Missions** from the flight deck (in Act 1 that's **Dottie's desk** in the base's OFFICE; later, the nav console on the Bridge). The story is being rebuilt from scratch: **38 missions in four acts**, and finishing one unlocks the next. **The whole story, all four acts, is playable now.** The rest already shows in the list with every planned mission marked **Coming soon**.
 
-**Act 1 · The Signal**
+**Results.** When a mission ends, its stars pop in one at a time with a rising chime. Stars you just earned glow gold, the credits count up, and a fresh three-star run gets confetti.
+
+**The Whale.** The break room coffee machine is a little game now. Walk up to it and a crewmate places an order in their own style: Dottie's strict double espresso, Gus's "just make it brown" with three sugars, Zib's seven sugars (he counts), Rex's big foam for his feed, Brix's tiny ROCK mug, and more. **Pump**: hold to build pressure and keep the needle in the green while the old machine wobbles and burps. Push it into the red and it lets out a giant whale groan and blasts steam from its blowhole. **Pour**: hold to pour and let go at the red line (it keeps dripping a little). Then add sugar (tap once per cube) or froth foam to the blue line if they asked. You get one to three cups and their reaction. A crewmate's first coffee each day earns friendship.
+
+**Spacewalks and ship emergencies.** Sometimes something goes wrong outside the ship, and you have to suit up and fix it:
+- **When:** once the ship has left the Moon, an emergency sometimes hits when you get back from a mission (about one in six), or right as you try to launch ("Hold the launch!"). Never two close together.
+- **What you see:** red alert lights pulse around the edge of the screen, a banner at the top says what happened, Gus texts you, and your phone's Today screen shows it first. **No missions launch until it's fixed.** Free flight still works.
+- **Fixing it:** walk to the hangar, where the suit locker by the big window is flashing red, and suit up (or tap **Suit up**). Each emergency is laid out fresh: one to three hull breaches in random spots, or two or three crates drifting off after the cargo door blew. Fix it and you get credits and the alert clears. Run out of oxygen and Gus reels you in, and the problem is still waiting.
+
+**How spacewalks play.** The controls are the same (◀ ROT, THRUST, ROT ▶), but there's no gravity: a push keeps you drifting until you push the other way, so the skill is stopping. A tether clips you to the airlock and gently pulls you back if you drift too far, and **oxygen** is your fuel. To patch a breach, come to a near stop at it and hold steady while the patch welds on (come in too fast and the spark spins you away). To fetch a crate, match its speed, grab it and bring it back to the airlock; it makes you heavier and slower to stop. Each spacewalk has three stars (finish the job, oxygen left, time).
+
+**Two story emergencies** in Act 3: after **Dead Air**, storm damage sets off **Hull Breach** (patch three holes). After **The Overdrive**, the torn cargo net sets off **Loose Parts** (bring back four crates of engine parts). Both start from the hangar like any other emergency, and both keep your best stars.
+
+**Up next.** The Story tab opens with an **Up next** banner that takes you straight to the next story mission (or tells you to sleep first). That mission's tile has a glowing NEXT badge, and each act shows a one-line summary and a progress bar.
+
+**Pause.** Pausing during a mission shows what you're doing right now, how each of the three stars is going (fuel left, time so far, time limit), and lets you Restart or Retry from the last stop.
+
+**Intro cards.** When you launch from a briefing, a quick title card shows the mission number, the world, the job type and its **twist** ("Tiny pad. Big gusts.", "Pitch black. Headlamp only."), plus gravity, fuel, the time limit and how many stops. The flight is frozen while the card is up. It clears on its own after about three seconds, or tap (or press any key) to fly right away. Retries skip the card. Every story mission has a hand-written twist; side jobs get one picked from what makes them tricky.
+
+**Finding your way.** The pad you're heading for right now glows **mint green**, with a soft light beam and a bouncing ▼ over it; the other pads stay dim amber. A small arrow circles Biscuit and always points at your next pad (or the next marker, or straight up when it's time to climb to orbit). When the target is off screen, a pill on the screen edge shows its name and how far away it is, like **◀ WRECK1 155 m**. During a storm the distance is scrambled, but the arrow still points the way.
+
+**Act 1 · Grounded**: odd jobs around the Moon. Each one pays for a repair on the Second Wind.
+
+| # | Mission | Type | Repair it pays for |
+|---|---|---|---|
+| 1 | Final Notice | Precision | Power: the hangar lights come on |
+| 2 | Scrap Run | Multi-stop: plating from two wrecks | Hull |
+| 3 | The Neighbor | Cargo: Wren's old engine bell (Wren joins) | Engine bell |
+| 4 | Star Client | Passenger: keep movie star Rex Valor from getting space-sick (Rex joins) | Life support |
+| 5 | Dark Side | Rover trip for a navigation computer | Navigation |
+| 6 | Moonquake | Rescue for Moonbase Pim | Reactor |
+| 7 | Apex Calling | Race: beat Kestrel from Apex Landings through three markers | Pride |
+| 8 | Test Fire | Ring route while the ship's engines fire | Engines |
+| 9 | All Systems Go | Multi-stop: fuel, Apogee and Gus's lucky wrench | Everything |
+
+**One story mission a day.** After you finish a new story mission, the next one shows **💤 Sleep first** until you sleep in your bunk (or your Pad once you're aboard). Side missions, free flight and replays of finished story missions stay open, so the story can't be rushed but there's always something to fly.
+
+**Cinematics.** The big moments open with a short, wordless animated shot of the Second Wind, with a caption or two (tap Skip, or press Space or Esc, to skip): the dusty ship in the dark hangar before Final Notice, the hangar lighting up bank by bank as she powers on, liftoff through the open roof, the solar storm killing the engine, drifting helplessly past the Moon, the engine relighting blue at Eris, the slingshot around Jupiter, and the final descent into the hangar at home.
+
+Smaller beats get shorter shots too: the Moon base shaking in the quake, a silver Apex lander dropping onto the pad beside Biscuit, the engines firing for the first time in the hangar, Biscuit descending toward Earth, Juno's dust-buried spire on Mars, Gus alone in the engine room at night with something small, red and glowing, shuttles fleeing the Venus resort, Juno's dock firing supply pods into the drift, Ganymede's floating market under Jupiter, a white-and-red Apex ship landing beside you at Eris, and Kestrel ejecting under a red parachute.
+
+**Scenes on the ship.** Some story moments happen in the rooms themselves, with no cutscene. Walk into the right room after a story mission, and the crew are already there: they walk to their marks, turn toward whoever's talking (with a little "…" over their head), and the lines play in the usual speech panel. Tap the panel to move on. Each plays once:
+
+| After | Where | What happens |
+|---|---|---|
+| Moonquake | Base kitchen | Bao serves miner's stew to the heroes |
+| Apex Calling | Base corridor | The crew grumble about Kestrel's shiny lander |
+| Liftoff | Ship corridor | Rex hauls bag seven of eleven past Wren and Gus |
+| First Port | Galley | Kit's first real meal, and dish duty |
+| Sun-Side | Engine room | Wren catches Gus with his "bolt shield" |
+| Storm Front | Corridor | The crew, under red emergency light, decide to stay together |
+| Catch! | Galley | Theo arrives and fixes the coffee machine |
+| The Overdrive | Engine room | Wren sits with Gus after his confession |
+| Still Crew | Galley | A toast to Gus |
+| Patchwork | Bridge | "Everything is steady, Dottie." |
+| The Rescue | Corridor | Kestrel comes aboard with her bag |
+
+<p align="center"><img src="media/cinematics.png" alt="Six cinematic frames: the dusty, holed Second Wind on its cradle under one dim bulb; the hangar fully lit with a READY sign and a blue engine glow; the ship rising out of the open hangar roof; the ship in a solar storm beside a glowing sun; the ship relit blue near Eris; and the ship parked inside the Moon hangar beside the little base" width="640"></p>
+
+Finishing All Systems Go unlocks an **Act 1 ending** scene, with the whole crew in the hangar as the Second Wind powers up.
+
+**Act 2 · Lift Off**: the Second Wind flies, and the crew finds work on new worlds.
 
 | # | Mission | World | Type |
 |---|---|---|---|
-| 1 | First Steps | Pluto | Precision |
-| 2 | Tranquility | Moon | Precision |
-| 3 | Supply Run | Moon | Cargo |
-| 4 | Lifeline | Moon | Rescue |
-| 5 | Haze Delivery | Titan | Cargo |
-| 6 | Methane Canyon | Titan | Canyon |
-| 7 | Dust Ledge | Mars | Precision |
-| 8 | Valles Run | Mars | Canyon |
-| 9 | Storm Rescue | Mars | Rescue |
-| 10 | Heavy Lift | Earth | Cargo |
-| 11 | The Needle | Earth | Canyon |
-| 12 | Last Light | Earth | Rescue |
+| 10 | Liftoff | Moon | Multi-stop: clear two boulders off the launch path |
+| 11 | First Port | Earth | Cargo (a stowaway cadet, Kit, is in one crate) |
+| 12 | Red Dock | Mars | Precision on Juno's spire pad (Juno joins) |
+| 13 | Dust Bowl | Mars | Timed delivery before a dust storm |
+| 14 | Stone Patient | Vesta | Fragile cargo: Brix's pet rock (Brix joins) |
+| 15 | Overdue | Mars | Precision. Sable Voss of Apex has bought your loans: 40,000 credits in ten days |
+| 16 | Sun-Side | Mercury | Heat cargo: the big job. Gus quietly bolts something onto the engine |
+| 17 | Storm Front | Mercury | Blind landing in a solar storm, and the first **hard call** |
+| 18 | Dead Air | Venus | Multi-stop: salvage an evacuating sky resort while drifting (Marisol joins) |
 
-**Act 2 · New Frontiers**
+Finishing Liftoff plays **Moving Day**: everyone carries their stuff aboard, the base is left behind, and the ship's decks, garden, dome and quarters open.
 
-| # | Mission | World | Type |
-|---|---|---|---|
-| 13 | Core Sample | Vesta | Cargo |
-| 14 | Edge of the World | Vesta | Precision |
-| 15 | Relay Run | Ganymede | Cargo |
-| 16 | Mayday | Ganymede | Rescue |
-| 17 | Spare Key | Mercury | Precision |
-| 18 | Sunrise | Mercury | Rescue, against the clock |
+Storm Front kills the engine and the **drift** begins. Until the engine is relit in Act 3, the ship runs on **emergency power**: every room has a dim red tint that flickers now and then, the intercom has drift announcements, and the phone's Map shows a **drift chart** of where the ship is heading. Finishing Dead Air plays the **Act 2 ending** as the ship drifts helplessly past the Moon and the old base.
 
-**Act 3 · Beyond Pluto**
+**Hard calls.** A few moments in the story can cost you a crewmate for good. The first is in **Storm Front**: Kit is out on the hull at **KIT** and the spare fuel cell is on the pad at **CELL**, and you can only land on one before climbing back to the ship.
 
-| # | Mission | World | Type |
-|---|---|---|---|
-| 19 | Big Ear | Pluto | Sling load |
-| 20 | Triangulation | Moon | Pad hopping |
-| 21 | Echo | Europa | Precision, through a geyser field |
-| 22 | Interference | Io | Cargo, between lava eruptions |
-| 23 | Cloud Relay | Venus | Relay route through the clouds |
-| 24 | Old Station | Titan | Canyon |
-| 25 | Rex's Shortcut | Vesta | Rescue |
-| 26 | Unit Zero | Pluto | Canyon (finale) |
+- **Save Kit**: she's fine, but without the spare cell you start Dead Air with less fuel.
+- **Take the cell**: if Kit has 3 or more hearts with you, she trusts you enough to reach an escape pod, and you find her at Venus. If not, she's **missing**: gone from the ship, the crew, chats and texts, and the Act 2 ending notices the empty spot.
 
-**Act 4 · The Senders**
+Only your first finish of Storm Front decides it. One mission before each hard call, the results screen warns you (♥) who's at risk, like "Juno and Marisol have been quiet since the storm", so there's time to spend with them first.
+
+The second hard call is **Europa's port** in Still Crew: anyone who has lost faith can get off. Up to two crewmates with fewer than 2 hearts leave for good (Kit, Bao, Juno, Marisol, Tamsin or Pim; story crew and anyone who joined in Act 3 always stay). The results screen says who left, and the forgiveness scene notices.
+
+The third is **Brix holding the door** in Cold Storage: with 3 or more hearts he trusts you, lets go when you call, and makes it out. Otherwise he's left behind under the ice, and the Act 3 ending remembers him. Random mission surprises are switched off for Storm Front and for the race against Kestrel in Apex Calling. The last is **the buyout** on Eris: up to two crewmates with fewer than 2 hearts take Sable's offer and leave on her ship (the Titan crew are too new to be tempted).
+
+**Act 3 · Adrift**: the drift carries the ship out past Mars to Jupiter, picking up crew along the way.
 
 | # | Mission | World | Type |
 |---|---|---|---|
-| 27 | Deep Tank | Ganymede | Cargo, through the storms |
-| 28 | First Light | Eris | Precision, in the dark |
-| 29 | Old Lights | Eris | Route along an old beacon trail |
-| 30 | Quiet Posts | Titan | Pad hopping |
-| 31 | Envoy Escort | Io | Rescue |
-| 32 | The Key | Eris | Sling load |
-| 33 | The Vault | Eris | Canyon, in the dark |
-| 34 | The Reply | Eris | Pad hopping (act finale) |
+| 19 | Catch! | Mars | **Catch**: Juno's dock fires supply pods on parachutes into the ship's path. Catch 6 of 10 in mid-air before they hit the dust (each gives fuel and credits), then climb out |
+| 20 | Market Day | Ganymede | Multi-stop: ice for two stalls, then Zib's stall (Zib joins) |
+| 21 | Under the Ice | Europa | Rescue in a geyser field (Nerri joins) |
+| 22 | Left Behind | Ganymede | SOS: rescue Dash, an Apex courier her own company abandoned (Dash joins) |
+| 23 | The Overdrive | Io | Multi-stop: salvage between two lava vents |
+
+| 24 | Still Crew | Europa | **In the dark**: a parts run through a pitch-black ice cave lit only by Biscuit's headlamp, with pads showing as blinking beacons and Gus talking on the radio |
+| 25 | Lantern Light | Titan | **Follow the light**: stay inside Ollo's lantern glow as it leads you down through the haze. It waits if you fall behind, but a meter drains while you're outside the light (Ollo joins) |
+| 26 | The Envoys | Titan | **Ferry**: carry messages between the WEST and EAST docks before the talks collapse, topping up at each dock (Kael and Lyra join) |
+| 27 | Cold Storage | Pluto | **Collapse**: a rover round trip into a crumbling ice station. Icicles shiver, cast a shadow, then drop, and each hit costs time off the clock, which is Brix holding the door |
+| 28 | Patchwork | Eris | Sling load: lower the rebuilt engine section into place at the edge of the map |
+
+Left Behind ends with **They Knew**: Dash reveals Apex sent the Mercury job through a fake company, knowing the storm was coming. The Overdrive ends with **The Confession**: Gus admits his secret booster is what really killed the engine. Still Crew ends with the crew forgiving him on stage, and Patchwork ends with the **Act 3 ending**, **Blue in the Dark**: the engine relit, the emergency lighting gone, and the ship turning for home.
+
+**Coming soon**
+
+**Act 4 · The Slingshot**: the long way home.
+
+| # | Mission | World | Type |
+|---|---|---|---|
+| 29 | The Buyout | Eris | Precision beside Sable's ship, then **The Vote** and the last **hard call** |
+| 30 | Wren's Old Partner | Pluto | Canyon: Wren faces Sable and takes her flight logs |
+| 31 | First Burn | Pluto | **Beacon drop**: fly low over each of three peaks, inside the dashed zone, and a beacon releases on its own (no landing), then climb out before the burn window closes |
+| 32 | Sulfur Stop | Io | Multi-stop: refuel at two old depots, then hop a lava vent |
+| 33 | Ice for the Road | Europa | Cargo across a geyser field |
+| 34 | The Slingshot | Ganymede | **Moving rings**: the marker rings swing as you go, so time your pass |
+| 35 | Homecoming | Mars | Precision in front of a welcome-back crowd |
+| 36 | The Earth Contract | Earth | **A real race**: Kestrel's silver lander flies the course beside you. Beat her to the pad (her progress shows in the objective bar) |
+| 37 | The Rescue | Earth | **Catch**: Kestrel's lander fails, so you give up the contract to catch her escape pod in mid-air |
+| 38 | Home | Moon | The final landing at the old hangar |
+
+Home ends with the finale: how the debt still gets paid, what happens to Apex and Sable, who made it home, and a signal from beyond Eris that sets up a future Act 5.
 
 <p align="center"><img src="media/eris.png" alt="Old Lights on Eris: the ground is nearly black, the lander’s landing light shines a soft beam down onto the ice, and three pink markers and an orange LZ beacon glow in the dark" width="560"></p>
 
@@ -254,9 +358,9 @@ Open **Missions** from the flight deck on the Bridge. The campaign has 34 hand-b
 
 <p align="center"><img src="media/missions.png" alt="The mission list on the Round trips tab: Story, Side jobs and Round trips tabs with star totals, and tiles for each round trip with the face of whoever asked, from Gus's Rock Collection to Crumb's Blip!" width="420"></p>
 
-The campaign tells a story over the radio. You fly for Descent Systems, the smallest landing agency in the solar system, alongside Flight Director Dottie Reyes and engineer Gus, who named the lander Biscuit. In Act 1, a mysterious signal on Biscuit's old call sign leads from the Moon across Titan and Mars to Earth. In Act 2, the newly funded agency takes on its first real contracts on Vesta, Ganymede and Mercury, crosses paths with Rex Valor, a smug rival pilot from Apex Aerospace, and races a Mercury sunrise to rescue one of its own. In Act 3, a new signal turns up: four beeps and a pause, from somewhere past Pluto. The crew chase it with a listening dish on Pluto, beacons on the Moon, a hydrophone under Europa's geysers, a noise filter through Io's eruptions, a cloud relay on Venus and Wren's old weather station on Titan, rescue Rex (again) on Vesta, and finally land at the bottom of a canyon on Pluto's far side to find what's been calling. In Act 4, Unit Zero's coordinates send the crew to Eris, farther out than anyone has flown. They fit Biscuit with a long-range tank, make the first landing on the dark ice, follow a trail of old lights, wake the Senders' listening posts on Titan and rescue Kael and Lyra on Io, who know the Senders from an old story in their fleet. Then they use Unit Zero as a key, find the vault under the ice and send a reply. Its epilogue leaves the door open for what comes next.
+The campaign tells a story over the radio and on stage. You fly for Descent Systems, a broke little landing agency run out of a cramped base on the Moon by flight director **Dottie Reyes** and engineer **Gus**. Next door, in the hangar, sits their mothership, the **Second Wind**, which hasn't flown in six years. The bank wants paying, and **Apex Landings**, a slick company run by **Sable Voss**, wants to buy the ship for scrap. Their ace pilot **Kestrel** turns up in Act 1 to race you for a contract.
 
-A few friends join along the way. **Juno**, the calm dock master on the Descent Systems mothership, talks you in every time you dock (her clamp is not tape; she checked twice). **Pim**, a nine-year-old from Moonbase Pim who wants to be a pilot more than anything, writes you fan mail, loses a balloon and invites Crumb to show and tell. Out past the inner planets you'll also meet **Zib**, a floating jellyfish trader who talks about itself in the third person and loves anything shiny; **Captain Ollo**, a polite moth pilot who is helpless around lamps; **Blip**, a tiny one-eyed green stowaway who moves into the break room and says only "bip"; and **Kael and Lyra Veyra**, glamorous twin envoys from an alien fleet who look human apart from their silver eyes. Each character has a pixel-art portrait that talks as their lines type out. Short radio scenes play before each mission (replay them anytime with **Radio log**), mission control reacts to how you flew, and finishing each act unlocks an epilogue. Story scenes can be turned off in Settings.
+Crew join as the story goes: **Wren**, the grumpy retired pilot next door, moves in to supervise after The Neighbor; **Rex Valor** invests and moves in (with eleven bags) after Star Client; **Bao** takes over the base kitchen; **Crumb** the rover has always lived in the garage. In Act 2, **Kit** turns up in a crate on Earth and tags along to learn, **Juno** comes aboard to run the docking after Red Dock, **Brix** joins after Stone Patient, and **Marisol**, the resort's medic, joins after Dead Air. In Act 3, **Zib** moves in after Market Day, **Nerri** after Under the Ice, **Dash** after Left Behind, **Ollo** after Lantern Light, and **Kael and Lyra** after The Envoys. **Tamsin** still auditions through the recruitment board once the ship reaches Titan. **Theo Okafor**, Juno's dock deputy, is the voice on the Mars dock radio in Act 2 and the one firing supply pods at you in Catch!; he joins right after it, sent by Juno "to keep that ship in one piece". **Kestrel**, Apex's ace, joins for good after The Rescue as the ship reaches their worlds. Side missions follow the same rule: each world's jobs open once the Second Wind gets there.
 
 ![Friends you meet along the way: Juno the dock master, Pim from Moonbase Pim, Crumb the rover, Zib the jelly trader, Captain Ollo the moth pilot, Blip the stowaway, and Kael and Lyra Veyra, twin envoys](media/new-friends.png)
 
@@ -270,29 +374,85 @@ Below the campaign is a row of optional side missions. Each one is a favor for s
 
 | Side mission | From | World | Unlocks after | The twist |
 |---|---|---|---|---|
-| Biscuit's Spa Day | Gus | Moon | Tranquility | Fragile cargo: with the crate aboard, touch down slower than 1.2 m/s or it cracks |
-| The Coffee Crisis | Dottie | Mars | Dust Ledge | Timed delivery: get a fresh pot to DROP within 70 seconds, while Dottie counts down on the radio |
-| Stowaway | Gus | Titan | Haze Delivery | Passenger: Apogee the cat rides along. Turning, tilting past 20° or flying faster than 6 m/s makes her queasy, and her comfort shows in the goal box |
-| The Long Way Round | Wren | Venus | Last Light | Survey route: fly through Wren's three numbered markers in order, then land |
-| Ice Cream Social | Gus | Mercury | Landing on Mercury in free flight | Melting cargo: sunlight melts the ice cream, shadows stop it. It fails at 100% melted |
+| Biscuit's Spa Day | Gus | Moon | Scrap Run | **3 stops.** Fragile cargo: with the crate aboard, touch down slower than 1.2 m/s or it cracks |
+| The Coffee Crisis | Dottie | Mars | Dust Bowl | **3 stops.** Timed delivery: grab a fresh pot, pour Gus a cup on the way, and get the rest to DROP within 125 seconds, while Dottie counts down on the radio |
+| Stowaway | Gus | Titan | Lantern Light | **2 stops.** Passenger: Apogee the cat rides along. Turning, tilting past 20° or flying faster than 6 m/s makes her queasy, and her comfort shows in the goal box |
+| The Long Way Round | Wren | Venus | Dead Air | Survey route: fly through Wren's three numbered markers in order, then land |
+| Ice Cream Social | Gus | Mercury | Landing on Mercury in free flight | **3 stops.** Melting cargo: sunlight melts the ice cream, shadows stop it. It fails at 100% melted |
 | Skipping Stones | Gus | Vesta | Landing on Vesta in free flight | Survey route: fly through four markers over the curve of the asteroid, then land on the far side |
-| Static | Dottie | Ganymede | Landing on Ganymede in free flight | Blind landing: a magnetic storm scrambles your instruments the whole way down |
-| Ride Along | Gus | Moon | Supply Run | Moving pad: land on Moonbase Pim's supply rover while it drives (its brakes are "on order") |
-| Swing Shift | Gus | Moon | Lifeline | Sling load: fly Gus's telescope on a 9-meter cable and set it down on DROP slower than 1.5 m/s |
-| Shooting Stars | Dottie | Moon | Tranquility | Meteor shower: reach the far LZ through a heavy shower |
-| Hopscotch | Rex | Vesta | Edge of the World | Pad hopping: touch down on pads 1, 2 and 3 in order, and try to beat Rex's 90 seconds |
-| Northern Lights | Dottie | Ganymede | Relay Run | Photo route: fly through three markers up in the aurora, then land |
-| Shadow Hopper | Wren | Mercury | Spare Key | Pad hopping: hop between three pads in the shadows while the sun boils your fuel |
-| Polka Radio | Gus | Moon | Triangulation | Broadcast route: fly through three markers to switch on Gus's all-polka radio station, then land |
-| Geyser Surfing | Rex | Europa | Echo | Pad hopping between erupting geysers, and try to beat Rex's 75 seconds |
-| Catnip Run | Dottie | Titan | Old Station | Fragile cargo: Titan catnip for Apogee. Touch down slower than 1.3 m/s with it aboard |
-| Moth to a Flame | Captain Ollo | Titan | Methane Canyon | A lamp slalom: fly through the three lamps Ollo hung in the haze, then land. He finds them very distracting |
-| Zib's Market | Zib | Ganymede | Relay Run | Deliver a crate of ice from PICKUP to Zib's market stall at DROP. Zib is very pink about it |
-| VIP Pickup | Dottie | Mars | Mayday | Diplomatic rescue: the Veyra twins' shuttle overheated in a dust storm. Land at CREW, let them board and fly them to orbit |
+| Static | Dottie | Ganymede | Landing on Ganymede in free flight | **2 stops.** Blind landing: a magnetic storm scrambles your instruments the whole way down |
+| Ride Along | Gus | Moon | The Neighbor | **2 stops.** Moving pad: land on Moonbase Pim's supply rover while it drives (its brakes are "on order") |
+| Swing Shift | Gus | Moon | Moonquake | Sling load: fly Gus's telescope on a 9-meter cable and set it down on DROP slower than 1.5 m/s |
+| Shooting Stars | Dottie | Moon | Final Notice | **2 stops.** Meteor shower: reach the far LZ through a heavy shower |
+| Hopscotch | Rex | Vesta | Stone Patient | Pad hopping: touch down on pads 1, 2 and 3 in order, and try to beat Rex's 90 seconds |
+| Northern Lights | Dottie | Ganymede | Market Day | Photo route: fly through three markers up in the aurora, then land |
+| Shadow Hopper | Wren | Mercury | Sun-Side | Pad hopping: hop between three pads in the shadows while the sun boils your fuel |
+| Polka Radio | Gus | Moon | Test Fire | Broadcast route: fly through three markers to switch on Gus's all-polka radio station, then land |
+| Geyser Surfing | Rex | Europa | Under the Ice | Pad hopping between erupting geysers, and try to beat Rex's 75 seconds |
+| Catnip Run | Dottie | Titan | The Envoys | **3 stops.** Fragile cargo: Titan catnip for Apogee. Touch down slower than 1.3 m/s with it aboard |
+| Seedling Run | Tamsin | Titan | Lantern Light | **3 stops.** **Audition.** Fragile cargo: take the botanist's comet-forest seedlings to the greenhouse, slower than 1.3 m/s. Pass it and she joins |
 | Captain Floaty | Pim | Moon | Swing Shift | Balloon chase: Pim's balloon escaped the Moonbase Pim airlock. Fly through the three markers along its path, then land to hand it back |
-| Meteor Watch | Wren | Mercury | Rex's Shortcut | Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
-| Dark Picnic | Gus | Eris | First Light | Fragile cargo in the dark: carry Gus's picnic basket to DROP, touching down slower than 1.3 m/s |
-| Ice Regatta | Lyra | Europa | Envoy Escort | Race route: fly Lyra's three markers over the ice, then land, to settle who's the better pilot, her or Kael |
+| Meteor Watch | Wren | Mercury | Sun-Side | **2 stops.** Meteor shower over Mercury: get to the shade by the LZ while the meteors fall |
+| Dark Picnic | Gus | Eris | Patchwork | **3 stops.** Fragile cargo in the dark: carry Gus's picnic basket to DROP, touching down slower than 1.3 m/s |
+| Ice Regatta | Lyra | Europa | The Envoys | Race route: fly Lyra's three markers over the ice, then land, to settle who's the better pilot, her or Kael |
+
+#### Co-pilots, landing grades and pickups
+
+Every mission now has three extras:
+
+- **Bring a co-pilot.** The mission card has a row of faces: tap someone you've met to bring them along, or fly **Solo**. Each crewmate brings one perk and chats on the radio during the flight. Your partner flirts, and an ex makes it clear they're only there for the perk.
+
+| Co-pilot | Perk |
+|---|---|
+| Dottie | Mission planner: time goals for the third star are 15% longer |
+| Gus | Steady hands: once per flight, if you tip past 60°, he snaps Biscuit level |
+| Wren | Old pilot instincts: wind pushes you half as hard |
+| Rex | Sponsorship deal: +25% credits from the mission |
+| Juno | Approach guidance: a dotted guide line to your next stop |
+| Zib | Shiny sense: grabs pickups from twice as far away |
+| Ollo | Steady wings: you can touch down 0.3 m/s faster without crashing |
+| Kael | Smooth talker: fuel goals for the third star are 20% easier |
+| Lyra | Fuel deal: start with 10% more fuel |
+| Nerri | Glider: engines burn 15% less fuel |
+| Brix | Stone steady: fragile cargo can take 0.3 m/s more at touchdown |
+| Kit | Eager cadet: +10 credits for every Clean or Butter landing |
+| Bao | Packed lunch: the first time you run dry, he finds 40 kg of fuel in his lunchbox |
+| Marisol | Medic: forgives one crash per flight and puts you back in the air |
+| Tamsin | Green thumb: stardust and crystals are worth double |
+| Dash | Afterburner: 12% more engine thrust |
+
+- **Landing grades.** Every touchdown on a mission is graded, and the grade floats up from the pad. **BUTTER!** is under 0.7 m/s, nearly level and near the middle of the pad (+20 credits). **Clean** is under 1.3 m/s (+8). **Bumpy** is everything else that's still safe.
+- **Floating pickups.** Each mission scatters six pickups around the map, some well off the safe path: **fuel canisters** (+35 kg, straight into the tank), **stardust** (+15 credits) and one **crystal** hidden low by the ground (+60 credits). Fuel helps right away. Credits are only paid if you finish, so a greedy detour that ends in a crash costs you everything.
+
+<p align="center"><img src="media/copilots.png" alt="Three phone screens: the House Call mission card with the co-pilot picker, a flight where grabbing a crystal pops +60 cr, and the result card with landing grades, pickups and bonus credits" width="640"></p>
+
+**Surprises.** On about half of all flights (never on the first three campaign missions), something unexpected happens:
+
+- **Change of plans.** As you line up your final landing, Dottie radios that the pad is out ("Crumb's cousin is napping on it") and diverts you to a new **ALT** pad. Land there for +30.
+- **Engine trouble.** The engine coughs out for a couple of seconds and you have to glide. It only happens when you're high enough to recover, and with Gus as co-pilot he kicks it back to life twice as fast.
+- **Falling satellite.** A comms satellite drifts down on a red parachute with a blinking light. Fly into it before it lands for +80.
+- **Meteor shower.** Dottie warns of incoming rocks, even on worlds that never get them. For about fifteen seconds meteors fall on marked spots, some of them right where you are. Keep moving, and make it through for +40.
+- **SOS call.** A crewmate is stuck at an **SOS** pad with a pulsing beacon over it. Swing by and land there to pick them up (+50, and they like you more). Afterwards they text you a thank-you, or a very pointed "you flew right past me. I waved. I waved a LOT."
+
+A flight can have two at once. The result card lists what happened, and checkpoint retries keep the same surprises.
+
+<p align="center"><img src="media/surprises.png" alt="Four flights: a reroute to the ALT pad, the engine sputtering with an aurora over Ganymede, catching a falling satellite above Mars for +80, and the SOS pad's pulsing beacon on the Moon" width="720"></p>
+
+The result card lists your landing grades, how many pickups you got, your co-pilot and the bonus credits. Checkpoints remember all of it.
+
+#### Multi-stop missions
+
+Most side missions are now a short trip with several stops, flown in one go. Spa Day drops the crate and then sends you back for the cucumber water Gus forgot. Zib's Market leaves a block of ice at the fish stall on the way. Stowaway stops at the vet before bringing Apogee home. VIP Pickup has you collect both twins from opposite sides of the storm.
+
+- **The mission card lists every stop**, and the goal box tracks where you are (**Stop 2/3 · Drop off at AID**). A radio line plays as each new stop begins.
+- **Kinds of stop:** pick something up, drop part of the load and keep flying, drop everything, touch down somewhere, land at a fuel depot (Rock Steady), or climb to orbit.
+- **Fuel carries over**, so a sloppy first landing makes the last one harder. Fragile cargo has to survive every touchdown, not just the last one. Some stops change the conditions: the dust picks up on the last leg of the Coffee Crisis.
+- **Checkpoints:** finish a stop on a pad and it's saved. Crash on the next leg and the card offers **Retry from stop 2**, putting you back on that pad with the cargo, fuel and clock you had there. **Restart mission** starts from scratch.
+- Upgraded missions pay 50% more per star, and their star goals were reset for the longer flights.
+
+<p align="center"><img src="media/multi-stop.png" alt="Three phone screens: the Coffee Crisis card listing its three stops, a flight with the goal box reading Stop 2/3, drop off at AID, and a failed mission card offering Retry from stop 2 or Restart mission" width="640"></p>
+
+New missions are built this way from now on: a mission with `legs` in `SIDES` gets stops, checkpoints and the tracker automatically.
 
 Side missions pay their own credits and have their own stars, but they don't count toward the campaign badges.
 
@@ -306,14 +466,14 @@ Crumb drives differently on every world. Slopes steeper than 45° stop it, so st
 
 | Round trip | From | World | Unlocks after | The job |
 |---|---|---|---|---|
-| Rock Collection | Gus | Moon | Supply Run | Grab three glowing moon rocks for the break room shelf |
-| Beacon Repair | Dottie | Mars | Dust Ledge | Stop beside two dark landing beacons until they light up. One sits past a rock step |
-| Bounce House | Rex | Pluto | Edge of the World | Hop up three ledges for the ice crystals Rex left there "for safekeeping" |
-| Ice Cores | Wren | Europa | Echo | Grab two ice cores and fix Wren's old seismometer, on slippery ice |
-| Where's Apogee? | Apogee | Titan | Methane Canyon | Find Apogee, who hopped out of the rover to explore. She runs off twice before she gives up |
+| Rock Collection | Gus | Moon | Dark Side | Grab three glowing moon rocks for the break room shelf |
+| Beacon Repair | Dottie | Mars | Red Dock | Stop beside two dark landing beacons until they light up. One sits past a rock step |
+| Bounce House | Rex | Pluto | Cold Storage | Hop up three ledges for the ice crystals Rex left there "for safekeeping" |
+| Ice Cores | Wren | Europa | Under the Ice | Grab two ice cores and fix Wren's old seismometer, on slippery ice |
+| Where's Apogee? | Apogee | Titan | Lantern Light | Find Apogee, who hopped out of the rover to explore. She runs off twice before she gives up |
 | Blip! | Crumb | Mars | Beacon Repair | Catch the tiny green alien Crumb found. It hops away twice, once right over the rock step |
-| Lost Luggage | Juno | Vesta | Rock Collection | Find three suitcases that floated out of a mothership hatch. Crumb floats a long way on every bump here |
-| Dish Duty | Juno | Ganymede | Relay Run | Stop beside two blinking relay dishes until they're fixed. Storms scramble Biscuit, not Crumb |
+| Lost Luggage | Juno | Vesta | Stone Patient | Find three suitcases that floated out of a mothership hatch. Crumb floats a long way on every bump here |
+| Dish Duty | Juno | Ganymede | Market Day | Stop beside two blinking relay dishes until they're fixed. Storms scramble Biscuit, not Crumb |
 | Show and Tell | Pim | Moon | Captain Floaty | Collect two of Pim's drawings, then park Crumb by the classroom window so the whole class can see him |
 
 Fuel carries through the whole trip, so a wasteful landing costs you on the climb back up. Stars are for fuel left after docking and total time.
@@ -343,12 +503,12 @@ Open **Badges** from the menu's Journal tab to see your progress. Twenty-nine ba
 | Collector | Buy 10 items in the hangar | |
 | Saver | Hold 5,000 credits at once | |
 | Mission ready | Complete your first mission | |
-| Campaign hero | Complete the original 12 missions (Act 1) | Pathfinder hull |
+| Campaign hero | Finish Act 1: Grounded | Pathfinder hull |
 | Star collector | Earn 24 mission stars | Comet Tail flame |
-| Flawless | Earn all 36 stars in Act 1 | Mission Patch flag |
-| Frontier hero | Finish Act 2: New Frontiers | Apex Gold hull |
-| Signal chaser | Finish Act 3: Beyond Pluto | Unit Zero hull |
-| Kind words | Finish Act 4: The Senders | Dots and Lines hull |
+| Flawless | Earn all 27 stars in Act 1 | Mission Patch flag |
+| Frontier hero | Finish Act 2: Lift Off | Apex Gold hull |
+| Signal chaser | Finish Act 3: Adrift | Burning Blue hull |
+| Kind words | Finish Act 4: The Slingshot | Long Way Home hull |
 | Off-roader | Finish every round trip | Field Kit hull |
 | Beat Rex | Finish Hopscotch faster than Rex's 90 seconds | Rex's Racing Flag |
 | Spa treatment | Deliver Biscuit's spa crate without a crack | Spa Day hull |
@@ -366,6 +526,8 @@ Open **Badges** from the menu's Journal tab to see your progress. Twenty-nine ba
 | Dodgeball | Land on a pad in the middle of a meteor shower | Shooting Star flag |
 | Full fleet | Unlock every lander | The Fleet flag |
 | Crew favorite | Earn every side-mission star | The Crew flag |
+
+Other badges have no cosmetic reward, like **Grease monkey** (finish 10 repair jobs in the engine room).
 
 <p align="center"><img src="media/badges.png" alt="The badges screen: earned badges lit up in amber, with progress bars and rewards on the rest" width="480"></p>
 
@@ -413,7 +575,7 @@ Walk into the **break room** to visit the crew between flights. It's a little pi
 
 ### Friends ♥ (and romance)
 
-The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met: Dottie, Gus, Wren (once she's home), Rex (after Mayday), Juno (after your first round trip), Zib (after Zib's Market), Captain Ollo (after Moth to a Flame) and Kael and Lyra (after VIP Pickup). Each has 10 hearts.
+The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met as they join in the story: Dottie, Gus, Wren (after The Neighbor), Rex (after Star Client), Juno (after Red Dock), Zib (after Market Day), Theo (after Catch!), Captain Ollo (after Lantern Light), Kael and Lyra (after The Envoys) and Kestrel (after The Rescue). Each has 10 hearts.
 
 - **Grow closer** by chatting once a day (anywhere you find them, on the Radio or when they visit your Pad), giving one gift a day, doing their side jobs and finishing their crew requests.
 - **Days on the ship are yours to end.** Press **🌙 Sleep** in the Pad, and the screen fades to night and back: it's a new ship day, so everyone can be chatted with and given a gift again, the garden can be watered again, and the crew shuffle to new spots around the ship. You need to fly at least once (land or crash) between sleeps, or Apogee will be asleep on your pillow. The current day shows at the top of the menu. The daily challenge and crew requests still follow the real calendar.
@@ -426,6 +588,42 @@ The **Friends ♥** screen (from the menu's Crew tab) shows everyone you've met:
 </p>
 
 **Romance** is off by default. Turn it on in **Settings**, and once someone is at 6 hearts and you've seen their 6-heart hangout, you can **ask them out**. Dating opens their last two hearts, a date scene at 8 and another at 10, a framed photo of the two of you for your Pad's left wall, special lines, and more Pad visits. You date one person at a time, and **Just friends** (tap twice) ends it kindly. Pim, Crumb, Apogee and Blip are friends of the whole crew and are never part of romance.
+
+**Nerri and Brix** are the newest people you can date, and you meet each of them on a side mission:
+
+- **Nerri** (teal skin, glowing freckles, fin ears, a water-filled helmet) came up through a crack in Europa's ice to see the stars. Carry her a fresh water tank in **Bubble Trouble** (opens after Methane Canyon) and she moves aboard, spending most of her time in the garden near the sprinklers. She's amazed by everything dry: crunchy snacks, toast ("like bread, but angry") and "leaf water". Her scenes: trying every snack in the vending machine, her three-note song from under the ice, a date in the garden with the sprinklers set to rain, and the song she writes for the two of you.
+- **Brix** (smooth lapis-blue stone flecked with gold, glowing amber eyes, two long head-tails banded in gold, a mossy cloak) is a poet from Vesta who thinks in centuries. Carry his four-thousand-year-old pet rock in **Rock Steady** (opens after Core Sample) and he moves into the crew wing. He loves gems as much as Zib, Rex and Lyra do. His scenes: his rock garden (a poem called "wait" that took eleven years), a geode from home, the slowest slow dance on the ship (to a whale recording), and the second line of his poem.
+
+<p align="center"><img src="media/nerri-brix.png" alt="Two scenes: Nerri in her water helmet on the ice beside the pilot under a big orange planet, telling them about the dark under the ice, and a date with Brix, a lapis-blue alien with two head-tails, under hanging lanterns" width="560"></p>
+
+**Dating gets messy.** With Romance on, nothing stops you from seeing more than one person at once, and things get complicated:
+
+- **Date more than one person.** Once you're dating someone, you can still ask out anyone else you're close to. They might say, "Aren't you already seeing Nerri? …I won't tell if you don't." Their Crew card shows **Dating ♥ (secretly)**.
+- **Jealousy builds.** Chatting with, gifting or dating one partner while another is around makes the others suspicious. Suspicious partners start making pointed remarks: "I saw you with someone else. My helmet fogged up. Not the happy kind."
+- **Getting caught.** If another partner is in the same room, they can catch you in the act. That plays a short **Busted** scene with all three of you, then a confrontation card at the top of the Crew tab with four choices:
+  - **"It's not what it looks like!"** works a bit under half the time.
+  - **"I'm seeing you both."** Each of them decides based on how open they are and how close you are. Zib and Nerri are easygoing about it; Rex and Dottie, not so much. If both say yes, it's out in the open and nobody gets jealous anymore.
+  - **Choose one of them.** The other one dumps you.
+- **Gossip travels overnight.** If someone gets suspicious enough, they may hear about it while you sleep and wake you with "We need to talk."
+- **Exes.** Whoever dumps you spends the next few ship days frosty: they give cold one-liners, refuse your gifts and won't warm up from chatting. After that, you can win them back.
+- **Secret admirers.** Someone close to you whom you aren't dating may slip a note under your door that smells of coffee, engine grease or seawater. Chat with the right person and they'll own up.
+- **Gus's gossip corner.** It comes over the intercom, covering everything from suspicious double desserts to who's frosty with whom this week.
+
+Turning Romance off in Settings returns everyone to being friends.
+
+**The crew has a love life of its own.** Five pairs on the ship have a soft spot for each other: Gus and Juno, Dottie and Wren, Kael and Lyra, Zib and Nerri, and Rex and Ollo. Their crushes grow a little each night and show up under **Crew crushes** on the Crew tab, with a progress bar and a line about what they've been up to ("Gus keeps finding things to fix right next to Juno's console"). On their own they only get so far. To actually get them together, tap **Put in a good word** (once a day per pair). When the bar fills, a short scene plays where they finally confess, followed by a celebration. Couples hang out in the same rooms, get their own chat lines and turn up in Gus's gossip corner. Their cards say **With Juno ♥**, and they're off the market for you, so the last good word comes with a warning.
+
+And it gets messier still:
+
+- **Rivals.** If you're dating someone with a crush, their crush may start flirting with them. A card on the Crew tab warns you, and you have two ship days to chat with them and give them a gift, or they leave you for the rival (and the two of them become a couple). You can also tell the rival to back off. That usually works, but sometimes your partner snaps, "You don't own me, pilot."
+- **Double booked.** Going on a date, or inviting a partner over to your Pad, might bring the other one along too. You then choose: **Stay with** one of them, **Go with** the other, or **"All three of us, then!"** That last one is either weirdly lovely or exactly the moment they both work it out.
+- **The photo.** If a partner visits your Pad while the photo of you with someone else is on the wall, they will notice. "That's my… cousin" won't cut it.
+
+<p align="center"><img src="media/messy-romance.png" alt="Two screens: a Busted scene where Nerri catches the pilot with Brix, and the confrontation card on the Crew tab with four choices: it's not what it looks like, I'm seeing you both, choose Nerri, choose Brix" width="560"></p>
+
+<p align="center"><img src="media/crew-crushes.png" alt="The Crew crushes list with Gus and Juno, Dottie and Wren, and Zib and Nerri, each with a progress bar and a Put in a good word button, plus a warning card saying Juno is making a move on Gus" width="420"></p>
+
+<p align="center"><img src="media/double-booked.png" alt="Three scenes: Zib and Nerri getting together, a candlelit dinner that Brix walks in on, and Brix spotting a photo on the wall" width="640"></p>
 
 **Hangouts and dates play as little cutscenes.** Each one has its own pixel-art backdrop to match what you're doing: Dottie's office, Gus's workshop, a picnic on the Moon (helmets on), Wren's spot overlooking Saturn, Rex's zero-g disco, a spacewalk on the hull with Juno, the glowing ice under Europa with Zib, Ollo's lantern festival, a candlelit dinner by the observation window, an embassy study and more, over 20 settings in all. The scene opens with a slow push-in and letterbox bars while the two of you walk in from either side and the title card fades up. Then the dialogue plays below the scene, and whoever's talking bobs along. Dates and asking someone out (always in the dome) have hearts drifting up, and every scene ends with a fade, plus a burst of hearts for the romantic ones. Tap the scene or **Next** to skip ahead, or **Skip** to jump to the end.
 
@@ -455,19 +653,60 @@ Tap the corkboard on the break room wall, or open **Bulletin board** in the menu
 
 <p align="center"><img src="media/bulletin-board.png" alt="The bulletin board: sticky notes pinned to cork, including Dottie's complaint about the ×2 pad, a found-cat notice for Apogee, the karaoke sign-up sheet and the landing of the week" width="560"></p>
 
+## The Moon base
+
+Until the Second Wind flies, the crew lives in a small base on the Moon: one cramped corridor with prefab walls, rubber floor matting and a painted walkway.
+
+- **GARAGE**: Biscuit's hangar, as before.
+- **OFFICE**: Dottie's desk, where the flight deck (missions, free flight, daily challenge, mining) lives in Act 1.
+- **The hangar window**: a big window onto the Second Wind on her cradle. She changes with every Act 1 repair: lights in her windows, patched plating instead of holes, Wren's engine bell, blinking life-support lights, a nav dish, a blue reactor glow, an engine flicker after Test Fire, and finally a green **READY** sign. Tap it and Gus or Dottie tells you how far along she is and which job pays for the next repair.
+- **Bills board**: a pinboard of overdue bills by the office. It gets emptier as you fly. The red one from the bank is called Gerald.
+- **KITCHEN**: Bao's kitchen, with warm prefab walls, a red-and-cream diner floor, his old **BAO'S** sign flickering on the wall and a window onto the Moon and Earth.
+- **BUNKS**: **your bunk**, your Pad in base form. Everything you decorate comes with you, and its big window looks out on grey lunar hills with Earth in the sky.
+
+<p align="center"><img src="media/moon-base.png" alt="The Moon base corridor: GARAGE and OFFICE doors, a bills board, a big window onto the Second Wind on her cradle under hangar floodlights, a KITCHEN door, and crew standing among stacked plating, Wren's armchair and Rex's luggage" width="560"></p>
+
+The base gets more crowded as the crew grows, which is a running joke: a stack of salvaged plating after Scrap Run, Wren's armchair after The Neighbor, Rex's luggage tower after Star Client, a humming reactor core after Moonquake. The crew hang out in the corridor and the kitchen, the phone's Map shows the base, and the garden and ship projects wait for the ship. After Liftoff (Act 2), everyone moves aboard and the decks below open up.
+
 ## The ship
 
-The rooms are part of one ship. Step out of your Pad's door, or out of the break room through the **HALL** exit at the bottom, and you're in the **hallway**, a long corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Doors along the wall lead to the **hangar**, the **garden**, the **break room**, **the Bridge**, your **Pad**, the **crew quarters** and the **galley**. Leave the Pad or the hangar and their door takes you back the way you came. There's also the **garden** and the **crew quarters** (see below). The observation **dome** stays sealed until you fund its repair on the project board. Tap one and someone on the intercom tells you why it's shut, for now. Crumb sometimes trundles up and down the hallway, and so does the crew (see [The crew's day](#the-crews-day)).
+The ship has **three decks**, stacked on top of each other, and each has its own corridor that scrolls as you walk. Tap anywhere to walk, or tap near either edge of the screen to keep walking that way. Step out of any room and you're in the corridor of the deck that room is on.
 
-<p align="center"><img src="media/hallway.png" alt="The ship's hallway: a long blue corridor with portholes, the twin Bridge doors, the Pad door, and the sealed Dome and Crew doors with yellow hazard stripes, the pilot walking along a glowing floor stripe" width="560"></p>
+| Deck | Look | Doors |
+|---|---|---|
+| **1 · Command** | Clean blue panels, a long window strip full of stars, a cool guide light down the floor | The Bridge, the observation dome (sealed until you fund its repair), Dottie's office (sealed, being repainted) |
+| **2 · Living** | Warm walls, wooden floorboards and a long runner rug, the project board and bench | The garden, the galley, the break room, your Pad, the crew quarters wing |
+| **3 · Engines** | Copper pipes along the ceiling, metal grating, a hazard stripe down the middle | The hangar, the airlock and the cargo bay (both sealed for now), the engine room |
 
-**The Bridge** sits behind the big double doors in the middle of the hallway. A huge curved window looks down on the world you flew last, with three consoles in front of it:
+Every deck has a **LIFT** door, with the deck number painted big on the wall beside it. Step into the lift and press a deck on its panel (or walk up to the button panel inside). The doors slide shut, the display counts the decks, the car hums and shakes a little, and a ding lets you out on the new deck, right by its lift door. On the menu's **Ship** tab, the ship map and the room list both show which deck every room is on, and you can still jump straight to any of them.
+
+Tap a sealed door and someone on the intercom tells you why it's shut, for now. The break room still has its side doors to your Pad and (down the stairs) the hangar. Crumb sometimes trundles along the corridors, and so does the crew (see [The crew's day](#the-crews-day)).
+
+<p align="center"><img src="media/decks.png" alt="The three deck corridors stacked: deck 1 in blue with star windows and the Bridge, Dome and Office doors; deck 2 with warm walls, a wooden floor, a red runner rug and the Garden, Galley and Break room doors, the project board and the lift; deck 3 with copper pipes, portholes, grating, a hazard stripe and the Cargo, Lift and Engine doors" width="560"></p>
+
+<p align="center"><img src="media/lift.png" alt="Inside the lift: a brushed steel car with a handrail, a weight-limit sign, a floor display showing 3 and a panel of three round buttons, with the pilot standing inside; below it, the deck buttons for Command, Living and Engines" width="420"></p>
+
+### Ship map
+
+The menu's **Ship** tab opens with a cross-section **map** of all three decks, front of the ship on the left. Each deck shows its rooms in the order you'd pass them, with the lift shaft in the middle and sealed rooms hatched with a lock. A colored dot with an initial marks where each crew member is right now (anyone in their room, or visiting a friend, shows up in Crew), and an amber **You** marks where you are. The strip under each deck is its corridor, so you can see who's wandering where. Tap a room to go straight there, tap a corridor to step out onto that deck by the lift, or tap the lift shaft to step into the lift.
+
+<p align="center"><img src="media/ship-map.png" alt="The ship map: three decks of room buttons, Command with the Bridge, sealed Dome and Office and the lift; Living with Garden (marked You, with Rex's dot), Galley, Break room with Dottie's dot, the lift, Pad and Crew; Engines with Hangar, sealed Airlock and Cargo, the lift and Engine; Wren's dot in the deck 2 corridor and Gus's in the deck 3 corridor" width="300"></p>
+
+### Life between decks
+
+- **Crew use the lift too.** Crew wandering the corridors are on a particular deck, and every so often one strolls to the lift door and heads off to another deck with a ding. You'll find them there later (the map knows where they went).
+- **Sometimes you share the lift.** Step in and someone might already be riding: tap them to chat (everyone has their own lift small talk). Pick a deck and they ride along with you, and if they were out wandering, they step out onto the new deck right beside you.
+- **The intercom.** Every couple of minutes while you're walking around the ship, the intercom chimes and a banner drops in at the top of the screen. Mostly it's Dottie: reminders when something's ripe in the garden, Gus has repairs waiting, there are new missions on the Bridge, or it's an event day, plus plenty of ship chatter (“Gus to the engine room. Your coffee is boiling over. Again.”).
+
+<p align="center"><img src="media/lift-rider.png" alt="An intercom banner from Dottie about new jobs on the nav console, above the lift, where Dottie is riding along with the pilot" width="300"></p>
+
+**The Bridge** sits behind the big double doors on deck 1. A huge curved window looks down on the world you flew last, with three consoles in front of it:
 
 - **Nav console** (middle): opens the **flight deck** with every way to fly. A red light means there are new missions.
 - **Comms** (left): takes a call from Juno, Pim, Zib, Ollo or the Veyra twins, whoever you've met, with their face on the screen. It counts as chatting with them for the day, the same as the Radio in the break room.
 - **Star map** (right): a dot for every world, lit once you've landed there.
 
-The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once you've flown the Mayday mission, and Captain Ollo stands on the right once you've met. Tap them to chat. The **Flight deck** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
+The **captain's chair** sits in the middle of the room. Walk up to it and you sit down. Rex Valor leans by the left wall once he's joined (after Star Client), and Captain Ollo stands on the right once you've met. Tap them to chat. The **Flight deck** button under the room is a shortcut to the nav console, and the **HALL** exit at the bottom takes you back out.
 
 <p align="center"><img src="media/bridge.png" alt="The Bridge: a wide curved window looking down on Mars, comms, nav and star map consoles, a red captain's chair, Rex Valor on the left and Captain Ollo on the right" width="560"></p>
 
@@ -475,7 +714,7 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 
 - **Plant:** tap a planter and pick a seed. Moon tea and Tiny ferns cost 20 credits and take 2 landings, Hydroponic flowers and Coffee beans cost 30 and take 3, and Cacao pods cost 40 and take 4.
 - **Grow:** crops grow a little every time you land safely, anywhere in the game. Walk up to the **tap** on the left once a ship day (sleep in your bunk to start a new one) to water everything for an extra day's growth.
-- **Harvest:** a ripe planter sparkles (and so does the GARDEN door in the hallway). Tap it and press **Harvest** to put the crop in your basket.
+- **Harvest:** a ripe planter sparkles (and so does the GARDEN door on deck 2). Tap it and press **Harvest** to put the crop in your basket.
 - **Give:** on the **Friends ♥** screen, homegrown gifts show up first in the gift list, marked 🌱. They're free, and they give a little extra ♥ on top of the usual amount. Each crop becomes the matching gift (tea, fern, flowers, coffee beans or chocolate), so everyone's tastes still count.
 - The **seed cabinet** on the right gives Gus's tips on who loves which crop, based on who you've met.
 
@@ -494,19 +733,30 @@ The **captain's chair** sits in the middle of the room. Walk up to it and you si
 
 ### Ship projects
 
-A corkboard over the bench in the hallway holds Gus and Dottie's **repair projects**. Tap it (or open **Ship projects** from the menu's Today tab) to chip in credits a bit at a time: +100, +500, or finish it in one go. Partial payments are saved, and each finished project changes something on the ship and gives whoever posted it a few hearts.
+A corkboard over the bench on deck 2 holds Gus and Dottie's **repair projects**. Tap it (or open **Ship projects** from the menu's Today tab) to chip in credits a bit at a time: +100, +500, or finish it in one go. Partial payments are saved, and each finished project changes something on the ship and gives whoever posted it a few hearts.
 
 | Project | Cost | What it does |
 |---|---|---|
 | Fix the hallway lights | 800 cr | The flickering ceiling lights go steady and warm |
+| Open the Pad balcony | 2,500 cr | Unseals the glass door in your Pad onto a balcony of your own |
 | Garden sprinklers | 3,000 cr | The garden waters itself every new ship day |
-| Hallway lounge corner | 4,000 cr | A couch, rug and lamp halfway down the hallway |
+| Hallway lounge corner | 4,000 cr | A couch, rug and lamp along the deck 2 corridor |
 | Break room jukebox | 5,000 cr | Wren's old jukebox plays again in the break room corner |
 | Repair the observation dome | 12,000 cr | Opens the dome |
 
 **The observation dome** sits behind the DOME door once it's repaired: a glass dome full of twinkling stars and the world you last flew, over a round platform with a telescope, a curved bench and two plants. Tap the telescope for what it's pointed at, the bench to sit a while (your partner has things to say there), or the sky. The crew sometimes go stargazing here instead of the garden.
 
 <p align="center"><img src="media/dome.png" alt="The observation dome: a starry glass dome with curved ribs and Mars in the corner, over a round platform with a telescope, a wooden bench and two potted plants" width="560"></p>
+
+### Engine room
+
+The **ENGINE** door on deck 3 opens on Gus's domain: a tall glass core with rings of light rising through it, Gus's workbench and tool board, two wobbly gauges, a big red lever that isn't connected to anything, and the **power junction** panel on the right. Gus spends a good part of his day in here.
+
+Something on the ship breaks every day, so Gus has **three repair jobs** each ship day, like a jukebox that plays one note, a coffee maker that makes soup, or Rex's hair dryer tripping the whole deck. Walk up to the junction and start the next job: it's a pipe puzzle. Tap a pipe piece to turn it, and connect the glow from the core on the left all the way to the broken part on the right. Each fix pays 120 credits, plus 60 more if you do it tidily (in no more than two turns over the fewest possible). The three jobs grow from a 4×4 grid to 5×6. The gauges and the junction lights show amber while something is still broken and go green when the day's jobs are done. Finish 10 repairs for the **Grease monkey** badge.
+
+<p align="center"><img src="media/engine-room.png" alt="The engine room: a tall glowing glass core with hazard stripes in front, Gus's workbench and tool board on the left, two gauges, a red lever and the power junction panel full of green and blue lights on the right" width="560"></p>
+
+<p align="center"><img src="media/engine-puzzle.png" alt="A repair job: a grid of pipe pieces, with glowing blue pipes leading from the core on the left partway across toward the unlit jukebox on the right" width="420"></p>
 
 ### Side activities
 
@@ -516,7 +766,7 @@ Three things to do between flights, all paying out in credits or gifts:
 
 <p align="center"><img src="media/mining.png" alt="Asteroid mining: the white mining pod with its magnet ring among drifting copper and gold ore, two blue gems and dark rocks, with the timer, ore counts and hull lights along the top" width="300"></p>
 
-**Cooking in the galley.** The new GALLEY door at the far end of the hallway leads to a tiled kitchen with a pantry, a stove, a sink and a fridge (Gus's yogurt is in there; don't touch it). Walk up to the stove and pick one of five recipes, each made from two garden crops: **Homemade mocha** (coffee + cacao), **Moon tea cakes** (tea + flowers), **Fern soup** (fern + tea), **Chocolate flower tart** (cacao + flowers) and a **Breakfast plate** (coffee + fern). Then tap **Stir!** three times while the marker is in the green zone, which gets narrower and faster each stir. Three good stirs make two portions, one or two make one, and a miss on all three burns it (Gus eats it anyway). **Meals are the best gifts on the ship**: everyone loves a home-cooked meal, and they give extra hearts on top. Dottie, Gus and Wren sometimes sneak into the galley for a snack.
+**Cooking in the galley.** The GALLEY door on deck 2 leads to a tiled kitchen with a pantry, a stove, a sink and a fridge (Gus's yogurt is in there; don't touch it). Walk up to the stove and pick a recipe, each made from two garden crops: **Homemade mocha** (coffee + cacao), **Moon tea cakes** (tea + flowers), **Fern soup** (fern + tea), **Chocolate flower tart** (cacao + flowers) and a **Breakfast plate** (coffee + fern), plus two that Bao teaches you: **Garden dumplings** (fern + flowers) and **Spiced cocoa** (tea + cacao). Then tap **Stir!** three times while the marker is in the green zone, which gets narrower and faster each stir. Three good stirs make two portions, one or two make one, and a miss on all three burns it (Gus eats it anyway). **Meals are the best gifts on the ship**: everyone loves a home-cooked meal, and they give extra hearts on top. Bao the cook is usually there, and Dottie, Gus and Wren sometimes sneak in for a snack.
 
 <p align="center"><img src="media/galley.png" alt="The galley: pantry shelves of jars, hanging pans over a stove, a sink, a tall fridge with magnets, a checkered floor and a little round table" width="560"></p>
 
@@ -524,16 +774,41 @@ Three things to do between flights, all paying out in credits or gifts:
 
 Gems and meals go in the same basket as garden crops, so they show up first in the gift list on the Friends ♥ screen, marked 💎 mined or 🍳 homemade.
 
+### New crew
+
+The crew grows as the story goes. Bao is in the base kitchen from the start, Kit stows away in Act 2, and Marisol and Dash join through the story; Tamsin is the one applicant left on the recruitment board. They all have hearts, gifts, chat lines, two hangout scenes (at 3 and 6 hearts), a room in the crew wing, lift small talk and visits to your Pad. They're friends only: no dating.
+
+- **Kit, the cadet** (blue jacket, red team cap) stows away in a crate on Earth in First Port. The first time you step out into the ship after that, Kit introduces himself and then **tags along a step behind you for three ship days**, with something to say about every room ("Do the plants have names? I'm going to name that one Kevin."). After that he studies on the Bridge, mostly. His hangouts are his first simulator run and the day he earns his cadet wings.
+- **Bao, the galley cook** (chef's hat, big mustache) runs the galley and feeds everyone whether they're hungry or not. Kit tells you about him; say hello in the galley. Bao teaches you **two new recipes** through his hangouts: **garden dumplings** (fern + flowers) after his 3-heart scene, and his grandmother's **spiced cocoa** (tea + chocolate) after his 6-heart scene.
+- **The recruitment board.** The menu's **Crew ♥** tab ends with **Crew applications**. Each applicant shows up there (and Dottie mentions them on the intercom) once you've flown far enough, with a short audition in Side missions. Pass it and they move into the crew wing:
+  - **Doc Marisol**, a medic (teal scrubs, soft dark waves, thin gold glasses): fifteen years on the Mars ambulance runs, grumpy on purpose, kind underneath. The Venus resort's medic; you pick her up in Dead Air.
+  - **Tamsin**, a botanist (a cloud of red hair with a leaf in it): grew a forest on a comet and talks to the garden, where she spends most of her day. Applies once the ship reaches Titan, with an audition in Side missions.
+  - **Dash**, a courier (racing goggles, yellow jacket): the fastest courier in the inner system, always on the move around the corridors. An Apex courier you rescue in Left Behind.
+
+**Two more dateable crewmates:**
+
+- **Theo Okafor**, Juno's dock deputy (orange dock jumpsuit, short fade, a grease smudge on one cheek): cocky, warm, never left Mars until now, and calls you "ace". He fires the supply pods at you in Catch! and joins right after. Loves pastries and old radio tapes. As co-pilot (**Dockhand**), pickups and pods pay 50% more. His dates: the pod launcher, his first time off Mars, a telescope on the hull, and the speech he's been saving.
+- **Kestrel**, ex-Apex ace (silver undercut, navy flight jacket): cool, competitive and slowly thawing, and she times everything. Joins after The Rescue. Loves energy gel and star charts. As co-pilot (**Racing line**), time stars are 25% easier. Her dates: your lap times, the Apex badge she can't throw away, a midnight flight with no clock, and a new number worth keeping.
+
+Both have rooms in the crew wing (the snack machine moved down the corridor to make space), chat lines, texts, gifts, lift and Pad visits, and their own drama if you date around. Theo can be lost in the buyout like other crew; Kestrel is story crew and always safe.
+
+Kit and Bao also post crew requests: Bao asks you to cook something in the galley, and Kit wants three landings in a day for his tally.
+
+<p align="center"><img src="media/kit-bao.png" alt="Kit, in a blue cadet jacket and red cap, introducing himself in the deck 2 corridor, and Bao, in a chef's hat, introducing himself in the galley with Kit tagging along" width="560"></p>
+
+<p align="center"><img src="media/recruits.png" alt="The Crew applications list: Marisol the medic and Tamsin the botanist with their auditions open, and a not-yet-opened application for a courier" width="320"></p>
+
 ### The crew's day
 
 The crew don't sit in one place any more. Every 15 minutes of real time, and every time you sleep, everyone picks somewhere to be:
 
 - **Dottie, Gus and Wren** are usually at the break room table. Their chair is empty when they're somewhere else.
 - **Rex and Ollo** usually hang about the Bridge.
-- **Juno, Zib, Kael and Lyra** mostly stay in their rooms.
-- Now and then anyone might **wander the hallway**, pop into the **garden** or **visit a friend** who's at home. Visitors show up in the host's bedroom, and both have something to say about it.
+- **Juno, Zib, Kael, Lyra and Doc Marisol** mostly stay in their rooms.
+- **Bao** is usually in the galley, **Tamsin** in the garden, **Kit** on the Bridge (once he's done tagging along with you), and **Dash** is always somewhere in the corridors.
+- Now and then anyone might **wander the corridors**, pop into the **garden** or **visit a friend** who's at home. Visitors show up in the host's bedroom, and both have something to say about it.
 
-Tap anyone you meet to chat. It counts as your daily chat for hearts, wherever you find them. The **Crew ♥** tab in the menu shows where everyone is right now (📍 In the break room, Wandering the hallway, Visiting Zib…) and whose room is open to you. If you walk into an empty break room, Apogee has taken all three chairs.
+Tap anyone you meet to chat. It counts as your daily chat for hearts, wherever you find them. The **Crew ♥** tab in the menu shows where everyone is right now (📍 In the break room, Wandering the corridors, Visiting Zib…) and whose room is open to you. If you walk into an empty break room, Apogee has taken all three chairs.
 
 <p align="center"><img src="media/visit.png" alt="Zib's room: lilac walls, a jelly tank, a spoon shelf and a photo of Zib's cloud mother, with Zib floating on the rug while Lyra visits" width="560"></p>
 
@@ -549,26 +824,79 @@ The big moments get confetti, a little fanfare and a cheer from the crew: finish
 
 <p align="center"><img src="media/celebrate.png" alt="Confetti falling over the hallway, with a Ship project done banner for Hallway lights at the top" width="300"></p>
 
+### Ship events
+
+Every fourth ship day is a holiday aboard. When you wake up on one, the sleep screen tells you what's on, the host says hello, and bunting goes up across the top of every room, along with something themed floating around (falling leaves, music notes and a disco ball, balloons, gold sparkles, paper stars or snow). The menu's **Today** tab shows today's event and its goal, or which one is coming up and in how many days.
+
+Each event has one small goal. Finish it and the party starts the next time you walk into a room on the ship. It's a proper cutscene, around a dozen lines long, with **everyone you've met on stage** (the host plus up to seven of the crew):
+
+- **The camera glides to whoever's talking,** and they step forward while they speak. Everyone else turns to look at them.
+- **Stage directions:** people dance, cheer, jump and spin on cue (all of Polka Night ends with the whole crew dancing), little pixel emotes pop over heads (♪ ♥ ! ? …), confetti bursts on the big moments, and narration lines set the scene in italics.
+- **Apogee makes an entrance** at her own birthday (and joins the cocoa pile).
+- **Newer crew get cameos** once you've met them: Tamsin's tomatoes at the Harvest Feast, Dash and Ollo at Polka Night, Marisol checking whether crowns are food, Nerri seeing a meteor shower for the first time.
+- **Your partner** finds you near the end ("Come stand with me. Best spot at the party. ♥"), and **an ex** is "only here for the snacks".
+
+The same staging runs every other scene in the game too:
+
+- **Hangouts and dates.** You and your crewmate walk in from opposite sides. Lines get a light touch of acting (a heart over someone's head, a little jump on an exclamation, a question mark), floating hearts drift up on romantic dates, and on the last line of a romantic scene the two of you step close together.
+- **Drama.** In **Busted**, you and the person you're with are standing close when the door opens and your other partner storms in from off stage. When you're double booked, the second date walks in mid-dinner (or knocks on your Pad door). **The photo** gets a "?", then a "!".
+- **Story intros.** A mission's opening radio chat plays on a set that suits whoever starts it: Dottie's office, Gus's workshop, Juno's dock, Zib's market, Ollo's lantern room, the embassy for the Veyra twins, and so on. Rovers and other voices without a body talk from off stage.
+
+Afterwards you get 300 credits, the host gets some hearts, and the first time you celebrate each event you get a keepsake for your Pad's shelf.
+
+| Event | Host | Goal | Keepsake |
+|---|---|---|---|
+| Harvest Festival | Gus | Give someone a homegrown gift: a crop, a gem or a home-cooked meal | Harvest gourd (with a face) |
+| Polka Night | Gus | Fly until the lights go warm in the evening, then come to the break room | Polka record |
+| Apogee's Birthday | Dottie | Find Apogee and give her a birthday pet | Apogee's party hat |
+| Launch Day | Dottie | Land three times in the day, anywhere | Launch Day pin |
+| Starfall Night | Wren | Watch the meteor shower from the dome, or from the Bridge window if the dome isn't open yet | Star jar |
+| Cocoa Night | Dottie | Cook something in the galley | Cocoa mug |
+
+The six events take turns, so each one comes around every 24 ship days. Keepsakes have their own group in the Pad's shelf picker.
+
+<p align="center"><img src="media/events.png" alt="Apogee's Birthday in the hallway with balloons and bunting, Polka Night in the break room with a disco ball and music notes, and Harvest Festival in the Pad with falling leaves" width="640"></p>
+
+<p align="center"><img src="media/event-party.png" alt="Two event scenes: Apogee's Birthday with eight of the crew around the cake, confetti and Apogee by the table as Gus shouts SURPRISE, and Polka Night with the camera pushed in on Dash as the crew dances" width="640"></p>
+
+
 ## The Pad
 
 **The Pad** is your own cabin, where the game starts, a cozy retro-future spaceship room. It has curved walls, glowing light strips along the ceiling, a capsule bunk, a window bench with cushions, a backlit shelf alcove, a floating desk with an egg chair, and a big rounded window looking down on a planet. It's a room you can **walk around**: your decorated cabin fills the back wall, and a floor in your chosen flooring runs toward you. **Tap anywhere** to walk, even right up against the furniture, so you can pose for photos without opening anything. Furniture only reacts to taps while you're decorating; outside of that, **Play the arcade** opens the arcade cabinet and the menu's Journal tab has your license. Guests you invite wander around the room as little sprites, admiring things, and you walk up to them to chat. Apogee naps on the furniture, Crumb rolls around the floor, and the **door on the right** opens onto the hallway (or back to the break room, if that's how you came in). The Pad opens as a **big, uncluttered view** of the room with the decorating panels tucked away. Press **Decorate** to open the full editor with every spot and item (while decorating, tap a piece of furniture and your pilot walks over and opens the picker for that spot), and **Done decorating** to close it and get the big room back. On a keyboard, arrow keys walk and Enter uses whatever's nearest. You can also pick a spot from the buttons under the room to change what goes there:
 
 | Spot | What can go there |
 |---|---|
-| Left wall | Lander poster (in your current paint), star chart, company pennant, Apogee calendar, solar system map, a signed Rex Valor poster |
-| Window | In orbit over the last world you flew, blinds down, Earth from orbit, Saturn, a nebula |
-| Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign |
-| Shelf (6 spots) | Your souvenirs (below), plus a cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket and gold trophy |
-| Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander |
-| Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, or a working arcade cabinet (see below) |
-| Rug | Orange rug, striped runner, Saturn rug, cat face rug |
+| Left wall | Lander poster (in your current paint), star chart, company pennant, Apogee calendar, solar system map, a signed Rex Valor poster, a wall aquarium with two fish, a round brass mirror, hanging vines |
+| Window | In orbit over the last world you flew, blinds down, Earth from orbit, Saturn, a nebula, a Jupiter close-up, a comet that sails past every few seconds |
+| Right wall | A wall clock that keeps your real local time, your pilot license, a mission patch, a crew photo, a flickering neon LAND sign, a dartboard, a wall of framed records |
+| Shelf (6 spots) | Your souvenirs (below), plus a cactus, flight manuals, okayest-pilot mug, rubber duck, snow globe, model rocket and gold trophy, plus a bubbling lava lamp, a little snow globe of the base and a Zib plushie |
+| Desk | Desk lamp, succulents, a retro computer, the crew radio, a scale model of your lander, a fishbowl (the goldfish is called Captain), a steaming espresso machine |
+| Corner | Potted fern, beanbag, a cat bed for Apogee, mini fridge, guitar, telescope, an arched floor lamp, a monstera, a big speaker that thumps, or a working arcade cabinet (see below) |
+| Rug | Orange rug, striped runner, Saturn rug, cat face rug, a teal shag rug, a swirling galaxy rug |
 | Bedding | Six colors for the bunk and your seat's cushions and fabric: crimson, cloud cream, blush pink, tangerine, starry night and mint |
 | Seating | Where you (and a guest) sit by the big window: the window bench, a comfy couch, a bean bag pair you sink right into, a hammock between two posts, or a hover sofa with a soft glow underneath. Fabric follows your bedding colors |
-| Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead or a twinkling starfield |
-| Flooring | Plush carpet, gloss floor, glowing light panels, rose carpet or deck grating |
-| Lights | The color of the glowing strips: amber, ice blue, rose, color-cycling aurora, pulsing red alert, a disco ball, or night mode with just the window and your reading light |
+| Walls | Ivory hull, moon white, blush, graphite, the classic navy bulkhead, a twinkling starfield, mint, forest green or sunset peach |
+| Flooring | Plush carpet, gloss floor, glowing light panels, rose carpet, deck grating, wood floor or tatami mats |
+| Lights | The color of the glowing strips: amber, ice blue, rose, color-cycling aurora, pulsing red alert, a disco ball, flickering candlelight, a rippling underwater ocean glow, or night mode with just the window and your reading light |
 
 Free items are yours from the start. Everything else costs 100 to 2,000 credits. Tap an item to try it in the room first, then buy it or put it back. Each shelf item can only sit on one shelf at a time. Your room is saved in your browser along with everything else.
+
+<p align="center"><img src="media/pad-decor.png" alt="Two Pads: one in forest green with a wall aquarium, Jupiter in the window, a lava lamp and a galaxy rug by candlelight; one in sunset peach with hanging vines, a comet in the window, a dartboard and a shag rug on tatami" width="560"></p>
+
+### The balcony
+
+Fund **Open the Pad balcony** on the repair board (2,500 cr) and the sealed glass door on the left of your Pad opens onto a **balcony**: a glassed-in deck with a railing and a huge view. Walk through the door, or tap **Balcony →**, and **← Back inside** to return. Your guest comes too and has something to say about the view. It decorates just like the Pad: tap **Decorate**, pick a spot, try things, then buy them.
+
+| Spot | What can go there |
+|---|---|
+| The view | Saturn, Earthrise over the Moon, a pink and violet nebula, Jupiter filling half the sky, a green aurora over an icy moon, twin suns setting |
+| Railing | String lights that twinkle, rainbow bunting, flower boxes, glowing paper lanterns from Ollo's festival, wind chimes (Gus rigged a fan) |
+| Left and right planters | Tomato vine, sunflowers, a bonsai, glowing mushrooms, a purple space cactus, a lemon tree (Bao keeps stealing the lemons) |
+| Seating | Striped deck chairs, a hammock that sways, a porch swing, beanbags, or a bubbling, steaming hot tub (Dottie has filed eleven forms) |
+| Side table | A brass telescope, a smoking grill, a tea table, a crackling fire pit, a record player with drifting notes |
+| Decking | Teak planks, steel grating with stars between the slats, fake grass, terracotta tiles, or a glass floor with nothing but space underneath |
+
+<p align="center"><img src="media/balcony.png" alt="Four balconies: a nebula view with a hot tub and string lights on terracotta, an aurora over a glass floor with lanterns, a hammock and glowing mushrooms, Jupiter over fake grass with a porch swing and flower boxes, and twin suns setting over beanbags and bunting" width="640"></p>
 
 ### The arcade cabinet
 
@@ -602,7 +930,7 @@ The first time you land on each world, you bring a souvenir home for your shelf,
 | Mars | A vial of red dust that pours like an hourglass |
 | Venus | A sealed jar of cloud |
 | Earth | A seashell from the ocean by the landing barge |
-| Eris | A jam-jar copy of the Senders' beacons that blinks four times |
+| Eris | A jam-jar copy of the first-burn guidance beacons that blinks three times |
 
 #### Crumb's finds
 
@@ -667,6 +995,8 @@ Every day the crew posts three small jobs. Open **Crew requests** from the fligh
 | Dottie | Send a friend a ghost challenge | 200 cr |
 | Apogee | Pet Apogee three times | 150 cr |
 | Gus | Score 600 in the arcade (once you own the cabinet) | 300 cr |
+| Bao | Cook something in the galley (once you've met him) | 250 cr |
+| Kit | Land three times in a day | 250 cr |
 
 Requests count from free flight, missions, the daily challenge, endless runs and ghost races. Credits are paid the moment you finish one, and the crew member who asked pops up at the bottom of the screen to react in their own words. Gus frames your fuel receipt, the rover driver reviews your landing on her roof, and Apogee marks the appointment as completed. Finishing all three adds a 250 credit bonus, plus a gold star on your file from Dottie. Requests change at midnight UTC, the same time as the daily challenge, and everyone gets the same three each day, so friends can compare. Until Wren is home, Gus takes over her request.
 
@@ -685,6 +1015,10 @@ Choose **Daily challenge** on the flight deck. Everyone who plays on the same da
 
 ## Save backup
 
+**Settings** is split into four tabs: Flying (zoom, rotation, ghosts, controls), Sound, Story (story scenes, romance, replay intro or tutorial) and Save (backup and new game).
+
+**Welcome back.** When you open the game, a card shows where you are: your act, the next mission, whether you need to sleep first, the day, unread texts and credits, plus the Second Wind as she is right now (dusty in the hangar, burning in Act 2, dark and drifting, blue engines, or parked home by the Moon).
+
 All your progress (hearts, dates, ship projects, the garden, your wardrobe, everything) is saved in your browser. iPhone Safari can clear that storage for websites you haven't visited in a while, so the game has a backup in **Settings → Save backup**:
 
 - **Copy save code** copies your whole save as one line of text starting with `DSAVE1:`. Paste it into your Notes app, an email to yourself, anywhere safe.
@@ -692,6 +1026,15 @@ All your progress (hearts, dates, ship projects, the garden, your wardrobe, ever
 - **Restore**: paste a code into the box (or pick a save file) and press **Restore from code**. It shows whose save it is, the ship day, the credits and the date it was made, and asks you to tap once more before it replaces your current progress.
 
 It's also how you move your save to a new phone or computer.
+
+**Saves from before the new story** aren't wiped. The first time you open the new version, a screen explains the story has been rebuilt, shows your current save code to copy, and offers two choices:
+
+- **Keep my stuff, start the new story**: keeps credits, landers and paint jobs, your Pad, crew hearts, side missions, badges and records. Only the old story progress is cleared, and the new intro plays. Crew rejoin as the new story reaches them, and the ship's rooms open after Liftoff.
+- **Start completely fresh**: wipes everything (tap twice to confirm).
+
+Old save codes can still be restored, and they go through the same choice.
+
+**New game**: under Settings, **Start a new game** wipes everything and starts over. The first tap puts your current save code in the box so you can keep it; the second tap wipes.
 
 ## Install it on your phone
 
@@ -723,7 +1066,7 @@ Most of the tuning lives near the top of the `<script>` block in `index.html`:
 - **`HULLS`, `FLAMES`**: hangar items and their prices.
 - **`ZOOM_MAX`, `ZOOM_START`, `ZOOM_FULL`**: how the auto-zoom camera behaves.
 - **`ROUNDS`**: the number of rounds in a hot-seat match.
-- **`MISSIONS`, `SIDES`**: the campaign and the side missions. Each entry has its terrain, pads, fuel, star goals and any special rule (`fragile`, `timeLimit`, `comfort`, `rings`).
+- **`MISSIONS`, `SIDES`**: the campaign and the side missions. Each entry has its terrain, pads, fuel, star goals and any special rule (`fragile`, `timeLimit`, `comfort`, `rings`). Multi-stop missions add `legs`: each leg has a `name`, an optional radio `say` line and `windMul`, and `goals` (`pickup`, `drop` with optional `keep`, `visit`, `land`, `exit`, plus `refuel`, `text` and `done` on any pad goal).
 
 To give yourself credits while testing, open the browser console on the game page, run the following, and reload:
 
@@ -735,7 +1078,7 @@ localStorage.setItem('ds-credits', 5000)
 
 `manifest.webmanifest`, `sw.js` and the `icon-*.png` / `apple-touch-icon.png` files make the game installable and offline-capable. `sw.js` has a `VERSION` you only need to change if you rename or remove those files.
 
-The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `hallway.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png`, `wardrobe.png`, `date-scenes.png`, `mining.png` and `galley.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
+The `media/` folder holds the images used in this README (`landing.gif`, `crew.png`, `story.png`, `menu-crew.png`, `flight-deck.png`, `missions.png`, `side-missions.png`, `hangar.png`, `badges.png`, `break-room.png`, `pad.png`, `arcade.png`, `license.png`, `intro.png`, `ghost-race.png`, `bulletin-board.png`, `postcards.png` and `maintenance-log.png`, `new-friends.png`, `friends.png`, `date.png`, `round-trip.png`, `decks.png`, `lift.png`, `ship-map.png`, `lift-rider.png`, `kit-bao.png`, `recruits.png`, `nerri-brix.png`, `messy-romance.png`, `crew-crushes.png`, `double-booked.png`, `pad-decor.png`, `balcony.png`, `multi-stop.png`, `worlds.png`, `copilots.png`, `phone.png`, `surprises.png`, `bridge.png`, `garden.png`, `quarters.png`, `visit.png`, `dome.png`, `wardrobe.png`, `date-scenes.png`, `mining.png` and `galley.png`) plus `social-preview.png`, the picture GitHub shows when someone shares the repo link (set it under **Settings → General → Social preview**).
 
 `og-image.png` is the share preview: the picture chat apps and social sites show when someone pastes the game's link. The tags that point to it are at the top of `index.html`.
 
