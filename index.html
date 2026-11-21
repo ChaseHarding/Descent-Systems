@@ -771,6 +771,18 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.crumb-note { margin: 0 0 8px; font-size: 12px; color: var(--ok); }
+.crumb-parts { font-size: 11px; font-weight: 500; color: var(--flame); margin-left: 6px; letter-spacing: 0; text-transform: none; }
+.crumb-ups { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.crumb-up { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--space-2); background: rgba(255,255,255,.03); color: var(--regolith); font: inherit; text-align: left; cursor: pointer; }
+.crumb-up:hover:not(:disabled) { border-color: var(--flame); }
+.crumb-up:disabled { opacity: .5; cursor: default; } .crumb-up.max { opacity: .8; border-color: var(--ok); }
+.crumb-up i { grid-row: 1 / 3; font-style: normal; font-size: 18px; }
+.crumb-up span { display: flex; flex-direction: column; min-width: 0; } .crumb-up b { font-size: 12px; color: #f4f1e8; } .crumb-up small { font-size: 10px; color: var(--regolith-dim); line-height: 1.3; }
+.crumb-up em { grid-column: 2; font-style: normal; font-size: 11px; color: var(--flame); } .crumb-up.max em { color: var(--ok); }
+.crumb-shelf { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; color: var(--regolith); }
+.crumb-shelf span { padding: 3px 8px; border-radius: 10px; border: 1px solid var(--space-2); }
+@media (max-width: 380px) { .crumb-ups { grid-template-columns: 1fr; } }
 .cal { display: flex; flex-direction: column; gap: 10px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cal-head div { display: flex; flex-direction: column; align-items: center; }
@@ -2162,19 +2174,129 @@ details.act > .limits { margin: 0 0 8px; }
     if (!bare) scan(c);
   }
   // Crumb's portrait: a boxy little rover face, two camera eyes and a speaker grille that lights up when he beeps
+  // ---- Crumb, the ship's salvage rover: tank treads, a camera head with an LED screen face, a claw and a basket ----
+  // His screen does the talking: ^_^ happy, o o curious, >_< startled, a heart, z z asleep, ? confused.
+  const LED_FACES = {
+    happy: ['.......', 'x.x.x.x', '.x...x.', '.......', '..xxx..'],
+    curious: ['.......', 'xx...xx', 'xx...xx', '.......', '...x...'],
+    startled: ['x.x.x.x', '.x...x.', 'x.x.x.x', '.......', '..xxx..'],
+    love: ['.xx.xx.', 'xxxxxxx', '.xxxxx.', '..xxx..', '...x...'],
+    sleep: ['.......', '.......', 'xx...xx', '.......', '.......'],
+    huh: ['..xxx..', '.x...x.', '....x..', '...x...', '...x...'],
+    blink: ['.......', '.......', 'xx...xx', '.......', '..xxx..'],
+    talk: ['.......', 'x.x.x.x', '.x...x.', '..xxx..', '..x.x..']
+  };
+  const LED = '#7cf0b0', LED_DIM = 'rgba(124,240,176,.18)';
+  function drawLed(c, x, y, face, k = 1, col = LED) {
+    const g = LED_FACES[face] || LED_FACES.happy;
+    for (let r = 0; r < g.length; r++) for (let q = 0; q < 7; q++) if (g[r][q] === 'x') px(c, x + q * k, y + r * k, k, k, col);
+  }
+  // what his screen shows right now, from what's going on around him
+  function crumbMood(k, t) {
+    if (!k) return 'happy';
+    if (k.catOn) return 'startled';
+    if (k.sleep) return 'sleep';
+    if (k.heart && t < k.heart) return 'love';
+    if (k.moving) return 'happy';
+    const ph = Math.floor(t / 1400) % 9;
+    return ph === 4 ? 'blink' : ph === 7 ? 'huh' : ph === 2 ? 'happy' : 'curious';
+  }
+  function drawCrumbSprite(c, x, y, dir, t, moving, face) {
+    x = Math.round(x); y = Math.round(y);
+    const bob = moving && Math.floor(t / 150) % 2 ? -1 : 0, tread = moving ? Math.floor(t / 70) : 0, f = face || (moving ? 'happy' : crumbMood(null, t));
+    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x + 8, y + 10, 9, 1.6, 0, 0, Math.PI * 2); c.fill();
+    c.save(); if (dir < 0) { c.translate(x * 2 + 16, 0); c.scale(-1, 1); }
+    // treads, rolling
+    px(c, x, y + 6, 16, 4, '#2a3045'); px(c, x - 1, y + 7, 18, 2, '#2a3045');
+    for (let q = 0; q < 4; q++) px(c, x + ((q * 4 + tread) % 16), y + 6, 2, 1, '#5a6478');
+    for (const wx of [1, 7, 13]) { px(c, x + wx, y + 7, 2, 2, '#5a6478'); px(c, x + wx, y + 7, 1, 1, '#c9cfdc'); }
+    // chassis with a hazard stripe, basket on the back, claw folded at the front
+    px(c, x + 1, y + 1 + bob, 14, 5, '#e8edf5'); px(c, x + 1, y + 1 + bob, 14, 1, '#ffffff'); px(c, x + 1, y + 5 + bob, 14, 1, '#b8c0d0');
+    for (let q = 0; q < 7; q++) px(c, x + 2 + q * 2, y + 3 + bob, 1, 1, q % 2 ? '#2a3045' : '#ffb547');
+    px(c, x - 1, y - 2 + bob, 5, 3, '#8a6a3a'); px(c, x - 1, y - 2 + bob, 5, 1, '#b08a52');
+    px(c, x + 15, y + 2 + bob, 2, 1, '#8a93ab'); px(c, x + 16, y + 2 + bob, 1, 3, '#8a93ab'); px(c, x + 16, y + 5 + bob, 2, 1, '#c9cfdc');
+    // neck, camera head, antenna
+    px(c, x + 9, y - 1 + bob, 2, 2, '#3a4668');
+    px(c, x + 6, y - 9 + bob, 9, 8, '#3a4668'); px(c, x + 15, y - 7 + bob, 1, 3, '#5a6478');
+    px(c, x + 7, y - 13 + bob, 1, 4, '#c9cfdc'); px(c, x + 6, y - 14 + bob, 3, 2, Math.floor(t / 500) % 2 ? '#ff6b5e' : '#7a2a2a');
+    c.restore();
+    // the screen sits outside the flip so his face never reads backwards
+    const sx0 = dir < 0 ? x + 2 : x + 7;
+    px(c, sx0, y - 8 + bob, 7, 6, '#0e1a24');
+    drawLed(c, sx0, y - 8 + bob, f, 1);
+  }
+  // his dialogue portrait: the big LED screen up close
   function drawCrumbFace(c, open, blink, bare) {
     if (!bare) px(c, 0, 0, 32, 32, '#16243a');
-    px(c, 15, 3, 2, 7, '#c9cfdc'); px(c, 14, 2, 4, 2, open ? '#58e0a0' : '#2f7a58');
-    px(c, 5, 10, 22, 14, '#3a4668'); px(c, 6, 11, 20, 12, '#e8edf5');
-    px(c, 6, 19, 20, 2, '#ffb547');
-    const eye = (x) => { if (blink) px(c, x, 15, 5, 1, '#15151f'); else { px(c, x, 13, 5, 5, '#15151f'); px(c, x + 1, 14, 3, 3, '#7fd6ff'); px(c, x + 1, 14, 1, 1, '#ffffff'); } };
-    eye(9); eye(18);
-    px(c, 13, 21, 6, 1, open ? '#58e0a0' : '#8a93ab');
-    px(c, 4, 24, 24, 2, '#3a4668');
-    for (const x of [5, 21]) { px(c, x, 25, 6, 6, '#2a3045'); px(c, x + 2, 27, 2, 2, '#8a93ab'); }
+    px(c, 15, 1, 2, 5, '#c9cfdc'); px(c, 14, 0, 4, 2, open ? '#ff6b5e' : '#a83a3a');
+    px(c, 3, 6, 26, 18, '#3a4668'); px(c, 3, 6, 26, 1, '#5a6890'); px(c, 5, 8, 22, 14, '#0e1a24');
+    for (let r = 0; r < 7; r++) px(c, 5, 8 + r * 2, 22, 1, LED_DIM);
+    drawLed(c, 9, 10, blink ? 'blink' : open ? 'talk' : 'happy', 2);
+    px(c, 1, 11, 2, 8, '#5a6478'); px(c, 29, 11, 2, 8, '#5a6478');
+    px(c, 13, 24, 6, 2, '#3a4668');
+    px(c, 2, 26, 28, 6, '#e8edf5'); px(c, 2, 26, 28, 1, '#ffffff');
+    for (let q = 0; q < 14; q++) px(c, 2 + q * 2, 28, 1, 2, q % 2 ? '#2a3045' : '#ffb547');
     if (bare) return;
     c.fillStyle = 'rgba(0, 0, 0, 0.16)';
-    for (let y = 1; y < 32; y += 2) c.fillRect(0, y, 32, 1);
+    for (let yy = 1; yy < 32; yy += 2) c.fillRect(0, yy, 32, 1);
+  }
+  // ---- Upgrades: the parts he salvages go into him, at the dock in the hangar ----
+  const CRUMB_UPS = [
+    { id: 'battery', name: 'Bigger battery', icon: '🔋', cost: [3, 5, 8], what: l => `+${15 * l}% battery on rover trips` },
+    { id: 'scanner', name: 'Better scanner', icon: '📡', cost: [4, 7], what: l => `Salvage pays ${25 * l}% more, with more rare finds and parts` },
+    { id: 'lights', name: 'Headlights', icon: '🔦', cost: [5], what: () => 'A wider light in the dark missions' },
+    { id: 'magnet', name: 'Magnet claw', icon: '🧲', cost: [6], what: () => 'Pickups get pulled in from farther away' }
+  ];
+  const crumbUps = () => { try { return JSON.parse(store.get('ds-crumbUp', '{}')) || {}; } catch (e) { return {}; } };
+  const crumbLvl = id => crumbUps()[id] || 0;
+  const crumbParts = () => +store.get('ds-crumbParts', '0');
+  // ---- His treasure shelf: the junk he's proudest of ----
+  const CRUMB_TREASURE = {
+    spoon: ['🥄', 'A bent spoon', '#c9cfdc'], dish: ['📡', 'Half a satellite dish', '#9aa2b4'], sandwich: ['🥪', 'A very old sandwich', '#e0b060'],
+    gusrock: ['🪨', 'A rock shaped like Gus', '#8a8478'], sock: ['🧦', 'A mystery sock', '#ff9ad5'], lampshade: ['🛋️', 'A lampshade', '#ffd36a'],
+    shoe: ['👟', 'A single shoe', '#7fd6ff'], meteor: ['☄️', 'A humming meteorite', '#c46a2c'], badge: ['🎖️', 'An antique probe badge', '#ffd36a'], crystal: ['💠', 'A colour-changing crystal', '#9a7ad0']
+  };
+  const crumbShelf = () => { try { return JSON.parse(store.get('ds-crumbShelf', '[]')) || []; } catch (e) { return []; } };
+  function crumbTreasure(id) { const s = crumbShelf(); if (!s.includes(id)) { s.push(id); store.set('ds-crumbShelf', JSON.stringify(s)); return true; } return false; }
+  function drawCrumbShelf(c, t) {
+    const s = crumbShelf(); if (!s.length) return;
+    px(c, 180, 31, 36, 2, '#8a6a3a'); px(c, 182, 33, 2, 2, '#5a4636'); px(c, 212, 33, 2, 2, '#5a4636');
+    s.slice(0, 6).forEach((id, i) => { const col = (CRUMB_TREASURE[id] || [])[2] || '#c9cfdc', x = 182 + i * 5; px(c, x, 26, 4, 5, col); px(c, x, 26, 4, 1, '#ffffff'); });
+  }
+  function renderCrumbPanel(note) {
+    const box = $('garPanel'); if (!box) return;
+    const out = crumbOut(), ups = crumbUps(), parts = crumbParts(), shelf = crumbShelf();
+    const worlds = WORLDS.filter(w => stats.worlds.includes(w.id));
+    box.hidden = false;
+    box.innerHTML = `${note ? `<p class="crumb-note">${note}</p>` : ''}
+      ${out ? '' : `<h3>Send Crumb salvaging</h3><p>Pick a world you’ve landed on. He comes back after your next flight with credits, parts, sometimes a gem, sometimes a treasure.</p>
+      <div class="seeds">${worlds.map(w => `<button class="seed" data-salv="${w.id}"><span aria-hidden="true" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${w.orb}"></span><b>${w.name}</b><small>Send him</small></button>`).join('')}</div>`}
+      <h3>Upgrades <small class="crumb-parts">⚙️ ${parts} part${parts === 1 ? '' : 's'}</small></h3>
+      <div class="crumb-ups">${CRUMB_UPS.map(u => { const l = ups[u.id] || 0, max = l >= u.cost.length, cost = u.cost[l];
+        return `<button class="crumb-up${max ? ' max' : ''}" data-cup="${u.id}"${max || parts < cost ? ' disabled' : ''}><i>${u.icon}</i><span><b>${u.name}${u.cost.length > 1 ? ` ${'●'.repeat(l)}${'○'.repeat(u.cost.length - l)}` : max ? ' ✓' : ''}</b><small>${max ? u.what(l) : u.what(l + 1)}</small></span><em>${max ? 'Installed' : `⚙️ ${cost}`}</em></button>`; }).join('')}</div>
+      <h3>Treasure shelf <small class="crumb-parts">${shelf.length} of ${Object.keys(CRUMB_TREASURE).length}</small></h3>
+      <p class="crumb-shelf">${shelf.length ? shelf.map(id => `<span title="${(CRUMB_TREASURE[id] || [])[1]}">${(CRUMB_TREASURE[id] || ['?'])[0]} ${(CRUMB_TREASURE[id] || [])[1]}</span>`).join('') : 'Empty, for now. He keeps the best junk he finds out there.'}</p>`;
+    box.querySelectorAll('[data-salv]').forEach(b => b.addEventListener('click', () => {
+      store.set('ds-salvage', JSON.stringify({ world: b.dataset.salv, at: flightsDone(), back: false }));
+      sfx.beep(); const w = WORLDS.find(x => x.id === b.dataset.salv);
+      garSay('K', `*excited beeping* (Crumb trundles up the ramp of a supply drone bound for ${w.name}. His screen shows a tiny thumbs up. He’ll be back after your next flight.)`);
+      renderCrumbPanel();
+    }));
+    box.querySelectorAll('[data-cup]').forEach(b => b.addEventListener('click', () => {
+      const u = CRUMB_UPS.find(x => x.id === b.dataset.cup), all = crumbUps(), l = all[u.id] || 0, cost = u.cost[l];
+      if (cost == null || crumbParts() < cost) return;
+      store.set('ds-crumbParts', String(crumbParts() - cost)); all[u.id] = l + 1; store.set('ds-crumbUp', JSON.stringify(all));
+      sfx.coin(); if (gar) gar.crumbHeart = performance.now() + 2500;
+      garSay('K', ['*delighted whirring* (Gus bolts it on. Crumb spins in a full circle. His screen shows a heart.)', '*BEEP BEEP* (Crumb tests his new part immediately, on Gus’s foot.)', '*proud beeps* (Crumb rolls back and forth so everyone can see.)'][l % 3]);
+      renderCrumbPanel();
+    }));
+  }
+  // he perks up when you come near: a heart on his screen
+  function crumbNear(k, me, t) {
+    if (!k || !me) return k;
+    const d = Math.hypot(me.x - k.x - 8, me.y - k.y - 4);
+    if (d < 26 && !k.wasNear) { k.wasNear = true; k.heart = t + 1600; } else if (d > 44) k.wasNear = false;
+    return k;
   }
   function drawFace(cv, who, mood, open, blink, bare) {
     const c = cv.getContext('2d'), f = FACES[who];
@@ -3458,7 +3580,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Darkness: the only light is Biscuit's headlamp; pads show as small blinking beacons ----
   function drawDark(time) {
     const d = mission.def; if (!d.dark || !lander) return;
-    const s = scale, X = sx(lander.x), Y = sy(lander.y), R = d.dark * s;
+    const s = scale, X = sx(lander.x), Y = sy(lander.y), R = d.dark * s * (crumbLvl('lights') ? 1.35 : 1);
     const g = ctx.createRadialGradient(X, Y + 2 * s, R * 0.2, X, Y + 2 * s, R);
     g.addColorStop(0, 'rgba(2,4,10,0)'); g.addColorStop(0.65, 'rgba(2,4,10,0.55)'); g.addColorStop(1, 'rgba(2,4,10,0.97)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, cw, ch);
@@ -3934,7 +4056,7 @@ details.act > .limits { margin: 0 0 8px; }
     return out;
   }
   function pickupsTick() {
-    const L = lander, r = copHas('Z') ? 6.4 : 3.4;
+    const L = lander, r = copHas('Z') ? 6.4 : crumbLvl('magnet') ? 5.2 : 3.4;
     for (const p of mission.pk) {
       if (p.got || Math.hypot(L.x - p.x, L.y + 1 - p.y) > r) continue;
       p.got = true; const P = PICK[p.type];
@@ -4396,7 +4518,7 @@ details.act > .limits { margin: 0 0 8px; }
   function deployRover() {
     const [fx, fy] = rampFoot(lander);
     mission.stage++;
-    mission.rover = { x: fx, y: fy, vx: 0, vy: 0, a: 0, ground: true, out: 0, dir: 1, batt: mission.def.battery, hopHeld: true, boardT: null, spin: 0 };
+    mission.rover = { x: fx, y: fy, vx: 0, vy: 0, a: 0, ground: true, out: 0, dir: 1, batt: Math.round(mission.def.battery * (1 + 0.15 * crumbLvl('battery'))), hopHeld: true, boardT: null, spin: 0 };
     holdCard = null;
     setTimeout(() => { if (mission && mission.rover) showToast(`Crumb: *happy beeps* ${mission.def.task}!`, 2200); }, 400);
     sfx.click();
@@ -7686,16 +7808,6 @@ details.act > .limits { margin: 0 0 8px; }
     else if (who === 'S') { drawBrixTails(c, x, y, dir, false); drawSprite(c, LOOKS.S, x, y, dir, frame, false); drawBrixTails(c, x, y, dir, true); }
     else if (LOOKS[who]) drawSprite(c, LOOKS[who], x, y, dir, frame, false);
   }
-  function drawCrumbSprite(c, x, y, dir, t, moving) {
-    x = Math.round(x); y = Math.round(y);
-    const bob = moving && Math.floor(t / 150) % 2 ? -1 : 0;
-    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(x + 7, y + 10, 7, 1.5, 0, 0, Math.PI * 2); c.fill();
-    px(c, x + 1, y + 7, 3, 3, '#2a3045'); px(c, x + 10, y + 7, 3, 3, '#2a3045');
-    px(c, x, y + 2 + bob, 14, 6, '#e8edf5'); px(c, x, y + 1 + bob, 14, 1, '#3a4668'); px(c, x, y + 5 + bob, 14, 1, '#ffb547');
-    px(c, dir > 0 ? x + 10 : x + 1, y + 2 + bob, 3, 2, '#7fd6ff');
-    px(c, dir > 0 ? x + 2 : x + 11, y - 3 + bob, 1, 4, '#c9cfdc'); px(c, dir > 0 ? x + 1 : x + 10, y - 4 + bob, 3, 1, Math.floor(t / 400) % 2 ? '#58e0a0' : '#2f7a58');
-  }
-
   // the break room's layout: what blocks you, what you can use, where you stand to use it
   const WR = {
     seats: { F: 102, G: 130, W: 158 },
@@ -7988,7 +8100,7 @@ details.act > .limits { margin: 0 0 8px; }
     const me = walk.me, frame = me.moving ? Math.floor(t / 130) % 4 : 0;
     things.push([me.y, () => drawSprite(c, pilotLook(), me.x - 8, me.y - 24, me.dir, frame, false)]);
     for (const n of walk.npcs) if (n.state !== 'sit') things.push([n.y, () => drawSprite(c, LOOKS[n.who], n.x - 8, n.y - 24, n.dir, n.path.length ? Math.floor(t / 150) % 4 : 0, false)]);
-    if (walk.crumb) things.push([walk.crumb.y + 10, () => { drawCrumbSprite(c, walk.crumb.x, walk.crumb.y, walk.crumb.dir, t, walk.crumb.moving); if (lounge.cat.id === 'crumb') drawCatSprite(c, walk.crumb.x, walk.crumb.y - 8, performance.now() < lounge.catAwake, t); }]);
+    if (walk.crumb) things.push([walk.crumb.y + 10, () => { drawCrumbSprite(c, walk.crumb.x, walk.crumb.y, walk.crumb.dir, t, walk.crumb.moving, crumbMood(Object.assign(crumbNear(walk.crumb, walk.me, t), { catOn: lounge.cat.id === 'crumb' }), t)); if (lounge.cat.id === 'crumb') drawCatSprite(c, walk.crumb.x, walk.crumb.y - 8, performance.now() < lounge.catAwake, t); }]);
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     // where you tapped
     if (walk.tap && t - walk.tap.t < 500) { const k = (t - walk.tap.t) / 500; c.strokeStyle = `rgba(255,181,71,${1 - k})`; c.lineWidth = 1; c.beginPath(); c.ellipse(walk.tap.x, walk.tap.y, 3 + k * 4, 1.5 + k * 2, 0, 0, Math.PI * 2); c.stroke(); }
@@ -9384,7 +9496,8 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 18, 28, 46, 14, '#2a3045'); for (const [tx, tc] of [[21, '#c9cfdc'], [27, '#ffb547'], [33, '#c9cfdc'], [40, '#ff6b5e'], [47, '#c9cfdc'], [55, '#7fd6ff']]) px(c, tx, 31, 2, 8, tc);
     px(c, 22, 40, 10, 4, '#ff6b5e'); px(c, 44, 41, 8, 3, '#3a4668'); px(c, 58, 39, 4, 5, '#ffe58a');
     px(c, 184, 38, 26, 18, '#26304f'); px(c, 186, 40, 22, 2, '#3a4668'); px(c, 194, 42, 6, 3, Math.floor(t / 600) % 2 ? '#58e0a0' : '#2f7a58');
-    if (crumbAround()) drawCrumbSprite(c, 190, 46, 1, t, false);
+    drawCrumbShelf(c, t);
+    if (crumbAround()) { const ck = gar.crumbK || (gar.crumbK = { x: 190, y: 46 }); if (gar.crumbHeart && t < gar.crumbHeart) ck.heart = gar.crumbHeart; drawCrumbSprite(c, 190, 46, 1, t, false, crumbMood(crumbNear(ck, gar.me, t), t)); }
     // the door to the break room
     px(c, 226, 10, 24, 46, '#2a3556'); px(c, 228, 12, 20, 44, '#0e1428'); px(c, 230, 14, 16, 42, '#1a2442'); px(c, 236, 14, 2, 42, '#121a33'); px(c, 242, 32, 2, 2, '#ffb547');
     px(c, 230, 2, 16, 7, '#ffb547'); px(c, 231, 3, 14, 5, '#2a1d0a'); px(c, 234, 4, 2, 2, '#ffb547'); px(c, 238, 4, 3, 2, '#ffb547'); px(c, 236, 6, 2, 1, '#ffb547');
@@ -9822,7 +9935,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipFloorThings(c, t) {
     const things = [], me = deck.me;
-    if (deck.crumb) things.push([deck.crumb.y + 10, () => drawCrumbSprite(c, deck.crumb.x, deck.crumb.y, deck.crumb.dir, t, deck.crumb.moving)]);
+    if (deck.crumb) things.push([deck.crumb.y + 10, () => drawCrumbSprite(c, deck.crumb.x, deck.crumb.y, deck.crumb.dir, t, deck.crumb.moving, crumbMood(crumbNear(deck.crumb, deck.me, t), t))]);
     npcDrawThings(c, t, things);
     return things;
   }
@@ -11593,7 +11706,7 @@ details.act > .limits { margin: 0 0 8px; }
     things.push([me.y, () => big(me.x, me.y, 8, 24, () => drawPerson(c, 'P', 0, 0, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t))]);
     const g = pw.guest;
     if (g) { const bob = denUI.talking === g.who && Math.floor(t / 90) % 2 ? -1 : 0; things.push([g.y, () => big(g.x, g.y, 8, 24 - bob, () => drawPerson(c, g.who, 0, 0, g.dir, g.goal ? Math.floor(t / 150) % 4 : 0, t))]); }
-    if (pw.crumb && !inBalc()) things.push([pw.crumb.y + 12, () => big(pw.crumb.x, pw.crumb.y + 12, 0, 10, () => drawCrumbSprite(c, 0, 0, pw.crumb.dir, t, pw.crumb.moving))]);
+    if (pw.crumb && !inBalc()) things.push([pw.crumb.y + 12, () => big(pw.crumb.x, pw.crumb.y + 12, 0, 10, () => drawCrumbSprite(c, 0, 0, pw.crumb.dir, t, pw.crumb.moving, crumbMood(crumbNear(pw.crumb, pw.me, t), t)))]);
     things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
     // the rim around the whole room
     c.setTransform(1, 0, 0, 1, 0, 0);
@@ -13016,7 +13129,7 @@ details.act > .limits { margin: 0 0 8px; }
       const r = Math.random();
       if (r < 0.5) { encApply({ credits: 180 }, notes); out = 'Crumb rolls back across on his tether with a box of good parts. Gus sells them on the spot.'; react = ['K', '*proud beeping*'];
       } else if (r < 0.8) { encApply({ basket: { gem: 1 } }, notes); out = 'Crumb comes back with something shiny clamped in his arm. It’s a gem!'; react = ['K', '*beep beep BEEP* (He would like it known that he found it.)'];
-      } else { notes.push('A lampshade'); out = 'Crumb comes back very pleased with himself, carrying a lampshade. Just a lampshade.'; react = ['G', 'It’s a great lampshade, buddy. The best.']; }
+      } else { notes.push('A lampshade'); crumbTreasure('lampshade'); out = 'Crumb comes back very pleased with himself, carrying a lampshade. Just a lampshade. It’s going on his shelf.'; react = ['G', 'It’s a great lampshade, buddy. The best.']; }
     } else {
       const ok = encApply(ch.fx, notes);
       if (ch.fx.chance && !out) {
@@ -13691,35 +13804,25 @@ details.act > .limits { margin: 0 0 8px; }
   };
   function salvageReveal() {
     const s = salvage(), w = WORLDS.find(x => x.id === s.world) || WORLDS[1], r = Math.random();
-    const cr = 100 + Math.floor(Math.random() * 200), gem = Math.random() < 0.35, rare = r < 0.1;
-    const junk = SALVAGE_FINDS.junk[Math.floor(Math.random() * SALVAGE_FINDS.junk.length)], rareItem = SALVAGE_FINDS.rare[Math.floor(Math.random() * SALVAGE_FINDS.rare.length)];
+    const sc = crumbLvl('scanner'), cr = Math.round((100 + Math.floor(Math.random() * 200)) * (1 + 0.25 * sc)), gem = Math.random() < 0.35, rare = r < 0.1 + 0.1 * sc;
+    const ji = Math.floor(Math.random() * SALVAGE_FINDS.junk.length), ri = Math.floor(Math.random() * SALVAGE_FINDS.rare.length), junk = SALVAGE_FINDS.junk[ji], rareItem = SALVAGE_FINDS.rare[ri];
+    const parts = 1 + Math.floor(Math.random() * 2) + sc; store.set('ds-crumbParts', String(crumbParts() + parts));
+    const newT = rare ? crumbTreasure(['meteor', 'badge', 'crystal'][ri]) : Math.random() < 0.5 ? crumbTreasure(['spoon', 'dish', 'sandwich', 'gusrock', 'sock'][ji]) : false;
     const total = cr + (rare ? 600 : 0);
     credits += total; saveCosmetics();
     if (gem) { garden.basket.gem = (garden.basket.gem || 0) + 1; saveGarden(); }
     store.set('ds-salvage', JSON.stringify({ ...s, back: true }));
     store.set('ds-crumbSeen', '1');
     sfx.coin();
-    showToast(`Crumb is back from ${w.name}: +${fmt(total)} cr${gem ? ' and a 💎' : ''}`, 3200);
+    showToast(`Crumb is back from ${w.name}: +${fmt(total)} cr · ⚙️ ${parts} part${parts === 1 ? '' : 's'}${gem ? ' · 💎' : ''}${newT ? ' · a new treasure for his shelf' : ''}`, 3400);
     return `*proud beeping* (Crumb rolls back from ${w.name} and dumps out his scoop: salvage worth ${fmt(cr)} credits${gem ? ', a sparkly space gem' : ''}${rare ? `, and ${rareItem}! Gus says it’s worth another 600 credits` : `, and ${junk}`}.)`;
   }
   function crumbDock() {
-    if (salvageReady()) { garSay('K', salvageReveal()); renderSalvagePanel(); return; }
-    if (crumbOut()) { const s = salvage(), w = WORLDS.find(x => x.id === s.world) || WORLDS[1]; garSay('G', `Crumb’s out scooping up salvage on ${w.name}. Go fly somewhere and he’ll be back by the time you land.`); return; }
-    garSay('K', '*curious beep* (Crumb wiggles his scoop at you. He wants a job.)'); renderSalvagePanel(true);
-  }
-  function renderSalvagePanel(open) {
-    const box = $('garPanel'); if (!box) return;
-    if (!open) { box.hidden = true; box.innerHTML = ''; return; }
-    const worlds = WORLDS.filter(w => stats.worlds.includes(w.id));
-    box.hidden = false;
-    box.innerHTML = `<h3>Send Crumb salvaging</h3><p>Pick a world you’ve landed on. Crumb rolls off to dig around and comes back after your next flight with whatever he finds: credits, sometimes a gem, sometimes something strange.</p>
-      <div class="seeds">${worlds.map(w => `<button class="seed" data-salv="${w.id}"><span aria-hidden="true" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${w.orb}"></span><b>${w.name}</b><small>Gone 1 flight</small></button>`).join('') || '<p class="gnote">Land somewhere first, then Crumb has somewhere to dig.</p>'}</div>`;
-    box.querySelectorAll('[data-salv]').forEach(b => b.addEventListener('click', () => {
-      store.set('ds-salvage', JSON.stringify({ world: b.dataset.salv, at: flightsDone(), back: false }));
-      sfx.beep(); const w = WORLDS.find(x => x.id === b.dataset.salv);
-      garSay('K', `*excited beeping* (Crumb trundles up the ramp of a supply drone bound for ${w.name}. He’ll be back after your next flight.)`);
-      renderSalvagePanel(false);
-    }));
+    if (salvageReady()) { garSay('K', salvageReveal()); if (gar) gar.crumbHeart = performance.now() + 2500; renderCrumbPanel(); return; }
+    if (crumbOut()) { const s = salvage(), w = WORLDS.find(x => x.id === s.world) || WORLDS[1]; garSay('G', `Crumb’s out scooping up salvage on ${w.name}. Go fly somewhere and he’ll be back by the time you land. His upgrades are here when he is.`); renderCrumbPanel(); return; }
+    if (gar) gar.crumbHeart = performance.now() + 2000;
+    garSay('K', ['*curious beep* (Crumb wiggles his claw at you. His screen shows a question mark. He wants a job.)', '*happy whirr* (Crumb rolls off his dock to say hi. His screen does a little smile.)', '*beep boop* (Crumb points his claw at his treasure shelf. He would like you to admire it.)'][Math.floor(Math.random() * 3)]);
+    renderCrumbPanel();
   }
 
   // ---- The ship guide: everything there is to do, with a heads-up the first time each thing opens ----
@@ -17827,22 +17930,27 @@ details.act > .limits { margin: 0 0 8px; }
       ctx.rotate(-a);
       if (R.dir < 0) ctx.scale(-1, 1);
       const lw = 1.4 / scale; ctx.lineWidth = lw; ctx.lineJoin = 'round';
+      // chassis with a hazard stripe and a basket
       ctx.fillStyle = '#e8edf5'; ctx.strokeStyle = '#3a4668';
-      ctx.beginPath(); ctx.moveTo(-1.4, -0.7); ctx.lineTo(-1.4, -1.6); ctx.lineTo(0.8, -1.6); ctx.lineTo(1.4, -1.0); ctx.lineTo(1.4, -0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#ffb547'; ctx.fillRect(-1.4, -1.05, 2.8, 0.25);
-      ctx.fillStyle = '#7fd6ff'; ctx.fillRect(0.55, -1.45, 0.55, 0.35);
-      // antenna
-      ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(-1, -1.6); ctx.lineTo(-1.1, -2.7); ctx.stroke();
-      ctx.fillStyle = Math.floor(time / 350) % 2 ? '#58e0a0' : '#2a5a44'; ctx.fillRect(-1.3, -2.95, 0.4, 0.4);
+      ctx.beginPath(); ctx.rect(-1.3, -1.55, 2.6, 0.75); ctx.fill(); ctx.stroke();
+      for (let q = 0; q < 6; q++) { ctx.fillStyle = q % 2 ? '#2a3045' : '#ffb547'; ctx.fillRect(-1.25 + q * 0.42, -1.25, 0.42, 0.18); }
+      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(-1.55, -1.85, 0.75, 0.4);
+      // neck and camera head, his screen face looking ahead
+      ctx.fillStyle = '#3a4668'; ctx.fillRect(0.2, -1.85, 0.25, 0.3); ctx.fillRect(-0.05, -2.75, 1.25, 0.95);
+      ctx.fillStyle = '#0e1a24'; ctx.fillRect(0.08, -2.62, 1.0, 0.7);
+      ctx.fillStyle = '#7cf0b0'; const happy = R.batt > 10; ctx.fillRect(0.28, happy ? -2.42 : -2.36, 0.16, happy ? 0.12 : 0.18); ctx.fillRect(0.72, happy ? -2.42 : -2.36, 0.16, happy ? 0.12 : 0.18);
+      if (happy) ctx.fillRect(0.42, -2.18, 0.32, 0.08);
+      // antenna with a blinking light
+      ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(0.15, -2.75); ctx.lineTo(0.1, -3.3); ctx.stroke();
+      ctx.fillStyle = Math.floor(time / 350) % 2 ? '#ff6b5e' : '#7a2a2a'; ctx.fillRect(-0.05, -3.5, 0.3, 0.3);
       // Apogee rides along once found
       if (mission.items.every(i => i.what !== 'blip' || i.done) && mission.items.some(i => i.what === 'blip')) { ctx.fillStyle = '#7dff9a'; ctx.beginPath(); ctx.arc(0.4, -1.9, 0.35, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#ffffff'; ctx.fillRect(0.35, -2.05, 0.2, 0.2); }
       if (mission.items.some(i => i.what === 'cat' && i.done)) { ctx.fillStyle = '#ff9a3d'; ctx.beginPath(); ctx.arc(-0.3, -1.9, 0.35, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-0.55, -2.4, 0.15, 0.3); ctx.fillRect(-0.15, -2.4, 0.15, 0.3); }
       // wheels
-      for (const wx of [-0.9, 0.9]) {
-        ctx.fillStyle = '#2a3045'; ctx.strokeStyle = '#c9cfdc';
-        ctx.beginPath(); ctx.arc(wx, -0.45, 0.45, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(wx, -0.45); ctx.lineTo(wx + Math.cos(R.spin) * 0.4, -0.45 + Math.sin(R.spin) * 0.4); ctx.stroke();
-      }
+      // tank treads with rolling road wheels
+      ctx.fillStyle = '#2a3045'; ctx.beginPath(); ctx.moveTo(-1.35, -0.85); ctx.lineTo(1.35, -0.85); ctx.arc(1.25, -0.45, 0.4, -Math.PI / 2, Math.PI / 2); ctx.lineTo(-1.25, -0.05); ctx.arc(-1.25, -0.45, 0.4, Math.PI / 2, Math.PI * 1.5); ctx.fill();
+      ctx.fillStyle = '#5a6478'; for (let q = 0; q < 7; q++) { const u = ((q / 7 + R.spin / (Math.PI * 2)) % 1 + 1) % 1; ctx.fillRect(-1.25 + u * 2.5, -0.85, 0.12, 0.08); }
+      for (const wx of [-0.95, 0, 0.95]) { ctx.fillStyle = '#5a6478'; ctx.beginPath(); ctx.arc(wx, -0.45, 0.28, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#c9cfdc'; ctx.beginPath(); ctx.moveTo(wx, -0.45); ctx.lineTo(wx + Math.cos(R.spin) * 0.24, -0.45 + Math.sin(R.spin) * 0.24); ctx.stroke(); }
     });
   }
   // an arrow at the screen edge for anything the rover needs that's out of view
