@@ -771,6 +771,40 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.cal { display: flex; flex-direction: column; gap: 10px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cal-head div { display: flex; flex-direction: column; align-items: center; }
+.cal-head b { font-family: var(--f-display); font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: var(--flame); }
+.cal-head small { font-size: 10px; color: var(--regolith-dim); }
+.cal-nav { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--space-2); background: none; color: var(--regolith); font-size: 18px; cursor: pointer; }
+.cal-nav:disabled { opacity: .3; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.cal-d { aspect-ratio: 1 / 1.05; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1px; padding: 3px 0 0; border-radius: 6px; border: 1px solid transparent; background: rgba(255,255,255,.04); color: var(--regolith); font: inherit; cursor: pointer; min-width: 0; }
+.cal-d b { font-size: 10px; font-weight: 500; }
+.cal-d span { font-size: 12px; line-height: 1; }
+.cal-d.past { opacity: .45; }
+.cal-d.has { background: rgba(255,181,71,.1); }
+.cal-d.today { border-color: var(--flame); }
+.cal-d.today b { color: var(--flame); font-weight: 700; }
+.cal-d.sel { background: rgba(127,214,255,.16); }
+.cal-sel { margin: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--regolith); }
+.cal-sel b { color: #f4f1e8; }
+.cal-up { margin: 4px 0 0; font-size: 12px; }
+.cal-up b { color: var(--flame); margin-right: 4px; font-weight: 600; }
+.tcard.bday-card { border-color: #ff9ad5; } .tcard.bday-card .eyebrow { color: #ff9ad5; }
+.mining.vend { max-width: 440px; }
+#vendCv { width: min(100%, 280px); aspect-ratio: 140 / 150; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); }
+.vend-say { margin: 0; min-height: 2.6em; font-size: 12px; line-height: 1.4; color: var(--regolith); text-align: center; text-wrap: balance; }
+.vend-say span { display: block; margin-top: 3px; color: var(--ok); }
+.vend-items { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vend-it { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--space-2); background: rgba(255,255,255,.03); color: var(--regolith); font: inherit; text-align: left; cursor: pointer; }
+.vend-it:hover:not(:disabled), .vend-it:focus-visible { border-color: var(--flame); }
+.vend-it:disabled { opacity: .45; cursor: default; }
+.vend-it i { grid-row: 1 / 3; font-style: normal; font-size: 20px; }
+.vend-it span { display: flex; flex-direction: column; min-width: 0; }
+.vend-it b { font-size: 12px; color: #f4f1e8; } .vend-it small { font-size: 10px; color: var(--regolith-dim); line-height: 1.3; }
+.vend-it em { grid-column: 2; font-style: normal; font-size: 11px; color: var(--flame); }
+@media (max-height: 460px) { #vendCv { width: min(100%, 180px); } }
 .mining.enc { max-width: 480px; }
 #encCv { width: 100%; aspect-ratio: 256 / 100; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #04050c; }
 .enc-choices { width: 100%; display: flex; flex-direction: column; gap: 8px; }
@@ -4292,6 +4326,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (copHas('Y')) { lander.fuel *= 1.1; lander.fuelMax *= 1.1; }
     if (encFuel && !ghostRun && encFuelFor === missionSel) { lander.fuel = Math.max(20, lander.fuel + encFuel); if (lander.fuel > lander.fuelMax) lander.fuelMax = lander.fuel; popText(`${encFuel > 0 ? '+' : '−'}${Math.abs(encFuel)} kg fuel`, encFuel > 0 ? '#7cf0b0' : '#ff9a5e', lander.x, lander.y + 6, true); }
     encFuel = 0;
+    { const vf = +store.get('ds-vendFuel', '0'); if (vf && !ghostRun) { lander.fuel += vf; if (lander.fuel > lander.fuelMax) lander.fuelMax = lander.fuel; store.set('ds-vendFuel', '0'); popText(`⚡ +${vf} kg Rocket Fuel`, '#ffd36a', lander.x, lander.y + 10, true); } }
     lander.cat = !!d.comfort;
     lander.sling = null;
     rng = Math.random;
@@ -5628,7 +5663,7 @@ details.act > .limits { margin: 0 0 8px; }
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'engine', 'lift'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { emergUi(m); } catch (e) {}
@@ -5637,6 +5672,7 @@ details.act > .limits { margin: 0 0 8px; }
     setTimeout(() => { try { phoneButton(); } catch (e) {} }, 0);
     try { applyEvening(m); } catch (e) {}
     if (SHIP_ROOMS.includes(m) && !intro) {
+      try { bdayHello(); } catch (e) {}
       try { eventHello(); eventHook('room', { room: m }); castHello(m); recruitNudge(); } catch (e) {}
       if (eventPartyReady()) { startEventParty(m); return; }
     }
@@ -5704,6 +5740,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'eva') { eva = null; renderEva('intro'); return; }
     if (m === 'coffee') { cof = null; renderCoffee('intro'); return; }
+    if (m === 'vending') { renderVend(); return; }
     if (m === 'encounter') { if (!enc) { setMode('missions'); return; } renderEncounter('scene'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
@@ -7578,19 +7615,60 @@ details.act > .limits { margin: 0 0 8px; }
     if (L.acc === 'helmet') { c.strokeStyle = 'rgba(232,235,242,0.85)'; c.lineWidth = 1; c.fillStyle = 'rgba(200,225,255,0.18)'; c.beginPath(); c.arc(x + 8, y + 6.5, 6.5, 0, Math.PI * 2); c.fill(); c.stroke(); P(4, 1, 2, 1, 'rgba(255,255,255,0.8)'); }
   }
   // Apogee, curled up (or sitting up, awake)
+// Apogee, cuter: a big round head, shiny eyes, pink ears and nose, a white muzzle and chest, white socks, tabby stripes, a fluffy tail
+  const CAT_O = '#ff9a3d', CAT_D = '#e07a2a', CAT_W = '#fff4e6', CAT_P = '#ff9ab0', CAT_K = '#2a1a14';
   function drawCatSprite(c, x, y, awake, t) {
     x = Math.round(x); y = Math.round(y);
-    const o = '#ff9a3d', d = '#d9772a';
+    const o = CAT_O, d = CAT_D, w = CAT_W, pk = CAT_P, k = CAT_K;
     c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x + 7, y + 8, 7, 1.5, 0, 0, Math.PI * 2); c.fill();
     if (!awake) {
-      px(c, x + 1, y + 3, 12, 5, o); px(c, x + 2, y + 2, 9, 1, o); px(c, x + 9, y + 1, 4, 3, o);
-      px(c, x + 9, y, 1, 1, o); px(c, x + 12, y, 1, 1, o); px(c, x + 3, y + 4, 6, 1, d); px(c, x + 1, y + 7, 9, 1, d);
-      px(c, x + 10, y + 2, 1, 1, '#3a2418'); px(c, x + 12, y + 2, 1, 1, '#3a2418');
-      if (!reduceMotion && Math.floor(t / 900) % 2) { c.fillStyle = 'rgba(232,235,242,0.7)'; c.font = '6px monospace'; c.fillText('z', x + 13, y - 1); }
-    } else {
-      px(c, x + 3, y + 2, 7, 6, o); px(c, x + 4, y - 2, 6, 5, o); px(c, x + 4, y - 3, 1, 1, o); px(c, x + 9, y - 3, 1, 1, o);
-      px(c, x + 5, y - 1, 1, 1, '#15151f'); px(c, x + 8, y - 1, 1, 1, '#15151f'); px(c, x + 10, y + 5, 3, 2, d); px(c, x + 12, y + 3, 1, 2, d);
+      // curled up asleep: a round loaf, tail wrapped round the front, head tucked in
+      px(c, x + 2, y + 2, 10, 6, o); px(c, x + 1, y + 3, 12, 4, o); px(c, x + 3, y + 1, 7, 1, o);
+      px(c, x + 4, y + 2, 1, 2, d); px(c, x + 6, y + 1, 1, 2, d); px(c, x + 8, y + 2, 1, 2, d);
+      px(c, x + 2, y + 7, 10, 1, d); px(c, x + 3, y + 6, 8, 1, o); px(c, x + 10, y + 6, 3, 1, w);   // tail round the front, white tip
+      px(c, x + 9, y + 1, 5, 4, o); px(c, x + 9, y, 1, 1, o); px(c, x + 13, y, 1, 1, o); px(c, x + 13, y + 1, 1, 1, pk);
+      px(c, x + 10, y + 3, 1, 1, k); px(c, x + 12, y + 3, 1, 1, k); px(c, x + 11, y + 4, 1, 1, pk);   // closed eyes, nose
+      if (!reduceMotion && Math.floor(t / 900) % 2) { c.fillStyle = 'rgba(232,235,242,0.7)'; c.font = '6px monospace'; c.fillText('z', x + 14, y - 1); }
+      return;
     }
+    // sitting up, facing you
+    const blink = !reduceMotion && Math.floor(t / 2600) % 7 === 3 && (t % 2600) < 160, sw = reduceMotion ? 0 : Math.round(Math.sin(t / 500));
+    px(c, x + 12, y + 4, 2, 3, o); px(c, x + 13 + sw, y + 1, 2, 3, o); px(c, x + 13 + sw, y, 2, 1, d);   // tail
+    px(c, x + 3, y + 3, 9, 5, o); px(c, x + 2, y + 4, 11, 3, o);                                      // body
+    px(c, x + 6, y + 3, 3, 4, w); px(c, x + 4, y + 7, 2, 1, w); px(c, x + 9, y + 7, 2, 1, w);         // chest, paws
+    px(c, x + 3, y - 4, 2, 1, o); px(c, x + 3, y - 3, 3, 1, o); px(c, x + 4, y - 3, 1, 1, pk);         // ears
+    px(c, x + 10, y - 4, 2, 1, o); px(c, x + 9, y - 3, 3, 1, o); px(c, x + 10, y - 3, 1, 1, pk);
+    px(c, x + 3, y - 2, 9, 5, o); px(c, x + 2, y - 1, 11, 3, o);                                      // big round head
+    px(c, x + 6, y - 2, 1, 1, d); px(c, x + 8, y - 2, 1, 1, d);                                      // stripes
+    if (blink) { px(c, x + 4, y, 2, 1, k); px(c, x + 9, y, 2, 1, k); }
+    else { px(c, x + 4, y - 1, 2, 2, k); px(c, x + 9, y - 1, 2, 2, k); px(c, x + 4, y - 1, 1, 1, '#ffffff'); px(c, x + 9, y - 1, 1, 1, '#ffffff'); }
+    px(c, x + 6, y + 1, 3, 2, w); px(c, x + 7, y + 1, 1, 1, pk);                                      // muzzle, nose
+    px(c, x + 3, y + 1, 1, 1, '#ffb0a0'); px(c, x + 11, y + 1, 1, 1, '#ffb0a0');                     // cheeks
+  }
+  function drawCatWalk(c, x, y, face, t) {
+    x = Math.round(x); y = Math.round(y);
+    const o = CAT_O, d = CAT_D, w = CAT_W, pk = CAT_P, k = CAT_K, st = Math.floor(t / 110) % 4, bob = st % 2;
+    c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x + 9, y + 10, 7, 1.5, 0, 0, Math.PI * 2); c.fill();
+    c.save(); if (face < 0) { c.translate(x * 2 + 19, 0); c.scale(-1, 1); }
+    // legs with white socks: diagonal pairs swap as she trots
+    const lift = [[0, 1, 1, 0], [0, 0, 0, 0], [1, 0, 0, 1], [0, 0, 0, 0]][st];
+    [[4, d], [6, o], [10, d], [12, o]].forEach(([lx, col], i) => { const h = 3 - lift[i]; px(c, x + lx, y + 7 - bob, 2, h, col); px(c, x + lx, y + 6 + h - bob, 2, 1, w); });
+    // a fluffy tail, up and swishing
+    const sw = st < 2 ? 0 : 1;
+    px(c, x + 2, y + 1 - bob, 2, 3, o); px(c, x + 1 + sw, y - 2 - bob, 2, 3, o); px(c, x + 1 + sw, y - 4 - bob, 2, 2, d);
+    // round body with stripes and a white chest
+    px(c, x + 3, y + 1 - bob, 11, 6, o); px(c, x + 4, y - bob, 9, 1, o); px(c, x + 4, y + 7 - bob, 9, 0, o);
+    px(c, x + 6, y - bob, 1, 2, d); px(c, x + 8, y - bob, 1, 2, d); px(c, x + 10, y - bob, 1, 2, d);
+    px(c, x + 11, y + 3 - bob, 3, 4, w);
+    // big head
+    const hy = y - 6 - bob;
+    px(c, x + 12, hy - 1, 2, 1, o); px(c, x + 12, hy, 3, 1, o); px(c, x + 13, hy, 1, 1, pk);
+    px(c, x + 17, hy - 1, 2, 1, o); px(c, x + 16, hy, 3, 1, o); px(c, x + 17, hy, 1, 1, pk);
+    px(c, x + 12, hy + 1, 8, 5, o); px(c, x + 11, hy + 2, 10, 3, o);
+    px(c, x + 15, hy + 1, 1, 1, d);
+    px(c, x + 13, hy + 2, 2, 2, k); px(c, x + 17, hy + 2, 2, 2, k); px(c, x + 13, hy + 2, 1, 1, '#ffffff'); px(c, x + 17, hy + 2, 1, 1, '#ffffff');
+    px(c, x + 15, hy + 4, 3, 2, w); px(c, x + 16, hy + 4, 1, 1, pk); px(c, x + 12, hy + 4, 1, 1, '#ffb0a0'); px(c, x + 20, hy + 3, 1, 1, '#ffb0a0');
+    c.restore();
   }
   // Zib floats: a lavender bell with big eyes and drifting tentacles
   function drawZibSprite(c, x, y, dir, t) {
@@ -7734,7 +7812,7 @@ details.act > .limits { margin: 0 0 8px; }
     walk = {
       cv, c, me: { x: start[0], y: start[1], dir: from && from !== 'hall' ? 0 : 3, path: [], moving: false }, target: null, keys: {}, last: performance.now(), raf: 0,
       npcs: (home ? ['F', 'G', 'W'] : ['F', 'G']).filter(w => crewAt(w) === 'lounge').map(w => ({ who: w, state: 'sit', x: seatCx(w), y: 72, dir: 0, path: [], timer: w === 'G' ? 14 + Math.random() * 16 : 1e9, pause: 0 })),
-      cat: lounge.cat, crumb: crumbAround() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
+      cat: catHiding() ? null : lounge.cat, crumb: crumbAround() ? { x: 40 + Math.random() * 120, y: 140, dir: 1, pause: 1 } : null, blip: lounge.blip
     };
     { const now = performance.now(); walk.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 400 + i * 300, until: now + 2200 + i * 300 }; }); }
     walk.view = roomView(WW, WH); fitRoomCanvas(cv, walk.view); camAim(walk.view, walk.me.x, walk.me.y, WW, WH);
@@ -9552,7 +9630,7 @@ details.act > .limits { margin: 0 0 8px; }
       start = { x: 128, y: 132, dir: 3 };
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
-      start = from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
+      start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
     const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
     deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
@@ -9562,7 +9640,7 @@ details.act > .limits { margin: 0 0 8px; }
     deck.npcs = buildNpcs(kind);
     { const rsc = roomSceneFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
-    deck.cat = hall && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
+    deck.cat = hall && !catHiding() && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
     deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
@@ -10335,6 +10413,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
   }
   function npcThings(L) {
+    { const hs = catSpotHere(); if (hs) L.push({ id: 'cathide', rect: [hs.x - 11, hs.y - 16, 24, 18], go: () => [hs.x + (deck.me.x < hs.x ? -18 : 18), Math.min(deck.B[3], hs.y + 4)], at: () => ({ x: hs.x, y: hs.y }), act: () => catFound() }); }
     if (deck.cat) { const k = deck.cat; L.push({ id: 'cat', rect: [k.x - 9, k.y - 12, 18, 14], go: () => [k.x + (deck.me.x < k.x ? -14 : 14), k.y + 2], at: () => k, act: () => { k.sleep = false; k.follow = 6; const now = performance.now(); k.emote = { t0: now, until: now + 1600 }; sfx.purr(); reqEvent('pet'); shipSay('A', HALL_CAT[Math.floor(Math.random() * HALL_CAT.length)]); } }); }
     for (const n of deck.npcs) L.push({ npc: n, id: 'npc' + n.who, rect: [n.x - 9, n.y - 26, 18, 28], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => deck.scene ? roomSceneNext() : npcTalk(n) });
   }
@@ -10345,7 +10424,8 @@ details.act > .limits { margin: 0 0 8px; }
       else if (!n.script && ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
       if (n.script && deck.scene && deck.scene.speaker === n.who) drawEmote(c, 'dots', n.x, n.y - 28, t, null);
     }]);
-    if (deck.cat) { const k = deck.cat; things.push([k.y, () => { drawCatSprite(c, k.x - 7, k.y - 8, !k.sleep, t); if (k.emote && t < k.emote.until) drawEmote(c, 'heart', k.x, k.y - 14, t, k.emote.t0); }]); }
+    { const hs = catSpotHere(); if (hs) things.push([hs.y, () => drawCatHide(c, hs.s.prop, hs.x, hs.y, t)]); }
+    if (deck.cat) { const k = deck.cat; things.push([k.y, () => { if (k.moving) drawCatWalk(c, k.x - 9, k.y - 9, k.face || 1, t); else drawCatSprite(c, k.x - 7, k.y - 8, !k.sleep, t); if (k.emote && t < k.emote.until) drawEmote(c, 'heart', k.x + 2, k.y - 21, t, k.emote.t0); }]); }
   }
   // Apogee sometimes shows up in the hallway and trots after you for a bit
   const HALL_CAT = ['Mrrp. (Apogee trots after you down the hallway, tail up. She has decided you need an escort.)', 'Prrrp. (Apogee headbutts your boot, then sits on it.)', 'Mrrow. (Apogee is on patrol. Her patrol route is wherever you are.)'];
@@ -10356,7 +10436,7 @@ details.act > .limits { margin: 0 0 8px; }
     k.follow -= dt;
     if (k.follow <= 0) { k.sleep = true; return; }
     const dx = deck.me.x - 14 - k.x, dy = deck.me.y + 4 - k.y, d = Math.hypot(dx, dy);
-    if (d > 16) { const s = Math.min(d - 16, 38 * dt); k.x += dx / d * s; k.y += dy / d * s; k.moving = true; }
+    if (d > 16) { const s = Math.min(d - 16, 38 * dt); k.x += dx / d * s; k.y += dy / d * s; k.moving = true; if (Math.abs(dx) > 1) k.face = dx < 0 ? -1 : 1; }
   }
 
   // ---- Crew between decks: who's in which corridor, and who rode the lift ----
@@ -10485,7 +10565,7 @@ details.act > .limits { margin: 0 0 8px; }
         bedroomOwner = w; walkEnter = 'quarters'; setMode('bedroom');
       } });
     });
-    L.push({ id: 'snacks', rect: [814, 18, 28, 44], go: () => [828, 72], at: () => ({ x: 828, y: 40 }), act: () => { sfx.coin(); shipSay('G', 'The snack machine whirrs. ' + SNACKS[Math.floor(Math.random() * SNACKS.length)]); } });
+    L.push({ id: 'snacks', rect: [814, 18, 28, 44], go: () => [828, 72], at: () => ({ x: 828, y: 40 }), act: () => { sfx.click(); setMode('vending'); } });
   }
   function quartersDraw(t) {
     const c = deck.c, v = deck.view;
@@ -12999,6 +13079,267 @@ details.act > .limits { margin: 0 0 8px; }
     if (art === 'ice') { for (let k = 0; k < 22; k++) { const x = 120 + (k * 37) % 136 - (t * 6) % 20, y = 8 + (k * 23) % 84, r = 2 + k % 4; c.save(); c.translate(x, y); c.rotate(t * 0.3 + k); px(c, -r, -r, r * 2, r * 2, k % 3 ? '#9fb4cc' : '#e8f4ff'); c.restore(); } }
   }
 
+  // ---- The ship calendar: a phone app with the ship's holidays and the crew's birthdays ----
+  // A ship year is four 28-day months. Holidays are the ship events (every few days); birthdays come round once a year.
+  const CAL_MONTH = 28, CAL_YEAR = 112, CAL_MONTHS = ['Dustfall', 'Driftmonth', 'Frostwane', 'Flaretide'];
+  const BIRTHDAYS = { F: 9, G: 17, W: 33, R: 45, Z: 53, H: 61, C: 70, J: 78, E: 87, Q: 95, N: 103, S: 110 };
+  const EV_ICON = { harvest: '🎃', polka: '🪩', apogee: '🐱', launch: '🚀', starfall: '🌠', cocoa: '☕' };
+  const BDAY_LINES = {
+    F: 'It’s my birthday. I scheduled it. Nobody make a fuss. …A small fuss is acceptable.',
+    G: 'IT’S MY BIRTHDAY!!! I made myself a cake! It’s shaped like a wrench! It tastes like a wrench!',
+    W: 'Another trip around the sun, dears. I stopped counting years ago. You should too.',
+    R: 'Today is the birthday of a legend. Me. I’m the legend. Autographs are free today only.',
+    Z: 'Zib is one year older! In Zib years that is fourteen! Zib would like presents! Zib would also like you! (Mostly presents.)',
+    H: 'Birthday rule: nobody cooks but me. Especially on my birthday. Especially you, Gus.',
+    C: 'Cadet Kit is one year more experienced today! Requesting permission to have cake!',
+    J: 'Another year running the busiest dock on Mars. Send cake. Theo, stop singing.',
+    E: 'A birthday on a spaceship. Never thought I’d say that. Best one yet, ace.',
+    Q: 'It’s my birthday. I don’t celebrate birthdays. …Is that cake? Fine. One slice.',
+    N: 'IT’S MY BIRTHDAY!!! My first birthday IN SPACE!!! Is there space cake?! Does it float?!',
+    S: '(Brix has put a tiny party hat on his rock. He looks at you. He looks at the rock. It is his birthday.)'
+  };
+  const calDoy = d => ((d - 1) % CAL_YEAR) + 1;
+  const bdayKnown = w => (w === 'F' || w === 'G' || (romMet[w] && romMet[w]())) && !isLost(w);
+  const bdayWho = (d = shipDay) => Object.keys(BIRTHDAYS).filter(w => BIRTHDAYS[w] === calDoy(d) && bdayKnown(w));
+  const bdayOf = w => bdayWho().includes(w);
+  let calStart = null, calSel = null;
+  function calDayInfo(d) {
+    const ev = eventFor(d), bd = bdayWho(d), out = [];
+    if (ev) out.push([EV_ICON[ev.id] || '🎉', `${ev.name}, hosted by ${SIGN[evHost(ev)]}`]);
+    for (const w of bd) out.push(['🎂', `${SIGN[w]}’s birthday · gifts count double`]);
+    return out;
+  }
+  function calHtml() {
+    const monthStart = d => d - ((calDoy(d) - 1) % CAL_MONTH);
+    const start = calStart != null ? calStart : monthStart(shipDay);
+    const m = Math.floor((calDoy(start) - 1) / CAL_MONTH), year = Math.floor((start - 1) / CAL_YEAR) + 1;
+    const sel = calSel != null ? calSel : shipDay >= start && shipDay < start + CAL_MONTH ? shipDay : start;
+    const cells = Array.from({ length: CAL_MONTH }, (_, k) => {
+      const d = start + k, info = calDayInfo(d), past = d < shipDay;
+      return `<button class="cal-d${d === shipDay ? ' today' : ''}${past ? ' past' : ''}${d === sel ? ' sel' : ''}${info.length ? ' has' : ''}" data-calday="${d}" aria-label="Day ${d}${info.map(i => ', ' + i[1]).join('')}"><b>${d}</b><span>${info.map(i => i[0]).join('')}</span></button>`;
+    }).join('');
+    const si = calDayInfo(sel);
+    const up = []; for (let d = shipDay; d < shipDay + 30 && up.length < 4; d++) for (const [ic, t] of calDayInfo(d)) if (up.length < 4) up.push([d, ic, t]);
+    return `<div class="cal">
+      <div class="cal-head"><button class="cal-nav" data-cal="-1" aria-label="Previous month"${start - CAL_MONTH < 1 ? ' disabled' : ''}>‹</button><div><b>${CAL_MONTHS[m]}</b><small>Ship year ${year} · days ${start}–${start + CAL_MONTH - 1}</small></div><button class="cal-nav" data-cal="1" aria-label="Next month">›</button></div>
+      <div class="cal-grid">${cells}</div>
+      <p class="cal-sel"><b>Day ${sel}${sel === shipDay ? ' · today' : sel < shipDay ? '' : ` · in ${sel - shipDay} day${sel - shipDay === 1 ? '' : 's'}`}</b>${si.length ? si.map(([ic, t]) => `<span>${ic} ${t}</span>`).join('') : '<span>Nothing planned. A good day to fly.</span>'}</p>
+      <div class="tcard"><span class="eyebrow">Coming up</span>${up.length ? up.map(([d, ic, t]) => `<p class="cal-up"><b>${d === shipDay ? 'Today' : d === shipDay + 1 ? 'Tomorrow' : `In ${d - shipDay} days`}</b> ${ic} ${t}</p>`).join('') : '<p>Nothing in the next month.</p>'}</div>
+      ${calStart != null && calStart !== monthStart(shipDay) ? '<button class="btn ghost" data-cal="0">Back to this month</button>' : ''}
+    </div>`;
+  }
+  function calClick(t) {
+    if (t.dataset.calday) { calSel = +t.dataset.calday; sfx.click(); return true; }
+    if (t.dataset.cal != null) {
+      const monthStart = d => d - ((calDoy(d) - 1) % CAL_MONTH), cur = calStart != null ? calStart : monthStart(shipDay), k = +t.dataset.cal;
+      calStart = k === 0 ? null : Math.max(1, cur + k * CAL_MONTH); calSel = null; sfx.click(); return true;
+    }
+    return false;
+  }
+  // a birthday: the birthday crewmate says hi once that day, and Bao bakes
+  function bdayHello() {
+    const who = bdayWho(); if (!who.length || +store.get('ds-bdayHi', '0') === shipDay) return;
+    store.set('ds-bdayHi', String(shipDay));
+    who.forEach((w, i) => setTimeout(() => crewToast(w, BDAY_LINES[w], '🎂 Birthday'), 2600 + i * 5200));
+    const b = who.find(w => w !== 'H');
+    if (b && bdayKnown('H')) setTimeout(() => sendText('H', `Cake’s in the galley for ${SIGN[b]}. Don’t tell them. They know. Act surprised anyway.`), 4000);
+  }
+  function bdayTodayCard() {
+    const who = bdayWho(); if (!who.length) return '';
+    return `<div class="tcard bday-card"><span class="eyebrow">🎂 Birthday</span><p>It’s ${who.map(w => SIGN[w]).join(' and ')}’s birthday! Gifts count double today. Bao baked a cake.</p></div>`;
+  }
+  // ---- The snack machine in the crew quarters: buy a snack, or give it a shake and see what falls out ----
+  const VEND = [
+    { id: 'choc', name: 'Choco Comet', icon: '🍫', price: 30, col: '#8a5028', hi: '#c47a3a', what: 'Chocolate bar · into your gift basket' },
+    { id: 'tea', name: 'Space Tea', icon: '🍵', price: 25, col: '#3f8a4a', hi: '#6fc07a', what: 'A can of tea · into your gift basket' },
+    { id: 'fuel', name: 'Rocket Fuel', icon: '⚡', price: 40, col: '#c9a024', hi: '#ffd36a', what: 'Energy drink · +15 kg fuel on your next landing' },
+    { id: 'mystery', name: 'Mystery Snack', icon: '❓', price: 15, col: '#7a5ab0', hi: '#c8a2ff', what: 'Nobody knows what’s in it. Not even Gus.' }
+  ];
+  const VEND_ODD = [
+    ['sock', '🧦', 'Gus’s lost sock', 'G', 'MY SOCK!!! Where was it?! …In the snack machine? Honestly, that tracks.'],
+    ['duck', '🦆', 'A rubber duck', 'R', 'Is that MY duck? I mean. What duck. I don’t have a duck. Give it back.'],
+    ['note', '✉️', 'A folded note', 'Q', 'If you found a note in the snack machine, no you didn’t. (It just says “nice landing.”)'],
+    ['wrench', '🔧', 'A tiny wrench keychain', 'E', 'That’s my keychain! I’ve been looking everywhere. You’re the best, ace.'],
+    ['pickle', '🥒', 'A single pickle', 'H', 'A pickle. In the snack machine. Who is doing this. WHO.'],
+    ['badge', '⭐', 'A gold safety star', 'C', 'MY SAFETY STAR! I was saving it for a special occasion! This is the occasion!']
+  ];
+  const VEND_SHAKES = 3;
+  let vend = null;
+  const vendDay = () => { try { const v = JSON.parse(store.get('ds-vend', '{}')); return v.day === shipDay ? v : { day: shipDay, shakes: 0 }; } catch (e) { return { day: shipDay, shakes: 0 }; } };
+  const vendOdd = () => { try { return JSON.parse(store.get('ds-vendOdd', '[]')); } catch (e) { return []; } };
+  function vendGive(id, notes) {
+    if (id === 'choc' || id === 'tea') { garden.basket[id] = (garden.basket[id] || 0) + 1; saveGarden(); notes.push(`${id === 'choc' ? '🍫 Choco Comet' : '🍵 Space Tea'} added to your gift basket`); }
+    if (id === 'fuel') { store.set('ds-vendFuel', String(Math.min(45, +store.get('ds-vendFuel', '0') + 15))); notes.push('⚡ +15 kg fuel on your next landing'); }
+  }
+  function vendOddity(notes) {
+    const have = vendOdd(), fresh = VEND_ODD.filter(o => !have.includes(o[0])), o = (fresh.length ? fresh : VEND_ODD)[Math.floor(Math.random() * (fresh.length || VEND_ODD.length))];
+    if (!have.includes(o[0])) { have.push(o[0]); store.set('ds-vendOdd', JSON.stringify(have)); }
+    notes.push(`${o[1]} ${o[2]}!`);
+    if (bdayKnown(o[3])) setTimeout(() => { sendText(o[3], o[4]); if (ROM_WHO.includes(o[3])) addHearts(o[3], 6); }, 1600);
+    return o;
+  }
+  function renderVend(say) {
+    const v = vendDay(), left = VEND_SHAKES - v.shakes, odd = vendOdd();
+    card.innerHTML = `<div class="mining vend">
+      <span class="eyebrow">Crew quarters</span><h1 class="good">Snack machine</h1>
+      <canvas id="vendCv" width="280" height="300" aria-hidden="true"></canvas>
+      <p class="vend-say" id="vendSay" aria-live="polite">${say || SNACKS[Math.floor(Math.random() * SNACKS.length)]}</p>
+      <div class="vend-items">${VEND.map(it => `<button class="vend-it" data-vend="${it.id}"${credits < it.price ? ' disabled' : ''}><i>${it.icon}</i><span><b>${it.name}</b><small>${it.what}</small></span><em>${it.price} cr</em></button>`).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="vendShake"${left ? '' : ' disabled'}>${left ? `🫨 Shake it (${left} left today)` : 'It’s had enough shaking today'}</button><button class="btn ghost" id="back">Back to the quarters</button></div>
+      <p class="limits">${fmt(credits)} credits${odd.length ? ` · Found in the machine: ${odd.map(id => (VEND_ODD.find(o => o[0] === id) || [])[1]).join(' ')}` : ''}</p>
+    </div>`;
+    const cv = $('vendCv');
+    vend = { cv, c: cv.getContext('2d'), t0: performance.now(), anim: null, busy: false };
+    card.querySelectorAll('[data-vend]').forEach(b => b.addEventListener('click', () => vendBuy(b.dataset.vend)));
+    $('vendShake').addEventListener('click', vendShake);
+    $('back').addEventListener('click', () => { sfx.click(); vend = null; walkEnter = 'vending'; setMode('quarters'); });
+    const loop = now => { if (!vend || vend.cv !== cv || !cv.isConnected) return; vendDraw(now); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+  function vendDone(say, notes) {
+    const el = $('vendSay'); if (el) el.innerHTML = `${say}${notes.length ? `<span>${notes.join(' · ')}</span>` : ''}`;
+    setTimeout(() => { if (mode === 'vending' && vend && !vend.busy) renderVend(el ? el.innerHTML : say); }, 1700);
+  }
+  function vendBuy(id) {
+    if (!vend || vend.busy) return;
+    const it = VEND.find(x => x.id === id); if (!it || credits < it.price) return;
+    credits -= it.price; saveCosmetics(); sfx.coin();
+    vend.busy = true; vend.anim = { type: 'buy', col: VEND.indexOf(it), t0: performance.now(), it };
+    setTimeout(() => {
+      const notes = [];
+      let say = { choc: 'Clunk. A Choco Comet. Slightly squashed, still perfect.', tea: 'Clunk. A can of Space Tea, ice cold.', fuel: 'Clunk. A can of Rocket Fuel. The can is vibrating.' }[id];
+      if (id === 'mystery') {
+        const r = Math.random();
+        if (r < 0.4) { const g = ['choc', 'tea', 'fuel'][Math.floor(Math.random() * 3)]; vendGive(g, notes); say = 'The mystery snack is… a regular snack! Wrapped in a mystery wrapper.'; }
+        else if (r < 0.7) { credits += 30; saveCosmetics(); notes.push('+30 credits'); say = 'Inside the wrapper: 30 credits and a note that says “sorry.”'; }
+        else { const o = vendOddity(notes); say = `The mystery snack is… ${o[2].toLowerCase()}. Hm.`; }
+      } else vendGive(id, notes);
+      vend.busy = false; sfx.pop(); vendDone(say, notes);
+    }, 1300);
+  }
+  function vendShake() {
+    if (!vend || vend.busy) return;
+    const v = vendDay(); if (v.shakes >= VEND_SHAKES) return;
+    v.shakes++; store.set('ds-vend', JSON.stringify(v));
+    vend.busy = true; vend.anim = { type: 'shake', t0: performance.now() };
+    sfx.thud ? sfx.thud() : sfx.click();
+    const r = Math.random(), notes = [];
+    let say, drop = null;
+    if (v.shakes >= VEND_SHAKES && r < 0.5) say = 'TILT! The machine flashes red. Dottie, over the speaker: “Stop shaking the snack machine.”';
+    else if (r < 0.3) { const g = ['choc', 'tea', 'fuel'][Math.floor(Math.random() * 3)]; drop = VEND.find(x => x.id === g); vendGive(g, notes); say = 'Something wobbles loose and drops into the tray. Free snack!'; }
+    else if (r < 0.42) { credits += 10; saveCosmetics(); notes.push('+10 credits'); say = 'A coin rattles out of the change slot.'; drop = { col: '#ffd36a', hi: '#fff6d0', coin: true }; }
+    else if (r < 0.58) { const o = vendOddity(notes); say = `Something that is definitely not a snack falls out.`; drop = { col: '#c9cfdc', hi: '#ffffff', odd: o[1] }; }
+    else say = ['Nothing. The machine hums smugly.', 'The snacks wobble. None of them fall. They’re laughing at you.', 'Clank. Nothing. Gus, from somewhere: “Hit it on the left side!”'][Math.floor(Math.random() * 3)];
+    if (drop) vend.anim.drop = drop;
+    setTimeout(() => { if (!vend) return; vend.busy = false; if (drop) sfx.pop(); vendDone(say, notes); }, 1100);
+  }
+  function vendDraw(now) {
+    const c = vend.c, a = vend.anim, t = (now - vend.t0) / 1000;
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    px(c, 0, 0, 140, 150, '#1a1e2e'); px(c, 0, 132, 140, 18, '#2a2438');
+    let sx = 0;
+    if (a && a.type === 'shake') { const k = (now - a.t0) / 1000; if (k < 0.8) sx = Math.round(Math.sin(k * 40) * 4 * (1 - k / 0.8)); }
+    c.save(); c.translate(sx, 0);
+    const tilt = a && a.type === 'shake' && vendDay().shakes >= VEND_SHAKES && (now - a.t0) < 2400;
+    // the machine
+    px(c, 30, 8, 80, 126, '#c44a5a'); px(c, 30, 8, 80, 3, '#e06a7a'); px(c, 106, 8, 4, 126, '#a43a4a');
+    px(c, 36, 16, 54, 84, '#14182a'); px(c, 36, 16, 54, 2, '#2a3048');
+    c.fillStyle = 'rgba(255,255,255,.06)'; c.fillRect(38, 18, 10, 80);
+    // four columns of snacks, three deep
+    VEND.forEach((it, col) => {
+      for (let row = 0; row < 3; row++) {
+        const x = 39 + col * 13, y = 22 + row * 26;
+        let dy = 0, gone = false;
+        if (a && a.type === 'buy' && a.col === col && row === 2) { const k = (now - a.t0) / 1000; if (k > 0.45) gone = true; else dy = Math.sin(k * 30) * 0.6; }
+        if (a && a.type === 'shake' && (now - a.t0) < 800) dy = Math.sin((now - a.t0) / 30 + col + row) * 1;
+        // the coil
+        c.strokeStyle = '#8a93ab'; c.lineWidth = 1; c.beginPath(); for (let q = 0; q < 4; q++) c.ellipse(x + 5, y + 16, 5, 2, 0, Math.PI * (q % 2), Math.PI * (q % 2 + 1)); c.stroke();
+        if (!gone) { px(c, x + 1, y + 2 + dy, 9, 13, it.col); px(c, x + 1, y + 2 + dy, 9, 2, it.hi); px(c, x + 3, y + 6 + dy, 5, 4, '#f4f1e8'); }
+      }
+    });
+    // keypad, coin slot, tray
+    px(c, 93, 18, 12, 30, '#2a2e3c'); for (let r = 0; r < 4; r++) for (let k = 0; k < 2; k++) px(c, 95 + k * 5, 21 + r * 6, 3, 3, '#8a93ab');
+    px(c, 96, 54, 6, 10, '#2a2e3c'); px(c, 98, 56, 2, 6, '#ffd36a');
+    px(c, 93, 70, 12, 8, tilt && Math.floor(now / 200) % 2 ? '#ff4a3a' : '#3a1a1a');
+    if (tilt) { c.fillStyle = '#ffffff'; c.font = '700 4px monospace'; c.fillText('TILT', 94, 76); }
+    px(c, 38, 106, 52, 18, '#0c0e18'); px(c, 38, 106, 52, 2, '#2a3048');
+    // what's falling: a bought snack drops from its slot, a shake drops something into the tray
+    let fall = null;
+    if (a && a.type === 'buy') { const k = (now - a.t0) / 1000; if (k > 0.45) { const x = 39 + a.col * 13; fall = { x: x + 1, y: Math.min(110, 74 + (k - 0.45) * (k - 0.45) * 260), it: a.it }; } }
+    if (a && a.type === 'shake' && a.drop) { const k = (now - a.t0) / 1000; if (k > 0.35) fall = { x: 58, y: Math.min(110, 80 + (k - 0.35) * (k - 0.35) * 260), it: a.drop }; }
+    if (fall) {
+      const it = fall.it;
+      if (it.coin) phDisc(c, fall.x + 5, fall.y + 6, 3, '#ffd36a');
+      else if (it.odd) { c.font = '10px sans-serif'; c.fillText(it.odd, fall.x, fall.y + 10); }
+      else { px(c, fall.x, fall.y, 9, 13, it.col); px(c, fall.x, fall.y, 9, 2, it.hi); px(c, fall.x + 2, fall.y + 4, 5, 4, '#f4f1e8'); }
+    }
+    c.restore();
+    if (!a || (now - a.t0) > 3000) { c.fillStyle = `rgba(255,214,122,${0.08 + 0.05 * Math.sin(t * 2)})`; c.fillRect(30, 8, 80, 126); }
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- Apogee: a proper walk (four legs, a trot, tail up) and a daily game of hide and seek ----
+  // where she hides: a little prop with her tail sticking out. One spot a day.
+  const CAT_HIDES = [
+    { room: 'galley', x: 216, y: 98, prop: 'box', hint: 'She can smell snacks from her hiding spot.' },
+    { room: 'garden', x: 228, y: 92, prop: 'basket', hint: 'Somewhere green and warm, under the grow lamps.' },
+    { room: 'engine', x: 224, y: 112, prop: 'blanket', hint: 'Somewhere warm, with a nice low hum.' },
+    { room: 'bridge', x: 42, y: 116, prop: 'box', hint: 'Somewhere with the best view on the ship.' },
+    { room: 'quarters', x: 790, y: 142, prop: 'bag', hint: 'Somewhere close to the snack machine.' },
+    { room: 'hall', deck: 1, x: -44, y: 142, prop: 'basket', hint: 'Out in a corridor on the top deck.' },
+    { room: 'hall', deck: 2, x: -44, y: 142, prop: 'box', hint: 'Out in a corridor on the living deck.' },
+    { room: 'hall', deck: 3, x: -44, y: 142, prop: 'bag', hint: 'Out in a corridor on the bottom deck, near the hangar.' },
+    { room: 'dome', x: 44, y: 116, prop: 'blanket', need: () => projDone('dome'), hint: 'Somewhere she can watch the stars.' }
+  ];
+  const CAT_FOUND = ['MRRP! (Apogee bursts out like this was all your idea.)', 'Prrrp. (She blinks at you slowly. That means “took you long enough.”)', 'Mrow! (She was asleep. She is pretending she wasn’t.)', 'MRRRP. (She headbutts your hand, then marches off like she won.)'];
+  function catHide() {
+    if (inBase() || !storyDone('liftoff')) return null;
+    let h; try { h = JSON.parse(store.get('ds-catHide', 'null')); } catch (e) { h = null; }
+    if (!h || h.day !== shipDay) {
+      const ok = CAT_HIDES.map((s, i) => i).filter(i => !CAT_HIDES[i].need || CAT_HIDES[i].need());
+      const prev = h ? h.i : -1, pool = ok.filter(i => i !== prev);
+      h = { day: shipDay, i: pool[Math.floor(Math.random() * pool.length)], found: false };
+      store.set('ds-catHide', JSON.stringify(h));
+    }
+    return h;
+  }
+  const catHiding = () => { const h = catHide(); return !!h && !h.found; };
+  function catSpotHere() {
+    const h = catHide(); if (!h || h.found || !deck) return null;
+    const s = CAT_HIDES[h.i]; if (!s || s.room !== deck.kind || (s.room === 'hall' && hallDeck !== s.deck)) return null;
+    return { s, x: s.x < 0 ? deck.W + s.x : s.x, y: s.y };
+  }
+  function catFound() {
+    const h = catHide(), here = catSpotHere(); if (!h || !here) return;
+    h.found = true; store.set('ds-catHide', JSON.stringify(h));
+    const last = +store.get('ds-catLast', '0'), streak = last === shipDay - 1 ? +store.get('ds-catStreak', '0') + 1 : 1;
+    store.set('ds-catLast', String(shipDay)); store.set('ds-catStreak', String(streak));
+    const pay = 40 + 10 * Math.min(streak - 1, 5);
+    credits += pay; saveCosmetics(); if (ROM_WHO.includes('F')) addHearts('F', 6);
+    try { sfx.purr(); } catch (e) { sfx.pop(); }
+    const now = performance.now();
+    deck.cat = { x: here.x, y: here.y + 2, follow: 9, sleep: false, moving: false, face: 1, emote: { t0: now, until: now + 1800 } };
+    shipSay('A', CAT_FOUND[Math.floor(Math.random() * CAT_FOUND.length)]);
+    showToast(`🐾 Found Apogee! +${pay} credits${streak > 1 ? ` · ${streak}-day streak` : ''}`, 2600);
+  }
+  function drawCatHide(c, prop, x, y, t) {
+    const sw = Math.sin(t / 260), peek = Math.floor(t / 1700) % 3 === 0;
+    // her tail, swishing out from behind the prop
+    c.strokeStyle = '#ff9a3d'; c.lineWidth = 2; c.beginPath(); c.moveTo(x + 7, y - 2); c.quadraticCurveTo(x + 13, y - 4 + sw * 2, x + 12 + sw * 3, y - 10); c.stroke();
+    px(c, x + 11 + Math.round(sw * 3), y - 11, 2, 2, '#d9772a');
+    c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x, y + 1, 9, 2, 0, 0, Math.PI * 2); c.fill();
+    if (prop === 'box') { px(c, x - 8, y - 10, 16, 11, '#c4823a'); px(c, x - 8, y - 10, 16, 2, '#e0a050'); px(c, x - 9, y - 12, 6, 2, '#d89850'); px(c, x + 3, y - 12, 6, 2, '#d89850'); px(c, x - 1, y - 8, 2, 8, '#8a5a28'); }
+    if (prop === 'basket') { px(c, x - 8, y - 8, 16, 9, '#b08a52'); for (let k = 0; k < 4; k++) px(c, x - 7 + k * 4, y - 8, 1, 9, '#8a6a3a'); px(c, x - 9, y - 9, 18, 2, '#c9a066'); px(c, x - 6, y - 11, 12, 2, '#9ad8ff'); }
+    if (prop === 'bag') { px(c, x - 6, y - 12, 12, 13, '#d8c49a'); px(c, x - 6, y - 12, 12, 2, '#c4ae80'); px(c, x - 4, y - 7, 8, 1, '#b09a70'); }
+    if (prop === 'blanket') { phOval(c, x, y - 4, 10, 5, '#7a5ab0'); phOval(c, x - 2, y - 6, 6, 3, '#9a7ad0'); px(c, x - 8, y - 2, 3, 2, '#6a4aa0'); }
+    if (peek) { const ey = prop === 'blanket' ? y - 9 : y - 14; px(c, x - 4, ey, 2, 2, '#ff9a3d'); px(c, x + 2, ey, 2, 2, '#ff9a3d'); px(c, x - 3, ey + 2, 6, 2, '#ff9a3d'); px(c, x - 2, ey + 2, 1, 1, '#15151f'); px(c, x + 1, ey + 2, 1, 1, '#15151f'); }
+  }
+  function catTodayCard() {
+    const h = catHide(); if (!h) return '';
+    const s = CAT_HIDES[h.i];
+    if (h.found) return `<div class="tcard"><span class="eyebrow">🐾 Hide and seek</span><p>You found Apogee today. She’s pretending she let you win.${+store.get('ds-catStreak', '0') > 1 ? ` ${store.get('ds-catStreak', '0')}-day streak!` : ''}</p></div>`;
+    return `<div class="tcard"><span class="eyebrow">🐾 Hide and seek</span><p>Apogee is hiding somewhere on the ship. Look for a swishing tail.</p><p class="where">Hint: ${s.hint}</p></div>`;
+  }
+
   // ---- The galley: cook crops into meals with a quick stirring game ----
   const RECIPES = [
     { id: 'mocha', needs: ['coffee', 'choc'], line: 'Coffee and chocolate. Dottie will pretend she isn’t thrilled. She will be thrilled.' },
@@ -14173,7 +14514,7 @@ details.act > .limits { margin: 0 0 8px; }
     const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
     const nextP = PROJECTS.find(pj => !projDone(pj.id));
     return `<div class="todaylist">
-      ${emergActive() ? emergTodayCard() : ''}${eventCard()}
+      ${emergActive() ? emergTodayCard() : ''}${bdayTodayCard()}${eventCard()}${catTodayCard()}
       <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
         ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
         <button class="btn ghost" id="phReq">Open crew requests</button></div>
@@ -14533,15 +14874,16 @@ details.act > .limits { margin: 0 0 8px; }
         if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
         if (t.dataset.thread) { sfx.click(); phoneView = 'thread:' + t.dataset.thread; renderPhone(); return; }
         if (t.dataset.group) { sfx.click(); phoneView = 'group'; renderPhone(); return; }
+        if (calClick(t)) { renderPhone(); return; }
         if (t.dataset.greply != null) { sfx.click(); groupReply(+t.dataset.greply); renderPhone(); phoneButton(); return; }
         if (t.dataset.reply != null) { sfx.click(); replyText(phoneView.slice(7), +t.dataset.reply); renderPhone(); phoneButton(); return; }
       });
     }
     const v = phoneView, tw = v.startsWith('thread:') ? v.slice(7) : null;
-    const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0]];
-    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', group: 'Second Wind crew 🚀', inbox: 'Inbox', map: 'Ship map', today: 'Today' }[v];
+    const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0], ['cal', '📅', 'Calendar', bdayWho().length]];
+    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', group: 'Second Wind crew 🚀', inbox: 'Inbox', map: 'Ship map', today: 'Today', cal: 'Calendar' }[v];
     const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
-      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : v === 'group' ? groupHtml() : threadHtml(tw);
+      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : v === 'group' ? groupHtml() : v === 'cal' ? `<div class="ph-scroll">${calHtml()}</div>` : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
       <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
       ${body}</div>`;
@@ -15680,7 +16022,7 @@ details.act > .limits { margin: 0 0 8px; }
       else { credits -= g.price; saveCosmetics(); }
       const [love, like] = GIFT_TASTE[who], k = g.meal || love.includes(gid) || (gid === 'gem' && GEM_FANS.includes(who)) ? 0 : like.includes(gid) || gid === 'gem' ? 1 : 2;
       bond.gift[who] = shipDayKey(); friendsUI.open = null; friendsUI.say = [who, GIFT_SAYS[who][k]]; eventHook('gift', { home, who }); witnessCheck(who, 20); { const rv = rivalHook(who, 'gift'); if (rv) friendsUI.say = [who, rv]; }
-      sfx.coin(); addHearts(who, [80, 45, 20][k] + (home ? 15 : 0) + (g.meal ? 25 : 0)); if (home) showToast(g.meal ? 'Home-cooked! Extra ♥' : g.src === 'mined' ? 'You mined it yourself! A little extra ♥' : 'Homegrown! A little extra ♥', 2200); rerender();
+      sfx.coin(); addHearts(who, ([80, 45, 20][k] + (home ? 15 : 0) + (g.meal ? 25 : 0)) * (bdayOf(who) ? 2 : 1)); if (bdayOf(who)) setTimeout(() => showToast(`🎂 Birthday gift for ${SIGN[who]}! Double ♥`, 2400), 300); if (home) showToast(g.meal ? 'Home-cooked! Extra ♥' : g.src === 'mined' ? 'You mined it yourself! A little extra ♥' : 'Homegrown! A little extra ♥', 2200); rerender();
     }));
     card.querySelectorAll('[data-scene]').forEach(b => b.addEventListener('click', () => {
       const who = b.dataset.scene, n = sceneReady(who), [title, lines] = ROM[who]['s' + n];
@@ -18389,6 +18731,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
     if (mode === 'encounter') return;
+    if (mode === 'vending') { if (e.code === 'Escape') { vend = null; walkEnter = 'vending'; setMode('quarters'); } return; }
     if (mode === 'coffee') { if (e.code === 'Escape') { if (cof) { cof = null; renderCoffee('intro'); } else { walkEnter = null; setMode(cofFrom); } } return; }
     if (mode === 'eva') { if (e.code === 'Escape') { if (eva) { eva = null; renderEva('intro'); } else evaBack(); } return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
