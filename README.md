@@ -222,6 +222,19 @@ Open **Missions** from the flight deck (in Act 1 that's **Dottie's desk** in the
 
 **Results.** When a mission ends, its stars pop in one at a time with a rising chime. Stars you just earned glow gold, the credits count up, and a fresh three-star run gets confetti.
 
+**Travel encounters.** When you head to a mission on a different world from your last one, about one time in three something happens on the way (only after the ship has left the Moon, and never two missions in a row). Each encounter is a short scene with a picture, a crewmate's take, and two or three choices with their costs shown up front:
+- **Distress call:** tow a stranded miner (costs fuel, Wren loves it), radio for help, or fly on.
+- **A derelict:** suit up and salvage its drifting crates on a spacewalk, send Crumb over (credits, a gem… or a lampshade), or leave the haunted ship alone.
+- **You're being followed:** Sable's goons. Hide behind an asteroid (usually works; if not, their warning shot breaches the hull), outrun them for fuel, or pay their "toll".
+- **The Wandering Market:** buy a rare gem, a spare fuel cell, or Bao's spices.
+- **A comet:** stop and watch it with the whole crew, or stay on schedule.
+- **Something big:** a real space whale, singing, and the break room coffee machine sings back.
+- **Port patrol:** show your license, pay the fee, or gamble on letting Rex talk.
+- **A mail capsule:** deliver it for Kit, or peek inside.
+- **An ice field:** take Dottie's long safe route, or thread straight through (and maybe take a hit).
+
+Outcomes can mean credits, more or less fuel on that landing, friendship, gifts in your basket, a text later, or a hull breach you have to fix before you land. Encounters you haven't seen yet come up first.
+
 **The Whale.** The break room coffee machine is a little game now. Walk up to it and a crewmate places an order in their own style: Dottie's strict double espresso, Gus's "just make it brown" with three sugars, Zib's seven sugars (he counts), Rex's big foam for his feed, Brix's tiny ROCK mug, and more. **Pump**: hold to build pressure and keep the needle in the green while the old machine wobbles and burps. Push it into the red and it lets out a giant whale groan and blasts steam from its blowhole. **Pour**: hold to pour and let go at the red line (it keeps dripping a little). Then add sugar (tap once per cube) or froth foam to the blue line if they asked. You get one to three cups and their reaction. A crewmate's first coffee each day earns friendship.
 
 **Spacewalks and ship emergencies.** Sometimes something goes wrong outside the ship, and you have to suit up and fix it:
