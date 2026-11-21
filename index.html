@@ -771,6 +771,19 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+body.emerg::after { content: ''; position: fixed; inset: 0; z-index: 55; pointer-events: none; box-shadow: inset 0 0 70px rgba(255, 50, 40, .5); animation: emergPulse 1.6s ease-in-out infinite; }
+@keyframes emergPulse { 50% { box-shadow: inset 0 0 26px rgba(255, 50, 40, .18); } }
+@media (prefers-reduced-motion: reduce) { body.emerg::after { animation: none; } }
+#emergBar { position: fixed; z-index: 58; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); max-width: calc(100vw - 32px); padding: 6px 14px; border: 1px solid #ff6b5e; border-radius: 16px; background: rgba(40, 8, 8, .92); color: #ffd0c8; font: 600 12px var(--f-mono); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+#emergBar b { color: #ff6b5e; margin-right: 4px; }
+body.emerg #card > :first-child { margin-top: 34px; }
+.mup.emerg { border-color: #ff6b5e; background: linear-gradient(135deg, rgba(255,80,60,.2), rgba(255,80,60,.05)); }
+.mup.emerg .orb { display: grid; place-items: center; background: #ff6b5e; color: #2a0806; font-style: normal; font-weight: 700; }
+.mup.emerg small { color: #ff6b5e; } .mup.emerg .mup-go { background: #ff6b5e; }
+.btn.emerg-btn { background: #ff6b5e; border-color: #ff6b5e; color: #2a0806; animation: emergBtn 1.2s ease-in-out infinite; }
+@keyframes emergBtn { 50% { box-shadow: 0 0 0 4px rgba(255, 107, 94, .25); } }
+.cont-status.alert { color: #ff6b5e; }
+.tcard.emerg-card { border-color: #ff6b5e; } .tcard.emerg-card .eyebrow { color: #ff6b5e; }
 .mining.eva-play { max-width: 520px; gap: 8px; }
 #evaCv { width: 100%; aspect-ratio: 256 / 176; max-height: 52vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #04050c; touch-action: none; }
 .eva-radio { width: 100%; min-height: 34px; display: flex; align-items: center; gap: 8px; text-align: left; }
@@ -4542,6 +4555,7 @@ details.act > .limits { margin: 0 0 8px; }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
     mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '', riskText: !d.side ? riskNote(d.id) : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
+    try { emergAfterMission(d); } catch (e) {}
     surpriseAfter();
     reqEvent('stars', { n: starsWon });
     sfx.landed(starsWon === 3);
@@ -4948,6 +4962,7 @@ details.act > .limits { margin: 0 0 8px; }
       beep(urgent) { tone(urgent ? 1180 : 980, 'square', 0, 0.09, 0.12); },
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
+      alarm() { for (let k = 0; k < 3; k++) { tone(880, 'square', k * 0.36, 0.16, 0.08); tone(660, 'square', k * 0.36 + 0.18, 0.16, 0.08); } },
       star(i) { const f = [784, 988, 1175][i] || 1175; tone(f, 'square', 0, 0.09, 0.1); tone(f * 1.5, 'square', 0.07, 0.24, 0.08); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
       shutter() { burst(0, 0.035, 0.35, 5000, 1500); burst(0.07, 0.05, 0.3, 3000, 900); },
@@ -5591,6 +5606,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    try { emergUi(m); } catch (e) {}
     if (introHold && m !== 'flying' && introEnd) introEnd();
     try { if (phoneOpen && PHONE_HIDE.includes(m)) closePhone(); } catch (e) {}
     setTimeout(() => { try { phoneButton(); } catch (e) {} }, 0);
@@ -6342,7 +6358,8 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function openMission(i) {
     if (restLocked(i)) { showToast(restText(), 4200); return; }
-    { const g = evaGate(i); if (g && missionOpen(i)) { sfx.click(); openEva(g); return; } }
+    if (emergActive()) { showToast(emergBlockText(), 4200); return; }
+    if (emergBeforeMission()) return;
     missionTab = tabOf(i);
     missionSel = i;
     const d = ALL[i], st = STORY[d.id];
@@ -6778,7 +6795,7 @@ details.act > .limits { margin: 0 0 8px; }
         <canvas width="256" height="96" aria-hidden="true"></canvas>
         <b class="cont-act">${act ? act[2] : 'Story complete'}</b>
         <p class="cont-next">${nd ? `Up next: <b>Mission ${nx + 1} · ${nd.name}</b> on ${WORLDS.find(w => w.id === nd.world).name}` : 'Every story mission flown. The Dome is waiting.'}</p>
-        <p class="cont-status ${rest ? 'rest' : 'go'}">${nd ? (rest ? '💤 Sleep in your bunk before the next story mission' : evaGate(nx) ? `🧑‍🚀 A spacewalk comes first: ${EVAS[evaGate(nx)].name}` : '● Ready to fly') : '★ Chase three stars, or take a side job'}</p>
+        <p class="cont-status ${emergActive() ? 'alert' : rest ? 'rest' : 'go'}">${emergActive() ? `🚨 ${EMERG_KINDS[emerg().kind].title}: suit up in the hangar` : nd ? (rest ? '💤 Sleep in your bunk before the next story mission' : evaGate(nx) ? `🧑‍🚀 A spacewalk comes first: ${EVAS[evaGate(nx)].name}` : '● Ready to fly') : '★ Chase three stars, or take a side job'}</p>
         <p class="cont-meta">Day ${shipDay} · ${fmt(credits)} credits${un ? ` · 📱 ${un} unread` : ''}</p>
         <div class="btns"><button class="btn" id="contGo">Continue</button>${nd && !rest ? '<button class="btn ghost" id="contMs">Missions</button>' : ''}</div>
       </div>`;
@@ -6819,7 +6836,7 @@ details.act > .limits { margin: 0 0 8px; }
           ${nrest ? '' : '<span class="mup-go" aria-hidden="true">▶</span>'}
         </button>${nrest ? `<p class="limits mup-note">${restText()}</p>` : ''}`
         : completedCount() >= MISSIONS.length ? '<p class="limits mup-note">★ Story complete. Go for three stars everywhere, or take a side job.</p>' : '';
-      body = up + acts.map(([a, b, title, lockText, tag], k) => {
+      body = (emergActive() ? emergMupHtml() : up) + acts.map(([a, b, title, lockText, tag], k) => {
         const open = missionOpen(a), done = completedCount(a, b), n = b - a;
         const meta = !open ? 'Locked' : done === n ? `Done · ${totalStars(a, b)}/${n * 3} ★` : `${done} of ${n} done`;
         return `<details class="act${open ? '' : ' locked'}${done === n ? ' done' : ''}"${k === cur ? ' open' : ''}>
@@ -6840,7 +6857,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="mbody">${body}</div>
       <p class="limits">Each new star pays credits, and star totals unlock exclusive cosmetics in Badges.</p>
       <button class="btn ghost" id="back">${missionsFrom === 'flights' ? 'Back to the flight deck' : 'Back to the ship'}</button>`;
-    card.querySelectorAll('.mtile, .mup').forEach(b => b.addEventListener('click', () => openMission(+b.dataset.i)));
+    card.querySelectorAll('.mtile, .mup').forEach(b => b.addEventListener('click', () => { if (b.dataset.e) { sfx.click(); walkEnter = null; setMode('garage'); } else openMission(+b.dataset.i); }));
     // the ones shown on this tab count as seen now (they keep their chip until you leave)
     markSeen('ds-seenM', [...freshM].filter(id => tabOf(ALL.findIndex(d => d.id === id)) === missionTab));
     card.querySelectorAll('.mtab').forEach(b => b.addEventListener('click', () => {
@@ -9159,12 +9176,14 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="radio quote" id="garSay" aria-live="polite"></div>
       <div class="gpanel" id="garPanel" hidden></div>
       <div class="btns">
-        <button class="btn" id="garOpen">Open the hangar</button>
+        ${emergActive() ? '<button class="btn emerg-btn" id="garSuit">🧑‍🚀 Suit up</button>' : ''}
+        <button class="btn${emergActive() ? ' ghost' : ''}" id="garOpen">Open the hangar</button>
         <button class="btn ghost" id="garMine">⛏ Asteroid mining</button>
         <button class="btn ghost" id="back">☰ Menu</button>
       </div>
     </div>`;
     $('garOpen').addEventListener('click', () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); });
+    { const su = $('garSuit'); if (su) su.addEventListener('click', () => emergSuitUp()); }
     $('garMine').addEventListener('click', () => { sfx.click(); mineFrom = 'garage'; setMode('mining'); });
     $('back').addEventListener('click', () => setMode('shipmenu'));
     const cv = $('garCv'), from = walkEnter; walkEnter = null;
@@ -9189,7 +9208,7 @@ details.act > .limits { margin: 0 0 8px; }
       gar.last = t;
       garStep(dt);
       if (!gar) return;
-      garDraw(t); eventDecor(gar.c, () => camT(gar.c, gar.view), GW, GH, t, 'garage', gar.view.cy);
+      garDraw(t); camT(gar.c, gar.view); drawSuitLocker(gar.c, t); eventDecor(gar.c, () => camT(gar.c, gar.view), GW, GH, t, 'garage', gar.view.cy);
       gar.raf = requestAnimationFrame(loop);
     };
     gar.raf = requestAnimationFrame(loop);
@@ -9197,7 +9216,7 @@ details.act > .limits { margin: 0 0 8px; }
       `That’s ${l.name} on the pad. Walk up to her to tune her up. Or use my workbench. Don’t touch the red button.`,
       `Welcome to the hangar! ${l.name} is fuelled, polished and only slightly dented.`,
       `Gus on the intercom. Paint, flames, flags, the whole fleet: walk up to a lander and I’ll open the hangar.`];
-    if (crumbHome() && salvageReady()) garSay('K', '*beep beep BEEP* (Crumb is back on his dock, bouncing. He found something. Walk over and see!)'); else garSay('G', hellos[Math.floor(Math.random() * hellos.length)]);
+    if (emergActive()) garSay('G', 'The suit locker’s by the big window, flashing red. Walk over and suit up. Go, go!'); else if (crumbHome() && salvageReady()) garSay('K', '*beep beep BEEP* (Crumb is back on his dock, bouncing. He found something. Walk over and see!)'); else garSay('G', hellos[Math.floor(Math.random() * hellos.length)]);
   }
   function garThings() {
     const L = [];
@@ -9209,6 +9228,7 @@ details.act > .limits { margin: 0 0 8px; }
           sfx.click(); hangarOpenOn = sl.l.id; setMode('hangar');
         } });
     }
+    L.push({ id: 'suit', rect: [64, 14, 16, 42], go: [72, 66], at: { x: 72, y: 36 }, act: () => emergActive() ? emergSuitUp() : garSay('G', 'That’s the EVA suit. Emergencies only. Knock on wood. Knock on the hull, actually.') });
     L.push({ id: 'bench', rect: [14, 28, 52, 30], go: [40, 66], at: { x: 40, y: 40 }, act: () => { sfx.click(); hangarOpenOn = null; setMode('hangar'); } });
     if (crumbHome()) L.push({ id: 'crumb', rect: [182, 36, 30, 24], go: [196, 70], at: { x: 196, y: 50 }, act: () => crumbDock() });
     L.push({ id: 'door', rect: [226, 12, 24, 44], go: [238, 64], at: { x: 238, y: 40 }, act: () => { sfx.click(); walkEnter = 'hangar'; setMode(roomBack.garage); } });
@@ -12118,13 +12138,12 @@ details.act > .limits { margin: 0 0 8px; }
       brief: 'Grab each drifting crate and bring it back to the airlock.',
       done: 'All four crates stowed. Every part. Thank you, kid. I mean it.' }
   };
-  const EVA_GATES = { 'catch': 'eva-hull', 'still-crew': 'eva-cargo' };   // story mission → the spacewalk you do before it
   let eva = null, evaId = null, evaFrom = null;
   const evaStars = () => { try { return JSON.parse(store.get('ds-eva', '{}')) || {}; } catch (e) { return {}; } };
   const evaDone = id => evaStars()[id] > 0;
-  const evaGate = i => { const d = MISSIONS[i], g = d && EVA_GATES[d.id]; return g && !(missionStars[d.id] > 0) && !evaDone(g) ? g : null; };
+  const evaGate = i => null;
   function openEva(id) { evaId = id; evaFrom = mode; setMode('eva'); }
-  function evaBack() { eva = null; if (evaFrom === 'missions' || evaFrom === 'flights' || evaFrom === 'bridge') setMode(evaFrom === 'bridge' ? 'missions' : evaFrom); else setMode(lastRoom); }
+  function evaBack() { eva = null; if (evaFrom === 'garage') { walkEnter = null; setMode('garage'); return; } if (evaFrom === 'missions' || evaFrom === 'flights' || evaFrom === 'bridge') setMode(evaFrom === 'bridge' ? 'missions' : evaFrom); else setMode(lastRoom); }
   function renderEva(phase, res) {
     const E = EVAS[evaId], best = evaStars()[evaId] || 0;
     if (phase === 'intro') {
@@ -12146,8 +12165,9 @@ details.act > .limits { margin: 0 0 8px; }
     const ok = res.ok, prev = best, stars = ok ? 1 + (res.o2 >= E.o2 ? 1 : 0) + (res.time <= E.time ? 1 : 0) : 0;
     let pay = 0;
     if (ok) {
-      const all = evaStars(); if (stars > (all[evaId] || 0)) { all[evaId] = stars; store.set('ds-eva', JSON.stringify(all)); }
-      pay = prev ? Math.round(E.pay / 4) : E.pay; credits += pay; saveCosmetics();
+      if (!E.random) { const all = evaStars(); if (stars > (all[evaId] || 0)) { all[evaId] = stars; store.set('ds-eva', JSON.stringify(all)); } }
+      pay = E.random ? Math.round(E.pay * (0.6 + 0.2 * stars)) : prev ? Math.round(E.pay / 4) : E.pay; credits += pay; saveCosmetics();
+      const em = emerg(); if (em && (E.random || em.story === evaId)) emergFixed();
     }
     card.innerHTML = `<div class="mining eva">
       <span class="eyebrow">${ok ? 'Spacewalk complete' : 'Out of air'}</span><h1 class="${ok ? 'good' : 'bad'}">${ok ? E.name : 'Gus reels you in'}</h1>
@@ -12156,7 +12176,7 @@ details.act > .limits { margin: 0 0 8px; }
         <ul class="pz-stars eva-goals"><li class="ok"><b>★</b><span>Finish the job</span><em>Done</em></li><li class="${res.o2 >= E.o2 ? 'ok' : 'bad'}"><b>★</b><span>${E.o2}% oxygen or more</span><em>${Math.round(res.o2)}% left</em></li><li class="${res.time <= E.time ? 'ok' : 'bad'}"><b>★</b><span>Within ${E.time} s</span><em>${res.time.toFixed(1)} s</em></li></ul>
         <p class="balance">+<span data-count="${pay}">${fmt(pay)}</span> credits</p>`
       : `<p class="sub">Your oxygen ran dry, so Gus pulled you back in on the tether. Nobody’s hurt. Catch your breath and try again.</p>`}
-      <div class="btns"><button class="btn${ok ? ' ghost' : ''}" id="evaAgain">${ok ? 'Go again' : 'Try again'}</button><button class="btn${ok ? '' : ' ghost'}" id="back">${ok ? 'Back inside' : 'Not now'}</button></div>
+      <div class="btns">${ok && E.random ? '' : `<button class="btn${ok ? ' ghost' : ''}" id="evaAgain">${ok ? 'Go again' : 'Try again'}</button>`}<button class="btn${ok ? '' : ' ghost'}" id="back">${ok ? 'Back inside' : 'Not now'}</button></div>
     </div>`;
     paintFaces(card);
     if (ok && !reduceMotion) {
@@ -12164,9 +12184,9 @@ details.act > .limits { margin: 0 0 8px; }
       if (stars === 3 && prev < 3) setTimeout(() => { if (mode === 'eva') { confetti(80); sfx.cheer(); } }, 250 + 3 * 350);
       const el = card.querySelector('[data-count]'); if (el) { const goal = +el.dataset.count, t0 = performance.now() + 250 + stars * 350; el.textContent = '0'; const tick = now => { const k = Math.max(0, Math.min(1, (now - t0) / 700)); el.textContent = fmt(Math.round(goal * (1 - Math.pow(1 - k, 3)))); if (k < 1 && el.isConnected) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
     }
-    $('evaAgain').addEventListener('click', () => { sfx.click(); startEva(); });
+    const ag = $('evaAgain'); if (ag) ag.addEventListener('click', () => { sfx.click(); if (E.random && !emergActive()) return evaBack(); startEva(); });
     $('back').addEventListener('click', () => { sfx.click(); evaBack(); });
-    setTimeout(() => $(ok ? 'back' : 'evaAgain').focus({ preventScroll: true }), 0);
+    setTimeout(() => $(ok || !ag ? 'back' : 'evaAgain').focus({ preventScroll: true }), 0);
   }
   function startEva() {
     const E = EVAS[evaId];
@@ -12345,6 +12365,119 @@ details.act > .limits { margin: 0 0 8px; }
   }
   window.addEventListener('keydown', e => { if (eva && mode === 'eva' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'KeyA', 'KeyD', 'KeyW', 'Space'].includes(e.code)) { eva.keys[e.code] = true; e.preventDefault(); } });
   window.addEventListener('keyup', e => { if (eva) eva.keys[e.code] = false; });
+
+  // ---- Ship emergencies: sometimes, before or after a mission, something goes wrong outside. ----
+  // Red alert everywhere, Gus texts you, and no launches until you suit up in the hangar and fix it on a spacewalk.
+  const EMERG_KINDS = {
+    hull: { title: 'Hull breach', banner: 'Hull breach · suit up in the hangar', job: 'patch',
+      texts: ['Micrometeor hit! We’ve got holes in the hull. Suit’s in the hangar locker. Hurry!', 'Pressure alarm, kid. Something punched through the hull. Suit up in the hangar.', 'You feel that thump? Rock went right through the plating. Hangar, suit, now. Please.', 'We’re leaking air somewhere outside. Patch kit’s in the suit locker in the hangar.'],
+      before: 'Hold the launch. Pressure’s dropping. Something hit the hull. Nobody flies until it’s patched.' },
+    cargo: { title: 'Cargo loose', banner: 'Cargo door blew · suit up in the hangar', job: 'cargo',
+      texts: ['The cargo door popped! Crates are floating off into space. Suit up in the hangar!', 'Bad latch on the cargo door. Our supplies are drifting away. Hangar locker, quick.', 'Kid! The cargo bay vented. Grab those crates before they’re gone for good.'],
+      before: 'Hold the launch. The cargo door just blew open. We’re losing supplies. Fix it first.' }
+  };
+  const EMERG_SPOTS = [[40, 121, 0, -1], [70, 121, 0, -1], [106, 121, 0, -1], [146, 103, 0, -1], [197, 119, 1, 0], [143, 119, -1, 0], [214, 121, 0, -1], [230, 121, 0, -1]];
+  const emerg = () => { try { return JSON.parse(store.get('ds-emerg', 'null')); } catch (e) { return null; } };
+  const emergActive = () => !!emerg();
+  const emergSave = e => { store.set('ds-emerg', e ? JSON.stringify(e) : 'null'); emergUi(mode); };
+  const emergEligible = () => storyDone('liftoff') && !inBase();
+  const emergCount = () => +store.get('ds-emergCount', '0');
+  function emergStart(kind, story, when) {
+    emergSave({ kind, story: story || null, day: shipDay, seed: Math.floor(Math.random() * 1e9), when, told: false });
+    store.set('ds-emergLast', String(emergCount()));
+  }
+  // a successful mission: story damage first, then a small random chance
+  function emergAfterMission(d) {
+    store.set('ds-emergCount', String(emergCount() + 1));
+    if (emergActive()) return;
+    if (d.id === 'dead-air' && !evaDone('eva-hull')) { emergStart('hull', 'eva-hull', 'after'); return; }
+    if (d.id === 'the-overdrive' && !evaDone('eva-cargo')) { emergStart('cargo', 'eva-cargo', 'after'); return; }
+    if (!emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return;
+    if (Math.random() < 0.17) emergStart(Math.random() < 0.6 ? 'hull' : 'cargo', null, 'after');
+  }
+  // heading out: a smaller chance it happens right as you try to launch
+  function emergBeforeMission() {
+    if (emergActive() || !emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return false;
+    if (Math.random() >= 0.07) return false;
+    const kind = Math.random() < 0.6 ? 'hull' : 'cargo';
+    emergStart(kind, null, 'before');
+    const e = emerg(); e.told = true; emergSave(e);
+    sfx.alarm ? sfx.alarm() : sfx.radio();
+    showToast(`🚨 Dottie: ${EMERG_KINDS[kind].before}`, 5200);
+    sendText('G', EMERG_KINDS[kind].texts[0]);
+    return true;
+  }
+  // when you're back aboard: the alarm and Gus's text
+  function emergTell() {
+    const e = emerg(); if (!e || e.told) return;
+    e.told = true; emergSave(e);
+    const K = EMERG_KINDS[e.kind], line = e.story ? EVAS[e.story].intro : K.texts[e.seed % K.texts.length];
+    setTimeout(() => { sfx.alarm ? sfx.alarm() : sfx.radio(); showToast(`🚨 ${K.title}! Suit up in the hangar.`, 4200); }, 500);
+    sendText('G', line);
+  }
+  function emergBlockText() { const e = emerg(); return `Dottie: No launches until the ship’s fixed. ${EMERG_KINDS[e.kind].banner}.`; }
+  // red alert: a pulsing edge glow and a banner in the ship and its menus
+  const EMERG_SHOW = ['missions', 'shipmenu', 'flights', 'den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
+  function emergUi(m) {
+    const e = emerg(), on = !!e && EMERG_SHOW.includes(m);
+    document.body.classList.toggle('emerg', on);
+    let bar = $('emergBar');
+    if (on && !bar) {
+      bar = document.createElement('button'); bar.id = 'emergBar'; bar.type = 'button';
+      bar.addEventListener('click', () => { if (mode !== 'garage') { sfx.click(); walkEnter = null; setMode('garage'); } else garSay('G', 'The suit locker, by the big window. Go, go!'); });
+      document.body.appendChild(bar);
+    }
+    if (bar) { bar.hidden = !on; if (on) bar.innerHTML = `<b>⚠</b> ${EMERG_KINDS[e.kind].banner}`; }
+    if (on && SHIP_ROOMS.includes(m)) emergTell();
+  }
+  // the spacewalk for this emergency: the story layout, or a fresh random one
+  function emergEva() {
+    const e = emerg(); if (!e) return null;
+    if (e.story) return e.story;
+    let s = e.seed; const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    const K = EMERG_KINDS[e.kind];
+    const def = { name: K.title, job: K.job, o2: 40, time: K.job === 'patch' ? 60 : 80, pay: 200, random: true,
+      intro: K.texts[e.seed % K.texts.length], done: ['That’s fixed. Nice work out there.', 'All good. The ship owes you one. So do I.', 'Fixed! Get in here and warm up.'][e.seed % 3] };
+    if (K.job === 'patch') {
+      const n = 1 + Math.floor(rnd() * 3), pool = EMERG_SPOTS.slice();
+      def.spots = Array.from({ length: n }, () => pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+      def.brief = `Patch ${n === 1 ? 'the sparking breach' : `the ${n} sparking breaches`}, then come back to the airlock.`;
+      def.time = 30 + n * 14;
+    } else {
+      const n = 2 + Math.floor(rnd() * 2);
+      def.crates = Array.from({ length: n }, () => { const a = -Math.PI * (0.12 + rnd() * 0.76), r = 60 + rnd() * 46; return [AIR[0] + Math.cos(a) * r, Math.min(96, AIR[1] + Math.sin(a) * r), (rnd() - 0.5) * 6, (rnd() - 0.5) * 6]; });
+      def.brief = `Catch the ${n} drifting crates and bring each one back to the airlock.`;
+      def.time = 30 + n * 20;
+    }
+    EVAS['eva-rand'] = def;
+    return 'eva-rand';
+  }
+  function emergSuitUp() {
+    const id = emergEva(); if (!id) return;
+    sfx.click(); evaId = id; evaFrom = 'garage'; setMode('eva');
+  }
+  function emergFixed() {
+    const e = emerg(); if (!e) return;
+    emergSave(null);
+    showToast('✅ Ship’s fixed. Launches are clear.', 3000);
+  }
+  // the suit locker on the hangar wall, between Gus's bench and the window
+  function drawSuitLocker(c, t) {
+    const x = 66, y = 20, on = emergActive(), blink = (t / 400 | 0) % 2;
+    px(c, x, y, 12, 34, '#3a4256'); px(c, x, y, 12, 1, '#5a6478'); px(c, x + 1, y + 3, 10, 29, '#1e2232');
+    px(c, x + 3, y + 5, 6, 5, '#e8edf5'); px(c, x + 4, y + 6, 4, 2, '#ffb547');
+    px(c, x + 2, y + 11, 8, 11, '#e8edf5'); px(c, x + 2, y + 22, 3, 7, '#c9cfdc'); px(c, x + 7, y + 22, 3, 7, '#c9cfdc'); px(c, x + 9, y + 12, 2, 8, '#8a93ab');
+    px(c, x + 3, y - 3, 6, 2, on ? (blink ? '#ff4a3a' : '#5a1a1a') : '#3a3f50');
+    if (on) { c.fillStyle = `rgba(255,74,58,${blink ? 0.16 : 0.06})`; c.fillRect(x - 6, y - 6, 24, 46); }
+  }
+  function emergMupHtml() {
+    const e = emerg(), K = EMERG_KINDS[e.kind];
+    return `<button class="mup emerg" data-e="1"><i class="orb" aria-hidden="true">⚠</i><span><small>Ship emergency</small><b>${K.title}</b><em>Suit up in the hangar. No launches until it’s fixed.</em></span><span class="mup-go" aria-hidden="true">▶</span></button>`;
+  }
+  function emergTodayCard() {
+    const e = emerg(), K = EMERG_KINDS[e.kind];
+    return `<div class="tcard emerg-card"><span class="eyebrow">🚨 Ship emergency</span><p>${K.title}. Suit up in the hangar and fix it on a spacewalk. No launches until it’s done.</p><p class="where">📍 The Hangar · suit locker by the big window</p></div>`;
+  }
 
   // ---- The galley: cook crops into meals with a quick stirring game ----
   const RECIPES = [
@@ -13520,7 +13653,7 @@ details.act > .limits { margin: 0 0 8px; }
     const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
     const nextP = PROJECTS.find(pj => !projDone(pj.id));
     return `<div class="todaylist">
-      ${eventCard()}
+      ${emergActive() ? emergTodayCard() : ''}${eventCard()}
       <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
         ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
         <button class="btn ghost" id="phReq">Open crew requests</button></div>
