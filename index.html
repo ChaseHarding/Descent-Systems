@@ -771,6 +771,17 @@ canvas.room { filter: var(--eve, none); box-shadow: var(--eveglow, none); transi
 .datescene .radio.quote { max-width: none; width: 100%; min-height: 88px; }
 .mining { width: 100%; max-width: 40rem; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .mining.play { max-width: 420px; }
+.mining.cf-play { gap: 8px; }
+#cfCv { width: 100%; aspect-ratio: 200 / 180; max-height: 50vh; object-fit: contain; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); background: #2a2030; touch-action: none; }
+.cf-tip { margin: 0; min-height: 2.6em; font-size: 12px; line-height: 1.35; color: var(--regolith); text-align: center; text-wrap: balance; }
+.cf-pad { width: 100%; display: flex; gap: 8px; }
+.cf-pad .cf-hold { flex: 2; min-height: 58px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cf-pad .cf-hold.on { filter: brightness(1.15); transform: scale(.98); }
+.cf-pad #cfNext { flex: 1; min-height: 58px; }
+.cf-steps { margin: 0 auto; padding: 0 0 0 1.2em; max-width: 24rem; text-align: left; font-size: 12px; line-height: 1.5; color: var(--regolith); }
+.cf-steps b { color: var(--flame); margin-right: 4px; }
+.cf-cups .sq { font-size: 1.1em; }
+@media (max-height: 460px) { #cfCv { max-height: 52vh; } .cf-pad .cf-hold, .cf-pad #cfNext { min-height: 44px; } .cf-play .btns .btn { min-height: 30px; padding-block: 4px; font-size: 11px; } }
 body.emerg::after { content: ''; position: fixed; inset: 0; z-index: 55; pointer-events: none; box-shadow: inset 0 0 70px rgba(255, 50, 40, .5); animation: emergPulse 1.6s ease-in-out infinite; }
 @keyframes emergPulse { 50% { box-shadow: inset 0 0 26px rgba(255, 50, 40, .18); } }
 @media (prefers-reduced-motion: reduce) { body.emerg::after { animation: none; } }
@@ -4962,6 +4973,7 @@ details.act > .limits { margin: 0 0 8px; }
       beep(urgent) { tone(urgent ? 1180 : 980, 'square', 0, 0.09, 0.12); },
       empty() { tone(520, 'square', 0, 0.18, 0.14); tone(390, 'square', 0.2, 0.3, 0.14); },
       coin() { tone(988, 'square', 0, 0.08, 0.12); tone(1319, 'square', 0.08, 0.25, 0.12); },
+      whale() { tone(196, 'sawtooth', 0, 0.45, 0.07); tone(147, 'sawtooth', 0.3, 0.6, 0.07); tone(98, 'sawtooth', 0.75, 0.8, 0.06); },
       alarm() { for (let k = 0; k < 3; k++) { tone(880, 'square', k * 0.36, 0.16, 0.08); tone(660, 'square', k * 0.36 + 0.18, 0.16, 0.08); } },
       star(i) { const f = [784, 988, 1175][i] || 1175; tone(f, 'square', 0, 0.09, 0.1); tone(f * 1.5, 'square', 0.07, 0.24, 0.08); },
       click() { tone(700, 'triangle', 0, 0.06, 0.15); },
@@ -5603,7 +5615,7 @@ details.act > .limits { margin: 0 0 8px; }
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'engine', 'lift'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     try { emergUi(m); } catch (e) {}
@@ -5678,6 +5690,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift') { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'eva') { eva = null; renderEva('intro'); return; }
+    if (m === 'coffee') { cof = null; renderCoffee('intro'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
     if (m === 'datescene') { renderDate(); return; }
@@ -7674,7 +7687,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (crumbAround() && walk.crumb) L.push({ id: 'K', rect: [walk.crumb.x - 2, walk.crumb.y - 5, 18, 16], stand: null, nearPt: [walk.crumb.x + 7, walk.crumb.y + 10], act: () => { walk.crumb.pause = 2.5; store.set('ds-crumbSeen', '1'); loungeTalk('K'); } });
     if (blipHome() && walk.blip) { const [bx, by] = walk.blipPos(); L.push({ id: 'B', rect: [bx - 6, by - 10, 12, 12], stand: null, nearPt: [bx, by + 6], act: () => loungeTalk('B') }); }
     L.push({ id: 'radio', rect: [48, 26, 13, 12], stand: [54, 64], face: 3, act: () => loungeTalk('radio') });
-    L.push({ id: 'coffee', rect: [28, 20, 13, 20], stand: [34, 64], face: 3, act: () => loungeSay(...WALK_COFFEE[Math.floor(Math.random() * WALK_COFFEE.length)]) });
+    L.push({ id: 'coffee', rect: [28, 20, 13, 20], stand: [34, 64], face: 3, act: () => { sfx.click(); cofFrom = mode; setMode('coffee'); } });
     L.push({ id: 'board', rect: [54, 6, 24, 16], stand: [68, 64], face: 3, act: () => setMode('board') });
     L.push({ id: 'poster', rect: [194, 6, 24, 30], stand: [206, 54], face: 3, act: () => setMode('log') });
     L.push({ id: 'box', rect: [198, 120, 28, 26], stand: [212, 152], face: 3, act: () => setMode('album') });
@@ -7686,12 +7699,6 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'hall', rect: [106, 140, 44, 20], stand: [128, 152], face: 0, act: () => { sfx.click(); walkEnter = 'lounge'; setMode('hall'); } });
     return L;
   }
-  const WALK_COFFEE = [
-    ['G', 'That machine is older than me. It makes coffee, and on Tuesdays, soup.'],
-    ['F', 'Help yourself. The mug that says “BOSS” is mine. The one that says “BOSS 2” is also mine.'],
-    ['G', 'Careful, it bites. Not hard. It’s a friendly bite.'],
-    ['F', 'Fresh pot. Well. Fresh this morning. Morning-ish.']
-  ];
   const windowLine = () => {
     const w = storedWorld(), name = w ? w.name : 'the Moon';
     const opts = [['F', `That’s ${name} out there. You were just there. Show-off.`], ['G', `I like watching ${name} go by. It’s like a screensaver, but real.`]];
@@ -12478,6 +12485,207 @@ details.act > .limits { margin: 0 0 8px; }
     const e = emerg(), K = EMERG_KINDS[e.kind];
     return `<div class="tcard emerg-card"><span class="eyebrow">🚨 Ship emergency</span><p>${K.title}. Suit up in the hangar and fix it on a spacewalk. No launches until it’s done.</p><p class="where">📍 The Hangar · suit locker by the big window</p></div>`;
   }
+
+  // ---- The Whale: the break room coffee machine, now a little game. It groans like a whale if you push it. ----
+  // Someone orders. Pump the pressure into the green, pour to the line, add their extras, serve.
+  const CF_W = 200, CF_H = 180;
+  const CF_ORDERS = {
+    F: { say: 'Double espresso. To the line. Not a drop over.', fill: 0.42, zone: [68, 86], great: 'Perfect. I’m putting this in your file. The good file.', ok: 'Acceptable. Barely. I’ll drink it anyway.', bad: 'This is a crime scene in a mug. …I’m still drinking it.' },
+    G: { say: 'Just make it brown. And hot. Mostly brown. Three sugars.', fill: 0.82, zone: [40, 72], sugar: 3, great: 'Kid. KID. This is the best coffee this ship has ever made.', ok: 'Brown and hot. You nailed the assignment.', bad: 'It’s… crunchy? How is it crunchy. I love it.' },
+    W: { say: 'Weak, dear. Lots of milk. I’m old, not dead.', fill: 0.62, zone: [24, 46], foam: 0.2, great: 'Oh, that’s lovely. Just like the Kepler galley used to make.', ok: 'Very nice, dear. A little strong. I’ll be up till Tuesday.', bad: 'Well. It’s wet. That’s a start.' },
+    R: { say: 'Cappuccino. Big foam. It’s going on my feed.', fill: 0.5, zone: [48, 68], foam: 0.32, great: 'LOOK at that foam. Twelve thousand likes, minimum.', ok: 'The foam is… shy. I can work with shy.', bad: 'I can’t post this. I’m drinking it in private. Like a criminal.' },
+    Z: { say: 'SEVEN SUGARS. Zib will count.', fill: 0.58, zone: [44, 64], sugar: 7, great: 'SEVEN! Zib counted! Zib’s heart is a sugar cube now!', ok: 'Zib counted… some sugars. Zib forgives you. Mostly.', bad: 'Zib counted and Zib is DEVASTATED.' },
+    H: { say: 'Black. Strong. Chef’s coffee. Don’t talk to me till it’s done.', fill: 0.66, zone: [74, 92], great: '…That’s a real coffee. You can stay in my kitchen.', ok: 'Fine. Strong enough to stand a spoon in. Almost.', bad: 'I’ve tasted engine coolant with more character.' },
+    C: { say: 'One regulation coffee please! Exactly half a mug! One sugar!', fill: 0.5, zone: [48, 68], sugar: 1, great: 'REGULATION PERFECT! Logging it in the safety binder!', ok: 'Nearly regulation! I’ll round up! Don’t tell Dottie!', bad: 'This is… a learning opportunity! For both of us!' },
+    E: { say: 'Whatever’s fastest, ace. Not too strong.', fill: 0.72, zone: [36, 62], great: 'Okay, that’s good. Don’t let it go to your head. …It’s really good.', ok: 'It’s coffee. You’re alright, ace.', bad: 'Did the whale make this or did you?' },
+    Q: { say: 'Espresso. Fast. I’m timing you.', fill: 0.34, zone: [70, 88], fast: true, great: 'Fast and clean. Fine. You win this one.', ok: 'Slow. Drinkable. I’ll allow it.', bad: 'My grandmother pours faster. She’s in a museum.' },
+    N: { say: 'Hot chocolate!!! It can do that, right?! RIGHT?!', fill: 0.78, zone: [28, 48], foam: 0.24, great: 'IT CAN DO HOT CHOCOLATE!!! I knew it! Best day!!!', ok: 'It’s… coffee chocolate? COFFEE CHOCOLATE!!!', bad: 'It tastes like a sad whale. I’m drinking it anyway!!!' },
+    S: { say: '(Brix holds up a tiny mug. It says ROCK. He points at the line.)', fill: 0.9, zone: [40, 70], great: '(Brix nods slowly. Then he nods again. That’s a lot of nodding for Brix.)', ok: '(Brix sips. Brix considers. Brix gives a small thumbs up.)', bad: '(Brix stares at the mug. The rock on his shelf seems to stare too.)' }
+  };
+  const CF_DEFAULT = { say: 'Surprise me. Just not with the whale noise.', fill: 0.6, zone: [42, 70], great: 'Wow. That’s actually good.', ok: 'Not bad at all.', bad: 'Well, it’s warm.' };
+  let cof = null, cofFrom = 'lounge', cofWho = null;
+  const cofServed = () => { try { const d = JSON.parse(store.get('ds-coffee', '{}')); return d.day === shipDay ? d.who || [] : []; } catch (e) { return []; } };
+  function cofPick() {
+    const met = Object.keys(CF_ORDERS).filter(w => w === 'F' || w === 'G' || (romMet[w] && romMet[w]()));
+    const fresh = met.filter(w => !cofServed().includes(w));
+    const pool = fresh.length ? fresh : met;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  function renderCoffee(phase, res) {
+    if (phase === 'intro') {
+      cofWho = cofPick();
+      const O = CF_ORDERS[cofWho] || CF_DEFAULT, served = cofServed().includes(cofWho);
+      card.innerHTML = `<div class="mining coffee">
+        <span class="eyebrow">Break room</span><h1 class="good">The Whale</h1>
+        <p class="sub">The coffee machine. It’s older than Gus and makes a noise like a whale when you push it too hard.</p>
+        <div class="radio quote">${faceTag(cofWho, SIGN[cofWho])}<div class="said"><span class="who" style="color:${SPEAKERS[cofWho].color}">${SPEAKERS[cofWho].name}</span><p>${O.say}</p></div></div>
+        <ol class="cf-steps"><li><b>Pump</b> Hold to build pressure. Keep the needle in the green.</li><li><b>Pour</b> Hold to pour. Let go at the line. It keeps dripping a little!</li>${O.sugar ? `<li><b>Sugar</b> Tap once per cube. ${O.sugar} ${O.sugar === 1 ? 'cube' : 'cubes'}.</li>` : ''}${O.foam ? '<li><b>Foam</b> Hold to froth up to the top line.</li>' : ''}</ol>
+        ${served ? `<p class="limits">${SIGN[cofWho]} already had a coffee today. This one’s just for fun.</p>` : ''}
+        <div class="btns"><button class="btn" id="cfGo">Make the coffee</button><button class="btn ghost" id="cfOther">Someone else</button><button class="btn ghost" id="back">Walk away</button></div>
+      </div>`;
+      paintFaces(card);
+      $('cfGo').addEventListener('click', () => { sfx.click(); startCoffee(); });
+      $('cfOther').addEventListener('click', () => { sfx.click(); renderCoffee('intro'); });
+      $('back').addEventListener('click', () => { sfx.click(); cof = null; walkEnter = null; setMode(cofFrom); });
+      setTimeout(() => $('cfGo').focus({ preventScroll: true }), 0);
+      return;
+    }
+    // served
+    const O = CF_ORDERS[cofWho] || CF_DEFAULT, cups = res.cups, line = cups >= 3 ? O.great : cups === 2 ? O.ok : O.bad;
+    const first = !cofServed().includes(cofWho);
+    if (first) { const s = cofServed(); s.push(cofWho); store.set('ds-coffee', JSON.stringify({ day: shipDay, who: s })); if (ROM_WHO.includes(cofWho)) addHearts(cofWho, [6, 6, 16, 28][cups]); }
+    card.innerHTML = `<div class="mining coffee">
+      <span class="eyebrow">${res.spill ? 'Spilled a bit' : res.whale ? `The whale sang ${res.whale}×` : 'Order up'}</span><h1 class="good">${['Uh oh', 'Drinkable', 'Nice cup', 'Perfect cup'][cups]}</h1>
+      <p class="squares reveal cf-cups" aria-label="${cups} of 3 cups">${[0, 1, 2].map(i => `<span class="sq${i < cups ? ' on' : ' off'}" style="--i:${i}">☕</span>`).join('')}</p>
+      <div class="radio quote">${faceTag(cofWho, SIGN[cofWho])}<div class="said"><span class="who" style="color:${SPEAKERS[cofWho].color}">${SPEAKERS[cofWho].name}</span><p>${line}</p></div></div>
+      <ul class="pz-stars eva-goals">${res.notes.map(([ok, t]) => `<li class="${ok ? 'ok' : 'bad'}"><b>${ok ? '✓' : '✗'}</b><span>${t}</span><em></em></li>`).join('')}</ul>
+      <div class="btns"><button class="btn" id="cfAgain">Another order</button><button class="btn ghost" id="back">Back to the break room</button></div>
+    </div>`;
+    paintFaces(card);
+    if (!reduceMotion) card.querySelectorAll('.cf-cups .sq.on').forEach((el, i) => setTimeout(() => { if (mode === 'coffee') sfx.star(i); }, 250 + i * 350));
+    $('cfAgain').addEventListener('click', () => { sfx.click(); renderCoffee('intro'); });
+    $('back').addEventListener('click', () => { sfx.click(); cof = null; walkEnter = null; setMode(cofFrom); });
+    setTimeout(() => $('back').focus({ preventScroll: true }), 0);
+  }
+  function startCoffee() {
+    const O = CF_ORDERS[cofWho] || CF_DEFAULT;
+    card.innerHTML = `<div class="mining play cf-play">
+      <canvas id="cfCv" width="${CF_W * 2}" height="${CF_H * 2}" role="application" aria-label="The Whale coffee machine. Hold the big button to pump and pour."></canvas>
+      <p class="cf-tip" id="cfTip" aria-live="polite"></p>
+      <div class="cf-pad"><button class="btn cf-hold" id="cfHold">Hold to pump</button><button class="btn ghost" id="cfNext" hidden>Next</button></div>
+      <div class="btns"><button class="btn ghost" id="cfQuit">Never mind</button></div></div>`;
+    const cv = $('cfCv');
+    cof = { cv, c: cv.getContext('2d'), O, stage: 'pump', hold: false, p: 20, inZone: 0, red: 0, whale: 0, whaleT: -9, kick: 0, kickT: 0.9, fill: 0, flow: 0, foam: 0, foamFlow: 0, sugar: 0, cubes: [], spill: false, t0: performance.now(), last: performance.now(), st: 0, steam: [], shake: 0 };
+    const hold = $('cfHold'), next = $('cfNext');
+    const down = e => { e.preventDefault(); if (!cof) return; if (cof.stage === 'sugar') { cofSugar(); return; } cof.hold = true; hold.classList.add('on'); };
+    const up = () => { if (cof) cof.hold = false; hold.classList.remove('on'); };
+    hold.addEventListener('pointerdown', e => { hold.setPointerCapture(e.pointerId); down(e); });
+    hold.addEventListener('pointerup', up); hold.addEventListener('pointercancel', up); hold.addEventListener('lostpointercapture', up);
+    hold.addEventListener('contextmenu', e => e.preventDefault());
+    next.addEventListener('click', () => { sfx.click(); cofNext(); });
+    $('cfQuit').addEventListener('click', () => { sfx.click(); cof = null; renderCoffee('intro'); });
+    cofStage('pump');
+    const loop = () => {
+      if (!cof || mode !== 'coffee' || !document.body.contains(cv)) return;
+      const t = performance.now(), dt = Math.min(0.05, (t - cof.last) / 1000); cof.last = t;
+      cofStep(dt, t); if (!cof) return; cofDraw(t);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+  function cofStage(s) {
+    const v = cof; v.stage = s; v.st = 0; v.hold = false;
+    const hold = $('cfHold'), next = $('cfNext'), tip = $('cfTip');
+    hold.classList.remove('on');
+    const T = { pump: ['Hold to pump', 'Keep the needle in the green. Too far and the whale sings.'], pour: ['Hold to pour', 'Let go at the line. It drips a little after.'], sugar: ['Tap: sugar', `${v.O.sugar} ${v.O.sugar === 1 ? 'cube' : 'cubes'}, please.`], foam: ['Hold to froth', 'Froth the foam up to the top line.'] }[s];
+    hold.textContent = T[0]; tip.textContent = T[1];
+    next.hidden = s === 'pump'; next.textContent = cofAfter(s) ? 'Next' : 'Serve ☕';
+  }
+  const cofAfter = s => { const O = cof.O, order = ['pump', 'pour'].concat(O.sugar ? ['sugar'] : [], O.foam ? ['foam'] : []); return order[order.indexOf(s) + 1] || null; };
+  function cofNext() { const n = cofAfter(cof.stage); if (n) cofStage(n); else cofServe(); }
+  function cofSugar() { const v = cof; v.sugar++; v.cubes.push({ x: 92 + Math.random() * 16, y: 76, vy: 0, done: false }); sfx.pop(); }
+  function cofWhale(t) {
+    const v = cof; v.whale++; v.whaleT = t; v.shake = 0.6; v.p = 55;
+    try { sfx.whale ? sfx.whale() : sfx.thud ? sfx.thud() : sfx.click(); } catch (e) {}
+    for (let i = 0; i < 26; i++) v.steam.push({ x: 100 + (Math.random() - 0.5) * 8, y: 14, vx: (Math.random() - 0.5) * 40, vy: -40 - Math.random() * 50, life: 1 });
+    $('cfTip').textContent = ['WHOOOOOAAAAAAA. (The whale has spoken.)', 'WHOOOAAAAA. (Gus, from somewhere: “STOP PUSHING HER.”)', 'WHHOOOOOOOOAAAAA. (Somewhere, Apogee falls off a shelf.)'][(v.whale - 1) % 3];
+  }
+  function cofStep(dt, t) {
+    const v = cof, O = v.O, [lo, hi] = O.zone;
+    v.st += dt; v.shake = Math.max(0, v.shake - dt);
+    if (v.stage === 'pump') {
+      // the needle rises while you hold, sinks when you let go, and the machine burps now and then
+      v.kickT -= dt;
+      if (v.kickT <= 0) { v.kickT = 0.7 + Math.random() * 0.9; v.kick = (Math.random() - 0.35) * 60; }
+      v.kick *= Math.pow(0.08, dt);
+      v.p += ((v.hold ? 48 : -36) + v.kick + Math.sin(t / 170) * 10) * dt;
+      v.p = Math.max(0, v.p);
+      if (v.p >= 100 && t - v.whaleT > 900) cofWhale(t);
+      if (v.p > hi) v.red += dt; else if (v.p >= lo) v.inZone += dt;
+      if (v.inZone >= 2.6) { sfx.coin(); cofStage('pour'); }
+      if (v.st > 14) cofStage('pour');
+    } else if (v.stage === 'pour') {
+      v.flow = v.hold ? Math.min(1, v.flow + dt * 6) : v.flow * Math.pow(0.004, dt);
+      if (v.flow < 0.01 && !v.hold) v.flow = 0;
+      v.fill += v.flow * 0.3 * dt;
+      if (v.fill > 1) { v.fill = 1; if (!v.spill) { v.spill = true; sfx.click(); $('cfTip').textContent = 'It’s overflowing! Let go!'; } }
+    } else if (v.stage === 'foam') {
+      v.foamFlow = v.hold ? Math.min(1, v.foamFlow + dt * 6) : v.foamFlow * Math.pow(0.004, dt);
+      v.foam = Math.min(1 - v.fill + 0.06, v.foam + v.foamFlow * 0.18 * dt);
+    }
+    for (const k of v.cubes) if (!k.done) { k.vy += 300 * dt; k.y += k.vy * dt; if (k.y > 136 - v.fill * 26) { k.done = true; for (let i = 0; i < 4; i++) v.steam.push({ x: k.x, y: k.y, vx: (Math.random() - 0.5) * 30, vy: -20 - Math.random() * 20, life: 0.5, drop: true }); } }
+    for (const s of v.steam) { s.x += s.vx * dt; s.y += s.vy * dt; s.vy += (s.drop ? 120 : 10) * dt; s.life -= dt * (s.drop ? 2 : 0.8); }
+    v.steam = v.steam.filter(s => s.life > 0);
+    if (v.stage === 'pump' && Math.random() < dt * 3) v.steam.push({ x: 100 + (Math.random() - 0.5) * 4, y: 16, vx: (Math.random() - 0.5) * 6, vy: -10, life: 0.8 });
+  }
+  function cofServe() {
+    const v = cof, O = v.O; const notes = [];
+    // pump: time in the red and whale songs cost you; pour: how close to the line; extras: exact counts
+    let sc = 0, n = 0;
+    const pumpOk = v.whale === 0 && v.red < 1.2; sc += v.whale ? 0.2 : Math.max(0, 1 - v.red / 2.5); n++;
+    notes.push([pumpOk, v.whale ? `The whale sang ${v.whale === 1 ? 'once' : v.whale + ' times'}` : v.red > 1.2 ? 'A bit too much pressure' : 'Pressure just right']);
+    const off = Math.abs(v.fill - O.fill), pourSc = v.spill ? 0 : off <= 0.03 ? 1 : off <= 0.08 ? 0.7 : off <= 0.15 ? 0.35 : 0.1; sc += pourSc; n++;
+    notes.push([pourSc >= 0.7, v.spill ? 'Spilled over the top' : off <= 0.03 ? 'Poured right to the line' : v.fill < O.fill ? 'Poured a little short' : 'Poured a little over']);
+    if (O.sugar) { const d = Math.abs(v.sugar - O.sugar), s2 = d === 0 ? 1 : d === 1 ? 0.5 : 0; sc += s2; n++; notes.push([d === 0, d === 0 ? `Exactly ${O.sugar} ${O.sugar === 1 ? 'sugar' : 'sugars'}` : `${v.sugar} ${v.sugar === 1 ? 'sugar' : 'sugars'} (wanted ${O.sugar})`]); }
+    if (O.foam) { const d = Math.abs(v.foam - O.foam), s3 = d <= 0.05 ? 1 : d <= 0.12 ? 0.6 : 0.2; sc += s3; n++; notes.push([d <= 0.05, d <= 0.05 ? 'Foam to the line' : v.foam < O.foam ? 'Not enough foam' : 'Foam everywhere']); }
+    const el = (performance.now() - v.t0) / 1000;
+    if (O.fast) { const ok = el < 16; notes.push([ok, ok ? `Done in ${el.toFixed(1)} s` : `${el.toFixed(1)} s (she was timing you)`]); sc += ok ? 0.3 : -0.3; }
+    const avg = sc / n, cups = avg >= 0.85 ? 3 : avg >= 0.55 ? 2 : avg >= 0.2 ? 1 : 0;
+    const res = { cups: Math.max(v.spill && cups > 1 ? 1 : cups, 0), notes, whale: v.whale, spill: v.spill };
+    cof = null; renderCoffee('result', res);
+  }
+  function cofDraw(t) {
+    const v = cof, c = v.c, O = v.O;
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    const sh = v.shake > 0 ? (Math.random() - 0.5) * 4 * v.shake : 0; c.translate(sh, sh * 0.5);
+    px(c, -4, -4, CF_W + 8, CF_H + 8, '#2a2030'); px(c, -4, 150, CF_W + 8, 40, '#5a3a2a'); px(c, -4, 150, CF_W + 8, 2, '#7a5034');
+    for (let x = 0; x < CF_W; x += 20) px(c, x, 0, 1, 150, '#32283a');
+    // the Whale: a round blue body with an eye, fins, and a blowhole on top
+    phOval(c, 100, 70, 58, 52, '#3f6a96'); phOval(c, 100, 64, 52, 44, '#4f80b0'); phOval(c, 100, 108, 46, 10, '#3a5f86');
+    px(c, 30, 70, 14, 6, '#3f6a96'); px(c, 26, 66, 8, 6, '#3f6a96'); px(c, 156, 70, 14, 6, '#3f6a96'); px(c, 166, 66, 8, 6, '#3f6a96');
+    phDisc(c, 62, 58, 5, '#f4f1e8'); phDisc(c, 63, 59, 2, '#15151f'); px(c, 61, 56, 1, 1, '#ffffff');
+    px(c, 56, 78, 20, 2, '#2f5576');
+    px(c, 96, 16, 8, 4, '#2f5576');
+    // pressure gauge
+    const gx = 120, gy = 50, gr = 15;
+    phDisc(c, gx, gy, gr + 2, '#c9a24a'); phDisc(c, gx, gy, gr, '#f4f1e8');
+    const ang = p => Math.PI * (0.8 + 1.4 * p / 100);
+    const [lo, hi] = O.zone;
+    c.lineWidth = 4; c.strokeStyle = '#7cf0b0'; c.beginPath(); c.arc(gx, gy, gr - 4, ang(lo), ang(hi)); c.stroke();
+    c.strokeStyle = '#ff6b5e'; c.beginPath(); c.arc(gx, gy, gr - 4, ang(hi), ang(100)); c.stroke();
+    const pa = ang(Math.min(104, v.p)); c.strokeStyle = '#15151f'; c.lineWidth = 2; c.beginPath(); c.moveTo(gx, gy); c.lineTo(gx + Math.cos(pa) * (gr - 2), gy + Math.sin(pa) * (gr - 2)); c.stroke(); phDisc(c, gx, gy, 2, '#15151f');
+    if (v.stage === 'pump') { px(c, gx - 15, gy + 20, 30, 3, '#22263a'); px(c, gx - 15, gy + 20, Math.round(30 * Math.min(1, v.inZone / 2.6)), 3, '#7cf0b0'); }
+    // spout, tray and the order's mug
+    px(c, 96, 96, 8, 10, '#2a2e3c'); px(c, 97, 104, 6, 3, '#15151f');
+    px(c, 60, 146, 80, 5, '#8a93ab'); px(c, 60, 146, 80, 1, '#c9cfdc');
+    const mx = 84, my = 112, mw = 32, mh = 34, tiny = cofWho === 'S';
+    const MW2 = tiny ? 20 : mw, MX = tiny ? 90 : mx, MY = tiny ? 124 : my, MH2 = tiny ? 22 : mh;
+    px(c, MX, MY, MW2, MH2, '#f4f1e8'); px(c, MX + MW2, MY + 6, 5, 3, '#f4f1e8'); px(c, MX + MW2 + 3, MY + 6, 2, 14, '#f4f1e8'); px(c, MX + MW2, MY + 18, 5, 3, '#f4f1e8');
+    const inH = MH2 - 4, inY = MY + 2, inX = MX + 2, inW = MW2 - 4;
+    px(c, inX, inY, inW, inH, '#d8d0bc');
+    const fh = Math.round(inH * Math.min(1, v.fill)); if (fh > 0) px(c, inX, inY + inH - fh, inW, fh, O.zone[0] < 40 ? '#a0704a' : '#5a3418');
+    const foh = Math.round(inH * v.foam); if (foh > 0) px(c, inX, Math.max(inY - 2, inY + inH - fh - foh), inW, Math.min(foh, inH - fh + 2), '#f0e4c8');
+    if (v.spill) { px(c, MX - 3, MY + MH2 - 2, MW2 + 8, 3, '#5a3418'); px(c, MX - 6, 146, 10, 2, '#5a3418'); }
+    const ly = inY + inH - Math.round(inH * O.fill);
+    for (let x = inX - 3; x < inX + inW + 3; x += 3) px(c, x, ly, 2, 1, '#ff6b5e');
+    if (O.foam) { const fy = inY + inH - Math.round(inH * Math.min(1.06, O.fill + O.foam)); for (let x = inX - 3; x < inX + inW + 3; x += 3) px(c, x, fy, 2, 1, '#7fd6ff'); }
+    if (cofWho === 'S') { c.fillStyle = '#5a5a66'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('ROCK', MX + MW2 / 2, MY + MH2 - 3); c.textAlign = 'left'; }
+    // the stream
+    const flow = v.stage === 'foam' ? v.foamFlow : v.flow;
+    if (flow > 0.02) { const w = Math.max(1, Math.round(flow * 3)); px(c, 100 - (w >> 1), 107, w, inY + inH - fh - 107, v.stage === 'foam' ? '#f0e4c8' : '#5a3418'); }
+    for (const k of v.cubes) if (!k.done) px(c, k.x, k.y, 4, 4, '#ffffff');
+    if (v.cubes.length) { c.fillStyle = '#f4f1e8'; c.font = '700 7px monospace'; c.textAlign = 'center'; c.fillText(`${v.sugar}/${O.sugar}`, 100, 172); c.textAlign = 'left'; }
+    for (const s of v.steam) { c.globalAlpha = Math.max(0, s.life); px(c, s.x, s.y, s.drop ? 1 : 3, s.drop ? 1 : 3, s.drop ? '#5a3418' : '#e8edf5'); }
+    c.globalAlpha = 1;
+    if (t - v.whaleT < 1300) {
+      const k = (t - v.whaleT) / 1300; c.globalAlpha = 1 - k; c.fillStyle = '#7fd6ff'; c.font = '700 13px monospace'; c.textAlign = 'center';
+      const word = 'WHOOOOAAAA'; for (let i = 0; i < word.length; i++) c.fillText(word[i], 40 + i * 12, 30 + Math.sin(t / 80 + i) * 4 - k * 10);
+      c.textAlign = 'left'; c.globalAlpha = 1;
+    }
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  window.addEventListener('keydown', e => { if (cof && mode === 'coffee' && (e.code === 'Space' || e.code === 'ArrowUp')) { e.preventDefault(); if (e.repeat) return; if (cof.stage === 'sugar') cofSugar(); else cof.hold = true; } if (cof && mode === 'coffee' && e.code === 'Enter' && cof.stage !== 'pump') { e.preventDefault(); cofNext(); } });
+  window.addEventListener('keyup', e => { if (cof && (e.code === 'Space' || e.code === 'ArrowUp')) cof.hold = false; });
 
   // ---- The galley: cook crops into meals with a quick stirring game ----
   const RECIPES = [
@@ -17868,6 +18076,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'coffee') { if (e.code === 'Escape') { if (cof) { cof = null; renderCoffee('intro'); } else { walkEnter = null; setMode(cofFrom); } } return; }
     if (mode === 'eva') { if (e.code === 'Escape') { if (eva) { eva = null; renderEva('intro'); } else evaBack(); } return; }
     if (mode === 'mining') { if (e.code === 'Escape') { if (mine) endMining(); else setMode(mineFrom === 'flights' ? 'flights' : 'garage'); } return; }
     if (mode === 'datescene') { if (e.code === 'Escape') dateEnd(); else if (e.code === 'Enter' || e.code === 'Space') { if (document.activeElement && document.activeElement.id === 'dateNext') return; e.preventDefault(); dateNext(); } return; }
