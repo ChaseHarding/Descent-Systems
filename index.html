@@ -414,6 +414,25 @@ kbd {
 .qnew-card canvas.face { width: 56px; height: 56px; }
 .qnew-card b { font-family: var(--f-display); font-size: 20px; letter-spacing: .05em; text-transform: uppercase; color: #ffcf3a; }
 .zstall .zsay { min-height: 3em; }
+.sysmap { width: 100%; max-width: 30rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sysmap .sub { margin: 0; font-size: 11px; color: var(--regolith-dim); text-align: center; }
+#mapCv { width: 100%; max-width: 360px; aspect-ratio: 340 / 400; border-radius: 10px; border: 1px solid var(--space-2); background: #04060f; touch-action: manipulation; cursor: pointer; }
+.mappanel { width: 100%; box-sizing: border-box; border: 1px solid var(--flame); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; min-height: 7rem; }
+.mappanel b { font-family: var(--f-display); font-size: 17px; letter-spacing: .05em; text-transform: uppercase; color: var(--flame); }
+.mappanel .here { font-size: 11px; color: var(--ok); }
+.mappanel .row, .mapworlds { display: flex; flex-wrap: wrap; gap: 6px; }
+.mappanel .chip, .mapworlds .chip { font: 11px/1.3 var(--f-mono); padding: 3px 8px; border-radius: 999px; border: 1px solid var(--space-2); color: var(--regolith); background: none; }
+.mappanel .chip.o { border-color: var(--ok); color: var(--ok); } .mappanel .chip.g { border-color: #ffcf3a; color: #ffcf3a; } .mappanel .chip.b { border-color: #7fd6ff; color: #7fd6ff; }
+.mapworlds { justify-content: center; } .mapworlds .chip { cursor: pointer; } .mapworlds .chip.on { border-color: var(--flame); color: var(--flame); }
+.mapnote { font-size: 11px; color: var(--regolith); }
+.mappanel .btns { margin: 2px 0 0; } .mappanel .mapmoon { flex: 1 1 auto; }
+.ztrade small { font-size: 10px; color: var(--regolith-dim); }
+.shore .shorepic { width: 100%; max-width: 240px; height: auto; aspect-ratio: 240 / 90; image-rendering: pixelated; border-radius: 8px; border: 1px solid var(--space-2); }
+.shorecrew { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; max-height: 40vh; overflow-y: auto; }
+.shorepick { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 4px; border-radius: 8px; border: 1px solid var(--space-2); background: none; color: var(--regolith); font: 11px/1.2 var(--f-mono); cursor: pointer; }
+.shorepick canvas.face { width: 32px; height: 32px; }
+.shorepick.on { border-color: #ffcf3a; background: rgba(255,207,58,0.1); color: #ffcf3a; }
+.shorepick:focus-visible { outline: 2px solid #ffcf3a; outline-offset: 1px; }
 .ztrades { width: 100%; display: flex; flex-direction: column; gap: 6px; }
 .ztrade { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid #b08ae0; background: rgba(176,138,224,0.08); color: var(--regolith); font: 12px/1.35 var(--f-mono); text-align: left; cursor: pointer; }
 .qnew-card .ztrade b { color: #ffcf3a; font: 700 12px/1.35 var(--f-mono); letter-spacing: 0; text-transform: none; text-align: right; } .ztrade i { font-style: normal; color: #b08ae0; }
@@ -4687,6 +4706,10 @@ details.act > .limits { margin: 0 0 8px; }
     windDir = rng() < 0.5 ? -1 : 1; windSeed = rrand(0, 100);
     makeBackdrop();
     levelFuel = d.fuel;
+    if (!inBase() && !ghostRun) {
+      if (d.world !== shipAt()) { setShipAt(d.world); sailedFor = d.id; setTimeout(() => { if (mission && mode === 'flying') showToast(`🚀 The ship sailed to ${worldName(d.world)} for this job`, 2200); }, 2400); }
+      mission.local = sailedFor !== d.id;
+    }
     if (d.world === 'mars' && questDone('q-juno')) { levelFuel = Math.round(d.fuel * 1.15); setTimeout(() => { if (mission && mode === 'flying') showToast('Juno’s dock topped you up: +15% fuel', 2200); }, 1600); }
     spawn(d.spawn);
     if (copHas('Y')) { lander.fuel *= 1.1; lander.fuelMax *= 1.1; }
@@ -5105,7 +5128,10 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'cold-storage') hardCallDoor();
     if (d.id === 'the-buyout') hardCallBuyout();
     if (starsWon > prev) { missionStars[d.id] = starsWon; store.set('ds-missions', JSON.stringify(missionStars)); }
-    credits += pay + extra;
+    const local = mission.local ? Math.round(d.credits * LOCAL_PAY) : 0;
+    if (local) setTimeout(() => showToast(`📍 Local job: +${local} cr for being parked at ${worldName(d.world)}`, 2400), 900);
+    sailedFor = null;
+    credits += pay + extra + local;
     saveCosmetics();
     lastRun = { frames: recording, result: 'landed' };
     lastResult = { pad, pts: 0, reasons: [] };
@@ -6165,10 +6191,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
+  const SHORE_KINDS = ['pim', 'pimbake'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -6187,7 +6214,8 @@ details.act > .limits { margin: 0 0 8px; }
     // walking between rooms: a quick fade from black, with a door whoosh if you came through a door
     if (SHIP_ROOMS.includes(m) && m !== mode && (SHIP_ROOMS.includes(mode) || mode === 'shipmenu') && !intro) roomFade(!!walkEnter && SHIP_ROOMS.includes(mode));
     if (m !== 'hangar' && m !== 'den' && m !== 'arcade' && m !== 'license') card.classList.remove('wide');
-    if (SHIP_ROOMS.includes(m)) card.classList.add('wide');
+    if (SHIP_ROOMS.includes(m) || SHORE_KINDS.includes(m)) card.classList.add('wide');
+    if (SHORE_KINDS.includes(m) && SHORE_KINDS.includes(mode) && m !== mode) roomFade(true);
     if (arc && m !== 'arcade') { cancelAnimationFrame(arc.raf); arc = null; }
     if (intro && m !== 'intro') clearInterval(intro.anim);
     if (m === 'missions') store.set('ds-nudge', '');
@@ -6215,7 +6243,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     mode = m;
     if (SHIP_ROOMS.includes(m)) lastRoom = m;
-    sfx.ambient(SHIP_ROOMS.includes(m) ? m : null);
+    sfx.ambient(SHIP_ROOMS.includes(m) ? m : SHORE_KINDS.includes(m) ? 'galley' : null);
     if (SHIP_ROOMS.includes(m)) setTimeout(guideNudge, 0);
     if (SHIP_ROOMS.includes(m) || m === 'flights' || m === 'flying') menuReturn = false;
     stage.classList.toggle('in-menu', MENU_MODES.includes(m));
@@ -6244,11 +6272,12 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift' || m === 'pim' || m === 'pimbake') { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'eva') { eva = null; renderEva('intro'); return; }
     if (m === 'coffee') { cof = null; renderCoffee('intro'); return; }
     if (m === 'vending') { renderVend(); return; }
+    if (m === 'sysmap') { renderSysMap(); return; }
     if (m === 'encounter') { if (!enc) { setMode('missions'); return; } renderEncounter('scene'); return; }
     if (m === 'projects') { renderProjects(); return; }
     if (m === 'wardrobe') { renderWardrobe(); return; }
@@ -7331,7 +7360,7 @@ details.act > .limits { margin: 0 0 8px; }
       <i class="orb" style="background:${w.orb}" aria-hidden="true"></i>
       <span class="mnum">${String(i + 1).padStart(2, '0')}</span>
       <b>${d.name}</b>
-      <span class="mtype">${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
+      <span class="mtype">${!inBase() && d.world === shipAt() ? '📍 ' : ''}${w.name} · ${d.label || KIND_LABEL[d.kind]}</span>
       <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${rest ? '💤 Sleep first' : 'Locked'}</span>`}</span>
     </button>`;
   }
@@ -7341,7 +7370,7 @@ details.act > .limits { margin: 0 0 8px; }
       <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
       <span class="mnum">${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
       <b>${d.name}</b>
-      <span class="mtype">${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}${d.legs ? ` · ${d.legs.length} stops` : ''}</span>
+      <span class="mtype">${!inBase() && d.world === shipAt() ? '📍 ' : ''}${w.name}${d.kind === 'trip' ? '' : ` · ${d.label}`}${d.legs ? ` · ${d.legs.length} stops` : ''}</span>
       <span class="mstars">${open ? starHtml(st) : `<span class="mtype">${d.afterWorld ? `Land on ${WORLDS.find(x => x.id === d.afterWorld).name} in free flight` : `Unlocks after ${afterName(d)}`}</span>`}</span>
     </button>`;
   }
@@ -9333,6 +9362,10 @@ details.act > .limits { margin: 0 0 8px; }
   // crew quest rewards
   DEN_ITEMS.wallR.push({ id: 'bisphoto', name: 'Biscuit’s photo', price: 0, quest: 'q-gus', blurb: 'The faded factory photo from Gus’s wallet, framed: Biscuit in cherry red, brand new, with Gus aged nineteen grinning next to her.',
     draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#c9a06a'); px(c, x + 4, y + 3, 22, 14, '#e8dcc0'); px(c, x + 4, y + 12, 22, 5, '#b8a888'); px(c, x + 10, y + 7, 9, 5, '#a8222a'); px(c, x + 10, y + 9, 9, 1, '#f4e6cc'); px(c, x + 11, y + 12, 1, 2, '#6a5a48'); px(c, x + 17, y + 12, 1, 2, '#6a5a48'); px(c, x + 21, y + 8, 3, 3, '#e8b48a'); px(c, x + 21, y + 11, 3, 4, '#3d6b63'); px(c, x + 21, y + 7, 3, 1, '#c46a2c'); } });
+  DEN_ITEMS.wallR.push({ id: 'pimcard', name: 'Moonbase Pim postcard', price: 0, shore: 'pim', blurb: 'The dome at night, with Earth in the sky. Pim drew a little star in the corner and wrote “HI PILOT” on the back.',
+    lines: ['“Greetings from Moonbase Pim! Population: 41 and a rover.”', 'Pim’s little star in the corner has a face. It’s smiling. It might be you.'],
+    draw(c, x, y) { px(c, x + 2, y + 4, 26, 19, '#f4f1e8'); px(c, x + 3, y + 5, 24, 13, '#04060f'); px(c, x + 3, y + 15, 24, 3, '#6a6e7a'); c.fillStyle = 'rgba(160,210,255,0.35)'; c.beginPath(); c.ellipse(x + 13, y + 15, 8, 6, 0, Math.PI, 0); c.fill();
+      px(c, x + 22, y + 7, 3, 3, '#3a7ad8'); px(c, x + 6, y + 7, 1, 1, '#ffffff'); px(c, x + 16, y + 6, 1, 1, '#ffffff'); px(c, x + 24, y + 19, 2, 2, '#ffe58a'); px(c, x + 5, y + 20, 10, 1, '#8a93ab'); } });
   DEN_ITEMS.wallL.push({ id: 'wrenjacket', name: 'Wren’s flight jacket', price: 0, quest: 'q-wren', blurb: 'Brown leather, a Neptune patch on the shoulder and one burnt cuff. Wren says the cuff has a story. She won’t tell it.',
       draw(c, x, y) { px(c, x + 13, y + 1, 4, 2, '#8a93ab'); px(c, x + 8, y + 3, 14, 4, '#6a4428'); px(c, x + 5, y + 6, 20, 16, '#7a4e2e'); px(c, x + 14, y + 6, 2, 16, '#4a2e18'); px(c, x + 2, y + 7, 4, 16, '#6a4428'); px(c, x + 24, y + 7, 4, 16, '#6a4428'); px(c, x + 24, y + 21, 4, 2, '#2a1a10'); px(c, x + 7, y + 9, 5, 5, '#2a4a8a'); px(c, x + 8, y + 10, 3, 3, '#7fd6ff'); px(c, x + 17, y + 13, 5, 1, '#c9a06a'); } },
     { id: 'rexposter', name: 'Signed movie poster', price: 0, quest: 'q-rex', blurb: '“THE QUIET MAN”, a film Rex didn’t get. He had the poster made anyway, with himself in it. Signed: “To my favourite scene partner. R.”',
@@ -9423,7 +9456,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.shore) return store.get('ds-pimCard', '') === '1'; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -9929,12 +9962,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest || x.shore ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.shore) action = '<button class="btn" disabled>Go ashore at Moonbase Pim (from the bridge) and take one from the rack</button>';
     else if (it.quest) action = `<button class="btn" disabled>Finish ${questName(it.quest)} to get it</button>`;
     else if (it.ev) action = `<button class="btn" disabled>Celebrate ${EVENTS.find(e => e.id === it.ev).name} to get it</button>`;
     else if (it.romance) action = `<button class="btn" disabled>Go on your 8-heart date with someone (Friends ♥) to get it</button>`;
@@ -10666,10 +10700,10 @@ details.act > .limits { margin: 0 0 8px; }
         ['X', 'Get used to it. They do that here.']] }
   ];
   const rsSeen = () => { try { return JSON.parse(store.get('ds-rscenes', '[]')) || []; } catch (e) { return []; } };
-  const rsHere = w => w === 'K' || (romMet[w] && romMet[w]() && !isLost(w));
+  const rsHere = w => deck && SHORE_KINDS.includes(deck.kind) ? onShoreHere(w) : w === 'K' || (romMet[w] && romMet[w]() && !isLost(w));
   function roomSceneFor(kind) {
     const seen = rsSeen();
-    return ROOM_SCENES.find(s => s.room === kind && (s.quest ? questStep(s.quest[0]) === s.quest[1] : storyDone(s.after)) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
+    return ROOM_SCENES.find(s => s.room === kind && (s.quest ? questStep(s.quest[0]) === s.quest[1] : s.after === true || storyDone(s.after)) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
       && (!s.need || s.need.every(rsHere)) && s.cast.filter(([w]) => rsHere(w)).length >= (s.need ? 1 : Math.min(2, s.cast.length)));
   }
   // ---- Crew moments: little unscripted scenes you sometimes walk in on between missions ----
@@ -10875,6 +10909,11 @@ details.act > .limits { margin: 0 0 8px; }
     const sk = $('sceneSkip'); if (sk) sk.hidden = true;
     const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
     for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
+    if (SHORE_KINDS.includes(deck.kind)) {
+      const have = new Set(deck.npcs.map(n => n.who));
+      buildNpcs(deck.kind).filter(n => !have.has(n.who)).forEach(n => deck.npcs.push(n));
+      deck.npcs.forEach(n => { const i = shoreParty.indexOf(n.who); if (i >= 0) { n.follow = true; n.fo = i * 14; } if (n.who === 'M') { n.wander = true; n.local = true; } });
+    }
     if (S.s.quest && questStep(S.s.quest[0]) === S.s.quest[1]) questAdvance(S.s.quest[0]);
     if (deck.npcs.some(n => n.who === 'K')) {
       const k = deck.npcs.find(n => n.who === 'K');
@@ -10907,6 +10946,8 @@ details.act > .limits { margin: 0 0 8px; }
       engine: ['Engine room', 'The engine room: a tall glowing core in the middle, Gus’s workbench and tool board on the left, gauges, a big red lever, and the power junction panel on the right where you do repair jobs. Tap to walk; walk up to the junction to fix things. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       galley: [inBase() ? 'The Kitchen' : 'The Galley', 'The galley: a tiled kitchen with a pantry, a stove with hanging pans, a sink, a fridge and a little round table. Tap to walk; walk up to the stove to cook. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
+      pim: ['Moonbase Pim', 'Moonbase Pim: a street under a glass dome, with Earth in the sky. From left: the airlock back to the ship, Ines’ bakery, a postcard rack, Gus’s telescope, the school, the supply rover depot with Uncle Lalo’s rover, and Pim’s round yellow house. Tap to walk; walk up to things to use them. With a keyboard, arrow keys walk and Enter uses whatever is closest.'],
+      pimbake: ['Ines’ Bakery', 'Ines’ bakery: shelves of bread, a chalk menu, a brick oven and a glass counter full of pastries, with a little table by the window. Walk up to the counter to buy pastries. The door at the bottom goes back to the street.'],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
     }[kind];
     card.innerHTML = `<div class="lounge shiproom">
@@ -10917,10 +10958,14 @@ details.act > .limits { margin: 0 0 8px; }
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}${lift ? '<div class="gpanel" id="liftPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
-        <button class="btn ghost" id="back">☰ Menu</button>
+        ${kind === 'bridge' ? '<button class="btn ghost" id="shipMap">🗺️ System map</button>' : ''}
+        ${kind === 'bridge' && shoreOk() && shipAt() === 'moon' ? '<button class="btn ghost" id="shipAshore">🌙 Go ashore</button>' : ''}
+        <button class="btn ghost" id="back">${SHORE_KINDS.includes(kind) ? '🚀 Back to the ship' : '☰ Menu'}</button>
       </div>
     </div>`;
-    $('back').addEventListener('click', () => setMode('shipmenu'));
+    $('back').addEventListener('click', () => SHORE_KINDS.includes(kind) ? shoreLeave() : setMode('shipmenu'));
+    { const sa = $('shipAshore'); if (sa) sa.addEventListener('click', () => { sfx.click(); openShore(); }); }
+    { const sm = $('shipMap'); if (sm) sm.addEventListener('click', () => { sfx.click(); mapSel = null; setMode('sysmap'); }); }
     const smb = $('shipMissions'); if (smb) smb.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); });
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
     let start;
@@ -10932,11 +10977,13 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
+    } else if (kind === 'pim') {
+      start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
-      crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
     { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
@@ -10957,22 +11004,23 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { pim: pimDraw, pimbake: pimBakeDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
       deck.last = t;
       shipStep(dt);
       if (!deck) return;
-      draw(t); eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
+      draw(t); if (!SHORE_KINDS.includes(kind)) eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
       deck.bar = (deck.bar || 0) + ((deck.scene ? 1 : 0) - (deck.bar || 0)) * Math.min(1, dt * 7);
       if (deck.bar > 0.01) { const c = deck.c, h = Math.round(deck.cv.height * 0.12 * deck.bar); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#05070f'; c.fillRect(0, 0, deck.cv.width, h); c.fillRect(0, deck.cv.height - h, deck.cv.width, h);
         if (deck.scene && deck.scene.ready && !reduceMotion) { c.fillStyle = `rgba(255,181,71,${0.5 + 0.5 * Math.sin(t / 220)})`; const bx = deck.cv.width - 26, by = deck.cv.height - h / 2; c.beginPath(); c.moveTo(bx, by - 7); c.lineTo(bx + 12, by); c.lineTo(bx, by + 7); c.fill(); } }
-      if (shipDark()) { const c = deck.c; c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = `rgba(40,0,8,${!reduceMotion && Math.floor(t / 1900) % 11 === 0 ? 0.42 : 0.28})`; c.fillRect(0, 0, deck.cv.width, deck.cv.height); }
+      if (shipDark() && !SHORE_KINDS.includes(kind)) { const c = deck.c; c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = `rgba(40,0,8,${!reduceMotion && Math.floor(t / 1900) % 11 === 0 ? 0.42 : 0.28})`; c.fillRect(0, 0, deck.cv.width, deck.cv.height); }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
-    if (hall) {
+    if (SHORE_KINDS.includes(kind)) setTimeout(() => { if (deck && deck.kind === kind) shoreHello(kind); }, 0);
+    else if (hall) {
       const wand = deck.npcs.map(n => n.who);
       shipSay(...(wand.length && Math.random() < 0.6 ? ['F', `Dottie on the intercom. ${wand.length === 1 ? `${SIGN[wand[0]]} is` : `${wand.slice(0, -1).map(w => SIGN[w]).join(', ')} and ${SIGN[wand[wand.length - 1]]} are`} out in the corridor. Say hi. Then everybody back to work.`] : (H => H[Math.floor(Math.random() * H.length)])((shipDark() ? DRIFT_SAYS : DECK_SAYS[hallDeck].filter(h => !(projDone('lights') && /flicker/.test(h[1])) && !(projDone('dome') && /dome/.test(h[1])))))));
     } else if (lift) {
@@ -11021,6 +11069,8 @@ details.act > .limits { margin: 0 0 8px; }
     const L = [];
     npcThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
+    if (deck.kind === 'pim') { pimThings(L); return L; }
+    if (deck.kind === 'pimbake') { pimBakeThings(L); return L; }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
     if (deck.kind === 'quarters') { quartersThings(L); return L; }
     if (deck.kind === 'bedroom') { bedroomThings(L); return L; }
@@ -11045,7 +11095,7 @@ details.act > .limits { margin: 0 0 8px; }
     // the bridge
     L.push({ id: 'comms', rect: [18, 62, 56, 26], go: () => [46, 100], at: () => ({ x: 46, y: 80 }), act: () => bridgeComms() });
     L.push({ id: 'nav', rect: [98, 60, 60, 28], go: () => [128, 100], at: () => ({ x: 128, y: 80 }), act: () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); } });
-    L.push({ id: 'map', rect: [182, 62, 56, 26], go: () => [210, 100], at: () => ({ x: 210, y: 80 }), act: () => shipSay(...starMapLine()) });
+    L.push({ id: 'map', rect: [182, 62, 56, 26], go: () => [210, 100], at: () => ({ x: 210, y: 80 }), act: () => { sfx.click(); mapSel = null; setMode('sysmap'); } });
     L.push({ id: 'chair', rect: [114, 104, 28, 30], go: () => [128, 128], at: () => ({ x: 128, y: 100 }), act: () => { deck.me.sit = true; deck.me.dir = 3; shipSay(...chairLine()); } });
     L.push({ id: 'window', rect: [20, 4, 216, 54], go: () => [deck.me.x, 100], at: () => ({ x: deck.me.x, y: 30 }), act: () => shipSay(...bridgeWindowLine()) });
     L.push({ id: 'door', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'bridge'; setMode('hall'); } });
@@ -11110,7 +11160,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (k.pause > 0) { k.pause -= dt; k.moving = false; }
       else {
         k.x += k.dir * 9 * dt; k.moving = true;
-        const lo = deck.kind === 'hall' ? 20 : 30, hi = deck.kind === 'hall' ? HALL_W - 36 : 210;
+        const lo = deck.kind === 'hall' || deck.kind === 'pim' ? 20 : 30, hi = deck.kind === 'hall' ? HALL_W - 36 : deck.kind === 'pim' ? PIM_W - 36 : 210;
         if (k.x < lo) { k.x = lo; k.dir = 1; k.pause = 1; }
         if (k.x > hi) { k.x = hi; k.dir = -1; k.pause = 1; }
         if (Math.random() < dt * 0.2) { k.pause = 1 + Math.random() * 2.5; if (Math.random() < 0.4) k.dir *= -1; }
@@ -11631,6 +11681,13 @@ details.act > .limits { margin: 0 0 8px; }
   function buildNpcs(kind) {
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
+    if (SHORE_KINDS.includes(kind)) {
+      const mx = deck ? deck.me.x : kind === 'pim' ? 34 : 128;
+      shoreParty.forEach((w, i) => add(w, mx - 20 - i * 14, kind === 'pim' ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
+      if (kind === 'pim') { add('M', 230, 118, { wander: true, local: true }); add('L', 366, 104, { baseDir: 2, local: true }); }
+      else add('I', 196, 100, { baseDir: 0, local: true });
+      return L;
+    }
     if (P.C === 'tag' && DECK_KINDS.includes(kind)) add('C', 110, 120, { follow: true, pause: 0 });
     if (kind === 'lift') {
       // someone heading between decks, or now and then anyone popping out of a room for a minute
@@ -11677,6 +11734,7 @@ details.act > .limits { margin: 0 0 8px; }
     const first = ROM_WHO.includes(w) && bond.talk[w] !== shipDayKey(), now = performance.now();
     bondTalk(w);
     n.emote = { k: first ? 'heart' : 'dots', t0: now, until: now + 1800 }; n.notice = now + 1800; if (first) sfx.pop();
+    if (SHORE_KINDS.includes(deck.kind)) { shipSay(w, shoreLine(w)); return; }
     let line = null;
     if (w !== 'Z' && w !== 'O') {
       const guests = deck.npcs.filter(o => o.visit), r = Math.random();
@@ -11705,7 +11763,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
       if (n.follow) {   // Kit, tagging along a step behind you
         if (n.pause > 0) { n.pause -= dt; n.dir = faceToward(n, deck.me); continue; }
-        const tx = deck.me.x + (deck.me.x > deck.W - 40 ? 20 : -20), ty = Math.max(deck.me.y + 4, 0), dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy);
+        const tx = deck.me.x + (deck.me.x > deck.W - 40 ? 20 + (n.fo || 0) : -20 - (n.fo || 0)), ty = Math.max(deck.me.y + 4, 0), dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy);
         if (d > 6) { const sp = Math.min(d - 4, 44 * dt); n.x += dx / d * sp; n.y += dy / d * sp; n.moving = true; n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
         else n.dir = faceToward(n, deck.me);
         continue;
@@ -17858,6 +17916,449 @@ details.act > .limits { margin: 0 0 8px; }
   ROM_WHO.push('C', 'H');
   const kitMet = () => store.get('ds-kitMet', '') !== '', baoMet = () => store.get('ds-baoMet', '') !== '';
   Object.assign(romMet, { C: kitMet, H: baoMet });
+  // ---- Shore leave: Moonbase Pim, a little town under a dome on the Moon ----
+  // You go ashore from the bridge's star map, once a ship day, and take up to two crewmates.
+  Object.assign(FACES, {
+    // Ines, Pim's mum and the baker: a dark bun, a cream apron over moonbase yellow, flour on one cheek
+    I: { bg: '#3a2a20', skin: '#d9a07a', shade: '#b88060', mouth: '#7a3a30', brow: '#3a2418',
+      back(c) { const h = '#3a2418'; px(c, 9, 5, 14, 5, h); px(c, 13, 1, 7, 5, h); px(c, 8, 8, 2, 9, h); px(c, 22, 8, 2, 9, h); px(c, 15, 2, 3, 1, '#5a3a28'); },
+      body(c) { px(c, 4, 26, 24, 6, '#ffcf3a'); px(c, 6, 25, 20, 1, '#ffcf3a'); px(c, 10, 25, 12, 7, '#f4e6cc'); px(c, 12, 24, 1, 2, '#f4e6cc'); px(c, 19, 24, 1, 2, '#f4e6cc'); px(c, 13, 28, 2, 1, '#ffffff'); px(c, 17, 30, 2, 1, '#ffffff'); },
+      front(c) { const h = '#3a2418'; px(c, 10, 8, 12, 2, h); px(c, 10, 10, 2, 2, h); px(c, 20, 10, 2, 1, h); },
+      extra(c) { px(c, 19, 19, 3, 1, '#f4f1e8'); px(c, 20, 20, 1, 1, '#f4f1e8'); px(c, 9, 19, 1, 1, '#ffe58a'); px(c, 22, 19, 1, 1, '#ffe58a'); } },
+    // Uncle Lalo, the supply-rover driver: a yellow cap with goggles on the brim, a big moustache, rover-yellow overalls
+    L: { bg: '#2a2a33', skin: '#c98a62', shade: '#a46a43', mouth: '#5a2a20', brow: '#2a1a12',
+      back(c) { const h = '#2a1a12'; px(c, 8, 9, 1, 6, h); px(c, 23, 9, 1, 6, h); },
+      body(c) { px(c, 4, 26, 24, 6, '#e8b830'); px(c, 6, 25, 20, 1, '#e8b830'); px(c, 10, 26, 12, 6, '#3a4668'); px(c, 11, 25, 2, 2, '#3a4668'); px(c, 19, 25, 2, 2, '#3a4668'); px(c, 15, 28, 2, 2, '#c9cfdc'); },
+      front(c) {},
+      extra(c) {
+        px(c, 9, 4, 14, 5, '#e8b830'); px(c, 10, 3, 12, 1, '#e8b830'); px(c, 7, 8, 18, 1, '#a8801a');
+        px(c, 10, 5, 4, 2, '#7fd6ff'); px(c, 18, 5, 4, 2, '#7fd6ff'); px(c, 14, 5, 4, 1, '#3a4668');
+        px(c, 11, 19, 10, 2, '#2a1a12'); px(c, 10, 20, 2, 2, '#2a1a12'); px(c, 20, 20, 2, 2, '#2a1a12');
+      } }
+  });
+  Object.assign(LOOKS, {
+    I: { skin: '#d9a07a', hair: '#3a2418', style: 'bun', top: '#f4e6cc', pants: '#c94a5a', shoes: '#3a2418', scarf: '#ffcf3a' },
+    L: { skin: '#c98a62', hair: '#2a1a12', style: 'buzz', top: '#e8b830', pants: '#3a4668', shoes: '#2a2a33', hat: 'cap', acc: 'goggles' }
+  });
+  Object.assign(SPEAKERS, { I: { name: 'Ines · Pim’s mum, baker', color: '#ffcf9a' }, L: { name: 'Uncle Lalo · Rover driver', color: '#e8b830' } });
+  Object.assign(SIGN, { I: 'Ines', L: 'Lalo' });
+  Object.assign(DEFAULT_MOOD, { I: 'happy', L: 'happy' });
+  const SHORE_LOCALS = ['M', 'I', 'L'], PIM_W = 520;
+  const shoreOk = () => !inBase() && (storyDone('swing-shift') || storyDone('ride-along'));
+  const shoreToday = () => +store.get('ds-shoreDay', '0') === shipDay;
+  let shoreParty = (() => { try { return JSON.parse(store.get('ds-shoreParty', '[]')) || []; } catch (e) { return []; } })();
+  const shoreCan = () => ROM_WHO.filter(w => romMet[w] && romMet[w]() && !isLost(w));
+  const onShoreHere = w => w === 'K' ? crumbHome() : SHORE_LOCALS.includes(w) || shoreParty.includes(w);
+  // ---- the Go ashore card ----
+  function openShore() {
+    let el = $('shoreCard');
+    if (!el) { el = document.createElement('div'); el.id = 'shoreCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Go ashore'); document.body.appendChild(el); }
+    let pick = shoreParty.filter(w => shoreCan().includes(w)).slice(0, 2);
+    const draw = () => {
+      const can = shoreCan(), done = shoreToday();
+      el.innerHTML = `<div class="qnew-card shore"><span class="eyebrow">Shore leave · one trip a ship day</span><b>Moonbase Pim</b>
+        <canvas class="shorepic" id="shorePic" width="240" height="90" aria-hidden="true"></canvas>
+        <p>A little town under a glass dome on the Moon. Pim lives here, with a bakery, a school, Uncle Lalo’s supply rover and Gus’s telescope.</p>
+        ${done ? '<p class="zhave">You’ve already been ashore today. The shuttle goes again tomorrow, after you sleep.</p>' : `
+        <span class="eyebrow">Who’s coming? Pick up to two</span>
+        <div class="shorecrew">${can.map(w => `<button class="shorepick${pick.includes(w) ? ' on' : ''}" data-sp="${w}" aria-pressed="${pick.includes(w)}">${faceTag(w, '')}<span>${SIGN[w]}</span></button>`).join('')}</div>
+        ${crumbHome() ? '<p class="zhave">Crumb is coming too. Nobody could stop him. Pim is his best friend.</p>' : ''}`}
+        <div class="btns">${done ? '' : `<button class="btn" id="shoreGo">Go ashore${pick.length ? ` with ${pick.map(w => SIGN[w]).join(' and ')}` : ' alone'}</button>`}<button class="btn ghost" id="shoreNo">${done ? 'Okay' : 'Not now'}</button></div></div>`;
+      paintFaces(el); el.hidden = false;
+      { const cv = $('shorePic'); if (cv) drawShorePic(cv.getContext('2d')); }
+      el.querySelectorAll('[data-sp]').forEach(b => b.addEventListener('click', () => {
+        const w = b.dataset.sp; sfx.click();
+        if (pick.includes(w)) pick = pick.filter(x => x !== w); else { pick.push(w); if (pick.length > 2) pick.shift(); }
+        draw(); const nb = el.querySelector(`[data-sp="${w}"]`); if (nb) nb.focus({ preventScroll: true });
+      }));
+      const go = $('shoreGo'); if (go) go.addEventListener('click', () => { el.hidden = true; goAshore(pick); });
+      $('shoreNo').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    };
+    draw();
+    setTimeout(() => { const b = $('shoreGo') || $('shoreNo'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  // the little picture on the card: the dome on the grey Moon, with Earth in the sky
+  function drawShorePic(c) {
+    c.imageSmoothingEnabled = false;
+    px(c, 0, 0, 240, 90, '#04060f');
+    for (let i = 0; i < 40; i++) px(c, (i * 53) % 240, (i * 29) % 56, 1, 1, i % 4 ? '#8a93ab' : '#ffffff');
+    c.fillStyle = '#3a7ad8'; c.beginPath(); c.arc(196, 22, 10, 0, Math.PI * 2); c.fill(); px(c, 191, 18, 5, 4, '#3f8a58'); px(c, 198, 24, 4, 3, '#3f8a58');
+    c.fillStyle = '#6a6e7a'; c.beginPath(); c.moveTo(0, 90); c.lineTo(0, 66); c.lineTo(40, 60); c.lineTo(90, 66); c.lineTo(150, 58); c.lineTo(200, 64); c.lineTo(240, 60); c.lineTo(240, 90); c.fill();
+    c.fillStyle = 'rgba(160,210,255,0.18)'; c.beginPath(); c.ellipse(110, 70, 58, 34, 0, Math.PI, 0); c.fill();
+    c.strokeStyle = '#a8c4e0'; c.lineWidth = 1; c.beginPath(); c.ellipse(110, 70, 58, 34, 0, Math.PI, 0); c.stroke();
+    for (const [x, w, h, col] of [[66, 18, 12, '#e8dcc0'], [88, 16, 10, '#5a8ac8'], [108, 22, 14, '#3a4256'], [134, 16, 12, '#f0d070']]) px(c, x, 70 - h, w, h, col);
+    for (let k = 0; k < 9; k++) px(c, 54 + k * 12, 50 + (k % 3), 1, 1, '#ffe58a');
+    px(c, 0, 70, 240, 20, '#565a66');
+  }
+  function goAshore(pick) {
+    shoreParty = pick.slice(); store.set('ds-shoreParty', JSON.stringify(shoreParty)); store.set('ds-shoreDay', String(shipDay));
+    sfx.click();
+    const fade = document.createElement('div');
+    fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
+    fade.innerHTML = `<div class="zz" aria-hidden="true">🌙</div><b>Moonbase Pim</b><span>${pick.length ? `Shore leave with ${pick.map(w => SIGN[w]).join(' and ')}` : 'Shore leave'}</span>`;
+    document.body.appendChild(fade);
+    setTimeout(() => { shoreParty.forEach(w => addHearts(w, 15)); walkEnter = 'ship'; setMode('pim'); }, reduceMotion ? 50 : 1200);
+    setTimeout(() => fade.remove(), reduceMotion ? 1400 : 2600);
+  }
+  function shoreLeave() {
+    sfx.click();
+    const fade = document.createElement('div');
+    fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
+    fade.innerHTML = '<div class="zz" aria-hidden="true">🚀</div><b>Back aboard</b><span>Pim waved until the airlock closed</span>';
+    document.body.appendChild(fade);
+    setTimeout(() => { walkEnter = 'missions'; setMode('bridge'); }, reduceMotion ? 50 : 900);
+    setTimeout(() => fade.remove(), reduceMotion ? 1200 : 2200);
+  }
+  // ---- what people say on shore leave ----
+  const SHORE_SAYS = {
+    M: ['Do you want to see my rock collection? It’s all Moon rocks. It’s every rock. I live on the Moon.', 'When I grow up I’m going to be a pilot. Or a baker. Or a pilot who bakes. In the lander. While flying.',
+      'Captain Floaty says hi. He’s tied to my bed. He’s not allowed out until he says sorry.', 'Mr. Okafor says I ask too many questions. Is that true? Why? Why is it true?',
+      'Uncle Lalo let me honk the rover horn ONCE. It was the best day of my life. Until today.', 'Can you do a flip in the lander? Can you do two? Can I watch?'],
+    I: ['The secret is Moon flour. It’s regular flour, but it travelled a long way, so it’s tired and very relaxed.', 'Pim talks about you every day. Every. Day. I know your landing scores better than mine.',
+      'Low gravity is wonderful for bread. Everything rises. Sometimes it rises off the tray.', 'Take a star bun for the road. Don’t argue with a baker. We have rolling pins.'],
+    L: ['Brakes? Still on order. Three months now. I’ve learned to stop by driving in a very big circle.', 'You’re the one who landed on my rover while it was moving. I tell everybody. Nobody believes me either.',
+      'She’s a good rover. Six wheels, one horn, zero brakes. Like me, mostly.', 'Every crate that comes to Pim comes on this rover. Pastry flour, school books, one balloon. Twice.'],
+    F: ['I have scheduled this shore leave down to the minute. We are currently four minutes behind. That’s fine. That’s fine.', 'I bought a postcard. I’m going to send it to the office. Which is on the ship. Which is where I live.', 'This is nice. Don’t tell anyone I said that.'],
+    G: ['The telescope! Look at her! Someone has been polishing the lens. With a sleeve, I think. That’s fine. That’s love.', 'I want to look at the rover’s brakes. I won’t. I’m on holiday. I’m just going to look at them a little.', 'Ines gave me a pastry and I cried a bit. Don’t tell Dottie.'],
+    W: ['I flew through here thirty years ago. It was three crates and a flag back then. Look at it now.', 'Kids running around on the Moon. That’s the dream, kid. That was always the dream.', 'The air smells like bread. That’s new. I like new.'],
+    R: ['A small town. A baker. A child with big dreams. This is the opening scene of my next film.', 'Three people have asked for my autograph. Two of them were Pim. One was also Pim, in a hat.', 'I bought eleven pastries. For research.'],
+    J: ['Lalo’s rover is in better shape than half the dock. Don’t tell him I said so. Don’t tell the dock either.', 'Good town. Honest people. The pastries alone are worth the landing fees.', 'I’m going to ask Ines how she runs a supply chain from one rover. I want notes.'],
+    Z: ['Zib wants to trade with everyone! Zib has been told “no” by the bakery. Politely! With a bun!', 'The rover has no brakes! Zib respects this! Zib also has no brakes!', 'Zib has found a rock. Zib will name it. Zib will name it “Pim”.'],
+    O: ['A small light in a big dark. I like this place, little pilot.', 'The children asked if my wings are real. I said yes. They asked if they can have some. I said no, gently.', 'Your Moon is very quiet. It is a good quiet.'],
+    V: ['A frontier settlement. Lyra wants to negotiate a trade deal. I told her it’s a bakery.', 'The children here are braver than our whole diplomatic corps.', 'I bought a postcard. I don’t know who to send it to. I may keep it.'],
+    Y: ['I have already negotiated a discount at the bakery. Ines didn’t notice. She just gave me two.', 'Pim asked me if I’m a princess. I said I’m an envoy. She said “so a princess.”', 'I like this town. It doesn’t pretend.'],
+    C: ['A real moonbase! I’m going to write this down! Okafor, M., teacher. Wait. That’s my aunt! Hi Aunt Mira!', 'Pim asked if I’m a pilot. I said “cadet.” She said “so not yet.” Ouch.', 'Can we come back tomorrow? Can we come back every day?'],
+    H: ['Ines’s star buns. Seven folds, egg wash, a pinch of salt. I’m stealing it. With respect.', 'This bakery is what a galley wants to be when it grows up.', 'I traded Ines a spice jar for her starter dough. Best trade of my life.']
+  };
+  const SHORE_ANY = [n => `${n}: I could get used to this. Gravity that doesn’t try to kill you. Pastries.`, n => `${n}: Look at the Earth from here. You can almost see the base.`, n => `${n}: Thanks for bringing me. I needed a day off the ship.`];
+  function shoreLine(w) { const L = SHORE_SAYS[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  // the first time you walk off the ramp
+  ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
+    cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
+    lines: [['M', 'PILOT! You came! You actually came! MUM! MUUUM! THE PILOT IS HERE!'],
+      ['I', 'Pim, inside voice. We talked about the inside voice.'],
+      ['M', 'This IS my inside voice. My outside voice is louder. You can’t hear it, though. Because of space.'],
+      ['K', '*BEEP BEEP BEEP BEEEP* (Crumb has seen Pim. Crumb is doing his happiest spin.)', { spin: true }],
+      ['M', 'CRUMB!! Everybody, this is Crumb! He’s my best friend! He’s a rover! I TOLD you!'],
+      ['L', 'So you’re the pilot who landed on my rover. While it was moving. Respect. The brakes are still on order, by the way.'],
+      ['G', 'Is that my telescope? By the window? Oh, she looks wonderful. Have you been dusting her?'],
+      ['M', 'Every day! With my sleeve!'],
+      ['C', 'Wait. Is the teacher here called Okafor? That’s my aunt! I’m going to wave at the school window until she sees me.'],
+      ['I', 'I’m Ines, Pim’s mum. I run the bakery. Every pastry that has ever reached your ship came out of my oven.'],
+      ['I', 'So you’re the reason I bake double on Tuesdays. Come in any time. Your first one is on the house.'],
+      ['P', null, { who: 'M', choice: [['Show me everything, Pim!', 'EVERYTHING? Okay! The telescope, the school, Uncle Lalo’s rover, my house, Captain Floaty… That’s everything. It’s a small moon.', 25],
+        ['I hear the pastries are famous.', 'They ARE! Mum’s star buns won a prize! The prize was a bigger oven!', 20],
+        ['How’s Captain Floaty?', 'He’s tied to my bed! He’s never escaping again! He tried once more. On Tuesday.', 30]] }],
+      ['M', 'Okay bye! Wait. Not bye. You’re here all day. Okay. Hi again!']] });
+  // ---- the street ----
+  const PIM_KID = { skin: '#8a5a3a', hair: '#1a1410', style: 'curly', top: '#7fd6ff', pants: '#3a4668', shoes: '#ff6b5e', kid: true };
+  function pimThings(L) {
+    L.push({ id: 'airlock', rect: [12, 12, 44, 48], go: () => [34, 74], at: () => ({ x: 34, y: 30 }), act: () => shoreLeave() });
+    L.push({ id: 'bakedoor', rect: [112, 22, 26, 40], go: () => [125, 72], at: () => ({ x: 125, y: 40 }), act: () => { sfx.click(); walkEnter = 'pim'; setMode('pimbake'); } });
+    L.push({ id: 'bakewin', rect: [74, 26, 36, 22], go: () => [92, 72], at: () => ({ x: 92, y: 36 }), act: () => shipSay('I', 'That’s today’s window. Star buns, crescent rolls, and one very sad pie I’m pretending is on purpose. Come in!') });
+    L.push({ id: 'cards', rect: [150, 40, 18, 26], go: () => [159, 74], at: () => ({ x: 159, y: 50 }), act: () => pimPostcard() });
+    L.push({ id: 'scope', rect: [196, 36, 46, 44], go: () => [212, 90], at: () => ({ x: 220, y: 60 }), act: () => pimScope() });
+    L.push({ id: 'school', rect: [268, 24, 42, 24], go: () => [289, 72], at: () => ({ x: 289, y: 36 }), act: () => pimSchool() });
+    L.push({ id: 'schooldoor', rect: [312, 22, 24, 40], go: () => [324, 72], at: () => ({ x: 324, y: 40 }), act: () => shipSay('P', 'There’s a sign on the door: “CLASS IN SESSION. If you are a rover, please wait outside. This means you, Crumb.”') });
+    L.push({ id: 'rover', rect: [376, 66, 60, 36], go: () => [404, 112], at: () => ({ x: 404, y: 86 }), act: () => pimRover() });
+    L.push({ id: 'pimhouse', rect: [454, 16, 62, 46], go: () => [494, 72], at: () => ({ x: 494, y: 40 }), act: () => pimHouse() });
+  }
+  const pick1 = A => A[Math.floor(Math.random() * A.length)];
+  function pimPostcard() {
+    sfx.click();
+    if (store.get('ds-pimCard', '') !== '1') { store.set('ds-pimCard', '1'); sfx.coin(); shipSay('I', 'Take a postcard, love. Free for pilots. It’s the dome at night. Pim drew the little star in the corner. Put it up in your Pad!'); showToast('📮 New for your Pad: a Moonbase Pim postcard', 2600); return; }
+    shipSay('P', pick1(['A rack of postcards. “Greetings from Moonbase Pim! Population: 41 and a rover.”', 'One postcard just says “BRAKES” in very big letters. Uncle Lalo must have made it.', 'A postcard of the bakery. A postcard of the school. A postcard of a rock. The rock one is sold out.']));
+  }
+  function pimScope() {
+    sfx.click();
+    const g = deck.npcs.some(n => n.who === 'G') && store.get('ds-pimScopeG', '') !== '1';
+    if (g) { store.set('ds-pimScopeG', '1'); shipSay('G', 'She’s perfect. A bit of moon dust in the eyepiece, a sticker on the side that says “PIM’S”. The kids made her theirs. That’s the best thing a telescope can be.'); return; }
+    shipSay('P', pick1(['Through Gus’s telescope: your ship, parked up in orbit. Someone left the galley light on.', 'Through the telescope: Earth, blue and huge. You can just make out the base. Probably. That’s a cloud.',
+      'A kid tugs your sleeve. “You get one minute. Those are the rules. Pim made the rules.”', 'You look through the telescope. Pim is waving at you from four meters away. Through the telescope. It’s very blurry.']));
+  }
+  function pimSchool() {
+    sfx.click();
+    const drawn = storyDone('show-and-tell');
+    shipSay('P', drawn && Math.random() < 0.5 ? 'Taped to the school window: Pim’s drawing of you, Biscuit and Crumb. You have a very cool helmet. Crumb is the size of a house.'
+      : pick1(['Through the window: twelve kids, one teacher, and a poster that says “GRAVITY: IT’S ONE-SIXTH AS SCARY!”', 'Mr. Okafor waves at you through the window, then points at the board. It says “VISITING PILOT: NO QUESTIONS ABOUT BATHROOMS IN SPACE.”', 'There’s a model of your ship on the windowsill, made of egg cartons. The engines are toilet rolls. It’s perfect.']));
+  }
+  function pimRover() {
+    sfx.click();
+    const lalo = deck.npcs.some(n => n.who === 'L');
+    if (lalo) shipSay('L', pick1(SHORE_SAYS.L)); else shipSay('P', 'The supply rover. Six wheels, one horn, and a sticky note on the dashboard that says “BRAKES: ON ORDER”.');
+  }
+  function pimHouse() {
+    sfx.click();
+    shipSay('P', pick1(['Pim’s house. A red balloon bobs in the round window: Captain Floaty, tied to the bed with three knots and a bow.', 'A sign on the door: “PIM’S ROOM. KEEP OUT. (Except Crumb.) (And the pilot.)”', 'There’s a drawing of a lander taped to the door. It has eleven engines. That’s Pim’s design. It would not fly.']));
+  }
+  function pimDraw(t) {
+    const c = deck.c, W = PIM_W;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    // the sky through the dome glass, with Earth and your ship up in orbit
+    px(c, 0, 0, W, 60, '#04060f');
+    for (let i = 0; i < 90; i++) { const tw = (Math.sin(t / 600 + i) + 1) / 2; px(c, (i * 61) % W, (i * 23) % 40, 1, 1, i % 5 ? `rgba(200,210,235,${0.35 + tw * 0.5})` : '#ffffff'); }
+    c.fillStyle = '#3a7ad8'; c.beginPath(); c.arc(300, 16, 9, 0, Math.PI * 2); c.fill(); px(c, 295, 12, 5, 4, '#3f8a58'); px(c, 302, 18, 4, 3, '#3f8a58'); px(c, 297, 8, 4, 1, '#f4f8ff');
+    px(c, 360, 10, 10, 3, '#8a93ab'); px(c, 368, 9, 3, 1, '#c9cfdc'); px(c, 361, 11, 1, 1, Math.floor(t / 500) % 2 ? '#ff6b5e' : '#7a3a3a');
+    c.fillStyle = '#5a5e6a'; c.beginPath(); c.moveTo(0, 60); c.lineTo(0, 44); for (let x = 0; x <= W; x += 40) c.lineTo(x, 40 + ((x * 7) % 9)); c.lineTo(W, 60); c.fill();
+    c.strokeStyle = 'rgba(168,196,224,0.35)'; c.lineWidth = 1;
+    for (let x = 0; x <= W; x += 65) { c.beginPath(); c.moveTo(x, 60); c.quadraticCurveTo(x + 20, 10, x + 32, 0); c.stroke(); }
+    c.beginPath(); c.moveTo(0, 8); c.lineTo(W, 8); c.stroke();
+    // the airlock back to the ship
+    px(c, 8, 8, 52, 52, '#3a4256'); for (let k = 0; k < 13; k++) px(c, 8 + k * 4, 8, 2, 3, k % 2 ? '#2a2a33' : '#ffb547');
+    c.fillStyle = '#8a93ab'; c.beginPath(); c.arc(34, 36, 17, 0, Math.PI * 2); c.fill(); c.fillStyle = '#5a6278'; c.beginPath(); c.arc(34, 36, 13, 0, Math.PI * 2); c.fill();
+    px(c, 33, 23, 2, 26, '#3a4256'); px(c, 21, 35, 26, 2, '#3a4256'); px(c, 40, 30, 3, 3, Math.floor(t / 700) % 2 ? '#58e0a0' : '#2f7a58');
+    doorPlate(c, 34, 0, 'SHIP', true);
+    // Ines' bakery: cream walls, a striped awning, a window full of pastries
+    px(c, 66, 14, 86, 46, '#e8dcc0'); px(c, 64, 11, 90, 4, '#b89a70');
+    for (let k = 0; k < 11; k++) { px(c, 68 + k * 8, 17, 8, 6, k % 2 ? '#fff1e0' : '#ff9ab0'); px(c, 69 + k * 8, 23, 6, 2, k % 2 ? '#fff1e0' : '#ff9ab0'); }
+    px(c, 74, 28, 34, 20, '#2a1d14'); c.fillStyle = 'rgba(255,200,120,0.25)'; c.fillRect(74, 28, 34, 20);
+    for (const [x, y, col] of [[77, 40, '#d8943a'], [84, 41, '#ffd36a'], [91, 40, '#d8943a'], [98, 41, '#ff9ab0'], [80, 33, '#ffd36a'], [94, 33, '#e0a040']]) { px(c, x, y, 5, 3, col); px(c, x + 1, y - 1, 3, 1, col); }
+    px(c, 74, 46, 34, 2, '#b89a70');
+    px(c, 114, 26, 22, 34, '#8a5a3a'); px(c, 116, 28, 18, 30, '#a06a44'); px(c, 130, 42, 2, 2, '#ffe58a'); px(c, 118, 30, 14, 8, '#ffd9a0');
+    px(c, 82, 4, 52, 8, '#2a1d0a'); c.font = '700 6px monospace'; c.fillStyle = '#ffcf9a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('INES’ BAKERY', 108, 8.5);
+    // the school: blue walls, kids' drawings in the window
+    px(c, 262, 14, 82, 46, '#5a8ac8'); px(c, 260, 11, 86, 4, '#2a5488');
+    px(c, 270, 26, 38, 20, '#0e1428'); for (const [x, y, col] of [[272, 28, '#ffe58a'], [281, 30, '#ff9ad5'], [290, 28, '#9fe0b8'], [299, 31, '#ffffff'], [276, 37, '#ff6b5e'], [287, 38, '#7fd6ff'], [297, 37, '#ffb547']]) px(c, x, y, 7, 6, col);
+    px(c, 314, 26, 20, 34, '#2a3a5a'); px(c, 316, 28, 16, 30, '#34476c'); px(c, 328, 42, 2, 2, '#ffe58a');
+    px(c, 280, 4, 46, 8, '#14223a'); c.fillStyle = '#c9e8ff'; c.fillText('SCHOOL', 303, 8.5);
+    // the rover depot: a roll-up door, half open
+    px(c, 352, 12, 94, 48, '#3a4256'); px(c, 358, 18, 82, 38, '#0e1428'); for (let y = 18; y < 32; y += 3) px(c, 358, y, 82, 2, '#8a93ab');
+    for (let k = 0; k < 24; k++) px(c, 352 + k * 4, 58, 2, 2, k % 2 ? '#2a2a33' : '#ffb547');
+    px(c, 364, 4, 70, 8, '#2a2a33'); c.fillStyle = '#e8b830'; c.fillText('SUPPLY ROVER', 399, 8.5);
+    // Pim's house: a round yellow module with a balloon in the window
+    c.fillStyle = '#f0d070'; c.beginPath(); c.ellipse(486, 30, 32, 16, 0, Math.PI, 0); c.fill(); px(c, 454, 30, 64, 30, '#f0d070'); px(c, 454, 58, 64, 2, '#c9a040');
+    c.fillStyle = '#0e1428'; c.beginPath(); c.arc(468, 38, 8, 0, Math.PI * 2); c.fill();
+    { const b = reduceMotion ? 0 : Math.round(Math.sin(t / 700) * 1); c.fillStyle = '#ff6b5e'; c.beginPath(); c.arc(468, 35 + b, 4, 0, Math.PI * 2); c.fill(); px(c, 466, 33 + b, 1, 1, '#ffb0a0'); px(c, 468, 39 + b, 1, 6, '#f4f1e8'); }
+    px(c, 486, 32, 20, 28, '#c97a3a'); px(c, 488, 34, 16, 24, '#d88a4a'); px(c, 501, 46, 2, 2, '#ffe58a'); px(c, 492, 38, 3, 3, '#ffe58a'); px(c, 491, 39, 5, 1, '#ffe58a');
+    doorPlate(c, 496, 18, 'PIM’S', true);
+    // the street floor: regolith tiles and a walkway
+    px(c, 0, 60, W, SHIP_H - 60, '#565a66');
+    for (let y = 68; y < SHIP_H; y += 14) px(c, 0, y, W, 1, '#4e525e');
+    for (let x = 0; x < W; x += 24) px(c, x, 60, 1, SHIP_H - 60, '#4e525e');
+    px(c, 0, 104, W, 16, '#62666f'); for (let x = 6; x < W; x += 20) px(c, x, 111, 10, 2, '#8a8e98');
+    px(c, 0, 60, W, 2, '#3a4256');
+    const things = shipFloorThings(c, t), me = deck.me;
+    // the postcard rack
+    things.push([66, () => { px(c, 158, 44, 2, 22, '#8a93ab'); px(c, 152, 64, 14, 2, '#8a93ab'); for (let k = 0; k < 3; k++) { px(c, 151, 44 + k * 7, 6, 5, ['#7fd6ff', '#ff9ab0', '#ffe58a'][k]); px(c, 161, 46 + k * 7, 6, 5, ['#9fe0b8', '#f4f1e8', '#c8a2ff'][k]); } }]);
+    // Gus's telescope, with its hand-painted sign, and a kid having a look
+    things.push([80, () => {
+      px(c, 174, 30, 30, 9, '#5a4636'); px(c, 176, 39, 2, 8, '#5a4636'); c.fillStyle = '#ffe58a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('GUS SCOPE', 189, 35);
+      c.strokeStyle = '#8a93ab'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(220, 62); c.lineTo(210, 80); c.moveTo(220, 62); c.lineTo(230, 80); c.moveTo(220, 62); c.lineTo(220, 80); c.stroke();
+      c.save(); c.translate(220, 60); c.rotate(-0.7); px(c, -6, -3, 30, 7, '#c9cfdc'); px(c, 20, -4, 6, 9, '#8a93ab'); px(c, -8, -2, 3, 5, '#3a4668'); px(c, 4, -3, 5, 2, '#ffcf3a'); c.restore();
+    }]);
+    things.push([90, () => drawSprite(c, PIM_KID, 198, 66, 3, 0, false)]);
+    // street lamps
+    for (const lx of [160, 258, 348, 448]) things.push([92, () => { px(c, lx, 64, 2, 28, '#8a93ab'); px(c, lx - 2, 60, 6, 4, '#ffe58a'); c.fillStyle = 'rgba(255,229,138,0.12)'; c.beginPath(); c.arc(lx + 1, 62, 9, 0, Math.PI * 2); c.fill(); }]);
+    // Uncle Lalo's supply rover, parked (it can't stop anywhere else)
+    things.push([100, () => {
+      px(c, 380, 82, 52, 12, '#e8b830'); px(c, 380, 82, 52, 2, '#ffd36a'); px(c, 414, 70, 18, 13, '#e8b830'); px(c, 417, 73, 12, 6, '#7fd6ff'); px(c, 384, 72, 14, 10, '#b07a35'); px(c, 385, 76, 12, 1, '#8a5a2a');
+      px(c, 422, 66, 3, 4, Math.floor(t / 400) % 2 ? '#ffb547' : '#8a5a20');
+      for (const wx of [386, 400, 414, 428]) { c.fillStyle = '#2a2a33'; c.beginPath(); c.arc(wx, 96, 5, 0, Math.PI * 2); c.fill(); px(c, wx - 1, 95, 2, 2, '#8a93ab'); }
+      px(c, 400, 86, 12, 5, '#ffe58a'); px(c, 401, 87, 10, 1, '#2a2a33'); px(c, 401, 89, 7, 1, '#2a2a33');
+    }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- Ines' bakery ----
+  const bakeDay = () => { try { const v = JSON.parse(store.get('ds-pimBake', '{}')); return v.day === shipDay ? v : { day: shipDay, n: 0, buns: false }; } catch (e) { return { day: shipDay, n: 0, buns: false }; } };
+  function pimBakeThings(L) {
+    L.push({ id: 'counter', rect: [70, 40, 112, 46], go: () => [126, 98], at: () => ({ x: 126, y: 60 }), act: () => { sfx.click(); openBakery(); } });
+    L.push({ id: 'oven', rect: [186, 12, 60, 60], go: () => [214, 96], at: () => ({ x: 214, y: 40 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'I') ? ['I', pick1(['That oven came on the rover in eleven pieces. Lalo drove in a circle for two days so I could unload it.', 'Don’t touch the door. It’s hot. Everything is hot. That’s the job.', 'In low gravity the heat rises funny, so I bake upside down on Thursdays. I’m joking. Mostly.'])] : ['P', 'A brick oven, glowing orange behind an iron door. The whole room smells of butter.'])) });
+    L.push({ id: 'menu', rect: [96, 6, 56, 30], go: () => [124, 98], at: () => ({ x: 124, y: 20 }), act: () => shipSay('P', 'The chalk menu: STAR BUNS · CRESCENT ROLLS · MOON PIE (SAD) · PILOT SPECIAL (ASK PIM). Somebody added “AND CRUMB” at the bottom in crayon.') });
+    L.push({ id: 'table', rect: [30, 100, 50, 30], go: () => [56, 140], at: () => ({ x: 56, y: 114 }), act: () => shipSay(...(shoreParty.length ? [shoreParty[0], shoreLine(shoreParty[0])] : ['P', 'A little round table with a jam jar of paper flowers. Pim made the flowers. One of them is a rocket.'])) });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'pimbake'; setMode('pim'); } });
+  }
+  function openBakery(msg) {
+    let el = $('bakeCard');
+    if (!el) { el = document.createElement('div'); el.id = 'bakeCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Ines’ bakery'); document.body.appendChild(el); }
+    const b = bakeDay(), first = store.get('ds-pimFree', '') !== '1', left = 2 - b.n, party = deck ? deck.npcs.filter(n => shoreParty.includes(n.who)).map(n => n.who) : [];
+    if (first) { store.set('ds-pimFree', '1'); garden.basket.pastry = (garden.basket.pastry || 0) + 1; saveGarden(); sfx.coin(); msg = 'Here. Your first one is on the house. 🥐 A Moonbase Pim pastry, still warm. Give it to someone you like. Or eat it on the way to the airlock. I won’t tell.'; }
+    el.innerHTML = `<div class="qnew-card zstall">${faceTag('I', '')}<span class="eyebrow">Ines’ Bakery · Moonbase Pim</span>
+      <p class="zsay" aria-live="polite">${esc(msg || 'What can I get you, love? Everything’s fresh. Well. Everything except the pie.')}</p>
+      <div class="ztrades">
+        <button class="ztrade" data-bk="pastry"${left <= 0 || credits < 45 ? ' disabled' : ''}><span>🥐 Moonbase Pim pastry<br><small>${left > 0 ? `${left} left today` : 'Sold out until tomorrow'}</small></span><i aria-hidden="true">·</i><b>45 cr</b></button>
+        <button class="ztrade" data-bk="buns"${b.buns || !party.length || credits < 80 ? ' disabled' : ''}><span>⭐ Star buns for the table<br><small>${party.length ? `${party.map(w => SIGN[w]).join(' and ')} ♥ +12` : 'Bring a crewmate ashore'}${b.buns ? ' · had them today' : ''}</small></span><i aria-hidden="true">·</i><b>80 cr</b></button>
+      </div>
+      <p class="zhave">You have ${fmt(credits)} cr · 🥐 ${garden.basket.pastry || 0} in your gift basket</p>
+      <div class="btns"><button class="btn ghost" id="bakeBye">Thanks, Ines</button></div></div>`;
+    paintFaces(el); el.hidden = false;
+    el.querySelectorAll('[data-bk]').forEach(btn => btn.addEventListener('click', () => {
+      const k = btn.dataset.bk, d = bakeDay();
+      if (k === 'pastry') { if (d.n >= 2 || credits < 45) return; credits -= 45; d.n++; garden.basket.pastry = (garden.basket.pastry || 0) + 1; saveGarden(); saveCosmetics(); store.set('ds-pimBake', JSON.stringify(d)); sfx.coin(); openBakery(pick1(['One pastry, into your basket. It’s the crunchy kind. They’re all the crunchy kind.', 'There you go. That one has extra glaze. Don’t tell Pim, she counts the glaze.', 'Wrapped and ready. Whoever gets that will like you very much.'])); }
+      if (k === 'buns') { if (d.buns || !party.length || credits < 80) return; credits -= 80; d.buns = true; saveCosmetics(); store.set('ds-pimBake', JSON.stringify(d)); party.forEach(w => addHearts(w, 12)); sfx.coin();
+        const w = party[0]; openBakery(`Star buns for the table! ${SIGN[w]}: “${({ G: 'I’m going to cry. These are perfect.', F: 'I’ve decided this counts as a working lunch. It does not.', R: 'Mmm. Mmm! Oh, darling. Darling.', W: 'Haven’t had one of these in thirty years. Still the best thing on the Moon.', Z: 'Zib will trade anything for the recipe! Zib has been told no! With a bun!', H: 'Seven folds. I knew it. I KNEW it.' })[w] || 'This was a good idea. Thank you.'}”`); }
+    }));
+    $('bakeBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const bb = el.querySelector('.ztrade:not(:disabled)') || $('bakeBye'); if (bb) bb.focus({ preventScroll: true }); }, 50);
+  }
+  function pimBakeDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    // warm walls, a pink trim, tiles behind the counter
+    px(c, 0, 0, W, 72, '#e8d2b0'); px(c, 0, 0, W, 4, '#ff9ab0');
+    for (let x = 0; x < W; x += 8) for (let y = 44; y < 72; y += 8) px(c, x, y, 8, 8, ((x + y) / 8) % 2 ? '#f4e6cc' : '#e0c8a0');
+    // shelves of bread
+    for (const sy of [16, 30]) { px(c, 10, sy, 76, 3, '#8a5a3a'); for (let k = 0; k < 6; k++) { c.fillStyle = k % 2 ? '#d8943a' : '#c07a2a'; c.beginPath(); c.ellipse(18 + k * 12, sy - 3, 5, 3, 0, 0, Math.PI * 2); c.fill(); } }
+    // the chalk menu
+    px(c, 96, 6, 56, 30, '#5a4636'); px(c, 98, 8, 52, 26, '#2a3030');
+    for (let k = 0; k < 4; k++) { px(c, 102, 12 + k * 6, 26 + (k * 7) % 14, 1, '#f4f1e8'); px(c, 138, 12 + k * 6, 8, 1, '#ffe58a'); }
+    // the oven
+    px(c, 186, 10, 62, 62, '#a8523a'); for (let y = 14; y < 72; y += 6) for (let x = 186 + ((y / 6) % 2) * 5; x < 246; x += 10) px(c, x, y, 1, 5, '#8a3a2a');
+    for (let y = 14; y < 72; y += 6) px(c, 186, y, 62, 1, '#8a3a2a');
+    px(c, 198, 32, 38, 26, '#2a2a33'); px(c, 200, 34, 34, 22, '#3a3a44'); px(c, 204, 42, 26, 3, `rgba(255,${150 + Math.round(40 * Math.sin(t / 300))},60,0.9)`);
+    px(c, 214, 52, 6, 2, '#8a93ab');
+    // floor
+    px(c, 0, 72, W, SHIP_H - 72, '#c9a070'); for (let x = 0; x < W; x += 16) for (let y = 72; y < SHIP_H; y += 16) if (((x + y) / 16) % 2) px(c, x, y, 16, 16, '#b88f60');
+    px(c, 104, 152, 48, 8, '#5a3a24'); doorPlate(c, 128, 150, 'STREET', true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    // the counter, with a glass case of pastries
+    things.push([86, () => {
+      px(c, 70, 62, 112, 24, '#8a5a3a'); px(c, 68, 58, 116, 5, '#c9a070'); px(c, 74, 66, 104, 1, '#a06a44'); for (let x = 82; x < 176; x += 24) px(c, x, 66, 2, 20, '#6a4428');
+      px(c, 78, 42, 96, 16, 'rgba(200,230,255,0.22)'); px(c, 78, 42, 96, 1, '#e0f0ff');
+      for (let k = 0; k < 8; k++) { const x = 82 + k * 11, col = ['#e0a040', '#ffd36a', '#ff9ab0', '#d8943a'][k % 4]; px(c, x, 52, 7, 4, col); px(c, x + 1, 51, 5, 1, col); if (k % 4 === 1) px(c, x + 3, 50, 1, 1, '#fff1c7'); }
+    }]);
+    // a little table and two stools
+    things.push([128, () => { c.fillStyle = '#f4e6cc'; c.beginPath(); c.ellipse(55, 112, 18, 6, 0, 0, Math.PI * 2); c.fill(); px(c, 54, 116, 3, 12, '#8a5a3a'); px(c, 48, 106, 4, 6, '#7fd6ff'); px(c, 49, 103, 1, 3, '#3f8a58'); px(c, 48, 102, 3, 2, '#ff9ad5'); }]);
+    for (const sx of [32, 78]) things.push([130, () => { px(c, sx - 5, 120, 10, 3, '#ff9ab0'); px(c, sx - 1, 123, 2, 8, '#8a5a3a'); }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- The system map: the ship is parked somewhere, and you can sail it from world to world ----
+  // Nothing is locked by where you are. Jobs at the world you're parked at pay a little extra,
+  // you can only go ashore where you're parked, and starting a job elsewhere sails there for you.
+  const shipAt = () => { const w = store.get('ds-shipAt', ''); return WORLDS.some(x => x.id === w) ? w : storedWorld().id; };
+  function setShipAt(w) { store.set('ds-shipAt', w); store.set('ds-world', w); }
+  let sailedFor = null;   // the job the ship last sailed somewhere for (that flight isn't a "local" one)
+  const LOCAL_PAY = 0.1;
+  const MAP_POS = { mercury: [60, 70], venus: [252, 96], earth: [108, 142], moon: [136, 124], mars: [232, 190], vesta: [86, 230],
+    io: [194, 262], europa: [238, 268], ganymede: [214, 296], titan: [98, 324], pluto: [252, 356], eris: [52, 382] };
+  const MAP_R = { mercury: 6, venus: 8, earth: 9, moon: 5, mars: 8, vesta: 4, io: 5, europa: 5, ganymede: 6, titan: 7, pluto: 5, eris: 4 };
+  const JOVIAN = ['io', 'europa', 'ganymede'];
+  const MAP_HOME = { mars: ['J', 'Juno’s home'], ganymede: ['Z', 'Zib’s home'], europa: ['N', 'Nerri’s home'], earth: [null, 'Where it all started'] };
+  const mapNew = wid => ALL.reduce((n, d, i) => n + (d.world === wid && missionOpen(i) && !(missionStars[d.id] > 0) && !(i < MISSIONS.length && restLocked(i)) ? 1 : 0), 0);
+  const mapQuest = wid => QUESTS.find(q => questStep(q.id) >= 0 && !questDone(q.id) && questCur(q).m && (ALL.find(d => d.id === questCur(q).m) || {}).world === wid);
+  const mapShore = wid => wid === 'moon' && shoreOk();
+  let mapSel = null;
+  function renderSysMap() {
+    const here = shipAt();
+    if (!mapSel) mapSel = here;
+    const w = mapSel === 'jupiter' ? null : WORLDS.find(x => x.id === mapSel);
+    let panel;
+    if (mapSel === 'jupiter') {
+      panel = `<b>Jupiter’s moons</b><span class="here">Three moons, close together. Pick one.</span>
+        <div class="row">${JOVIAN.map(j => `<button class="btn ghost mapmoon" data-mw="${j}">${worldName(j)}${mapNew(j) ? ` · ${mapNew(j)} new` : ''}</button>`).join('')}</div>`;
+    } else {
+      const isHere = w.id === here, open = worldOpen(w), n = mapNew(w.id), q = mapQuest(w.id), home = MAP_HOME[w.id];
+      const been = stats.worlds.includes(w.id);
+      panel = `<b>${w.name}</b><span class="here">${isHere ? '📍 You’re parked here' : open ? 'A short hop. No fuel cost, no time lost.' : 'Not on your charts yet'}</span>
+        <div class="row">${n ? `<span class="chip o">${n} new ${n === 1 ? 'job' : 'jobs'}</span>` : `<span class="chip">${been ? 'All caught up' : 'Nothing open yet'}</span>`}
+          ${q ? `<span class="chip g">★ ${esc(q.name)}</span>` : ''}${mapShore(w.id) ? '<span class="chip b">⚓ Moonbase Pim · go ashore</span>' : ''}${home ? `<span class="chip">${home[1]}</span>` : ''}</div>
+        ${open ? `<span class="mapnote">${isHere ? 'Jobs here (📍 on the flight deck) pay +10% while you’re parked.' : `Park here and jobs on ${w.name} pay +10%.`}</span>` : ''}
+        <div class="btns">${isHere ? `${mapShore(w.id) ? '<button class="btn" id="mapAshore">🌙 Go ashore</button>' : ''}<button class="btn${mapShore(w.id) ? ' ghost' : ''}" id="mapFlights">Flight deck</button>`
+          : open ? `<button class="btn" id="mapGo">Set course for ${w.name}</button>` : ''}</div>`;
+    }
+    card.classList.add('wide');
+    card.innerHTML = `<div class="sysmap">
+      <h1 class="good">System map</h1>
+      <p class="sub">Parked at ${worldName(here)} · Tap a world to see what’s there</p>
+      <canvas id="mapCv" width="680" height="800" role="img" aria-label="A map of the solar system: the Sun at the top and the worlds on their orbits. Your ship is parked at ${worldName(here)}."></canvas>
+      <div class="mappanel" aria-live="polite">${panel}</div>
+      <div class="mapworlds" role="group" aria-label="Worlds">${Object.keys(MAP_POS).map(id => WORLDS.find(x => x.id === id)).filter(x => x && worldOpen(x)).map(x => `<button class="chip${x.id === mapSel ? ' on' : ''}" data-mw="${x.id}">${x.id === here ? '📍 ' : ''}${x.name}${mapNew(x.id) ? ` ·${mapNew(x.id)}` : ''}</button>`).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="back">Back to the bridge</button></div>
+    </div>`;
+    const cv = $('mapCv'), c = cv.getContext('2d');
+    const loop = () => { if (mode !== 'sysmap' || !document.body.contains(cv)) return; drawSysMap(c, performance.now()); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+    cv.addEventListener('pointerdown', e => {
+      const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) * 340 / b.width, y = (e.clientY - b.top) * 400 / b.height;
+      let best = null, bd = 1e9;
+      for (const wd of WORLDS) { const p = MAP_POS[wd.id]; if (!p) continue; const d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; best = wd.id; } }
+      const jd = Math.hypot(214 - x, 276 - y);
+      if (jd < 36 && (bd > 9 || !JOVIAN.includes(best))) best = 'jupiter';
+      else if (bd > 26) return;
+      sfx.click(); mapSel = best; renderSysMap();
+    });
+    card.querySelectorAll('[data-mw]').forEach(b => b.addEventListener('click', () => { sfx.click(); mapSel = b.dataset.mw; renderSysMap(); const nb = card.querySelector(`.mapworlds [data-mw="${mapSel}"]`); if (nb) nb.focus({ preventScroll: true }); }));
+    { const g = $('mapGo'); if (g) g.addEventListener('click', () => sailTo(mapSel)); }
+    { const a = $('mapAshore'); if (a) a.addEventListener('click', () => { sfx.click(); openShore(); }); }
+    { const f = $('mapFlights'); if (f) f.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); }); }
+    $('back').addEventListener('click', () => { sfx.click(); walkEnter = 'missions'; setMode('bridge'); });
+  }
+  function drawSysMap(c, t) {
+    const here = shipAt();
+    c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    c.fillStyle = '#04060f'; c.fillRect(0, 0, 340, 400);
+    for (let i = 0; i < 130; i++) { const tw = reduceMotion ? 0.6 : (Math.sin(t / 700 + i * 1.7) + 1) / 2; c.fillStyle = i % 6 ? `rgba(90,100,150,${0.4 + tw * 0.4})` : `rgba(220,226,240,${0.5 + tw * 0.5})`; c.fillRect((i * 67) % 340, (i * 41 + 7) % 400, 1, 1); }
+    const g = c.createRadialGradient(170, -30, 8, 170, -30, 96); g.addColorStop(0, '#fff6c0'); g.addColorStop(0.35, '#ffb547'); g.addColorStop(1, 'rgba(255,120,40,0)'); c.fillStyle = g; c.fillRect(0, 0, 340, 90);
+    c.strokeStyle = 'rgba(127,140,180,0.22)'; c.lineWidth = 1;
+    for (const r of [70, 100, 150, 202, 242, 292, 334, 374]) { c.beginPath(); c.ellipse(170, -30, r * 1.1, r + 30, 0, 0, Math.PI); c.stroke(); }
+    // Jupiter's and Saturn's names, and a soft glow round Jupiter's three moons
+    c.fillStyle = mapSel === 'jupiter' || JOVIAN.includes(mapSel) ? 'rgba(255,181,71,0.16)' : 'rgba(255,207,58,0.07)'; c.beginPath(); c.arc(214, 278, 32, 0, Math.PI * 2); c.fill();
+    c.font = '9px ui-monospace, monospace'; c.textAlign = 'left'; c.fillStyle = '#6a7394'; c.fillText('Jupiter', 176, 248); c.fillText('Saturn', 58, 310);
+    // the course from where you are to where you're looking
+    const sel = mapSel && mapSel !== 'jupiter' ? mapSel : null;
+    if (sel && sel !== here && MAP_POS[sel]) {
+      const [ax, ay] = MAP_POS[here], [bx, by] = MAP_POS[sel];
+      c.strokeStyle = 'rgba(255,181,71,0.7)'; c.setLineDash([3, 3]); c.lineDashOffset = reduceMotion ? 0 : -t / 60;
+      c.beginPath(); c.moveTo(ax, ay); c.quadraticCurveTo((ax + bx) / 2 + (by - ay) * 0.2, (ay + by) / 2 - (bx - ax) * 0.2, bx, by); c.stroke(); c.setLineDash([]);
+    }
+    c.textAlign = 'center';
+    for (const wd of WORLDS) {
+      const p = MAP_POS[wd.id]; if (!p) continue;
+      const [x, y] = p, r = MAP_R[wd.id] || 5, open = worldOpen(wd), n = open ? mapNew(wd.id) : 0;
+      c.globalAlpha = open ? 1 : 0.35;
+      c.fillStyle = wd.orb; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.arc(x + r * 0.35, y + r * 0.25, r * 0.85, 0, Math.PI * 2); c.fill();
+      if (wd.id === 'earth') { c.fillStyle = '#3f8a58'; c.fillRect(x - 4, y - 3, 4, 3); c.fillRect(x + 1, y + 1, 3, 3); }
+      if (wd.id === sel) { c.strokeStyle = '#ffb547'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, r + 4 + (reduceMotion ? 0 : Math.sin(t / 250)), 0, Math.PI * 2); c.stroke(); c.lineWidth = 1; }
+      c.fillStyle = open ? '#c9cfdc' : '#6a7394'; c.font = '9px ui-monospace, monospace'; c.fillText(open ? wd.name : '?', x, y + r + 11);
+      c.globalAlpha = 1;
+      if (n) { c.fillStyle = '#ffb547'; c.font = '700 9px ui-monospace, monospace'; c.fillText(String(n), x + r + 5, y - r + 1); }
+      if (open && mapQuest(wd.id)) { c.fillStyle = '#ffcf3a'; c.font = '10px ui-monospace, monospace'; c.fillText('★', x - r - 6, y + 3); }
+      if (mapShore(wd.id)) { c.fillStyle = '#7fd6ff'; c.font = '9px ui-monospace, monospace'; c.fillText('⚓', x + r + 6, y + 9); }
+    }
+    // your ship, parked, with a little bob
+    { const [x, y] = MAP_POS[here], r = MAP_R[here] || 5, b = reduceMotion ? 0 : Math.round(Math.sin(t / 500)), sx = x - r - 14, sy = y - r - 6 + b;
+      c.fillStyle = '#c9cfdc'; c.fillRect(sx, sy, 10, 4); c.fillStyle = '#ffffff'; c.fillRect(sx + 7, sy - 1, 3, 2); c.fillStyle = '#ffb547'; c.fillRect(sx - 2, sy + 1, 2, 2);
+      c.fillStyle = '#58e0a0'; c.font = '700 8px ui-monospace, monospace'; c.fillText('YOU', sx + 5, sy - 4); }
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // what the crew get up to on the way
+  const SAIL_SAYS = [['F', 'Course laid in. I’ve scheduled the trip. It includes a nap. The nap is mandatory.'], ['G', 'Engines are purring! Well, rattling. Purr-rattling.'], ['A', 'Mrrp. (Apogee has claimed the warm spot above the engine for the whole trip.)'],
+    ['W', 'Short hop. In my day this took a week and a sandwich.'], ['R', 'Travel montage! Somebody play something dramatic.'], ['J', 'Smooth burn. Nice. Don’t let it go to your head.'], ['Z', 'Zib loves going places! Zib has packed! Zib has packed the spoon!'],
+    ['O', 'I like the quiet between worlds, little pilot.'], ['H', 'Snacks for the trip! I made too many. On purpose.'], ['C', 'Are we there yet? I’m kidding. Are we there yet?']];
+  function sailTo(wid, after) {
+    const from = shipAt(); if (wid === from) { if (after) after(); return; }
+    sfx.click();
+    const who = SAIL_SAYS.filter(([w]) => w === 'F' || w === 'G' || w === 'A' || (romMet[w] && romMet[w]() && !isLost(w))), line = who[Math.floor(Math.random() * who.length)];
+    const fade = document.createElement('div');
+    fade.className = 'sleepfade sail' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
+    fade.innerHTML = `<div class="zz" aria-hidden="true">🚀</div><b>Setting course for ${worldName(wid)}</b><span>${SIGN[line[0]]}: ${esc(line[1])}</span>`;
+    document.body.appendChild(fade);
+    setTimeout(() => {
+      setShipAt(wid); sailedFor = null; mapSel = wid;
+      const home = MAP_HOME[wid];
+      if (home && home[0] && romMet[home[0]] && romMet[home[0]]() && !isLost(home[0])) setTimeout(() => crewToast(home[0], HOME_SAYS[home[0]][Math.floor(Math.random() * HOME_SAYS[home[0]].length)], '🏠 Home'), 1400);
+      if (after) after(); else if (mode === 'sysmap') renderSysMap();
+    }, reduceMotion ? 50 : 1500);
+    setTimeout(() => fade.remove(), reduceMotion ? 1300 : 2900);
+  }
+  const HOME_SAYS = {
+    J: ['Mars. Home. Smell that? That’s rust and diesel. Best smell in the system.', 'There’s the dock. I can see Ana waving from here. I can’t, actually. But she is.'],
+    Z: ['GANYMEDE! Zib is home! Zib can hear the market from orbit! Zib cannot! Zib is imagining it!', 'Zib’s cousins live down there. Zib will not visit. Zib owes them a spoon.'],
+    N: ['Europa. My family is under that ice. They know we’re here. They can feel it. I think.', 'Home. It looks so small from up here. It isn’t. It’s very big underneath.']
+  };
+  function shoreHello(kind) {
+    if (deck.scene) return;
+    if (kind === 'pimbake') { const first = store.get('ds-pimFree', '') !== '1'; shipSay('I', first ? 'Welcome, welcome! Come to the counter, love. I’ve been saving you something.' : pick1(['Back again! The star buns are just out.', 'Mind the flour on the floor. Pim was “helping”.', 'Sit anywhere. Well. There are two stools. Sit on one of those.'])); return; }
+    const w = shoreParty.length ? pick1(shoreParty) : 'M';
+    shipSay(w, w === 'M' ? pick1(['PILOT! You came back! Do you want to see the telescope? Or my rocks? Or the telescope looking at my rocks?', 'Hi!! Uncle Lalo is parked! That means he’s stuck! It’s the best!']) : shoreLine(w));
+  }
+
   // Kit follows you around for the first three ship days after you meet
   const kitTagging = () => kitMet() && shipDay < (+store.get('ds-kitMet', '0') || 0) + 3;
   Object.assign(CREW_HOME, { C: 'bridge', H: 'galley' });
@@ -20500,6 +21001,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
+    if (mode === 'pim' || mode === 'pimbake') { if (e.code === 'Escape') shoreLeave(); return; }
+    if (mode === 'sysmap') { if (e.code === 'Escape') { walkEnter = 'missions'; setMode('bridge'); } return; }
     if (mode === 'encounter') return;
     if (mode === 'vending') { if (e.code === 'Escape') { vend = null; walkEnter = 'vending'; setMode('quarters'); } return; }
     if (mode === 'coffee') { if (e.code === 'Escape') { if (cof) { cof = null; renderCoffee('intro'); } else { walkEnter = null; setMode(cofFrom); } } return; }
