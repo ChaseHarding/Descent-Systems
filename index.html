@@ -413,6 +413,13 @@ kbd {
 .qnew-card { max-width: 24rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 18px 16px; border: 1px solid #ffcf3a; border-radius: 12px; background: var(--space); }
 .qnew-card canvas.face { width: 56px; height: 56px; }
 .qnew-card b { font-family: var(--f-display); font-size: 20px; letter-spacing: .05em; text-transform: uppercase; color: #ffcf3a; }
+.zstall .zsay { min-height: 3em; }
+.ztrades { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.ztrade { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid #b08ae0; background: rgba(176,138,224,0.08); color: var(--regolith); font: 12px/1.35 var(--f-mono); text-align: left; cursor: pointer; }
+.qnew-card .ztrade b { color: #ffcf3a; font: 700 12px/1.35 var(--f-mono); letter-spacing: 0; text-transform: none; text-align: right; } .ztrade i { font-style: normal; color: #b08ae0; }
+.ztrade:hover:not(:disabled), .ztrade:focus-visible { border-color: #ffcf3a; }
+.ztrade:disabled { opacity: .4; cursor: default; }
+.zstall .zhave { font-size: 11px; color: var(--regolith-dim); }
 .qnew-card p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--regolith); }
 .ph-badge2 { position: absolute; top: 0; right: calc(50% - 38px); min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: var(--bad); color: #fff; font: 700 11px/20px var(--f-mono); font-style: normal; }
 .ph-tip { margin: auto 0 0; text-align: center; font-size: 11px; opacity: 0.55; }
@@ -1436,6 +1443,8 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#a8222a', stroke: '#f4e6cc', legs: '#f4e6cc', detail: '#f4e6cc', swatch: 'linear-gradient(90deg, #a8222a, #f4e6cc)' },
     { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
       fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
+    { id: 'neptune', name: 'Neptune Blue', price: 0, unlock: 'ship:neptune', blurb: 'Wren’s colours from her Neptune runs: deep blue and brass. Comes with the Neptune Runner.',
+      fill: '#1d3a5c', stroke: '#e0b060', legs: '#c9cfdc', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #1d3a5c, #e0b060)' },
     { id: 'lark', name: 'Surveyor Olive', price: 0, unlock: 'ship:lark', blurb: 'Wren’s original survey colors: olive and cream. Comes with the Lark.',
       fill: '#6b6b3a', stroke: '#e6d3b0', legs: '#e6d3b0', detail: '#ff9ad5', swatch: 'linear-gradient(90deg, #6b6b3a, #e6d3b0)' },
     { id: 'dottie', name: 'Dottie Navy', price: 0, unlock: 'ship:workhorse', blurb: 'Flight-director navy with an amber stripe. Comes with the Workhorse.',
@@ -1576,7 +1585,11 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'whisker', name: 'Whisker', by: 'Gus’s gift to Apogee', thrust: 0.92, rot: 1.6, burn: 1, tank: 0.8, legs: 0.6, wind: 1.3, bars: [2, 5, 2, 3], freeRcs: true,
       price: 2000, story: 'stowaway', storyText: 'Finish Stowaway and Apogee will reluctantly share it',
       blurb: 'Tiny and nimble. Turning costs no fuel and the springy legs forgive hard landings, but the engine is small and wind pushes it around.',
-      gus: 'The Whisker! I built it for Apogee. She sat in it once, then left. It’s yours now. Don’t tell her.', look: { hull: 'tabby', flame: 'standard', flag: 'pennant' } }
+      gus: 'The Whisker! I built it for Apogee. She sat in it once, then left. It’s yours now. Don’t tell her.', look: { hull: 'tabby', flame: 'standard', flag: 'pennant' } },
+    { id: 'neptune', name: 'Neptune Runner', by: 'Wren’s old girl', thrust: 1.08, rot: 0.62, burn: 1.05, tank: 1.3, legs: 0.75, wind: 0.85, bars: [4, 1, 4, 5],
+      quest: 'q-wren', storyText: 'Finish Wren’s quest, The Old Girl, and she’ll give it to you',
+      blurb: 'Thirty years old and built like a vault. The toughest legs in the fleet, a big tank and a strong engine, but she turns like a bathtub.',
+      gus: 'The Neptune Runner. Wren’s old girl. Bent fin, brass trim, legs like a bulldozer. She turns slowly. She does everything else perfectly.', look: { hull: 'neptune', flame: 'standard', flag: 'pennant' } }
   ];
   let fleetOwned;
   try { fleetOwned = new Set(JSON.parse(store.get('ds-fleet', '["biscuit"]'))); } catch (e) { fleetOwned = new Set(['biscuit']); }
@@ -1584,7 +1597,7 @@ details.act > .limits { margin: 0 0 8px; }
   let looks;
   try { looks = JSON.parse(store.get('ds-looks', '{}')) || {}; } catch (e) { looks = {}; }
   let curLander = store.get('ds-lander', 'biscuit');
-  const shipUnlocked = l => fleetOwned.has(l.id) || (l.story && (missionStars[l.story] || 0) > 0);
+  const shipUnlocked = l => fleetOwned.has(l.id) || (l.story && (missionStars[l.story] || 0) > 0) || (l.quest && questDone(l.quest));
   function syncFleet() {
     for (const l of LANDERS) if (shipUnlocked(l) && l.look) owned.add('hull:' + l.look.hull);
     if (!looks[curLander]) looks[curLander] = { ...equip };
@@ -6334,7 +6347,7 @@ details.act > .limits { margin: 0 0 8px; }
           <button class="mode" id="logBtn2" data-menuret><b>Maintenance log</b><span>Gus’s notes on your flying</span></button>
           <button class="mode" id="badgesBtn" data-menuret><b>Badges</b><span>${earned()} of ${ACH.length} earned</span></button>
           <button class="mode" id="licenseBtn" data-menuret><b>License</b><span>${rankOf().name}</span></button>
-          <button class="mode" id="wardBtn2" data-menuret><b>Wardrobe</b><span>${wardOwned.size} of ${OUTFITS.length + HATS.length} owned</span></button>
+          <button class="mode" id="wardBtn2" data-menuret><b>Wardrobe</b><span>${wardOwned.size} of ${OUTFITS.filter(o => !o.quest || wardOwned.has(o.id)).length + HATS.length} owned</span></button>
           <button class="mode" id="settingsBtn" data-menuret><b>Settings</b><span>Sound, controls, romance</span></button>
         </nav>
         <div class="subnav"><button class="link" id="howBtn">How to play</button>${installLink()}</div>
@@ -10039,12 +10052,12 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- The hangar garage: a room to walk around, with your landers parked in it ----
   // Walk up to a lander (or Gus's workbench) to open the hangar screen for paint, upgrades and the fleet.
-  const GW = 256, GH = 160, GAR_B = [8, 60, 248, 154];
+  const GW = 256, GH = 200, GAR_B = [8, 60, 248, 194];
   let gar = null, hangarOpenOn = null;
   // where each lander parks: your current one on the pad, the rest in the side bays
   function garageSlots() {
     const others = LANDERS.filter(l => l.id !== curLander);
-    const bays = [[40, 104], [216, 104], [40, 150], [216, 150]];
+    const bays = [[40, 104], [216, 104], [40, 148], [216, 148], [40, 192], [216, 192]];
     return [{ l: landerById(curLander), x: 128, y: 116, s: 8, main: true }].concat(others.map((l, i) => ({ l, x: bays[i][0], y: bays[i][1], s: 5.4, main: false })));
   }
   function garSay(who, text) {
@@ -11018,6 +11031,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'hall') {
       if (hallDeck === 0) baseThings(L);
       if (hallDeck === 2) L.push({ id: 'board', rect: [152, 8, 30, 30], go: () => [167, 70], at: () => ({ x: 167, y: 24 }), act: () => { sfx.click(); projectsFrom = 'hall'; setMode('projects'); } });
+      if (hallDeck === 2 && zibStallOpen()) L.push({ id: 'zibstall', rect: [282, 12, 54, 52], go: () => [309, 70], at: () => ({ x: 309, y: 30 }), act: () => { sfx.click(); openZibStall(); } });
       if (hallDeck === 2 && projDone('lounge')) L.push({ id: 'couch', rect: [256, 112, 58, 34], go: () => [285, 150], at: () => ({ x: 285, y: 128 }), act: () => shipSay(...LOUNGE_SAYS[Math.floor(Math.random() * LOUNGE_SAYS.length)]) });
       for (const d of HALL_DOORS) { const [x, label, , sealed] = d, to = hallDoorTo(d);
         const w = label === 'BRIDGE' ? 36 : label === 'LIFT' ? 30 : 22;
@@ -11376,7 +11390,7 @@ details.act > .limits { margin: 0 0 8px; }
       for (let x = 30; x < W; x += 60) { px(c, x, 6, 3, 9, '#3a4256'); if (!reduceMotion && Math.floor(t / 900 + x) % 9 === 0) px(c, x + 6, 16 - Math.floor(t / 120) % 5, 2, 2, 'rgba(220,230,240,0.35)'); }
     }
     // windows in the gaps between doors: a long view on deck one, portholes elsewhere
-    const busy = x => D.doors.some(d => Math.abs(d[0] - x) < (d[1] === 'BRIDGE' ? 32 : d[1] === 'LIFT' ? 28 : 22)) || (hallDeck === 2 && x > 144 && x < 190) || (S === 'base' && x > 92 && x < 222);
+    const busy = x => D.doors.some(d => Math.abs(d[0] - x) < (d[1] === 'BRIDGE' ? 32 : d[1] === 'LIFT' ? 28 : 22)) || (hallDeck === 2 && x > 144 && x < 190) || (hallDeck === 2 && x > 272 && x < 346 && zibStallOpen()) || (S === 'base' && x > 92 && x < 222);
     if (S === 'cmd') {
       for (let x = 0; x < W; x += 4) {
         if (busy(x) || busy(x + 4)) continue;
@@ -11401,6 +11415,7 @@ details.act > .limits { margin: 0 0 8px; }
       PROJECTS.forEach((pj, i) => { const nx = 155 + (i % 3) * 9, ny = 13 + Math.floor(i / 3) * 11; px(c, nx, ny, 7, 9, projDone(pj.id) ? '#c9f0d8' : '#f4f1e8'); px(c, nx + 3, ny, 1, 1, '#ff6b5e'); if (projDone(pj.id)) px(c, nx + 2, ny + 4, 3, 2, '#3f8a58'); });
       px(c, 150, 46, 30, 3, '#7a5c44'); px(c, 152, 49, 2, 6, '#4a3a2c'); px(c, 176, 49, 2, 6, '#4a3a2c');
       px(c, 238, 44, 10, 10, '#8a5a3a'); for (const [lx, ly] of [[239, 34], [243, 31], [246, 36], [240, 39]]) px(c, lx, ly, 3, 6, '#3f8a58');
+      if (zibStallOpen()) drawZibStall(c, t);
     }
     // the deck number painted big on the wall, next to the lift
     const lift = D.doors.find(d => d[1] === 'LIFT');
@@ -15252,6 +15267,7 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'moth', name: 'Moth-silk robe', price: 1800, top: '#d4b888', pants: '#8a6a42', shoes: '#5a4030', scarf: '#f0e2c0', blurb: 'A gift-shop copy of Ollo’s travelling robe. Very soft.' },
     { id: 'stars', name: 'Star-print flight suit', price: 2000, top: '#26355e', pants: '#26355e', shoes: '#15151f', dots: '#ffe58a', blurb: 'Covered in tiny constellations. You can find Orion if you squint.' },
     { id: 'captain', name: 'Captain’s coat', price: 2500, top: '#1d2a4c', pants: '#1d2a4c', shoes: '#15151f', trim: '#ffd36a', blurb: 'Gold trim, sharp shoulders. You look like you own the ship.' },
+    { id: 'wrenjacket', name: 'Wren’s flight jacket', price: 0, quest: 'q-wren', top: '#6a4128', pants: '#2a3045', shoes: '#2a1a12', trim: '#e0b060', scarf: '#3a5a7c', blurb: 'Brown leather, brass zips, a Neptune patch and one burnt cuff. Wren gave it to you. It still smells a bit like engine grease.' },
     { id: 'tux', name: 'Gala tux', price: 3000, top: '#15151f', pants: '#15151f', shoes: '#0a0a12', trim: '#f4f1e8', blurb: 'For embassy dinners, and for dates in the dome.' }
   ];
   const HATS = [
@@ -15298,6 +15314,7 @@ details.act > .limits { margin: 0 0 8px; }
     return L;
   }
   function renderWardrobe() {
+    if (questDone('q-wren') && !wardOwned.has('wrenjacket')) { wardOwned.add('wrenjacket'); saveWard(); }
     const isOut = wardUI.tab === 'outfit', list = isOut ? OUTFITS : HATS, cur = isOut ? (lic.outfit || null) : (lic.hat && lic.hat !== 'none' ? lic.hat : null);
     const tryIt = wardUI.trying && list.find(i => i.id === wardUI.trying);
     const tile = (id, name, sub, on, owned) => `<button class="witem${on ? ' on' : ''}${owned ? '' : ' shop'}" data-ward="${id || ''}" aria-pressed="${on}"><canvas class="wpv" data-wpv="${id || ''}" width="48" height="60" aria-hidden="true"></canvas><b>${name}</b><small>${sub}</small></button>`;
@@ -15307,7 +15324,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="wstage"><canvas id="wardBig" width="96" height="120" aria-label="Your pilot, turning around"></canvas><canvas id="wardFace" width="64" height="64" aria-hidden="true"></canvas>
         <div class="wnote">${tryIt ? `<b>Trying on: ${tryIt.name}</b><p>${tryIt.blurb}</p><div class="btns"><button class="btn" id="wardBuy"${credits < tryIt.price ? ' disabled' : ''}>${credits < tryIt.price ? `Need ${fmt(tryIt.price - credits)} more cr` : `Buy · ${fmt(tryIt.price)} cr`}</button><button class="btn ghost" id="wardPut">Put it back</button></div>` : `<b>${isOut ? (outfitOf(lic) ? outfitOf(lic).name : 'Your license suit') : (HATS.find(h => h.id === lic.hat) || { name: 'No hat' }).name}</b><p>Tap anything to try it on. Things you own switch instantly.</p>`}</div></div>
       <div class="mtabs wtabs" role="tablist"><button role="tab" class="mtab${isOut ? ' on' : ''}" data-wtab="outfit" aria-selected="${isOut}"><b>Outfits</b></button><button role="tab" class="mtab${isOut ? '' : ' on'}" data-wtab="hat" aria-selected="${!isOut}"><b>Hats</b></button></div>
-      <div class="witems">${isOut ? tile(null, 'License suit', 'Free · your colour', !cur, true) : tile(null, 'No hat', 'Free', !cur, true)}${list.map(i => { const own = wardOwned.has(i.id); return tile(i.id, i.name, cur === i.id ? 'Wearing' : own ? 'Owned' : `${fmt(i.price)} cr`, cur === i.id || wardUI.trying === i.id, own); }).join('')}</div>
+      <div class="witems">${isOut ? tile(null, 'License suit', 'Free · your colour', !cur, true) : tile(null, 'No hat', 'Free', !cur, true)}${list.filter(i => !i.quest || wardOwned.has(i.id)).map(i => { const own = wardOwned.has(i.id); return tile(i.id, i.name, cur === i.id ? 'Wearing' : own ? 'Owned' : `${fmt(i.price)} cr`, cur === i.id || wardUI.trying === i.id, own); }).join('')}</div>
       <div class="btns"><button class="btn ghost" id="back">${wardFrom === 'license' ? 'Back to your license' : wardFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
     // little previews on each tile
@@ -17187,8 +17204,8 @@ details.act > .limits { margin: 0 0 8px; }
       offer: 'Kid. My old lander, the Neptune Runner, is rotting in a junkyard on Mars. I’d like her back. Don’t make a fuss. It’s on your Side jobs list.',
       steps: [{ m: 'q-junk', todo: 'Fly The Junkyard (Side jobs)' }, { m: 'q-tow', todo: 'Fly Towing the Old Girl (Side jobs)' }, { scene: 'qs-wren-fix', todo: 'Visit Wren and Gus in the engine room' },
         { m: 'q-escort', todo: 'Fly One Last Flight (Side jobs)' }],
-      done: 'She flew. Thirty years, and she flew. I want you to have my old jacket. And the little model Gus made of her. Look after them.',
-      reward: 'Wren’s flight jacket and a Neptune Runner model for your Pad' },
+      done: 'She flew. Thirty years, and she flew. She’s yours now, kid. She’s in the hangar. Take my old jacket too, you’ll need it, her heater is terrible. Look after them both.',
+      reward: 'The Neptune Runner to fly (in the hangar), Wren’s flight jacket to wear, and a model of the Runner for your Pad' },
     { id: 'q-rex', who: 'R', name: 'The Audition', need: () => storyDone('first-port'),
       offer: 'Darling. Emergency. I have an audition. A SERIOUS one. No explosions. I need a scene partner and a pilot. Meet me in the corridor?',
       steps: [{ scene: 'qs-rex-rehearse', todo: 'Find Rex in the corridor to rehearse' }, { m: 'q-studio', todo: 'Fly The Audition (Side jobs)' }, { scene: 'qs-rex-after', todo: 'Find Rex in the galley' }],
@@ -17215,7 +17232,7 @@ details.act > .limits { margin: 0 0 8px; }
       offer: 'Pilot! Zib has had the BEST idea! Zib wants a stall! On the ship! Come to the corridor, Zib will explain! With hands!',
       steps: [{ scene: 'qs-zib-plan', todo: 'Find Zib in the corridor' }, { m: 'q-trades', todo: 'Fly The Big Trade (Side jobs)' }, { scene: 'qs-zib-open', todo: 'Visit Zib’s new stall in the corridor' }],
       done: 'Zib made you a little stall too! For your Pad! It’s small! It has tiny goods! Zib also framed your spoon. Zib means Zib’s spoon. Now it is your spoon.',
-      reward: 'A tiny trade stall and Zib’s best spoon, framed, for your Pad' },
+      reward: 'Zib’s stall in the Deck 2 corridor (one trade a day), plus a tiny stall and Zib’s best spoon, framed, for your Pad' },
     { id: 'q-ollo', who: 'O', name: 'The Dimming Lantern', need: () => olloMet(),
       offer: 'Little pilot. Would you come to the bridge tonight? My lantern is not well. I would like to ask you something, in person.',
       steps: [{ scene: 'qs-ollo-dim', todo: 'Find Ollo on the bridge' }, { m: 'q-moss', todo: 'Fly Lantern Moss (Side jobs)' }, { scene: 'qs-ollo-bright', todo: 'Find Ollo on the bridge' }],
@@ -17250,6 +17267,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (n < q.steps.length) { setTimeout(() => showToast(`${q.name}: ${q.steps[n].todo}`, 3000), 900); return; }
     // the end of the quest: the reward, a thank-you text and a lot of hearts
     if (id === 'q-gus') { owned.add('hull:classic'); saveCosmetics(); }
+    if (id === 'q-wren') { wardOwned.add('wrenjacket'); saveWard(); syncFleet(); saveCosmetics(); }
     addHearts(q.who, 60);
     setTimeout(() => { sendText(q.who, q.done); celebrate('Quest complete', q.name, q.reward, null, null, { n: 80 }); }, 1200);
   }
@@ -17342,6 +17360,61 @@ details.act > .limits { margin: 0 0 8px; }
     'Thank you for that night in the galley. I mean it. No camera. Just me, meaning it.',
     'I called my dad today. The real one, not the stunt double. We talked for an hour. About nothing. It was wonderful.'
   ];
+  // ---- Zib's stall: one trade per ship day, in the Deck 2 corridor, once The Big Trade is done ----
+  const zibStallOpen = () => questDone('q-zib') && !inBase();
+  const ZIB_TRADES = [
+    { id: 'parts2cr', give: '2 Crumb parts', get: '250 credits', can: () => crumbParts() >= 2, go: () => { store.set('ds-crumbParts', String(crumbParts() - 2)); credits += 250; }, say: 'Bolts! Zib loves bolts! Zib will make them into a different, better bolt!' },
+    { id: 'cr2parts', give: '200 credits', get: '3 Crumb parts', can: () => credits >= 200, go: () => { credits -= 200; store.set('ds-crumbParts', String(crumbParts() + 3)); }, say: 'Three parts! Shiny ones! One of them used to be a toaster!' },
+    { id: 'choc2gem', give: '1 🍫 Chocolate', get: '1 💎 Gem', can: () => (garden.basket.choc || 0) >= 1, go: () => { garden.basket.choc--; garden.basket.gem = (garden.basket.gem || 0) + 1; saveGarden(); }, say: 'Chocolate! On Ganymede this is worth more than gems! Zib is robbing you! Zib feels great!' },
+    { id: 'gem2cr', give: '1 💎 Gem', get: '400 credits', can: () => (garden.basket.gem || 0) >= 1, go: () => { garden.basket.gem--; credits += 400; saveGarden(); }, say: 'A gem! Zib will put it in the jar! No. Zib will LOOK at the jar and put it next to the jar.' },
+    { id: 'cr2flowers', give: '120 credits', get: '2 🌸 Moonflowers', can: () => credits >= 120, go: () => { credits -= 120; garden.basket.flowers = (garden.basket.flowers || 0) + 2; saveGarden(); }, say: 'Moonflowers! Give them to somebody! Not Zib. Zib eats them.' },
+    { id: 'cr2fuel', give: '150 credits', get: '+30 kg fuel on your next landing', can: () => credits >= 150, go: () => { credits -= 150; store.set('ds-vendFuel', String(Math.min(60, +store.get('ds-vendFuel', '0') + 30))); }, say: 'Zib’s special fuel! It is regular fuel! In a special can!' },
+    { id: 'tea2coffee', give: '1 🍵 Tea', get: '2 ☕ Coffee beans', can: () => (garden.basket.tea || 0) >= 1, go: () => { garden.basket.tea--; garden.basket.coffee = (garden.basket.coffee || 0) + 2; saveGarden(); }, say: 'Tea for coffee! Dottie will owe you! Dottie will not admit it!' },
+    { id: 'mystery', give: '100 credits', get: 'Zib’s mystery box', can: () => credits >= 100, go: notes => { credits -= 100; const r = Math.random();
+        if (r < 0.35) { store.set('ds-crumbParts', String(crumbParts() + 2)); notes.push('🔩 2 Crumb parts'); }
+        else if (r < 0.6) { garden.basket.gem = (garden.basket.gem || 0) + 1; saveGarden(); notes.push('💎 A gem!'); }
+        else if (r < 0.8) { credits += 220; notes.push('🪙 220 credits. Zib put money in the box by mistake.'); }
+        else vendOddity(notes); }, say: 'Zib does not know what is in the box! That is the mystery! Zib packed it! Zib forgot!' }
+  ];
+  const zibToday = () => { try { const v = JSON.parse(store.get('ds-zibStall', '{}')); return v.day === shipDay ? v : { day: shipDay, done: null }; } catch (e) { return { day: shipDay, done: null }; } };
+  // today's three offers, the same all day
+  function zibOffers() { const r = mulberry32(hashStr('zib:' + shipDay)), pool = ZIB_TRADES.slice(), out = []; while (out.length < 3) out.push(pool.splice(Math.floor(r() * pool.length), 1)[0]); return out; }
+  function openZibStall(msg) {
+    let el = $('zibStall');
+    if (!el) { el = document.createElement('div'); el.id = 'zibStall'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Zib’s stall'); document.body.appendChild(el); }
+    const td = zibToday(), here = crewAt('Z') === 'hall' || !crewIn('Z') ? true : true, done = td.done && ZIB_TRADES.find(x => x.id === td.done);
+    const bk = ['choc', 'tea', 'coffee', 'gem', 'flowers'].filter(k => garden.basket[k]).map(k => `${ENC_GIFT[k].split(' ')[0]} ${garden.basket[k]}`).join(' · ');
+    el.innerHTML = `<div class="qnew-card zstall">${faceTag('Z', '')}<span class="eyebrow">Zib’s · Everything for trade · Except the jar</span>
+      <p class="zsay" aria-live="polite">${esc(msg || (done ? `Zib is closed until tomorrow! Zib is counting! Today you traded ${done.give} for ${done.get}.` : 'One trade a day! Zib is a professional! Pick one!'))}</p>
+      <div class="ztrades">${zibOffers().map(o => `<button class="ztrade" data-zt="${o.id}"${done || !o.can() ? ' disabled' : ''}><span>${esc(o.give)}</span><i aria-hidden="true">→</i><b>${esc(o.get)}</b></button>`).join('')}</div>
+      <p class="zhave">You have ${fmt(credits)} cr · 🔩 ${crumbParts()} parts${bk ? ` · ${bk}` : ''}</p>
+      <div class="btns"><button class="btn ghost" id="zibBye">Bye, Zib</button></div></div>`;
+    paintFaces(el); el.hidden = false;
+    el.querySelectorAll('[data-zt]').forEach(b => b.addEventListener('click', () => {
+      const o = ZIB_TRADES.find(x => x.id === b.dataset.zt); if (!o || !o.can() || zibToday().done) return;
+      const notes = []; o.go(notes); saveCosmetics(); store.set('ds-zibStall', JSON.stringify({ day: shipDay, done: o.id }));
+      sfx.coin(); addHearts('Z', 4);
+      openZibStall(`${o.say}${notes.length ? ` (${notes.join(', ')})` : ''}`);
+    }));
+    $('zibBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const b = el.querySelector('.ztrade:not(:disabled)') || $('zibBye'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  function drawZibStall(c, t) {
+    const x = 284, open = !zibToday().done;
+    // counter, crates and a striped awning
+    px(c, x, 44, 50, 14, '#7a5c44'); px(c, x, 44, 50, 2, '#a47a4c'); px(c, x + 2, 58, 3, 6, '#4a3a2c'); px(c, x + 45, 58, 3, 6, '#4a3a2c');
+    for (let k = 0; k < 6; k++) px(c, x - 2 + k * 9, 14, 9, 6, k % 2 ? '#f4f1e8' : '#b08ae0');
+    for (let k = 0; k < 6; k++) px(c, x - 2 + k * 9 + 2, 20, 5, 2, k % 2 ? '#f4f1e8' : '#b08ae0');
+    px(c, x, 20, 2, 24, '#5a4636'); px(c, x + 48, 20, 2, 24, '#5a4636');
+    // tiny goods: a lamp, a spoon, a crystal, a jar (not for sale)
+    px(c, x + 5, 38, 4, 6, '#ffd36a'); px(c, x + 6, 36, 2, 2, '#fff1c7');
+    px(c, x + 13, 41, 7, 1, '#c9cfdc'); px(c, x + 19, 40, 2, 3, '#c9cfdc');
+    px(c, x + 25, 37, 4, 7, '#7fd6ff'); px(c, x + 26, 36, 2, 1, '#c8f0ff');
+    px(c, x + 34, 36, 8, 8, 'rgba(200,230,255,0.35)'); px(c, x + 34, 35, 8, 1, '#c9cfdc'); px(c, x + 36, 39, 2, 2, '#ff9ad5'); px(c, x + 39, 41, 2, 2, '#ffe58a');
+    // the sign, and a light that says whether today's trade is still on
+    px(c, x + 10, 24, 30, 9, '#2a1d0a'); c.font = '700 7px monospace'; c.fillStyle = '#ffe58a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ZIB’S', x + 25, 29);
+    px(c, x + 44, 26, 3, 3, open ? (reduceMotion || Math.floor(t / 500) % 2 ? '#58e0a0' : '#2f7a58') : '#ff6b5e');
+  }
   function bondTalk(who) {
     const d = shipDayKey();
     if (!ROM_WHO.includes(who) || bond.talk[who] === d) return;
@@ -18784,6 +18857,7 @@ details.act > .limits { margin: 0 0 8px; }
       }).join('')}</div>
       ${hangarLander !== curLander ? (() => {
         const l = landerById(hangarLander);
+        if (!l.price) return `<div class="unlockbar"><span><b>${l.name}</b> · ${l.blurb} ${l.storyText}.</span></div>`;
         return `<div class="unlockbar"><span><b>${l.name}</b> · ${l.blurb} ${l.storyText}, or buy it now.</span>
           ${credits >= l.price ? `<button class="btn" id="buyShip">Buy · ${fmt(l.price)} cr</button>` : `<button class="btn" disabled>${fmt(l.price)} cr · need ${fmt(l.price - credits)} more</button>`}</div>`;
       })() : ''}
@@ -19647,6 +19721,27 @@ details.act > .limits { margin: 0 0 8px; }
         c.moveTo(s * 1.6, 0.7); c.lineTo(s * 2.4, 1.5); c.lineTo(s * 2.1, 2.2); c.lineTo(s * 3.2, 3);
         c.moveTo(s * 2.7, 3); c.lineTo(s * 3.8, 3);
         c.stroke();
+      }
+    } else if (model === 'neptune') {
+      // Neptune Runner: a tall rounded cabin with a porthole, a bent tail fin, a heavy deck and four thick legs with big feet
+      c.beginPath();
+      c.moveTo(-1.9, -0.5); c.lineTo(-1.9, -2.8); c.quadraticCurveTo(-1.9, -4.3, 0, -4.4); c.quadraticCurveTo(1.9, -4.3, 1.9, -2.8); c.lineTo(1.9, -0.5); c.closePath();
+      c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(1.7, -2.4); c.lineTo(2.9, -3.6); c.lineTo(3.4, -3.3); c.lineTo(2.1, -1.6); c.closePath(); c.fill(); c.stroke();
+      c.strokeStyle = hull.detail;
+      c.beginPath(); c.arc(0, -2.7, 0.75, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.moveTo(-1.5, -1.2); c.lineTo(1.5, -1.2); c.stroke();
+      c.strokeStyle = hull.stroke;
+      c.fillRect(-2.8, -0.5, 5.6, 1.7); c.strokeRect(-2.8, -0.5, 5.6, 1.7);
+      c.strokeStyle = hull.legs;
+      c.beginPath(); c.moveTo(-0.7, 1.2); c.lineTo(-1, 1.6); c.lineTo(1, 1.6); c.lineTo(0.7, 1.2); c.stroke();
+      for (const s of [-1, 1]) {
+        c.beginPath();
+        c.moveTo(s * 2.4, 1.2); c.lineTo(s * 3.3, 3);
+        c.moveTo(s * 1.4, 1.2); c.lineTo(s * 2.2, 3);
+        c.moveTo(s * 1.7, 3); c.lineTo(s * 3.9, 3);
+        c.stroke();
+        c.fillStyle = hull.legs; c.fillRect(s * 2.8 - 0.7, 2.8, 1.4, 0.5);
       }
     } else if (model === 'lark') {
       // Lark: a boxy cabin with a dish on top, side tanks, a wide deck and sturdy double legs
