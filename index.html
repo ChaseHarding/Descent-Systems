@@ -414,6 +414,16 @@ kbd {
 .qnew-card canvas.face { width: 56px; height: 56px; }
 .qnew-card b { font-family: var(--f-display); font-size: 20px; letter-spacing: .05em; text-transform: uppercase; color: #ffcf3a; }
 .zstall .zsay { min-height: 3em; }
+.maglev .mlview { width: 100%; height: 54px; border-radius: 8px; border: 1px solid var(--space-2); background: linear-gradient(#5a2a3a, #b8583a 45%, #f0a060 64%, #4a3a44 64%); position: relative; overflow: hidden; box-shadow: inset 0 -2px 0 #7fd6ff; }
+.maglev .mlview i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 46px, #2a1d28 46px 52px); animation: mlrun .5s linear infinite; }
+@keyframes mlrun { to { background-position: 52px 0; } }
+@media (prefers-reduced-motion: reduce) { .maglev .mlview i { animation: none; } }
+.mlroute { width: 100%; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.mlstop { display: flex; flex-direction: column; gap: 1px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--flame); background: none; color: var(--regolith); font: 11px/1.35 var(--f-mono); text-align: left; cursor: pointer; }
+.qnew-card .mlstop b { font: 700 14px var(--f-display); letter-spacing: .04em; text-transform: none; color: var(--flame); }
+.mlstop.here { border-color: var(--ok); cursor: default; } .qnew-card .mlstop.here b { color: #f4f1e8; } .mlstop em { font-style: normal; font-size: 10px; color: var(--ok); letter-spacing: .1em; text-transform: uppercase; }
+.mlstop.later { border-style: dashed; border-color: var(--space-2); opacity: .55; cursor: default; } .qnew-card .mlstop.later b { color: var(--regolith); }
+.mlstop span { color: var(--regolith-dim); }
 .sysmap { width: 100%; max-width: 30rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .sysmap .sub { margin: 0; font-size: 11px; color: var(--regolith-dim); text-align: center; }
 #mapCv { width: 100%; max-width: 360px; aspect-ratio: 340 / 400; border-radius: 10px; border: 1px solid var(--space-2); background: #04060f; touch-action: manipulation; cursor: pointer; }
@@ -2394,6 +2404,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'S') { drawBrixFace(c, mood, open, blink, bare); return; }
     if (who === 'O') { drawOlloFace(c, open, blink, bare); return; }
     if (who === 'B') { drawBlipFace(c, open, blink, bare); return; }
+    if (who === 'RB') { drawRustyFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -6191,11 +6202,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -6272,7 +6283,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (m === 'story') { renderStory(); return; }
     if (m === 'missions') { mission = null; renderMissions(); return; }
     if (m === 'garage') { renderGarage(); return; }
-    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift' || m === 'pim' || m === 'pimbake') { renderShipRoom(m); return; }
+    if (m === 'hall' || m === 'bridge' || m === 'garden' || m === 'quarters' || m === 'bedroom' || m === 'dome' || m === 'galley' || m === 'engine' || m === 'lift' || SHORE_KINDS.includes(m)) { renderShipRoom(m); return; }
     if (m === 'mining') { mine = null; renderMining('intro'); return; }
     if (m === 'eva') { eva = null; renderEva('intro'); return; }
     if (m === 'coffee') { cof = null; renderCoffee('intro'); return; }
@@ -8231,6 +8242,7 @@ details.act > .limits { margin: 0 0 8px; }
   // anyone, by who they are
   function drawPerson(c, who, x, y, dir, frame, t) {
     if (who === 'Z') drawZibSprite(c, x, y, dir, t);
+    else if (who === 'RB') drawRustySprite(c, x, y, dir, t);
     else if (who === 'P') drawSprite(c, pilotLook(), x, y, dir, frame, false);
     else if (who === 'S') { drawBrixTails(c, x, y, dir, false); drawSprite(c, LOOKS.S, x, y, dir, frame, false); drawBrixTails(c, x, y, dir, true); }
     else if (LOOKS[who]) drawSprite(c, LOOKS[who], x, y, dir, frame, false);
@@ -10947,6 +10959,10 @@ details.act > .limits { margin: 0 0 8px; }
       galley: [inBase() ? 'The Kitchen' : 'The Galley', 'The galley: a tiled kitchen with a pantry, a stove with hanging pans, a sink, a fridge and a little round table. Tap to walk; walk up to the stove to cook. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       pim: ['Moonbase Pim', 'Moonbase Pim: a street under a glass dome, with Earth in the sky. From left: the airlock back to the ship, Ines’ bakery, a postcard rack, Gus’s telescope, the school, the supply rover depot with Uncle Lalo’s rover, and Pim’s round yellow house. Tap to walk; walk up to things to use them. With a keyboard, arrow keys walk and Enter uses whatever is closest.'],
+      mdock: ['Mars · The Dock', 'Mars City, the Dock: under a glass lattice roof with the red sky and city towers beyond. From left: your ship’s docking ring, Juno’s dock office, stacked cargo pods, a glowing job board, the crane cab and the maglev platform. Drones fly overhead and dock workers walk by. Tap to walk; walk up to things to use them.'],
+      mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
+      mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
+      moffice: ['The old office', 'Descent Systems’ old Mars office: a window onto Main Street, a framed photo from day one, an old desk, filing cabinets and the famous coffee machine, still blinking. The door at the bottom goes back to the street.'],
       pimbake: ['Ines’ Bakery', 'Ines’ bakery: shelves of bread, a chalk menu, a brick oven and a glass counter full of pastries, with a little table by the window. Walk up to the counter to buy pastries. The door at the bottom goes back to the street.'],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
     }[kind];
@@ -10959,12 +10975,12 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         ${kind === 'bridge' ? '<button class="btn ghost" id="shipMap">🗺️ System map</button>' : ''}
-        ${kind === 'bridge' && shoreOk() && shipAt() === 'moon' ? '<button class="btn ghost" id="shipAshore">🌙 Go ashore</button>' : ''}
+        ${kind === 'bridge' && mapShore(shipAt()) ? `<button class="btn ghost" id="shipAshore">${SHORE_PLACES[mapShore(shipAt())].icon} Go ashore</button>` : ''}
         <button class="btn ghost" id="back">${SHORE_KINDS.includes(kind) ? '🚀 Back to the ship' : '☰ Menu'}</button>
       </div>
     </div>`;
     $('back').addEventListener('click', () => SHORE_KINDS.includes(kind) ? shoreLeave() : setMode('shipmenu'));
-    { const sa = $('shipAshore'); if (sa) sa.addEventListener('click', () => { sfx.click(); openShore(); }); }
+    { const sa = $('shipAshore'); if (sa) sa.addEventListener('click', () => { sfx.click(); openShore(mapShore(shipAt())); }); }
     { const sm = $('shipMap'); if (sm) sm.addEventListener('click', () => { sfx.click(); mapSel = null; setMode('sysmap'); }); }
     const smb = $('shipMissions'); if (smb) smb.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); });
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
@@ -10977,13 +10993,15 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
+    } else if (MARS_KINDS.includes(kind)) {
+      start = kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' ? MARS_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
-      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
     { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
@@ -11004,7 +11022,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { pim: pimDraw, pimbake: pimBakeDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -11070,6 +11088,10 @@ details.act > .limits { margin: 0 0 8px; }
     npcThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
     if (deck.kind === 'pim') { pimThings(L); return L; }
+    if (deck.kind === 'mdock') { mdockThings(L); return L; }
+    if (deck.kind === 'mmain') { mmainThings(L); return L; }
+    if (deck.kind === 'mdiner') { mdinerThings(L); return L; }
+    if (deck.kind === 'moffice') { mofficeThings(L); return L; }
     if (deck.kind === 'pimbake') { pimBakeThings(L); return L; }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
     if (deck.kind === 'quarters') { quartersThings(L); return L; }
@@ -11682,8 +11704,10 @@ details.act > .limits { margin: 0 0 8px; }
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
     if (SHORE_KINDS.includes(kind)) {
-      const mx = deck ? deck.me.x : kind === 'pim' ? 34 : 128;
-      shoreParty.forEach((w, i) => add(w, mx - 20 - i * 14, kind === 'pim' ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
+      const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain';
+      shoreParty.forEach((w, i) => add(w, Math.max(16, mx - 20 - i * 14), street ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
+      if (kind === 'mdiner') { add('RB', 196, 104, { baseDir: 0, local: true }); return L; }
+      if (MARS_KINDS.includes(kind)) return L;
       if (kind === 'pim') { add('M', 230, 118, { wander: true, local: true }); add('L', 366, 104, { baseDir: 2, local: true }); }
       else add('I', 196, 100, { baseDir: 0, local: true });
       return L;
@@ -17945,33 +17969,34 @@ details.act > .limits { margin: 0 0 8px; }
   Object.assign(DEFAULT_MOOD, { I: 'happy', L: 'happy' });
   const SHORE_LOCALS = ['M', 'I', 'L'], PIM_W = 520;
   const shoreOk = () => !inBase() && (storyDone('swing-shift') || storyDone('ride-along'));
-  const shoreToday = () => +store.get('ds-shoreDay', '0') === shipDay;
+  const shoreToday = (pl = 'pim') => +store.get(pl === 'pim' ? 'ds-shoreDay' : 'ds-shoreDay-' + pl, '0') === shipDay;
   let shoreParty = (() => { try { return JSON.parse(store.get('ds-shoreParty', '[]')) || []; } catch (e) { return []; } })();
   const shoreCan = () => ROM_WHO.filter(w => romMet[w] && romMet[w]() && !isLost(w));
   const onShoreHere = w => w === 'K' ? crumbHome() : SHORE_LOCALS.includes(w) || shoreParty.includes(w);
   // ---- the Go ashore card ----
-  function openShore() {
+  function openShore(pl = 'pim') {
+    const P = SHORE_PLACES[pl];
     let el = $('shoreCard');
     if (!el) { el = document.createElement('div'); el.id = 'shoreCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Go ashore'); document.body.appendChild(el); }
     let pick = shoreParty.filter(w => shoreCan().includes(w)).slice(0, 2);
     const draw = () => {
-      const can = shoreCan(), done = shoreToday();
-      el.innerHTML = `<div class="qnew-card shore"><span class="eyebrow">Shore leave · one trip a ship day</span><b>Moonbase Pim</b>
+      const can = shoreCan(), done = shoreToday(pl);
+      el.innerHTML = `<div class="qnew-card shore"><span class="eyebrow">Shore leave · one trip a ship day</span><b>${P.name}</b>
         <canvas class="shorepic" id="shorePic" width="240" height="90" aria-hidden="true"></canvas>
-        <p>A little town under a glass dome on the Moon. Pim lives here, with a bakery, a school, Uncle Lalo’s supply rover and Gus’s telescope.</p>
+        <p>${P.blurb}</p>
         ${done ? '<p class="zhave">You’ve already been ashore today. The shuttle goes again tomorrow, after you sleep.</p>' : `
         <span class="eyebrow">Who’s coming? Pick up to two</span>
         <div class="shorecrew">${can.map(w => `<button class="shorepick${pick.includes(w) ? ' on' : ''}" data-sp="${w}" aria-pressed="${pick.includes(w)}">${faceTag(w, '')}<span>${SIGN[w]}</span></button>`).join('')}</div>
-        ${crumbHome() ? '<p class="zhave">Crumb is coming too. Nobody could stop him. Pim is his best friend.</p>' : ''}`}
+        ${pl === 'pim' && crumbHome() ? '<p class="zhave">Crumb is coming too. Nobody could stop him. Pim is his best friend.</p>' : ''}`}
         <div class="btns">${done ? '' : `<button class="btn" id="shoreGo">Go ashore${pick.length ? ` with ${pick.map(w => SIGN[w]).join(' and ')}` : ' alone'}</button>`}<button class="btn ghost" id="shoreNo">${done ? 'Okay' : 'Not now'}</button></div></div>`;
       paintFaces(el); el.hidden = false;
-      { const cv = $('shorePic'); if (cv) drawShorePic(cv.getContext('2d')); }
+      { const cv = $('shorePic'); if (cv) P.pic(cv.getContext('2d')); }
       el.querySelectorAll('[data-sp]').forEach(b => b.addEventListener('click', () => {
         const w = b.dataset.sp; sfx.click();
         if (pick.includes(w)) pick = pick.filter(x => x !== w); else { pick.push(w); if (pick.length > 2) pick.shift(); }
         draw(); const nb = el.querySelector(`[data-sp="${w}"]`); if (nb) nb.focus({ preventScroll: true });
       }));
-      const go = $('shoreGo'); if (go) go.addEventListener('click', () => { el.hidden = true; goAshore(pick); });
+      const go = $('shoreGo'); if (go) go.addEventListener('click', () => { el.hidden = true; goAshore(pick, pl); });
       $('shoreNo').addEventListener('click', () => { sfx.click(); el.hidden = true; });
     };
     draw();
@@ -17990,21 +18015,22 @@ details.act > .limits { margin: 0 0 8px; }
     for (let k = 0; k < 9; k++) px(c, 54 + k * 12, 50 + (k % 3), 1, 1, '#ffe58a');
     px(c, 0, 70, 240, 20, '#565a66');
   }
-  function goAshore(pick) {
-    shoreParty = pick.slice(); store.set('ds-shoreParty', JSON.stringify(shoreParty)); store.set('ds-shoreDay', String(shipDay));
+  function goAshore(pick, pl = 'pim') {
+    const P = SHORE_PLACES[pl];
+    shoreParty = pick.slice(); store.set('ds-shoreParty', JSON.stringify(shoreParty)); store.set(pl === 'pim' ? 'ds-shoreDay' : 'ds-shoreDay-' + pl, String(shipDay));
     sfx.click();
     const fade = document.createElement('div');
     fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
-    fade.innerHTML = `<div class="zz" aria-hidden="true">🌙</div><b>Moonbase Pim</b><span>${pick.length ? `Shore leave with ${pick.map(w => SIGN[w]).join(' and ')}` : 'Shore leave'}</span>`;
+    fade.innerHTML = `<div class="zz" aria-hidden="true">${P.icon}</div><b>${P.name}</b><span>${pick.length ? `Shore leave with ${pick.map(w => SIGN[w]).join(' and ')}` : 'Shore leave'}</span>`;
     document.body.appendChild(fade);
-    setTimeout(() => { shoreParty.forEach(w => addHearts(w, 15)); walkEnter = 'ship'; setMode('pim'); }, reduceMotion ? 50 : 1200);
+    setTimeout(() => { shoreParty.forEach(w => addHearts(w, 15)); walkEnter = 'ship'; setMode(P.start); }, reduceMotion ? 50 : 1200);
     setTimeout(() => fade.remove(), reduceMotion ? 1400 : 2600);
   }
   function shoreLeave() {
     sfx.click();
     const fade = document.createElement('div');
     fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
-    fade.innerHTML = '<div class="zz" aria-hidden="true">🚀</div><b>Back aboard</b><span>Pim waved until the airlock closed</span>';
+    fade.innerHTML = `<div class="zz" aria-hidden="true">🚀</div><b>Back aboard</b><span>${deck && MARS_KINDS.includes(deck.kind) ? 'The docking ring spun shut. A drone waved goodbye. Probably.' : 'Pim waved until the airlock closed'}</span>`;
     document.body.appendChild(fade);
     setTimeout(() => { walkEnter = 'missions'; setMode('bridge'); }, reduceMotion ? 50 : 900);
     setTimeout(() => fade.remove(), reduceMotion ? 1200 : 2200);
@@ -18031,7 +18057,7 @@ details.act > .limits { margin: 0 0 8px; }
     H: ['Ines’s star buns. Seven folds, egg wash, a pinch of salt. I’m stealing it. With respect.', 'This bakery is what a galley wants to be when it grows up.', 'I traded Ines a spice jar for her starter dough. Best trade of my life.']
   };
   const SHORE_ANY = [n => `${n}: I could get used to this. Gravity that doesn’t try to kill you. Pastries.`, n => `${n}: Look at the Earth from here. You can almost see the base.`, n => `${n}: Thanks for bringing me. I needed a day off the ship.`];
-  function shoreLine(w) { const L = SHORE_SAYS[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  function shoreLine(w) { const L = (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -18241,7 +18267,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MAP_HOME = { mars: ['J', 'Juno’s home'], ganymede: ['Z', 'Zib’s home'], europa: ['N', 'Nerri’s home'], earth: [null, 'Where it all started'] };
   const mapNew = wid => ALL.reduce((n, d, i) => n + (d.world === wid && missionOpen(i) && !(missionStars[d.id] > 0) && !(i < MISSIONS.length && restLocked(i)) ? 1 : 0), 0);
   const mapQuest = wid => QUESTS.find(q => questStep(q.id) >= 0 && !questDone(q.id) && questCur(q).m && (ALL.find(d => d.id === questCur(q).m) || {}).world === wid);
-  const mapShore = wid => wid === 'moon' && shoreOk();
+  const mapShore = wid => Object.keys(SHORE_PLACES).find(k => SHORE_PLACES[k].world === wid && SHORE_PLACES[k].open()) || null;
   let mapSel = null;
   function renderSysMap() {
     const here = shipAt();
@@ -18256,7 +18282,7 @@ details.act > .limits { margin: 0 0 8px; }
       const been = stats.worlds.includes(w.id);
       panel = `<b>${w.name}</b><span class="here">${isHere ? '📍 You’re parked here' : open ? 'A short hop. No fuel cost, no time lost.' : 'Not on your charts yet'}</span>
         <div class="row">${n ? `<span class="chip o">${n} new ${n === 1 ? 'job' : 'jobs'}</span>` : `<span class="chip">${been ? 'All caught up' : 'Nothing open yet'}</span>`}
-          ${q ? `<span class="chip g">★ ${esc(q.name)}</span>` : ''}${mapShore(w.id) ? '<span class="chip b">⚓ Moonbase Pim · go ashore</span>' : ''}${home ? `<span class="chip">${home[1]}</span>` : ''}</div>
+          ${q ? `<span class="chip g">★ ${esc(q.name)}</span>` : ''}${mapShore(w.id) ? `<span class="chip b">⚓ ${SHORE_PLACES[mapShore(w.id)].name} · go ashore</span>` : ''}${home ? `<span class="chip">${home[1]}</span>` : ''}</div>
         ${open ? `<span class="mapnote">${isHere ? 'Jobs here (📍 on the flight deck) pay +10% while you’re parked.' : `Park here and jobs on ${w.name} pay +10%.`}</span>` : ''}
         <div class="btns">${isHere ? `${mapShore(w.id) ? '<button class="btn" id="mapAshore">🌙 Go ashore</button>' : ''}<button class="btn${mapShore(w.id) ? ' ghost' : ''}" id="mapFlights">Flight deck</button>`
           : open ? `<button class="btn" id="mapGo">Set course for ${w.name}</button>` : ''}</div>`;
@@ -18284,7 +18310,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     card.querySelectorAll('[data-mw]').forEach(b => b.addEventListener('click', () => { sfx.click(); mapSel = b.dataset.mw; renderSysMap(); const nb = card.querySelector(`.mapworlds [data-mw="${mapSel}"]`); if (nb) nb.focus({ preventScroll: true }); }));
     { const g = $('mapGo'); if (g) g.addEventListener('click', () => sailTo(mapSel)); }
-    { const a = $('mapAshore'); if (a) a.addEventListener('click', () => { sfx.click(); openShore(); }); }
+    { const a = $('mapAshore'); if (a) a.addEventListener('click', () => { sfx.click(); openShore(mapShore(mapSel)); }); }
     { const f = $('mapFlights'); if (f) f.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); }); }
     $('back').addEventListener('click', () => { sfx.click(); walkEnter = 'missions'; setMode('bridge'); });
   }
@@ -18352,8 +18378,450 @@ details.act > .limits { margin: 0 0 8px; }
     Z: ['GANYMEDE! Zib is home! Zib can hear the market from orbit! Zib cannot! Zib is imagining it!', 'Zib’s cousins live down there. Zib will not visit. Zib owes them a spoon.'],
     N: ['Europa. My family is under that ice. They know we’re here. They can feel it. I think.', 'Home. It looks so small from up here. It isn’t. It’s very big underneath.']
   };
+  // ---- Mars City, stage 1: the Dock and Main Street, joined by a maglev, with a diner and Descent Systems' old office ----
+  const MARS_W = 640;
+  const marsOk = () => !inBase() && stats.worlds.includes('mars');
+  const marsBusy = () => questDone('q-juno');   // Juno's dock comes back to life once her quest is done
+  // where you can go ashore, and how each place looks on the Go ashore card
+  const SHORE_PLACES = {
+    pim: { name: 'Moonbase Pim', world: 'moon', start: 'pim', icon: '🌙', open: () => shoreOk(),
+      blurb: 'A little town under a glass dome on the Moon. Pim lives here, with a bakery, a school, Uncle Lalo’s supply rover and Gus’s telescope.', pic: c => drawShorePic(c) },
+    mars: { name: 'Mars City', world: 'mars', start: 'mdock', icon: '🔴', open: () => marsOk(),
+      blurb: 'The big city on Mars. Juno’s dock, a maglev, Main Street with the Red Planet Diner, the Rust Market and Descent Systems’ old office. Drones everywhere.', pic: c => drawMarsPic(c) }
+  };
+  const MARS_KINDS = ['mdock', 'mmain', 'mdiner', 'moffice'];
+  const placeOf = kind => MARS_KINDS.includes(kind) ? 'mars' : 'pim';
+  // ---- Rusty, the Red Planet Diner's robot ----
+  function drawRustyFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#2a1018');
+    px(c, 15, 1, 2, 4, '#8a93ab'); px(c, 14, 0, 4, 2, blink ? '#7a3a5a' : '#ff6b9a');
+    c.fillStyle = '#c9cfdc'; c.beginPath(); c.roundRect(6, 5, 20, 18, 6); c.fill(); px(c, 8, 6, 6, 2, '#f4f8ff');
+    px(c, 8, 11, 16, 6, '#2a1018'); px(c, 9, 12, 14, 4, '#ff6b9a');
+    if (!blink) { px(c, 11, 13, 3, 2, '#fff0f6'); px(c, 18, 13, 3, 2, '#fff0f6'); }
+    px(c, 12, 19, 8, open ? 3 : 1, '#3a4256'); for (let k = 0; k < 4; k++) px(c, 12 + k * 2, 19, 1, open ? 3 : 1, '#8a93ab');
+    px(c, 4, 25, 24, 7, '#a8b0c0'); px(c, 13, 25, 6, 3, '#ff6b9a'); px(c, 15, 26, 2, 1, '#2a1018'); px(c, 7, 28, 4, 1, '#f4f8ff');
+  }
+  function drawRustySprite(c, x, y, dir, t) {
+    const bob = reduceMotion ? 0 : Math.round(Math.sin(t / 300));
+    px(c, x + 7, y + 1 + bob, 2, 3, '#8a93ab'); px(c, x + 6, y + bob, 4, 2, '#ff6b9a');
+    c.fillStyle = '#c9cfdc'; c.beginPath(); c.roundRect(x + 3, y + 4 + bob, 10, 8, 3); c.fill();
+    if (dir !== 3) { px(c, x + 4, y + 7 + bob, 8, 3, '#2a1018'); px(c, x + (dir === 1 ? 4 : dir === 2 ? 6 : 5), y + 8 + bob, dir === 0 ? 6 : 6, 1, '#ff6b9a'); }
+    px(c, x + 4, y + 13 + bob, 8, 7, '#a8b0c0'); px(c, x + 6, y + 13 + bob, 4, 2, '#ff6b9a'); px(c, x + 5, y + 16 + bob, 6, 3, '#f4f8ff');
+    px(c, x + 2, y + 14 + bob, 2, 4, '#8a93ab'); px(c, x + 12, y + 14 + bob, 2, 4, '#8a93ab');
+    px(c, x + 7, y + 20, 2, 1, '#3a4256'); c.fillStyle = '#2a2a33'; c.beginPath(); c.arc(x + 8, y + 22, 2.5, 0, Math.PI * 2); c.fill(); px(c, x + 7, y + 21, 2, 2, '#8a93ab');
+  }
+  Object.assign(SPEAKERS, { RB: { name: 'Rusty · Diner bot', color: '#ff8fb8' } });
+  Object.assign(SIGN, { RB: 'Rusty' });
+  Object.assign(DEFAULT_MOOD, { RB: 'happy' });
+  SHORE_LOCALS.push('RB');
+  // ---- a sci-fi toolkit for the city ----
+  const mGlow = (c, col, blur, fn) => { c.save(); c.shadowColor = col; c.shadowBlur = blur; fn(); c.restore(); };
+  function marsSky(c, W, t) {
+    const g = c.createLinearGradient(0, 0, 0, 64); g.addColorStop(0, '#5a2a3a'); g.addColorStop(0.45, '#b8583a'); g.addColorStop(1, '#f0a060'); c.fillStyle = g; c.fillRect(0, 0, W, 64);
+    for (let i = 0; i < 30; i++) px(c, (i * 71) % W, (i * 13) % 18, 1, 1, 'rgba(255,230,220,0.6)');
+    c.fillStyle = '#c9a890'; c.beginPath(); c.ellipse(W * 0.62, 12, 6, 4, -0.3, 0, 7); c.fill(); c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(W * 0.62 + 2, 13, 5, 3, -0.3, 0, 7); c.fill();
+    c.fillStyle = '#7a3a34'; c.beginPath(); c.moveTo(0, 64); c.lineTo(0, 44); for (let x = 0; x <= W; x += 40) c.lineTo(x, 40 + ((x * 13) % 9)); c.lineTo(W, 64); c.fill();
+    for (let i = 0; i < W / 26; i++) {
+      const x = i * 26 + ((i * 7) % 11), h = 14 + ((i * 37) % 26), w = 10 + ((i * 5) % 8);
+      px(c, x, 58 - h, w, h, '#3a2438');
+      for (let y = 58 - h + 3; y < 56; y += 4) for (let k = 2; k < w - 1; k += 3) if (((i + y + k) * 7) % 5 === 0) px(c, x + k, y, 1, 1, ['#ffd27a', '#7fd6ff', '#ff8fb8'][(i + k) % 3]);
+      if (i % 3 === 0) { px(c, x + w / 2, 58 - h - 8, 1, 8, '#5a3a50'); px(c, x + w / 2 - 1, 58 - h - 9, 3, 2, Math.floor(t / 600 + i) % 3 ? (i % 2 ? '#ff6b5e' : '#7fd6ff') : '#3a2438'); }
+    }
+    c.fillStyle = 'rgba(127,214,255,0.18)'; c.beginPath(); c.ellipse(W * 0.35, 58, 34, 22, 0, Math.PI, 0); c.fill(); c.strokeStyle = 'rgba(127,214,255,0.5)'; c.lineWidth = 1; c.beginPath(); c.ellipse(W * 0.35, 58, 34, 22, 0, Math.PI, 0); c.stroke();
+    c.strokeStyle = 'rgba(160,220,255,0.16)'; for (let x = -10; x < W; x += 24) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 12, 7); c.lineTo(x + 24, 0); c.moveTo(x + 12, 7); c.lineTo(x + 12, 16); c.stroke(); }
+    px(c, 0, 16, W, 1, 'rgba(160,220,255,0.25)');
+  }
+  function mBlock(c, x, y, w, h, base, trim, roof) {
+    px(c, x, y, w, h, base); for (let yy = y + 6; yy < y + h; yy += 8) px(c, x, yy, w, 1, 'rgba(0,0,0,0.25)'); for (let xx = x + 3; xx < x + w; xx += 12) for (let yy = y + 3; yy < y + h; yy += 8) px(c, xx, yy, 1, 1, 'rgba(255,255,255,0.18)');
+    if (roof) { c.fillStyle = base; c.beginPath(); c.moveTo(x - 2, y); c.lineTo(x + 6, y - 6); c.lineTo(x + w - 6, y - 6); c.lineTo(x + w + 2, y); c.fill(); }
+    mGlow(c, trim, 6, () => { px(c, x, y, w, 1, trim); px(c, x, y + h - 2, w, 1, trim); });
+  }
+  function mHolo(c, x, y, w, text, col, size = 6, t = 0) {
+    const flick = !reduceMotion && Math.floor(t / 90 + x) % 97 === 0;
+    c.fillStyle = 'rgba(20,40,60,0.55)'; c.fillRect(x, y, w, 10);
+    for (let k = y; k < y + 10; k += 2) { c.fillStyle = 'rgba(255,255,255,0.05)'; c.fillRect(x, k, w, 1); }
+    if (flick) return;
+    mGlow(c, col, 7, () => { c.strokeStyle = col; c.lineWidth = 1; c.strokeRect(x + 0.5, y + 0.5, w - 1, 9); c.font = `700 ${size}px monospace`; c.fillStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, x + w / 2, y + 5.5); });
+    px(c, x + w / 2 - 1, y + 10, 2, 3, '#3a4256');
+  }
+  function mDoor(c, x, y, w, h, col) {
+    c.fillStyle = '#151a2a'; c.beginPath(); c.roundRect(x - 2, y - 2, w + 4, h + 2, [6, 6, 0, 0]); c.fill();
+    c.fillStyle = '#2a3348'; c.beginPath(); c.roundRect(x, y, w, h, [5, 5, 0, 0]); c.fill(); px(c, x + w / 2 - 0.5, y + 2, 1, h - 2, '#151a2a');
+    mGlow(c, col, 5, () => { c.strokeStyle = col; c.lineWidth = 1; c.beginPath(); c.roundRect(x - 1.5, y - 1.5, w + 3, h + 1, [6, 6, 0, 0]); c.stroke(); px(c, x + w + 3, y + h / 2, 2, 3, col); });
+  }
+  function mFloor(c, W, top, col, seam, t) {
+    px(c, 0, top, W, 160 - top, col);
+    for (let y = top + 10; y < 160; y += 16) px(c, 0, y, W, 1, 'rgba(0,0,0,0.3)');
+    for (let x = 0; x < W; x += 32) for (let y = top; y < 160; y += 16) px(c, x + ((y / 16) % 2) * 16, y, 1, 16, 'rgba(0,0,0,0.3)');
+    for (let x = 4; x < W; x += 32) for (let y = top + 4; y < 160; y += 16) px(c, x, y, 1, 1, 'rgba(255,255,255,0.15)');
+    mGlow(c, seam, 6, () => { px(c, 0, 104, W, 1, seam); px(c, 0, 120, W, 1, seam); });
+    c.fillStyle = 'rgba(0,0,0,0.18)'; c.fillRect(0, 105, W, 15);
+    const run = reduceMotion ? 0 : Math.floor(t / 120) % 24;
+    for (let x = 8 - 24; x < W; x += 24) mGlow(c, seam, 4, () => px(c, x + run, 112, 10, 1, seam));
+    px(c, 0, top, W, 2, '#151a2a');
+  }
+  function mPylon(c, x, col) { px(c, x, 62, 3, 32, '#2a3348'); px(c, x - 1, 92, 5, 2, '#151a2a'); mGlow(c, col, 10, () => px(c, x - 2, 58, 7, 4, col)); }
+  function mCrane(c, x, y, h, t, on) {
+    c.strokeStyle = '#e8b830'; c.lineWidth = 1; px(c, x, y - h, 4, h, '#c99a24');
+    for (let k = 0; k < h; k += 6) { c.beginPath(); c.moveTo(x, y - k); c.lineTo(x + 4, y - k - 6); c.stroke(); }
+    px(c, x - 26, y - h, 64, 3, '#c99a24');
+    if (Math.floor(t / 700) % 2) mGlow(c, '#ff6b5e', 5, () => { px(c, x - 26, y - h - 1, 2, 2, '#ff6b5e'); px(c, x + 36, y - h - 1, 2, 2, '#ff6b5e'); });
+    const sw = on && !reduceMotion ? Math.round(Math.sin(t / 1400) * 10) : 0, drop = on && !reduceMotion ? Math.round((Math.sin(t / 2100) + 1) * 4) : 0;
+    px(c, x + 30 + sw, y - h + 3, 1, 14 + drop, '#2a2a33'); px(c, x + 26 + sw, y - h + 17 + drop, 9, 6, '#3f6a8a'); mGlow(c, '#7fd6ff', 4, () => px(c, x + 26 + sw, y - h + 17 + drop, 9, 1, '#7fd6ff'));
+  }
+  function mTram(c, x, y, w) {
+    mGlow(c, '#7fd6ff', 8, () => px(c, x - 10, y + 16, w + 20, 2, '#7fd6ff'));
+    c.fillStyle = '#e8e6f0'; c.beginPath(); c.moveTo(x, y + 15); c.lineTo(x, y + 5); c.quadraticCurveTo(x, y, x + 8, y); c.lineTo(x + w - 10, y); c.quadraticCurveTo(x + w + 2, y, x + w + 4, y + 15); c.fill();
+    px(c, x + 2, y + 11, w, 2, '#c0603a'); for (let k = 0; k < w - 14; k += 10) px(c, x + 6 + k, y + 3, 8, 6, '#1a2a44');
+    mGlow(c, '#7fd6ff', 4, () => { for (let k = 0; k < w - 14; k += 10) px(c, x + 6 + k, y + 3, 8, 1, '#7fd6ff'); });
+  }
+  // drones: they fly by themselves, worked out from the clock, so they never need saving
+  function marsDrones(c, W, t, n, low) {
+    const tt = reduceMotion ? 20000 : t;
+    for (let i = 0; i < n; i++) {
+      const sp = 14 + (i * 7) % 12, dir = i % 2 ? -1 : 1, span = W + 60;
+      let x = ((i * 157 + dir * tt * sp / 1000) % span + span) % span - 30;
+      const y = (low && i === 0 ? 70 : 18 + (i * 11) % 30) + Math.sin(tt / 600 + i) * 2;
+      px(c, x, y, 7, 2, '#2a2a33'); px(c, x - 2, y - 1, 3, 1, '#8a93ab'); px(c, x + 6, y - 1, 3, 1, '#8a93ab');
+      if (!reduceMotion && Math.floor(tt / 60 + i) % 2) { px(c, x - 3, y - 1, 1, 1, '#c9cfdc'); px(c, x + 9, y - 1, 1, 1, '#c9cfdc'); }
+      if (i % 3 === 1) { px(c, x + 3, y + 2, 1, 3, '#2a2a33'); c.fillStyle = ['#b07a35', '#3f6a8a', '#5aa070'][i % 3]; c.fillRect(x + 1, y + 5, 5, 4); }
+      mGlow(c, i % 2 ? '#ff6b5e' : '#58e0a0', 4, () => px(c, x + 3, y + 2, 1, 1, Math.floor(tt / 400 + i) % 2 ? (i % 2 ? '#ff6b5e' : '#58e0a0') : '#2a2a33'));
+      if (low && i === 0) { c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.ellipse(x + 3, 98, 5, 1.5, 0, 0, Math.PI * 2); c.fill(); }
+    }
+  }
+  // locals walking up and down the street, also worked out from the clock
+  const MARS_CROWD = [{ skin: '#c98a62', hair: '#2a1a12', style: 'short', top: '#2a6a8a', pants: '#1a2034', shoes: '#15151f', trim: '#7fd6ff' }, { skin: '#f0c8a0', hair: '#ff6b9a', style: 'long', top: '#3a2a50', pants: '#2a2040', shoes: '#15151f', trim: '#ff8fb8' },
+    { skin: '#7a4a32', hair: '#141018', style: 'bun', top: '#e8b830', pants: '#3a4668', shoes: '#141018', acc: 'headset' }, { skin: '#d9a07a', hair: '#7fd6ff', style: 'messy', top: '#2a3348', pants: '#2a3045', shoes: '#5a3a24', trim: '#58e0a0' },
+    { skin: '#e8b48a', hair: '#d7dbe3', style: 'curly', top: '#c0603a', pants: '#3a3050', shoes: '#2a2238', acc: 'glasses' }, { skin: '#9a5f43', hair: '#1a1410', style: 'buzz', top: '#5a4a7a', pants: '#2a3045', shoes: '#15151f', hat: 'beanie' }];
+  function marsCrowd(things, c, W, t, n) {
+    const tt = reduceMotion ? 0 : t;
+    for (let i = 0; i < n; i++) {
+      const dir = i % 2 ? -1 : 1, sp = 10 + (i * 5) % 9, span = W + 40, y = 82 + (i * 23) % 64;
+      const x = ((i * 113 + dir * tt * sp / 1000) % span + span) % span - 20;
+      things.push([y, () => drawSprite(c, MARS_CROWD[i % MARS_CROWD.length], Math.round(x) - 8, y - 24, dir > 0 ? 2 : 1, reduceMotion ? 0 : Math.floor(tt / 160 + i) % 4, false)]);
+    }
+  }
+  // ---- the Dock ----
+  function mdockThings(L) {
+    L.push({ id: 'ring', rect: [10, 20, 54, 44], go: () => [36, 76], at: () => ({ x: 36, y: 40 }), act: () => shoreLeave() });
+    L.push({ id: 'junowin', rect: [92, 20, 52, 26], go: () => [118, 76], at: () => ({ x: 118, y: 34 }), act: () => marsJunoOffice() });
+    L.push({ id: 'junodoor', rect: [150, 26, 28, 38], go: () => [164, 76], at: () => ({ x: 164, y: 44 }), act: () => marsJunoOffice() });
+    L.push({ id: 'pods', rect: [208, 16, 130, 36], go: () => [270, 78], at: () => ({ x: 270, y: 36 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'J') ? ['J', marsBusy() ? 'Full stacks. Six months ago those bays were empty. You did that. Well. We did that. Mostly you.' : 'Half the bays are empty. Apex moved in down the road and the work went with them.'] : ['P', marsBusy() ? 'Cargo pods, stacked three high. The ID strips glow: “PIM · FLOUR”, “EUROPA · SPARES”, “ZIB · DO NOT OPEN”.' : 'Two cargo pods and a lot of empty floor. A holo sign over an empty bay flickers: “FOR LEASE”.'])) });
+    L.push({ id: 'jobs', rect: [336, 14, 36, 48], go: () => [354, 76], at: () => ({ x: 354, y: 30 }), act: () => { sfx.click(); openMarsJobs(); } });
+    L.push({ id: 'crane', rect: [438, 24, 36, 40], go: () => [456, 78], at: () => ({ x: 456, y: 40 }), act: () => shipSay(...(marsBusy() ? (deck.npcs.some(n => n.who === 'J') ? ['J', 'That’s Ana up in the cab. Best crane operator on Mars. She waved. She doesn’t wave. That’s for you.'] : ['P', 'Ana leans out of the crane cab and gives you a thumbs up. The crane swings a pod over your head, gently, like it’s showing off.'])
+      : ['P', 'An old crane control box, switched off. A sticky note on the screen: “Waiting for parts. And people. — J”'])) });
+    L.push({ id: 'maglev', rect: [520, 16, 120, 46], go: () => [580, 76], at: () => ({ x: 580, y: 40 }), act: () => openMaglev('mdock') });
+  }
+  function marsJunoOffice() {
+    sfx.click();
+    if (deck.npcs.some(n => n.who === 'J')) { shipSay('J', marsBusy() ? 'My office. I barely use it now. Too busy. That’s the best complaint I’ve ever had.' : 'My office. Same desk my mother had. Same chair. Same leak in the roof.'); return; }
+    shipSay('P', marsBusy() ? 'Through the window: Juno’s office, full of clipboards. Someone has stuck a gold star on the “DOCK MASTER” sign.' : 'Through the window: a tidy office and a calendar with every day crossed out in red. A note: “Back soon. — J”');
+  }
+  function mdockDraw(t) {
+    const c = deck.c, W = MARS_W, busy = marsBusy();
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    marsSky(c, W, t);
+    mCrane(c, 160, 62, 54, t, busy); if (busy) mCrane(c, 412, 62, 46, t + 900, true);
+    marsDrones(c, W, t, busy ? 5 : 2, false);
+    // your ship's docking ring
+    mBlock(c, 0, 12, 72, 50, '#2a3348', '#58e0a0', false);
+    c.fillStyle = '#151a2a'; c.beginPath(); c.arc(36, 40, 18, 0, 7); c.fill(); mGlow(c, '#58e0a0', 8, () => { c.strokeStyle = '#58e0a0'; c.lineWidth = 2; c.beginPath(); c.arc(36, 40, 16, 0, 7); c.stroke(); c.lineWidth = 1; });
+    c.fillStyle = '#3a4256'; c.beginPath(); c.arc(36, 40, 12, 0, 7); c.fill(); const sp = reduceMotion ? 0 : t / 4000; for (let a = 0; a < 6; a++) { c.strokeStyle = '#151a2a'; c.beginPath(); c.moveTo(36, 40); c.lineTo(36 + Math.cos(a + sp) * 12, 40 + Math.sin(a + sp) * 12); c.stroke(); }
+    mHolo(c, 8, 1, 56, 'YOUR SHIP · BAY 3', '#58e0a0', 5, t);
+    // Juno's dock office
+    mBlock(c, 86, 14, 112, 48, '#1e3e3a', '#5fd3c8', true);
+    px(c, 94, 22, 48, 22, '#0a1a20'); mGlow(c, '#5fd3c8', 4, () => { for (let k = 0; k < 4; k++) px(c, 98 + k * 11, 26, 8, 2, k % 2 ? '#ffd27a' : '#5fd3c8'); px(c, 98, 34, 40, 1, '#5fd3c8'); px(c, 98, 38, 26, 1, '#5fd3c8'); });
+    mDoor(c, 154, 30, 20, 32, '#5fd3c8');
+    mHolo(c, 96, 0, 92, 'MARS DOCK · JUNO', '#5fd3c8', 6, t);
+    mGlow(c, busy ? '#ffd27a' : '#ff6b5e', 6, () => { px(c, 180, 20, 14, 8, '#2a1d0a'); c.fillStyle = busy ? '#ffd27a' : '#ff6b5e'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(busy ? 'OPEN' : 'SLOW', 187, 24.5); });
+    // cargo pods
+    const pods = busy ? [[212, 36, 40, '#a8523a', '#ffb547'], [256, 36, 40, '#2a5a7a', '#7fd6ff'], [216, 20, 40, '#3a6a50', '#58e0a0'], [300, 36, 34, '#b8902a', '#ffe58a'], [260, 20, 36, '#5a3a6a', '#c8a2ff']] : [[212, 36, 40, '#6a4a3a', '#8a6a5a'], [256, 36, 40, '#2a3a4a', '#5a7a8a']];
+    for (const [x, y, w, col, l] of pods) { c.fillStyle = col; c.beginPath(); c.roundRect(x, y, w, 15, 3); c.fill(); for (let k = 3; k < w; k += 6) px(c, x + k, y + 3, 1, 9, 'rgba(0,0,0,0.25)'); mGlow(c, l, 4, () => px(c, x + 4, y + 12, 10, 1, l)); }
+    if (!busy) mHolo(c, 300, 30, 36, 'FOR LEASE', '#ff6b5e', 5, t);
+    // the job board
+    px(c, 352, 46, 4, 16, '#2a3348'); px(c, 346, 58, 16, 4, '#2a3348');
+    c.fillStyle = 'rgba(255,181,71,0.12)'; c.fillRect(340, 18, 28, 26); mGlow(c, '#ffb547', 6, () => { c.strokeStyle = '#ffb547'; c.strokeRect(340.5, 18.5, 27, 25); const n = marsJobs().filter(j => !(missionStars[j.d.id] > 0)).length; for (let k = 0; k < 4; k++) px(c, 344, 23 + k * 5, k === 1 ? 16 : 20, 2, k < n ? (k === 1 ? '#ffe58a' : '#ffb547') : '#5a4630'); });
+    mHolo(c, 338, 6, 32, 'JOBS', '#ffb547', 6, t);
+    // the crane cab
+    mBlock(c, 440, 26, 32, 36, '#2a3348', busy ? '#7fd6ff' : '#3a4668', false); px(c, 444, 30, 24, 12, '#0a1a2a');
+    if (busy) { mGlow(c, '#7fd6ff', 5, () => { px(c, 446, 33, 12, 1, '#7fd6ff'); px(c, 446, 37, 18, 1, '#7fd6ff'); }); mGlow(c, '#ff6b5e', 4, () => px(c, 446, 48, 3, 3, '#ff6b5e')); mGlow(c, '#58e0a0', 4, () => px(c, 454, 48, 3, 3, '#58e0a0')); }
+    // the maglev platform
+    mBlock(c, 520, 18, 120, 44, '#2a3348', '#ffcf3a', true); px(c, 524, 22, 112, 28, '#0e1428');
+    { const k = reduceMotion ? 0 : (t / 9000) % 1, arrive = k < 0.15 ? (1 - k / 0.15) * 160 : k > 0.85 ? -(k - 0.85) / 0.15 * 160 : 0; c.save(); c.beginPath(); c.rect(524, 22, 112, 28); c.clip(); mTram(c, 530 + arrive, 28, 66); c.restore(); }
+    mHolo(c, 548, 4, 64, 'MAGLEV · DOCK', '#ffcf3a', 6, t);
+    mFloor(c, W, 62, '#4a3a44', '#ff8a5a', t);
+    for (let k = 0; k < 30; k++) px(c, 520 + k * 4, 62, 2, 2, k % 2 ? '#151a2a' : '#ffcf3a');
+    const things = shipFloorThings(c, t), me = deck.me;
+    things.push([102, () => { for (const [x, y] of [[204, 92], [218, 92], [211, 82]]) { c.fillStyle = '#5a6278'; c.beginPath(); c.roundRect(x, y, 12, 10, 2); c.fill(); mGlow(c, '#ffb547', 3, () => px(c, x + 2, y + 4, 8, 1, '#ffb547')); } }]);
+    if (busy) {
+      const hx = reduceMotion ? 470 : 470 + Math.round(Math.sin(t / 2600) * 24);
+      things.push([100, () => { c.fillStyle = '#e8b830'; c.beginPath(); c.roundRect(hx - 2, 86, 30, 10, 3); c.fill(); px(c, hx + 22, 72, 2, 20, '#2a2a33'); px(c, hx + 24, 88, 8, 2, '#2a2a33'); mGlow(c, '#7fd6ff', 8, () => { c.fillStyle = 'rgba(127,214,255,0.7)'; c.beginPath(); c.ellipse(hx + 13, 100, 14, 2, 0, 0, 7); c.fill(); }); }]);
+      things.push([70, () => drawSprite(c, { skin: '#c98a62', hair: '#2a1a12', style: 'bun', top: '#e8b830', pants: '#3a4668', shoes: '#2a2a33', acc: 'headset' }, 448, 46, 0, 0, false)]);
+    }
+    for (const [x, col] of [[196, '#ff8a5a'], [330, '#7fd6ff'], [506, '#ff8a5a']]) things.push([94, () => mPylon(c, x, col)]);
+    marsCrowd(things, c, W, t, busy ? 7 : 3);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    marsDrones(c, W, t + 5000, 1, true);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // the job board: Mars work, flown from the dock (so it counts as local)
+  const marsJobs = () => ALL.map((d, i) => ({ d, i })).filter(({ d, i }) => d.world === 'mars' && missionOpen(i) && !(i < MISSIONS.length && restLocked(i)));
+  function openMarsJobs() {
+    let el = $('marsJobs');
+    if (!el) { el = document.createElement('div'); el.id = 'marsJobs'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Mars job board'); document.body.appendChild(el); }
+    const jobs = marsJobs().sort((a, b) => (missionStars[a.d.id] || 0) - (missionStars[b.d.id] || 0)).slice(0, 8);
+    el.innerHTML = `<div class="qnew-card zstall"><span class="eyebrow">Mars Dock · Job board</span><b>Work on Mars</b>
+      <p class="zsay">Every job here is local while you’re parked at Mars: +10% credits, every time.</p>
+      <div class="ztrades">${jobs.length ? jobs.map(({ d, i }) => { const st = missionStars[d.id] || 0; return `<button class="ztrade" data-mj="${i}"><span>${esc(d.name)}<br><small>${d.side ? `For ${SIGN[d.giver] || 'a local'}` : `Story · Mission ${i + 1}`} · ${'★'.repeat(st)}${'☆'.repeat(3 - st)}</small></span><i aria-hidden="true">→</i><b>${st ? 'Fly again' : 'New'}</b></button>`; }).join('') : '<p class="zhave">No work on the board right now. Check back after more story.</p>'}</div>
+      <div class="btns"><button class="btn ghost" id="mjBye">Close</button></div></div>`;
+    el.hidden = false;
+    el.querySelectorAll('[data-mj]').forEach(b => b.addEventListener('click', () => { sfx.click(); el.hidden = true; flightsFrom = 'bridge'; openMission(+b.dataset.mj); }));
+    $('mjBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const b = el.querySelector('.ztrade') || $('mjBye'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  // ---- Main Street ----
+  function mmainThings(L) {
+    L.push({ id: 'maglev', rect: [0, 16, 80, 46], go: () => [40, 76], at: () => ({ x: 40, y: 40 }), act: () => openMaglev('mmain') });
+    L.push({ id: 'dinerwin', rect: [96, 22, 64, 26], go: () => [128, 76], at: () => ({ x: 128, y: 36 }), act: () => shipSay('P', 'Through the round window: chrome stools, a pink neon counter and a robot on one wheel, spinning a plate on one finger.') });
+    L.push({ id: 'dinerdoor', rect: [164, 26, 28, 38], go: () => [178, 74], at: () => ({ x: 178, y: 44 }), act: () => { sfx.click(); walkEnter = 'mmain'; setMode('mdiner'); } });
+    L.push({ id: 'market', rect: [206, 24, 144, 40], go: () => [272, 78], at: () => ({ x: 272, y: 44 }), act: () => { sfx.click(); openMarsMarket(); } });
+    L.push({ id: 'officedoor', rect: [394, 26, 28, 38], go: () => [408, 74], at: () => ({ x: 408, y: 44 }), act: () => { sfx.click(); walkEnter = 'mmain'; setMode('moffice'); } });
+    L.push({ id: 'statue', rect: [444, 28, 52, 58], go: () => [470, 94], at: () => ({ x: 470, y: 50 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'F') ? ['F', 'The first landing. Our first landing. They made a hologram of it. It’s slightly wrong. The real one bounced twice. I’m not telling them.'] : ['P', 'A hologram of the very first Descent Systems lander, turning slowly over a plinth. The plaque says: “FIRST LANDING. Nobody was hurt. One cup of coffee was spilled.”'])) });
+    L.push({ id: 'tailor', rect: [504, 10, 64, 54], go: () => [536, 76], at: () => ({ x: 536, y: 40 }), act: () => shipSay('P', 'The tailor’s shutters are down. A holo note: “Opening soon! Flight jackets, Mars boots and one very large hat.”') });
+    L.push({ id: 'paint', rect: [574, 10, 66, 54], go: () => [606, 76], at: () => ({ x: 606, y: 40 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'G') ? ['G', 'A paint shop! For landers! Opening soon! I’m going to buy one of every colour. Biscuit deserves a rainbow.'] : ['P', 'A paint shop for landers, shutters down. Through a gap: swatches in colours you didn’t know existed. “Opening soon.”'])) });
+  }
+  function mmainDraw(t) {
+    const c = deck.c, W = MARS_W;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    marsSky(c, W, t);
+    marsDrones(c, W, t, 5, false);
+    mBlock(c, 0, 18, 80, 44, '#2a3348', '#ffcf3a', true); px(c, 4, 22, 72, 28, '#0e1428');
+    { const k = reduceMotion ? 0 : ((t + 4500) / 9000) % 1, arrive = k < 0.15 ? (1 - k / 0.15) * 120 : k > 0.85 ? -(k - 0.85) / 0.15 * 120 : 0; c.save(); c.beginPath(); c.rect(4, 22, 72, 28); c.clip(); mTram(c, 8 + arrive, 28, 56); c.restore(); }
+    mHolo(c, 8, 4, 64, 'MAGLEV · MAIN ST', '#ffcf3a', 5, t);
+    // Red Planet Diner
+    c.fillStyle = '#c9cfdc'; c.beginPath(); c.roundRect(92, 16, 108, 46, [14, 14, 0, 0]); c.fill(); for (let y = 22; y < 62; y += 4) px(c, 92, y, 108, 1, 'rgba(0,0,0,0.12)');
+    c.fillStyle = '#2a1018'; c.beginPath(); c.roundRect(98, 24, 60, 22, 6); c.fill(); c.fillStyle = 'rgba(255,143,184,0.25)'; c.fillRect(100, 26, 56, 18);
+    for (let k = 0; k < 5; k++) { px(c, 104 + k * 10, 36, 6, 6, '#ffd27a'); px(c, 105 + k * 10, 34, 4, 2, '#f4f1e8'); }
+    mDoor(c, 168, 30, 20, 32, '#ff8fb8');
+    mGlow(c, '#ff6b9a', 10, () => { c.strokeStyle = '#ff6b9a'; c.lineWidth = 1; c.beginPath(); c.roundRect(92.5, 16.5, 107, 45, [14, 14, 0, 0]); c.stroke(); });
+    mHolo(c, 100, 2, 92, 'RED PLANET DINER', '#ff8fb8', 6, t);
+    // Rust Market
+    for (let k = 0; k < 3; k++) { const x = 212 + k * 46, col = ['#58e0a0', '#7fd6ff', '#ffcf3a'][k], rgb = [parseInt(col.slice(1, 3), 16), parseInt(col.slice(3, 5), 16), parseInt(col.slice(5, 7), 16)].join(',');
+      c.fillStyle = `rgba(${rgb},0.22)`; c.beginPath(); c.moveTo(x - 2, 36); c.lineTo(x + 4, 28); c.lineTo(x + 36, 28); c.lineTo(x + 42, 36); c.fill();
+      mGlow(c, col, 6, () => { c.strokeStyle = col; c.beginPath(); c.moveTo(x - 2, 36); c.lineTo(x + 4, 28); c.lineTo(x + 36, 28); c.lineTo(x + 42, 36); c.stroke(); });
+      px(c, x, 36, 2, 26, '#2a3348'); px(c, x + 38, 36, 2, 26, '#2a3348'); px(c, x, 50, 40, 10, '#3a4256');
+      for (let j = 0; j < 4; j++) { const g = ['#ff6b5e', '#ffe58a', '#9fe0b8', '#c8a2ff'][(j + k) % 4]; mGlow(c, g, 3, () => px(c, x + 4 + j * 9, 46, 6, 4, g)); } }
+    mHolo(c, 230, 14, 86, 'RUST MARKET', '#ffb547', 6, t);
+    // the old Descent Systems office
+    mBlock(c, 356, 16, 74, 46, '#3a2a34', '#ffb547', false); px(c, 362, 26, 26, 18, '#0e1428'); mGlow(c, '#ffb547', 4, () => px(c, 365, 29, 6, 6, '#ffb547')); px(c, 374, 37, 10, 6, '#5a4636');
+    mDoor(c, 398, 30, 20, 32, '#ffb547');
+    mHolo(c, 356, 4, 74, 'DESCENT SYSTEMS', '#ffb547', 5, t);
+    // the tailor and paint shop, opening soon
+    mBlock(c, 506, 16, 60, 46, '#2a2238', '#c8a2ff', true); px(c, 510, 24, 52, 32, '#3a3450'); for (let y = 24; y < 56; y += 3) px(c, 510, y, 52, 1, '#2a2440'); mHolo(c, 510, 4, 52, 'TAILOR', '#c8a2ff', 6, t); mHolo(c, 518, 36, 36, 'SOON', '#ffe58a', 5, t);
+    mBlock(c, 576, 16, 64, 46, '#1e3430', '#9fe0b8', true); px(c, 580, 24, 56, 32, '#2a4440'); for (let y = 24; y < 56; y += 3) px(c, 580, y, 56, 1, '#1e3430'); mHolo(c, 580, 4, 56, 'PAINT', '#9fe0b8', 6, t); mHolo(c, 590, 36, 36, 'SOON', '#ffe58a', 5, t);
+    mFloor(c, W, 62, '#4a3a44', '#ff8a5a', t);
+    const things = shipFloorThings(c, t), me = deck.me;
+    // the plaza hologram of the first lander, turning
+    things.push([84, () => {
+      px(c, 448, 66, 44, 18, '#2a3348'); px(c, 446, 64, 48, 3, '#3a4256'); mGlow(c, '#7fd6ff', 6, () => px(c, 446, 64, 48, 1, '#7fd6ff'));
+      c.fillStyle = 'rgba(127,214,255,0.12)'; c.beginPath(); c.moveTo(456, 64); c.lineTo(462, 30); c.lineTo(478, 30); c.lineTo(484, 64); c.fill();
+      const sq = reduceMotion ? 1 : Math.abs(Math.cos(t / 1600)) * 0.7 + 0.3;
+      mGlow(c, '#7fd6ff', 8, () => { c.save(); c.translate(470, 0); c.scale(sq, 1); c.strokeStyle = '#7fd6ff'; c.lineWidth = 1; c.beginPath(); c.moveTo(-7, 52); c.lineTo(-9, 42); c.lineTo(-4, 36); c.lineTo(4, 36); c.lineTo(9, 42); c.lineTo(7, 52); c.closePath(); c.stroke(); c.strokeRect(-10.5, 52.5, 21, 3); c.beginPath(); c.moveTo(-8, 56); c.lineTo(-14, 61); c.moveTo(8, 56); c.lineTo(14, 61); c.stroke(); c.restore(); });
+      c.fillStyle = '#7fd6ff'; c.font = '700 4px monospace'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText('FIRST LANDING', 470, 76);
+    }]);
+    for (const [x, col] of [[204, '#ff8fb8'], [344, '#ffb547'], [438, '#7fd6ff'], [570, '#9fe0b8']]) things.push([94, () => mPylon(c, x, col)]);
+    things.push([90, () => { c.fillStyle = '#2a3348'; c.beginPath(); c.roundRect(286, 84, 36, 5, 2); c.fill(); mGlow(c, '#ff8a5a', 4, () => px(c, 288, 89, 32, 1, '#ff8a5a')); }]);
+    marsCrowd(things, c, W, t, 10);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    marsDrones(c, W, t + 8000, 1, true);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // the Rust Market: Mars goods for your gift basket, a little cheaper than the catalogue
+  const MARS_GOODS = [['coffee', 'Mars roast. Grown in a dome, roasted by a woman named Bev.'], ['tools', 'A wrench set. Every Mars mechanic swears by them. Literally. Loudly.'], ['tapes', 'Old radio tapes from the first colony years. Mostly static and love songs.'], ['stars', 'A star chart printed on red dust paper. Phobos is drawn with a face.']];
+  const marketDay = () => { try { const v = JSON.parse(store.get('ds-marsMarket', '{}')); return v.day === shipDay ? v : { day: shipDay, n: 0 }; } catch (e) { return { day: shipDay, n: 0 }; } };
+  function openMarsMarket(msg) {
+    let el = $('marsMarket');
+    if (!el) { el = document.createElement('div'); el.id = 'marsMarket'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Rust Market'); document.body.appendChild(el); }
+    const m = marketDay(), left = 3 - m.n, price = id => Math.round((GIFTS.find(g => g.id === id) || { price: 100 }).price * 0.75);
+    el.innerHTML = `<div class="qnew-card zstall"><span class="eyebrow">Rust Market · Mars</span><b>Three stalls, loud prices</b>
+      <p class="zsay" aria-live="polite">${esc(msg || 'Everything’s a quarter off the catalogue price. Into your gift basket. Three things a day; the stalls run out.')}</p>
+      <div class="ztrades">${MARS_GOODS.map(([id, why]) => `<button class="ztrade" data-mg="${id}"${left <= 0 || credits < price(id) ? ' disabled' : ''}><span>${giftIcon(id)} ${esc(giftName(id))}<br><small>${esc(why)}</small></span><i aria-hidden="true">·</i><b>${price(id)} cr</b></button>`).join('')}</div>
+      <p class="zhave">You have ${fmt(credits)} cr · ${left > 0 ? `${left} left today` : 'The stalls are packing up. Come back tomorrow.'}</p>
+      <div class="btns"><button class="btn ghost" id="mgBye">Done</button></div></div>`;
+    el.hidden = false;
+    el.querySelectorAll('[data-mg]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.mg, d = marketDay(), p = price(id); if (d.n >= 3 || credits < p) return;
+      credits -= p; d.n++; store.set('ds-marsMarket', JSON.stringify(d)); garden.basket[id] = (garden.basket[id] || 0) + 1; saveGarden(); saveCosmetics(); sfx.coin();
+      openMarsMarket(`${giftIcon(id)} ${giftName(id)}, wrapped in red paper and into your basket. The trader shouts the next price at someone else.`);
+    }));
+    $('mgBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+  }
+  // ---- the maglev ----
+  const MAGLEV_STOPS = [['mdock', 'The Dock', 'Juno’s dock · the job board · your ship'], ['mmain', 'Main Street', 'Red Planet Diner · Rust Market · the old office'],
+    [null, 'Apex Row', 'Apex Aerospace tower · coming soon'], [null, 'Habitat Ring', 'Homes, a park dome and a school · coming later'], [null, 'Racetrack', 'Lander races · Under construction. Rex keeps asking.']];
+  function openMaglev(from) {
+    let el = $('maglevCard');
+    if (!el) { el = document.createElement('div'); el.id = 'maglevCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'The maglev'); document.body.appendChild(el); }
+    sfx.click();
+    el.innerHTML = `<div class="qnew-card maglev"><span class="eyebrow">Mars City maglev</span><b>Where to?</b><div class="mlview" aria-hidden="true"><i></i></div>
+      <div class="mlroute">${MAGLEV_STOPS.map(([k, n, s]) => `<button class="mlstop${k === from ? ' here' : k ? '' : ' later'}" ${k && k !== from ? `data-ml="${k}"` : 'disabled'}>${k === from ? '<em>You’re here</em>' : ''}<b>${n}</b><span>${s}</span></button>`).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="mlStay">Stay here</button></div></div>`;
+    el.hidden = false;
+    el.querySelectorAll('[data-ml]').forEach(b => b.addEventListener('click', () => {
+      el.hidden = true; sfx.click();
+      const to = b.dataset.ml, fade = document.createElement('div');
+      fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
+      fade.innerHTML = `<div class="zz" aria-hidden="true">🚝</div><b>${MAGLEV_STOPS.find(s => s[0] === to)[1]}</b><span>${['Doors closing. Please hold on to something that isn’t a drone.', 'Next stop announced by a very calm robot voice.', 'Red desert outside, blurring past at 300 km/h.'][Math.floor(Math.random() * 3)]}</span>`;
+      document.body.appendChild(fade);
+      setTimeout(() => { walkEnter = 'maglev'; setMode(to); }, reduceMotion ? 50 : 900);
+      setTimeout(() => fade.remove(), reduceMotion ? 1200 : 2100);
+    }));
+    $('mlStay').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const b = el.querySelector('[data-ml]') || $('mlStay'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  // ---- the Red Planet Diner ----
+  const dinerDay = () => { try { const v = JSON.parse(store.get('ds-marsDiner', '{}')); return v.day === shipDay ? v : { day: shipDay, meal: false, shake: false }; } catch (e) { return { day: shipDay, meal: false, shake: false }; } };
+  function mdinerThings(L) {
+    L.push({ id: 'counter', rect: [130, 52, 116, 36], go: () => [176, 100], at: () => ({ x: 176, y: 70 }), act: () => { sfx.click(); openDiner(); } });
+    L.push({ id: 'booth', rect: [8, 70, 70, 50], go: () => [56, 128], at: () => ({ x: 40, y: 96 }), act: () => shipSay(...(shoreParty.length ? [shoreParty[0], shoreLine(shoreParty[0])] : ['P', 'A pink vinyl booth with a view of the maglev. Someone has carved “D.S. WAS HERE” into the table. It looks like Dottie’s handwriting.'])) });
+    L.push({ id: 'jukebox', rect: [92, 26, 26, 42], go: () => [105, 84], at: () => ({ x: 105, y: 50 }), act: () => shipSay('P', ['The jukebox plays “Fly Me to Phobos”. Rusty hums along, slightly out of tune, on purpose.', 'The jukebox only has three songs. All of them are about Mars. One of them is about the dust specifically.', 'You press a button. The jukebox plays the Descent Systems advert jingle. Everyone in the diner groans.'][Math.floor(Math.random() * 3)]) });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'mdiner'; setMode('mmain'); } });
+  }
+  function openDiner(msg) {
+    let el = $('dinerCard');
+    if (!el) { el = document.createElement('div'); el.id = 'dinerCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Red Planet Diner'); document.body.appendChild(el); }
+    const d = dinerDay(), party = deck ? deck.npcs.filter(n => shoreParty.includes(n.who)).map(n => n.who) : [];
+    el.innerHTML = `<div class="qnew-card zstall">${faceTag('RB', '')}<span class="eyebrow">Red Planet Diner · Main Street</span>
+      <p class="zsay" aria-live="polite">${esc(msg || 'WELCOME, VALUED HUMAN. Today’s special is the Red Planet Special. It is red. It is a planet of food.')}</p>
+      <div class="ztrades">
+        <button class="ztrade" data-dn="meal"${d.meal || !party.length || credits < 90 ? ' disabled' : ''}><span>🍔 Red Planet Special for the table<br><small>${party.length ? `${party.map(w => SIGN[w]).join(' and ')} ♥ +14` : 'Bring a crewmate ashore'}${d.meal ? ' · had it today' : ''}</small></span><i aria-hidden="true">·</i><b>90 cr</b></button>
+        <button class="ztrade" data-dn="shake"${d.shake || credits < 35 ? ' disabled' : ''}><span>🥤 Rocket Shake to go<br><small>+20 kg fuel on your next landing${d.shake ? ' · one a day' : ''}</small></span><i aria-hidden="true">·</i><b>35 cr</b></button>
+      </div>
+      <p class="zhave">You have ${fmt(credits)} cr</p>
+      <div class="btns"><button class="btn ghost" id="dnBye">Thanks, Rusty</button></div></div>`;
+    paintFaces(el); el.hidden = false;
+    el.querySelectorAll('[data-dn]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.dn, dd = dinerDay();
+      if (k === 'meal') { if (dd.meal || !party.length || credits < 90) return; credits -= 90; dd.meal = true; store.set('ds-marsDiner', JSON.stringify(dd)); saveCosmetics(); sfx.coin(); party.forEach(w => addHearts(w, 14)); const w = party[0];
+        openDiner(`ENJOY. ${SIGN[w]}: “${({ F: 'I used to eat here every day. Same booth. Same order. Same robot. Hi Rusty.', G: 'They put a little flag in the burger! A little Mars flag! I’m keeping it.', J: 'Rusty still does the fries right. Some things on Mars never change. Thank goodness.', R: 'I had my first ever press interview in that booth. I spilled a milkshake on the reporter. We dated for a month.', Z: 'Zib has eaten the special! And the plate! Zib was told the plate was not part of it!', H: 'The sauce. What is in the sauce. Rusty won’t tell me. Rusty, please.' })[w] || 'This is the best thing I’ve eaten all week.'}”`); }
+      if (k === 'shake') { if (dd.shake || credits < 35) return; credits -= 35; dd.shake = true; store.set('ds-marsDiner', JSON.stringify(dd)); saveCosmetics(); sfx.coin(); store.set('ds-vendFuel', String(Math.min(60, +store.get('ds-vendFuel', '0') + 20))); openDiner('ONE ROCKET SHAKE. Do not drink it all at once. Do not drink it at all, actually. It is for the lander. Mostly.'); }
+    }));
+    $('dnBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+  }
+  function mdinerDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    // chrome walls, a pink neon strip, a round window onto the street
+    px(c, 0, 0, W, 72, '#c9cfdc'); for (let y = 6; y < 72; y += 5) px(c, 0, y, W, 1, 'rgba(0,0,0,0.08)');
+    mGlow(c, '#ff6b9a', 10, () => px(c, 0, 8, W, 2, '#ff6b9a'));
+    c.fillStyle = '#2a1018'; c.beginPath(); c.arc(40, 38, 20, 0, Math.PI * 2); c.fill();
+    c.save(); c.beginPath(); c.arc(40, 38, 18, 0, Math.PI * 2); c.clip(); const g = c.createLinearGradient(0, 20, 0, 58); g.addColorStop(0, '#5a2a3a'); g.addColorStop(1, '#f0a060'); c.fillStyle = g; c.fillRect(20, 18, 40, 40);
+      for (let i = 0; i < 6; i++) px(c, 22 + i * 7, 44 - (i * 5) % 12, 5, 20, '#3a2438'); { const k = reduceMotion ? 0.5 : (t / 5000) % 1; mTram(c, 10 + k * 60, 46, 20); } c.restore();
+    mGlow(c, '#ff8fb8', 6, () => { c.strokeStyle = '#ff8fb8'; c.lineWidth = 1; c.beginPath(); c.arc(40, 38, 19.5, 0, Math.PI * 2); c.stroke(); });
+    // the jukebox
+    c.fillStyle = '#5a2a3a'; c.beginPath(); c.roundRect(92, 26, 26, 42, [12, 12, 2, 2]); c.fill();
+    mGlow(c, '#ffd27a', 8, () => { c.strokeStyle = ['#ffd27a', '#ff8fb8', '#7fd6ff'][Math.floor(t / 500) % 3]; c.lineWidth = 2; c.beginPath(); c.roundRect(94, 28, 22, 38, [10, 10, 2, 2]); c.stroke(); c.lineWidth = 1; });
+    px(c, 98, 44, 14, 8, '#2a1018'); for (let k = 0; k < 3; k++) px(c, 100 + k * 4, 46, 2, 4, '#ffd27a');
+    // menu holo over the counter
+    mHolo(c, 150, 14, 80, 'TODAY: RED PLANET SPECIAL', '#ff8fb8', 4, t);
+    // floor: black and white checks, a pink glow along the bottom of the wall
+    for (let x = 0; x < W; x += 16) for (let y = 72; y < SHIP_H; y += 16) px(c, x, y, 16, 16, ((x + y) / 16) % 2 ? '#c9c4d4' : '#33303e');
+    mGlow(c, '#ff6b9a', 8, () => px(c, 0, 72, W, 1, '#ff6b9a'));
+    px(c, 104, 152, 48, 8, '#3a4256'); doorPlate(c, 128, 150, 'STREET', true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    // the counter, with stools
+    things.push([88, () => { c.fillStyle = '#ff6b9a'; c.fillRect(130, 62, 116, 4); px(c, 132, 66, 112, 20, '#a8b0c0'); for (let x = 136; x < 244; x += 4) px(c, x, 66, 1, 20, 'rgba(0,0,0,0.1)'); px(c, 140, 58, 10, 4, '#f4f1e8'); px(c, 142, 56, 6, 2, '#ffd27a'); px(c, 210, 56, 6, 6, '#c9cfdc'); px(c, 211, 54, 4, 2, '#ff6b9a'); }]);
+    for (const sx of [148, 172, 196, 220]) things.push([100, () => { c.fillStyle = '#ff6b9a'; c.beginPath(); c.ellipse(sx, 92, 6, 2, 0, 0, Math.PI * 2); c.fill(); px(c, sx - 1, 93, 2, 8, '#8a93ab'); px(c, sx - 4, 100, 8, 1, '#8a93ab'); }]);
+    // a booth
+    things.push([118, () => { c.fillStyle = '#ff6b9a'; c.beginPath(); c.roundRect(8, 78, 14, 40, 3); c.fill(); c.beginPath(); c.roundRect(62, 78, 14, 40, 3); c.fill(); px(c, 24, 92, 36, 4, '#c9cfdc'); px(c, 40, 96, 4, 18, '#8a93ab'); px(c, 30, 88, 6, 4, '#ffd27a'); px(c, 48, 88, 5, 4, '#ff8fb8'); }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- Descent Systems' old Mars office ----
+  function mofficeThings(L) {
+    L.push({ id: 'coffee', rect: [196, 26, 34, 46], go: () => [212, 96], at: () => ({ x: 212, y: 50 }), act: () => marsCoffee() });
+    L.push({ id: 'desk', rect: [76, 56, 80, 36], go: () => [116, 104], at: () => ({ x: 116, y: 70 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'F') ? ['F', ['That’s my desk. I filed our very first flight plan on it. In pencil. I was so nervous I pressed through to the desk. Look. You can still read it.', 'Gus used to sit under this desk during thunderstorms. Dust storms. Same thing to Gus.', 'We had one lander, one mechanic, one cat and me. And it was enough. Don’t tell anyone I said it was enough.'][Math.floor(Math.random() * 3)]] : ['P', 'An old desk with a pencil-pressed flight plan dented into the wood: “BISCUIT · MARS → MOON · PLEASE DON’T CRASH.”'])) });
+    L.push({ id: 'photo', rect: [20, 18, 40, 30], go: () => [40, 96], at: () => ({ x: 40, y: 34 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'G') ? ['G', 'That’s us! Day one! Look at my hair! Look at Dottie smiling! She’ll say it was the sun in her eyes. It was not the sun.'] : ['P', 'A framed photo from day one: a younger Dottie, a younger Gus with even bigger hair, a kitten, and Biscuit, shiny and brand new.'])) });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'moffice'; setMode('mmain'); } });
+  }
+  function marsCoffee() {
+    sfx.click();
+    const dottie = deck.npcs.some(n => n.who === 'F');
+    if (store.get('ds-marsCoffee', '') === shipDayKey()) { shipSay(...(dottie ? ['F', 'Don’t. It’s had enough excitement for one day. So have I.'] : ['P', 'The coffee machine has gone back to sleep. A sticker on it says “ONE POT PER DAY. THIS MEANS YOU, DOTTIE.”'])); return; }
+    store.set('ds-marsCoffee', shipDayKey()); garden.basket.coffee = (garden.basket.coffee || 0) + 1; saveGarden(); sfx.coin();
+    if (dottie) addHearts('F', 10);
+    shipSay(...(dottie ? ['F', 'It… it still works. Thirty years. It still works. Don’t look at me. I have something in my eye. It’s coffee. ☕ Take a cup for your basket.'] : ['P', 'The famous coffee machine. It wheezes, rattles, and produces one perfect cup. ☕ Into your gift basket. Somewhere, Dottie feels a disturbance.']));
+  }
+  function mofficeDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    px(c, 0, 0, W, 72, '#2a2a34'); for (let x = 0; x < W; x += 16) px(c, x, 0, 1, 72, '#24242e'); px(c, 0, 66, W, 6, '#1e1e28');
+    // a window onto Main Street, with the diner's neon outside
+    px(c, 76, 10, 90, 40, '#151a2a'); const g = c.createLinearGradient(0, 12, 0, 48); g.addColorStop(0, '#5a2a3a'); g.addColorStop(1, '#f0a060'); c.fillStyle = g; c.fillRect(78, 12, 86, 36);
+    for (let i = 0; i < 8; i++) px(c, 80 + i * 11, 30 - (i * 7) % 14, 8, 20, '#3a2438'); mGlow(c, '#ff6b9a', 6, () => px(c, 82, 44, 30, 2, '#ff6b9a'));
+    marsDrones(c, 0, t, 0, false); { const tt = reduceMotion ? 0 : t; const dx = 78 + ((tt / 50) % 100); if (dx < 164) { px(c, dx, 20, 6, 2, '#2a2a33'); px(c, dx + 2, 22, 1, 1, '#ff6b5e'); } }
+    px(c, 120, 10, 2, 40, '#151a2a'); px(c, 76, 29, 90, 2, '#151a2a');
+    // the photo, filing cabinets, a dusty Descent Systems sign
+    px(c, 20, 18, 40, 30, '#5a4636'); px(c, 22, 20, 36, 26, '#e8dcc0'); for (const [x, col] of [[26, '#9a5f43'], [34, '#f2c9a2'], [44, '#ff9a3d']]) { px(c, x, 30, 6, 10, '#26355e'); px(c, x + 1, 25, 4, 5, col); } px(c, 46, 38, 10, 6, '#ffffff');
+    for (const x of [176, 186]) { px(c, x, 36, 9, 36, '#5a6278'); for (let y = 40; y < 70; y += 10) px(c, x + 3, y, 3, 1, '#8a93ab'); }
+    mHolo(c, 20, 2, 40, 'EST. ON MARS', '#ffb547', 4, t);
+    // the coffee machine, still alive
+    c.fillStyle = '#3a3a44'; c.beginPath(); c.roundRect(198, 28, 30, 44, 4); c.fill(); px(c, 202, 32, 22, 12, '#151a2a'); px(c, 206, 52, 14, 10, '#151a2a'); px(c, 210, 56, 6, 6, '#f4f1e8');
+    mGlow(c, '#ff6b5e', 6, () => px(c, 204, 34, 3, 3, store.get('ds-marsCoffee', '') === shipDayKey() ? '#5a2a2a' : (Math.floor(t / 600) % 2 ? '#ff6b5e' : '#ff9a7a')));
+    if (!reduceMotion && store.get('ds-marsCoffee', '') !== shipDayKey()) for (let k = 0; k < 3; k++) { const s = ((t / 900 + k / 3) % 1); c.fillStyle = `rgba(240,240,255,${0.35 * (1 - s)})`; c.fillRect(212 + Math.sin(t / 300 + k) * 2, 50 - s * 14, 2, 2); }
+    // floor: worn tiles
+    px(c, 0, 72, W, SHIP_H - 72, '#4a3a3a'); for (let x = 0; x < W; x += 20) px(c, x, 72, 1, SHIP_H - 72, '#3e3030'); for (let y = 84; y < SHIP_H; y += 14) px(c, 0, y, W, 1, '#3e3030');
+    px(c, 104, 152, 48, 8, '#3a4256'); doorPlate(c, 128, 150, 'STREET', true);
+    const things = shipFloorThings(c, t), me = deck.me;
+    things.push([92, () => { px(c, 76, 66, 80, 6, '#7a5c44'); px(c, 78, 72, 4, 20, '#5a4636'); px(c, 150, 72, 4, 20, '#5a4636'); px(c, 96, 56, 22, 10, '#2a2a33'); px(c, 98, 58, 18, 6, '#1a3a2a'); mGlow(c, '#58e0a0', 4, () => { px(c, 100, 60, 10, 1, '#58e0a0'); px(c, 100, 62, 6, 1, '#58e0a0'); }); px(c, 130, 60, 8, 6, '#f4f1e8'); px(c, 138, 62, 3, 3, '#f4f1e8'); }]);
+    things.push([104, () => { px(c, 106, 92, 14, 3, '#3a4668'); px(c, 112, 95, 2, 9, '#2a2a33'); px(c, 106, 84, 3, 8, '#3a4668'); }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // the little picture on the Go ashore card
+  function drawMarsPic(c) {
+    c.imageSmoothingEnabled = false;
+    const g = c.createLinearGradient(0, 0, 0, 90); g.addColorStop(0, '#5a2a3a'); g.addColorStop(0.55, '#b8583a'); g.addColorStop(1, '#f0a060'); c.fillStyle = g; c.fillRect(0, 0, 240, 90);
+    c.fillStyle = '#7a3a34'; c.beginPath(); c.moveTo(0, 90); c.lineTo(0, 66); for (let x = 0; x <= 240; x += 30) c.lineTo(x, 62 + (x * 7) % 8); c.lineTo(240, 90); c.fill();
+    for (let i = 0; i < 12; i++) { const x = 30 + i * 15, h = 14 + (i * 37) % 30; px(c, x, 76 - h, 11, h, '#3a2438'); for (let y = 78 - h; y < 74; y += 4) if ((i + y) % 3) px(c, x + 3 + (y % 2) * 4, y, 1, 1, ['#ffd27a', '#7fd6ff', '#ff8fb8'][i % 3]); }
+    c.fillStyle = 'rgba(127,214,255,0.18)'; c.beginPath(); c.ellipse(120, 76, 100, 46, 0, Math.PI, 0); c.fill(); c.strokeStyle = 'rgba(127,214,255,0.6)'; c.beginPath(); c.ellipse(120, 76, 100, 46, 0, Math.PI, 0); c.stroke();
+    px(c, 0, 76, 240, 14, '#4a3a44'); px(c, 20, 78, 200, 1, '#7fd6ff');
+    for (const [x, y] of [[50, 20], [170, 28], [110, 14]]) { px(c, x, y, 6, 2, '#2a2a33'); px(c, x + 2, y + 2, 1, 1, '#ff6b5e'); }
+  }
+  // ---- what the crew say around Mars City ----
+  const MARS_SAYS = {
+    RB: ['ORDER UP. Just kidding. Nobody ordered. I just like saying it.', 'I have worked here for thirty-one years. I have one wheel and no regrets.', 'Dottie used to sit in that booth every morning. Black coffee. Two sugars. She will deny the sugars.', 'Fun fact: the Red Planet Special is 40% red. I am not allowed to say what the other 60% is.'],
+    F: ['I used to walk this street every morning. With a coffee. To an office with one lander. Look at us now.', 'The drones are new. I don’t trust them. One of them looked at me.', 'If anyone asks, we’re here on business. Leisure business.'],
+    G: ['Drones! Look at that one! It’s carrying a sandwich! Where’s it taking the sandwich?!', 'I used to fix maglev cars on weekends. Look, that one still has my sticker on it!', 'This city smells like hot metal and fries. My two favourite smells.'],
+    W: ['Mars got loud. I like loud. Loud means people.', 'I landed here in a storm once. No dome back then. Just me, dust and a lot of swearing.', 'Those drones fly better than half the pilots I trained.'],
+    R: ['There’s a billboard of me on Apex Row. Thirty feet tall. I don’t want to talk about it. I want to talk about it a little.', 'Three people asked for selfies. One asked for directions. I gave everyone both.', 'The diner! I had my first interview in that diner!'],
+    J: ['My city. Loud, dusty, stubborn. Like me.', 'Every pod on that dock means a family gets paid. That’s why I fought for it.', 'Watch your pockets on Main Street. And watch the drones. The drones are worse.'],
+    Z: ['So many traders! Zib wants to talk to ALL of them! Zib has been asked to stop!', 'The market here only takes credits. Zib offered a spoon. They laughed. Zib laughed too. Then Zib cried a bit.', 'Drones! Zib waved at one! It waved back! It was a crane.'],
+    O: ['So many lights, little pilot. My moths would love it here. They would never leave.', 'The red sky is warm. It reminds me of a lantern.', 'Everyone walks so quickly here. Where is everyone going?'],
+    V: ['A proper city. Lyra wants to open a consulate. I told her it would be next to a diner.', 'The maglev is very efficient. I admire efficiency. I also admire the milkshakes.', 'I have been recognised twice. Once as an envoy, once as “Rex’s friend”.'],
+    Y: ['I have already negotiated a better rate at the market. They gave it to me so I would leave.', 'This city doesn’t pretend to be pretty. That makes it beautiful.', 'Kael is staring at the maglev again. He wants one. For the ship.'],
+    C: ['THIS IS THE BEST DAY OF MY LIFE. There’s a robot waiter!', 'Can we ride the maglev again? And again? Just once more?', 'I’m sending a postcard to my aunt on the Moon. I’m going to draw the drones.'],
+    H: ['Rusty’s fries. Twice fried. Salted in low gravity. I need to know his secrets.', 'The market has Martian peppers! They’re red. Everything here is red. I love it.', 'A whole diner. I’m not jealous. I’m a little jealous.']
+  };
   function shoreHello(kind) {
     if (deck.scene) return;
+    if (MARS_KINDS.includes(kind)) {
+      const p = shoreParty.length ? shoreParty[Math.floor(Math.random() * shoreParty.length)] : null, first = k => { const f = store.get('ds-marsSeen-' + k, '') !== '1'; store.set('ds-marsSeen-' + k, '1'); return f; };
+      if (kind === 'mdiner') { shipSay('RB', first('diner') ? 'NEW CUSTOMER DETECTED. Welcome to the Red Planet Diner. I am Rusty. I have one wheel and a very good memory. Sit anywhere. Order at the counter.' : 'WELCOME BACK. Your usual booth is available. You do not have a usual booth. Now you do.'); return; }
+      if (kind === 'moffice') { shipSay(...(shoreParty.includes('F') ? ['F', first('office') ? 'Oh. Oh, it’s exactly the same. The desk. The photo. The coffee machine is still on. Thirty years and nobody turned it off.' : 'Back again. I keep thinking I’ll find something I forgot. I think it’s just the feeling.'] : ['P', 'The old Descent Systems office. Dusty, small, and somehow still warm. The coffee machine’s little red light is blinking at you.'])); return; }
+      if (kind === 'mdock' && first('dock')) { shipSay(...(shoreParty.includes('J') ? ['J', marsBusy() ? 'Welcome to my dock, pilot. Busy, isn’t it? Six months ago you could hear the wind in here. The job board’s by the crane.' : 'My dock. Half empty since Apex moved in. It used to be the loudest place on Mars. One day it will be again.'] : ['P', marsBusy() ? 'Mars City. The dock is roaring: cranes swinging, pods stacking, drones zipping overhead. A holo sign says “WELCOME BACK, BISCUIT”.' : 'Mars City. The dock is quiet, half its bays empty under a “FOR LEASE” sign. Drones still zip about overhead. The maglev is at the far end.'])); return; }
+      if (p) { shipSay(p, shoreLine(p)); return; }
+      shipSay('P', kind === 'mdock' ? 'The dock hums. A drone drops a parcel next to you, beeps an apology and takes it back.' : 'Main Street: neon, noise, drones, and the smell of Rusty’s fries drifting out of the diner.');
+      return;
+    }
     if (kind === 'pimbake') { const first = store.get('ds-pimFree', '') !== '1'; shipSay('I', first ? 'Welcome, welcome! Come to the counter, love. I’ve been saving you something.' : pick1(['Back again! The star buns are just out.', 'Mind the flour on the floor. Pim was “helping”.', 'Sit anywhere. Well. There are two stools. Sit on one of those.'])); return; }
     const w = shoreParty.length ? pick1(shoreParty) : 'M';
     shipSay(w, w === 'M' ? pick1(['PILOT! You came back! Do you want to see the telescope? Or my rocks? Or the telescope looking at my rocks?', 'Hi!! Uncle Lalo is parked! That means he’s stuck! It’s the best!']) : shoreLine(w));
@@ -21001,7 +21469,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
-    if (mode === 'pim' || mode === 'pimbake') { if (e.code === 'Escape') shoreLeave(); return; }
+    if (SHORE_KINDS.includes(mode)) { if (e.code === 'Escape') shoreLeave(); return; }
     if (mode === 'sysmap') { if (e.code === 'Escape') { walkEnter = 'missions'; setMode('bridge'); } return; }
     if (mode === 'encounter') return;
     if (mode === 'vending') { if (e.code === 'Escape') { vend = null; walkEnter = 'vending'; setMode('quarters'); } return; }
