@@ -1406,6 +1406,8 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#e8b830', stroke: '#2a2a33', legs: '#2a2a33', detail: '#2a2a33', swatch: 'linear-gradient(90deg, #e8b830, #2a2a33)' },
     { id: 'gus', name: 'Gus Special', price: 0, unlock: 'loaded', blurb: 'Engineering green with ginger trim. Signed by Gus on the inside of the hatch.',
       fill: '#3d6b63', stroke: '#9fe0b8', legs: '#c46a2c', detail: '#ff6b5e', swatch: 'linear-gradient(90deg, #3d6b63, #c46a2c)' },
+    { id: 'classic', name: 'Cherry Classic', price: 0, unlock: 'quest:q-gus', blurb: 'Biscuit’s factory paint: cherry red with a cream stripe. Gus hand-painted every inch.',
+      fill: '#a8222a', stroke: '#f4e6cc', legs: '#f4e6cc', detail: '#f4e6cc', swatch: 'linear-gradient(90deg, #a8222a, #f4e6cc)' },
     { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
       fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
     { id: 'lark', name: 'Surveyor Olive', price: 0, unlock: 'ship:lark', blurb: 'Wren’s original survey colors: olive and cream. Comes with the Lark.',
@@ -3486,6 +3488,78 @@ details.act > .limits { margin: 0 0 8px; }
       ['A', 'Mrrp.']
     ], { label: 'The end · for now', title: 'Home', cine: 'homecoming' }];
   } });
+  // ---- Crew side quests: short personal arcs that a crewmate brings you once you're friends ----
+  // Steps are special side missions (in the Side jobs list, tagged Quest) and room scenes.
+  // Progress lives in ds-quests: { questId: stepIndex }; a quest is done when the step reaches the end.
+  const QUEST_MISSIONS = [
+    { id: 'q-paint', name: 'Scrapyard Paint', side: true, giver: 'G', quest: ['q-gus', 0], world: 'moon', kind: 'cargo',
+      label: 'Quest · Fragile cargo', cargoName: 'paint cans', fragile: 1.1, mass: 0.85, fuel: 400, credits: 260,
+      brief: 'The old Moon scrapyard still has a few cans of Biscuit’s original factory paint: cherry red and cream. Pick them up at PICKUP and bring them to the HANGAR. They’re old cans. Land hard and they burst.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 90, time: 80 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      briefSteps: ['Land on PICKUP and hold still while the paint cans are loaded', 'Set them down gently on the HANGAR pad'],
+      goals: [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'HANGAR' }],
+      pads: [{ id: 'PICKUP', x1: 98, x2: 116, y: 55 }, { id: 'HANGAR', x1: 178, x2: 198, y: 37 }] },
+    { id: 'q-coat', name: 'Fresh Coat', side: true, giver: 'G', quest: ['q-gus', 2], world: 'moon', kind: 'route',
+      label: 'Quest · Ring route', fuel: 240, credits: 300,
+      brief: 'Biscuit’s new paint is dry. Gus wants one test flight: through his four markers and down at LZ, without a single scratch. He will be watching. He will be holding his breath.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[56, 86], [104, 66], [150, 92], [196, 70]], stars: { fuel: 110, time: 46 },
+      ground: [[0, 44], [22, 40], [44, 46], [66, 36], [90, 30], [112, 36], [134, 28], [156, 34], [178, 46], [198, 40], [224, 40], [240, 46]],
+      pads: [{ id: 'LZ', x1: 200, x2: 222, y: 40 }] },
+    { id: 'q-junk', name: 'The Junkyard', side: true, giver: 'W', quest: ['q-wren', 0], world: 'mars', kind: 'land',
+      label: 'Quest · Precision', fuel: 220, credits: 380,
+      brief: 'Wren’s old lander, the one she flew to Neptune, is somewhere in a Mars junkyard. The only clear spot is a narrow pad between two scrap piles. Land on JUNK, and mind the piles.',
+      spawn: { x: 30, y: 110, vx: 1 }, stars: { fuel: 100, time: 40 },
+      ground: [[0, 40], [20, 44], [40, 40], [60, 46], [80, 52], [96, 74], [104, 74], [110, 38], [126, 38], [132, 70], [142, 70], [156, 50], [180, 44], [200, 48], [220, 42], [240, 46]],
+      briefSteps: ['Land on JUNK, between the two scrap piles'],
+      pads: [{ id: 'JUNK', x1: 111, x2: 125, y: 38 }] },
+    { id: 'q-tow', name: 'Towing the Old Girl', side: true, giver: 'W', quest: ['q-wren', 1], world: 'mars', kind: 'sling',
+      label: 'Quest · Sling load', cargoName: 'Wren’s old lander', sling: 9, fragile: 1.5, fuel: 460, credits: 420,
+      brief: 'Hook Wren’s old lander on the cable at PICKUP and lower it gently at DROP, where Gus is waiting with his toolbox. She’s heavy, she’s old, and Wren is watching every swing.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 150, time: 85 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
+    { id: 'q-escort', name: 'One Last Flight', side: true, giver: 'W', quest: ['q-wren', 3], world: 'mars', kind: 'route',
+      label: 'Quest · Escort', fuel: 260, credits: 460,
+      brief: 'Wren is taking her old lander up one last time. Fly escort on her exact flight path, through all five of her markers, then land beside her at LZ.',
+      spawn: { x: 20, y: 110, vx: 0 }, rings: [[44, 92], [84, 74], [122, 94], [160, 72], [196, 88]], stars: { fuel: 110, time: 55 },
+      ground: [[0, 40], [20, 44], [44, 38], [70, 46], [96, 40], [120, 48], [146, 44], [172, 50], [196, 46], [212, 40], [228, 40], [240, 44]],
+      pads: [{ id: 'LZ', x1: 212, x2: 230, y: 40 }] },
+    { id: 'q-studio', name: 'The Audition', side: true, giver: 'R', quest: ['q-rex', 1], world: 'earth', kind: 'land',
+      label: 'Quest · Passenger', comfort: true, comfortWho: 'Rex', comfortRate: 0.55, fuel: 320, credits: 420,
+      brief: 'Fly Rex to his audition at the STUDIO. He’s already nervous, and nerves make him queasy: no hard turns, no tilting past 20°, nothing faster than 6 m/s.',
+      sickReason: 'Rex got space-sick on his audition outfit', sickQuip: ['R', 'Method acting. I was playing a man who gets space-sick. Very convincing, no?'],
+      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 150, time: 70 },
+      ground: [[0, 42], [20, 40], [40, 46], [62, 50], [84, 44], [106, 40], [128, 46], [150, 52], [172, 46], [192, 38], [214, 38], [228, 44], [240, 48]],
+      briefSteps: ['Land Rex at the STUDIO'],
+      pads: [{ id: 'STUDIO', x1: 194, x2: 214, y: 38 }] },
+    { id: 'q-europa', name: 'Home Under the Ice', side: true, giver: 'N', quest: ['q-nerri', 1], world: 'europa', kind: 'land',
+      label: 'Quest · Visit', fuel: 260, credits: 460,
+      brief: 'Take Nerri home to see her family. Land at HOME on the geyser field so she can visit, then climb back out the top. Watch the geysers: they throw you upward when they blow.',
+      spawn: { x: 30, y: 110, vx: 0 }, stars: { fuel: 100, time: 50 },
+      vents: [[44, 6, 1.5], [92, 5.5, 3.6], [160, 6.5, 0.4]],
+      ground: [[0, 44], [20, 40], [44, 44], [66, 50], [86, 46], [104, 40], [124, 40], [142, 46], [160, 52], [180, 48], [200, 42], [220, 46], [240, 50]],
+      briefSteps: ['Land on HOME and hold still while Nerri visits her family', 'Climb out of the top of the screen to reach orbit'],
+      goals: [{ type: 'visit', pad: 'HOME', text: 'Land at HOME so Nerri can see her family', done: 'Nerri: “Mama! Papa! I’m home!”' }, { type: 'exit' }],
+      pads: [{ id: 'HOME', x1: 106, x2: 122, y: 40 }] }
+  ];
+  Object.assign(STORY, {
+    'q-paint': { intro: [['G', 'Cherry red. Cream stripe. I’ve had that photo in my wallet for six years.'], ['G', 'The cans are at the old scrapyard. Bring them home gently. Please. They’re older than you.']],
+      react: [['G', 'A couple of dents. That’s okay! The paint’s fine. I checked. Twice.'], ['G', 'Every can in one piece! Oh, she’s going to look SO good.'], ['G', 'Every can! Not one dent! Oh, she’s going to look SO good.']] },
+    'q-coat': { intro: [['G', 'Okay. The paint’s dry. Mostly. One lap through the markers, then down at LZ.'], ['G', 'Don’t scratch her. I’m not saying that to pressure you. I’m saying it because I love her.']],
+      react: [['G', 'One tiny scuff. I’ll touch it up. It’s fine. It’s FINE. She’s still beautiful.'], ['G', 'Clean flying! Look at her shine! I’m going to need a minute.'], ['G', 'Not a scratch! Look at her shine! I’m going to need a minute. Possibly several minutes.']] },
+    'q-junk': { intro: [['W', 'She’s in there somewhere. Neptune Runner. Blue hull, one fin bent. My fault.'], ['W', 'The only clear spot is between the scrap piles. Land on it like you mean it.']],
+      react: [['W', 'Bit rough, kid. But we’re down. …There she is. Hello, old girl.'], ['W', 'Neat. …There she is. Under thirty years of junk.'], ['W', '…There she is. Under thirty years of junk. Hello, old girl.']] },
+    'q-tow': { intro: [['W', 'Hook her up gently. She’s held together with rust and stubbornness.'], ['G', 'I’ve got the DROP pad cleared! And my toolbox! And a second toolbox!']],
+      react: [['W', 'She swung a bit. She’s survived worse. She survived me.'], ['W', 'Steady work. She’s home. Gus is already crying.'], ['W', 'Not a single swing out of place. You fly like I used to. Don’t let it go to your head.']] },
+    'q-escort': { intro: [['W', 'One last flight. Stay on my line, kid. Just like we practised.'], ['G', 'She’s really going up! In the old girl! I’m not crying, it’s the engine fumes.']],
+      react: [['W', 'You drifted off my line. Doesn’t matter. She flew. …Thank you.'], ['W', 'Good escort. She flew like a dream. Thank you, kid.'], ['W', 'Good flying. Every bit of it. …Thank you. I didn’t think I’d ever fly her again.']] },
+    'q-studio': { intro: [['R', 'This is it. A serious role. A man who loses everything. No explosions. No hair gel. Just… acting.'], ['R', 'Fly smooth, darling. If I throw up on the director, I’m never working again.']],
+      react: [['R', 'I’m a little green. The director will think it’s a choice. It’s a choice now.'], ['R', 'Smooth enough. My stomach and I are on speaking terms. Wish me luck.'], ['R', 'We’re here. I’m fine. I’m totally fine. Wish me luck. Actually, don’t. That’s bad luck. Break a leg. Not literally.']] },
+    'q-europa': { intro: [['N', 'They’re down there. Under the ice. I haven’t seen them since I swam away.'], ['N', 'What if they’re angry? What if they don’t want me back?'], ['D', 'One step at a time, Nerri. First, we land.']],
+      react: [['N', 'A bumpy ride. But they weren’t angry. Mama cried. Papa cried.'], ['N', 'They weren’t angry. Mama cried. Papa cried. My little brother tried to steal my helmet.'], ['N', 'They weren’t angry! Mama cried. Papa cried. Can we go back up now? I want to tell everyone. I want to tell the shrimp.']] }
+  });
+  SIDES.push(...QUEST_MISSIONS);
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -3505,7 +3579,7 @@ details.act > .limits { margin: 0 0 8px; }
   const featTag = k => featNew(k) ? '<i class="dot">New</i>' : '';
   const featMore = () => Object.keys(FEAT_AT).some(k => !featOpen(k)) ? `<p class="limits">More flight modes open up as you fly missions.</p>` : '';
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
-  const missionOpen = i => i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
+  const missionOpen = i => i >= MISSIONS.length && ALL[i].quest ? questStep(ALL[i].quest[0]) >= ALL[i].quest[1] : i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   // story missions are one a day: after a new story mission, the next one waits until you've slept
   const restLocked = i => i > 0 && i < MISSIONS.length && !(missionStars[MISSIONS[i].id] > 0) && +store.get('ds-storyRest', '0') >= shipDay;
   const restText = () => `The crew needs rest. Sleep in your ${inBase() ? 'bunk' : 'Pad'} to unlock the next story mission. Side missions and free flight are still open.`;
@@ -4928,6 +5002,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'ice-cream' && mission.melt < 50) award('brainfreeze');
     if (d.id === 'skipping-stones') award('skipper');
     if (d.side && prev === 0) addHearts(d.giver, 40);
+    if (d.quest && prev === 0) questMissionDone(d);
     const find = d.kind === 'trip' && prev === 0 && DEN_ITEMS.shelf.find(x => x.trip === d.id);
     if (find) setTimeout(() => showToast(`New for your Pad shelf, from Crumb: ${find.name}!`, 3000), 1600);
     const gift = LANDERS.find(l => l.story === d.id);
@@ -5970,6 +6045,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
     if (MENU_MODES.includes(m) && !['brief', 'setup'].includes(m)) { achvQueue.length = 0; const ac = $('achv'); if (ac) ac.hidden = true; }
     try { emergUi(m); } catch (e) {}
     if (introHold && m !== 'flying' && introEnd) introEnd();
@@ -6296,6 +6372,7 @@ details.act > .limits { margin: 0 0 8px; }
             'Drive back up the ramp into Biscuit',
             'Launch and dock with the mothership above: get close and slow, and the clamp pulls you in']
         : ['Land on LZ'];
+      if (d.briefSteps) { steps.length = 0; steps.push(...d.briefSteps); }
       if (d.legs) { steps.length = 0; d.legs.forEach((l, i) => steps.push(`<b>Stop ${i + 1}:</b> ${l.name}`)); }
       if (d.sling) steps.push(`The ${what} hangs ${d.sling} m below you and swings when you turn or brake. Don’t drag it into the ground, and set it down slower than ${d.fragile.toFixed(1)} m/s`);
       else if (d.fragile) steps.push(`Fragile: with the crate aboard, touch down slower than ${d.fragile.toFixed(1)} m/s`);
@@ -7131,7 +7208,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function sideTile(d, i) {
     const w = WORLDS.find(x => x.id === d.world), open = missionOpen(i), st = missionStars[d.id] || 0;
-    return `<button class="mtile side" data-i="${i}"${open ? '' : ' disabled'}>${newChip(d)}
+    return `<button class="mtile side${d.quest ? ' quest' : ''}" data-i="${i}"${open ? '' : ' disabled'}>${d.quest && !(missionStars[d.id] > 0) ? '<i class="mnew">Quest</i>' : newChip(d)}
       <canvas class="face" width="32" height="32" data-who="${d.giver}" data-mood="${DEFAULT_MOOD[d.giver]}" aria-hidden="true"></canvas>
       <span class="mnum">${SPEAKERS[d.giver].name.split(' · ').pop()}</span>
       <b>${d.name}</b>
@@ -7226,7 +7303,7 @@ details.act > .limits { margin: 0 0 8px; }
         </details>`;
       }).join('');
     } else {
-      const list = missionTab === 'trip' ? trips : sides;
+      const list = (missionTab === 'trip' ? trips : sides).filter(i => !ALL[i].quest || missionOpen(i));
       // the ones you can fly first, locked ones after
       const sorted = list.filter(i => missionOpen(i)).concat(list.filter(i => !missionOpen(i)));
       body = `<p class="limits">${missionTab === 'trip' ? 'Land, drive Crumb the rover out to do the job, then launch and dock with the mothership.' : 'Favors for the crew, each with its own twist. They unlock as the story goes on.'}</p>
@@ -9124,6 +9201,22 @@ details.act > .limits { margin: 0 0 8px; }
         } }
     ]
   });
+  // crew quest rewards
+  DEN_ITEMS.wallR.push({ id: 'bisphoto', name: 'Biscuit’s photo', price: 0, quest: 'q-gus', blurb: 'The faded factory photo from Gus’s wallet, framed: Biscuit in cherry red, brand new, with Gus aged nineteen grinning next to her.',
+    draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#c9a06a'); px(c, x + 4, y + 3, 22, 14, '#e8dcc0'); px(c, x + 4, y + 12, 22, 5, '#b8a888'); px(c, x + 10, y + 7, 9, 5, '#a8222a'); px(c, x + 10, y + 9, 9, 1, '#f4e6cc'); px(c, x + 11, y + 12, 1, 2, '#6a5a48'); px(c, x + 17, y + 12, 1, 2, '#6a5a48'); px(c, x + 21, y + 8, 3, 3, '#e8b48a'); px(c, x + 21, y + 11, 3, 4, '#3d6b63'); px(c, x + 21, y + 7, 3, 1, '#c46a2c'); } });
+  DEN_ITEMS.wallL.push({ id: 'wrenjacket', name: 'Wren’s flight jacket', price: 0, quest: 'q-wren', blurb: 'Brown leather, a Neptune patch on the shoulder and one burnt cuff. Wren says the cuff has a story. She won’t tell it.',
+      draw(c, x, y) { px(c, x + 13, y + 1, 4, 2, '#8a93ab'); px(c, x + 8, y + 3, 14, 4, '#6a4428'); px(c, x + 5, y + 6, 20, 16, '#7a4e2e'); px(c, x + 14, y + 6, 2, 16, '#4a2e18'); px(c, x + 2, y + 7, 4, 16, '#6a4428'); px(c, x + 24, y + 7, 4, 16, '#6a4428'); px(c, x + 24, y + 21, 4, 2, '#2a1a10'); px(c, x + 7, y + 9, 5, 5, '#2a4a8a'); px(c, x + 8, y + 10, 3, 3, '#7fd6ff'); px(c, x + 17, y + 13, 5, 1, '#c9a06a'); } },
+    { id: 'rexposter', name: 'Signed movie poster', price: 0, quest: 'q-rex', blurb: '“THE QUIET MAN”, a film Rex didn’t get. He had the poster made anyway, with himself in it. Signed: “To my favourite scene partner. R.”',
+      draw(c, x, y) { px(c, x, y, 30, 28, '#1a1424'); px(c, x + 1, y + 1, 28, 26, '#2a2040'); c.fillStyle = 'rgba(255,200,120,0.35)'; c.beginPath(); c.arc(x + 15, y + 9, 7, 0, Math.PI * 2); c.fill(); px(c, x + 11, y + 8, 8, 9, '#e8b48a'); px(c, x + 10, y + 6, 10, 3, '#1a1a24'); px(c, x + 9, y + 17, 12, 6, '#3a3048'); px(c, x + 4, y + 23, 22, 2, '#ffd36a'); px(c, x + 17, y + 19, 9, 1, '#f4f1e8'); px(c, x + 19, y + 20, 6, 1, '#f4f1e8'); } });
+  DEN_ITEMS.floor.push({ id: 'neptune', name: 'Neptune Runner model', price: 0, quest: 'q-wren', blurb: 'Gus built a little model of Wren’s old lander, bent fin and all, and put it on a stand.',
+      draw(c, x, y) { px(c, x + 10, y + 20, 4, 9, '#5a4232'); px(c, x + 5, y + 27, 14, 2, '#7a5c44'); px(c, x + 5, y + 12, 14, 8, '#3a6aa8'); px(c, x + 7, y + 10, 10, 3, '#5a8ac8'); px(c, x + 9, y + 13, 6, 3, '#9fd8f0'); px(c, x + 3, y + 18, 3, 3, '#3a6aa8'); px(c, x + 18, y + 16, 3, 2, '#3a6aa8'); px(c, x + 20, y + 15, 2, 1, '#3a6aa8'); } },
+    { id: 'icecrystal', name: 'Europa ice crystal', price: 0, quest: 'q-nerri', blurb: 'A gift from Nerri’s family: a chunk of Europa ice that never melts, glowing faintly blue. It smells a tiny bit like the sea.',
+      draw(c, x, y, t) { const g = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t / 900); glow(c, x + 12, y + 17, 12, `rgba(127,214,255,${(0.18 + g * 0.18).toFixed(2)})`); px(c, x + 6, y + 25, 12, 4, '#3a4668');
+        c.fillStyle = '#bfe8f8'; c.beginPath(); c.moveTo(x + 12, y + 5); c.lineTo(x + 18, y + 16); c.lineTo(x + 14, y + 25); c.lineTo(x + 9, y + 25); c.lineTo(x + 6, y + 15); c.closePath(); c.fill(); px(c, x + 11, y + 9, 2, 12, '#e8f8ff'); } });
+  DEN_ITEMS.ltank.push({ id: 'glowfish', name: 'Europan glowfish', price: 0, quest: 'q-nerri', blurb: 'Tiny blue-glowing fish from under Europa’s ice, a thank-you from Nerri’s family. They blink in patterns. Nerri says they’re gossiping.',
+      feed: ['A pinch of ice-algae. The glowfish blink faster. Nerri says that means “thank you” and also “more”.', 'The glowfish have eaten. They’re blinking slowly now. Nerri says that’s fish for “nap time”.'],
+      draw(c, x, y, t) { const tt = reduceMotion ? 0 : t; srCab(c, x, y + 22, 38, '#3a4668'); srTank(c, x, y, '#0c1a3a', '#1a2a4a'); glow(c, x + 19, y + 12, 15, 'rgba(90,180,255,0.2)');
+        for (let i = 0; i < 5; i++) { const fx = x + 3 + ((i * 7 + tt / (500 + i * 90)) % 30), fy = y + 6 + (i * 4) % 11 + Math.round(Math.sin(tt / 700 + i)); const on = reduceMotion || Math.floor(tt / (300 + i * 70) + i) % 3; px(c, Math.round(fx), fy, 3, 2, on ? '#7fd6ff' : '#2a5a8a'); } } });
   DEN_ITEMS.window.push(
     { id: 'aurora', name: 'Aurora', price: 1000, blurb: 'Green and pink light rippling over a planet’s night side. Zib says it’s the planet “waving”.',
       draw(c, x, y, t) {
@@ -9174,7 +9267,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -9680,12 +9773,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev ? 'Collected' : x.price ? 'Owned' : 'Free') : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.quest) action = `<button class="btn" disabled>Finish ${questName(it.quest)} to get it</button>`;
     else if (it.ev) action = `<button class="btn" disabled>Celebrate ${EVENTS.find(e => e.id === it.ev).name} to get it</button>`;
     else if (it.romance) action = `<button class="btn" disabled>Go on your 8-heart date with someone (Friends ♥) to get it</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="denBuy">Buy · ${fmt(it.price)} cr</button>`;
@@ -10058,6 +10152,55 @@ details.act > .limits { margin: 0 0 8px; }
         ['G', 'Rex paid for the whole life-support upgrade! The air in here is twenty percent fancier now.'],
         ['R', 'You’re welcome. Breathe deeply, everyone. On me.'],
         ['P', null, { who: 'R', choice: [['Welcome aboard, Mr. Valor. Big fan.', 'Rex, please. Mr. Valor is my father. Also my stunt double. Long story.', 30], ['Rule one: the hair dryer has a schedule.', 'A schedule. For art. Fine. I’ll take the six a.m. slot. Beauty doesn’t sleep.', 15], ['Do you even know how to wash a dish?', 'I’ve played a man who washed dishes. Three Emmys. So… yes. Spiritually.', 10]] }]] },
+    // ---- crew quest scenes (they play when the quest reaches them) ----
+    { id: 'qs-gus-paint', room: 'hall', rel: true, quest: ['q-gus', 1], need: ['G'],
+      cast: [['G', 30, 106], ['F', -36, 108]],
+      lines: [['G', 'Pilot! Perfect timing! Biscuit’s sanded, primed and parked. The red goes on tonight.'],
+        ['F', 'Gus has been up since four. He sanded her by hand. He talked to her the whole time.'],
+        ['G', 'She likes being talked to! Okay. Last question. The stripe. The photo’s a bit blurry, so I need a second opinion.'],
+        ['P', null, { who: 'G', choice: [['One cream stripe, just like the photo.', 'Just like the photo. Exactly how she left the factory. Oh, she’ll love that.', 30], ['Two racing stripes. Make her fast.', 'Racing stripes on a cargo lander! Wren will hate it. I love it. I’ll do a thin one.', 20], ['Skip the stripe. All red.', 'All red. Bold. Very bold. I’m doing the stripe anyway, but I respect the energy.', 10]] }],
+        ['G', 'Right! Stencil, tape, brush. Hold this end. Steady… steady… don’t breathe…'],
+        ['F', 'He means that literally. Hold your breath, pilot.'],
+        ['G', '…There. One more test flight and she’s done. Through the markers, not a scratch. It’s on your list.']] },
+    { id: 'qs-wren-fix', room: 'engine', quest: ['q-wren', 2], need: ['W', 'G'],
+      cast: [['W', 120, 106], ['G', 60, 106]],
+      lines: [['G', 'Fuel lines: new. Thrusters: cleaned. That bent fin… I left it bent. It felt rude to fix it.'],
+        ['W', 'Good. That fin has a story.'],
+        ['G', 'Are you going to tell it?'],
+        ['W', 'No.'],
+        ['W', 'Neptune. Ice storm. I clipped a spire coming in, bent the fin and kept flying. My co-pilot said we wouldn’t make it. We made it.'],
+        ['P', null, { who: 'W', choice: [['You still fly like that. I’ve seen it.', 'Maybe. These days I fly mostly with my mouth. Telling you lot what to do.', 30], ['Was your co-pilot Sable?', '…Yes. Back when we still finished each other’s flight plans. Long time ago.', 20], ['Do you miss flying?', 'Every day, kid. Every single day. That’s why we’re doing this.', 25]] }],
+        ['G', 'She’s ready. One last flight, Wren?'],
+        ['W', 'One last flight. Kid, you’re flying escort. It’s on your list.']] },
+    { id: 'qs-rex-rehearse', room: 'hall', rel: true, quest: ['q-rex', 0], need: ['R'],
+      cast: [['R', 34, 106], ['F', -40, 108]],
+      lines: [['R', 'You came! Here. Script. You’re the mysterious stranger. I’m the man who has lost everything.'],
+        ['F', 'He’s been practising losing everything all morning. Mostly his reading glasses.'],
+        ['R', 'The big line. “I had the stars once. I gave them away.” How do I say it? Help me.'],
+        ['P', null, { who: 'R', choice: [['Quietly. Barely a whisper.', 'A whisper. Oh. Oh, that’s it. Less is more. I’ve never once done less. Thank you.', 30], ['Big. Shout it at the sky.', 'Classic Rex. The fans will love it. The director might not. We’ll see.', 15], ['Pause before “away”.', '“I gave them… away.” The pause! Darling, you’re a natural. Have you considered acting?', 25]] }],
+        ['R', 'Right. I’m ready. I think. The studio’s on Earth. Fly me there? It’s on your list.']] },
+    { id: 'qs-rex-after', room: 'galley', quest: ['q-rex', 2], need: ['R'],
+      cast: [['R', 128, 118], ['F', 60, 120]],
+      lines: [['F', 'He’s been sitting there for an hour. He hasn’t even looked at his reflection.'],
+        ['R', 'They gave it to someone else. Someone younger. “More believable as a man with nothing,” they said.'],
+        ['R', 'I’ve been famous for twenty years. I don’t know how to play someone who isn’t.'],
+        ['P', null, { who: 'R', choice: [['You were brilliant in rehearsal. I saw it.', 'You did, didn’t you? …Thank you. I’ll keep that one. That’s a good review.', 35], ['Their loss. Next audition’s yours.', 'Next one. Yes. There’s always a next one. That’s showbiz, darling.', 20], ['You’re more than an actor, Rex.', 'Am I? …I’m Rex, I suppose. Just Rex. That’s new. I might like it.', 30]] }],
+        ['R', 'Right. Enough moping. I’m going to fix my hair. Then I’m going to cook something terrible for Bao to fix.']] },
+    { id: 'qs-nerri-ask', room: 'garden', quest: ['q-nerri', 0], need: ['N'],
+      cast: [['N', 128, 121], ['D', 64, 122]],
+      lines: [['N', 'Hi. Thanks for coming. I, um. I want to go home. Just for a visit.'],
+        ['N', 'I swam away without saying goodbye. My family might be really angry. Or they might not want me back.'],
+        ['D', 'Families are complicated. But most of them leave the door open.'],
+        ['P', null, { who: 'N', choice: [['They’ll be so happy to see you.', 'You think so? …Okay. I’ll believe you. You haven’t been wrong yet.', 30], ['Whatever happens, you’ve got us.', 'I do, don’t I? A whole ship of family. That makes it less scary.', 30], ['You don’t have to go if you’re not ready.', 'No. I want to. I’ve been not ready for a whole year. That’s long enough.', 15]] }],
+        ['N', 'Okay. Let’s go. Europa. It’s on your list. I’ll bring my helmet. And my brave face.']] },
+    { id: 'qs-nerri-home', room: 'garden', quest: ['q-nerri', 2], need: ['N'],
+      cast: [['N', 128, 121], ['D', 64, 122], ['G', 192, 122]],
+      lines: [['N', 'They weren’t angry. Mama said she’d been waiting by the door all year.'],
+        ['G', 'And your little brother?'],
+        ['N', 'He wants to be a pilot now. Because of you. He made a drawing of Biscuit. It has eleven legs.'],
+        ['D', 'Will you stay down there?'],
+        ['N', 'I thought I would. But when we flew back up… this felt like home too. Is that allowed? Two homes?'],
+        ['P', null, { who: 'N', choice: [['Two homes is the best kind.', 'The best kind. I’m going to tell the shrimp. They’ll be so pleased.', 30], ['You’re always welcome here.', 'Always. Okay. I’m keeping that word, too. Next to “safe”.', 30], ['As long as you visit them often.', 'Every time we pass Jupiter. I promised. And I keep my promises. Mostly.', 20]] }]] },
     // ---- reactions: the crew catching their breath after the big moments ----
     { id: 'rx-lights', room: 'galley', after: 'final-notice', until: 'scrap-run', need: ['F', 'G'],
       cast: [['F', 96, 118], ['G', 150, 118]],
@@ -10297,7 +10440,7 @@ details.act > .limits { margin: 0 0 8px; }
   const rsHere = w => w === 'K' || (romMet[w] && romMet[w]() && !isLost(w));
   function roomSceneFor(kind) {
     const seen = rsSeen();
-    return ROOM_SCENES.find(s => s.room === kind && storyDone(s.after) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
+    return ROOM_SCENES.find(s => s.room === kind && (s.quest ? questStep(s.quest[0]) === s.quest[1] : storyDone(s.after)) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
       && (!s.need || s.need.every(rsHere)) && s.cast.filter(([w]) => rsHere(w)).length >= Math.min(2, s.cast.length));
   }
   // ---- Crew moments: little unscripted scenes you sometimes walk in on between missions ----
@@ -10503,6 +10646,7 @@ details.act > .limits { margin: 0 0 8px; }
     const sk = $('sceneSkip'); if (sk) sk.hidden = true;
     const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
     for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
+    if (S.s.quest && questStep(S.s.quest[0]) === S.s.quest[1]) questAdvance(S.s.quest[0]);
     if (deck.npcs.some(n => n.who === 'K')) {
       const k = deck.npcs.find(n => n.who === 'K');
       deck.npcs = deck.npcs.filter(n => n.who !== 'K');
@@ -15646,7 +15790,7 @@ details.act > .limits { margin: 0 0 8px; }
     const growing = garden.beds.filter(b => b && !bedReady(b)).length, ripe = garden.beds.filter(bedReady).length;
     const nextP = PROJECTS.find(pj => !projDone(pj.id));
     return `<div class="todaylist">
-      ${emergActive() ? emergTodayCard() : ''}${bdayTodayCard()}${eventCard()}${catTodayCard()}
+      ${emergActive() ? emergTodayCard() : ''}${bdayTodayCard()}${eventCard()}${catTodayCard()}${questTodayCard()}
       ${!featOpen('req') ? '<div class="tcard"><span class="eyebrow">Crew requests</span><p>The crew start pinning up jobs after your first mission.</p></div>' : `<div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
         ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
         <button class="btn ghost" id="phReq">Open crew requests</button></div>`}
@@ -16813,6 +16957,67 @@ details.act > .limits { margin: 0 0 8px; }
       else setTimeout(() => { confetti(26, true); sfx.cheer(true); }, 600);
       setTimeout(() => showToast(scene ? `♥ ${SIGN[who]} is at ${after} hearts and wants to hang out! (Friends ♥)` : `♥ ${SIGN[who]} is at ${after} heart${after === 1 ? '' : 's'}`, 2600), 900);
     }
+  }
+  // ---- Crew side quests: the quests themselves, their scenes and their rewards ----
+  const QUESTS = [
+    { id: 'q-gus', who: 'G', name: 'Biscuit’s First Coat', need: () => true,
+      offer: 'Pilot! I found an old photo of Biscuit’s factory paint: cherry red with a cream stripe. Help me give it back to her? The paint’s at the old Moon scrapyard. I put it on your Side jobs list.',
+      steps: [{ m: 'q-paint', todo: 'Fly Scrapyard Paint (Side jobs)' }, { scene: 'qs-gus-paint', todo: 'Find Gus in the corridor: it’s painting time' }, { m: 'q-coat', todo: 'Fly Fresh Coat (Side jobs)' }],
+      done: 'She’s perfect. She’s PERFECT. The red paint’s yours in the hangar, and I framed the old photo for your Pad. Thank you, pilot. Really.',
+      reward: 'Cherry Classic hull paint in the hangar, and a framed photo of Biscuit for your Pad' },
+    { id: 'q-wren', who: 'W', name: 'The Old Girl', need: () => storyDone('red-dock'),
+      offer: 'Kid. My old lander, the Neptune Runner, is rotting in a junkyard on Mars. I’d like her back. Don’t make a fuss. It’s on your Side jobs list.',
+      steps: [{ m: 'q-junk', todo: 'Fly The Junkyard (Side jobs)' }, { m: 'q-tow', todo: 'Fly Towing the Old Girl (Side jobs)' }, { scene: 'qs-wren-fix', todo: 'Visit Wren and Gus in the engine room' },
+        { m: 'q-escort', todo: 'Fly One Last Flight (Side jobs)' }],
+      done: 'She flew. Thirty years, and she flew. I want you to have my old jacket. And the little model Gus made of her. Look after them.',
+      reward: 'Wren’s flight jacket and a Neptune Runner model for your Pad' },
+    { id: 'q-rex', who: 'R', name: 'The Audition', need: () => storyDone('first-port'),
+      offer: 'Darling. Emergency. I have an audition. A SERIOUS one. No explosions. I need a scene partner and a pilot. Meet me in the corridor?',
+      steps: [{ scene: 'qs-rex-rehearse', todo: 'Find Rex in the corridor to rehearse' }, { m: 'q-studio', todo: 'Fly The Audition (Side jobs)' }, { scene: 'qs-rex-after', todo: 'Find Rex in the galley' }],
+      done: 'I had a poster made. Of the film I didn’t get. I signed it anyway. For you. Hang it somewhere I’ll see it when I visit.',
+      reward: 'A signed movie poster for your Pad' },
+    { id: 'q-nerri', who: 'N', name: 'Home', need: () => nerriMet(),
+      offer: 'Um. Pilot? Could I talk to you? In the garden? It’s about my family. It’s okay if you’re busy. You’re probably busy.',
+      steps: [{ scene: 'qs-nerri-ask', todo: 'Find Nerri in the garden' }, { m: 'q-europa', todo: 'Fly Home Under the Ice (Side jobs)' }, { scene: 'qs-nerri-home', todo: 'Find Nerri in the garden' }],
+      done: 'My family sent presents! A glowfish for your tank, and a piece of real Europa ice that never melts. They said thank you. So do I.',
+      reward: 'A Europan glowfish tank and a crystal of Europa ice for your Pad' }
+  ];
+  const QUEST_HEARTS = 3;
+  // (function declarations, so the mission list and the Pad can ask about quests before this point in the file runs)
+  function questMap() { try { return JSON.parse(localStorage.getItem('ds-quests') || '{}') || {}; } catch (e) { return {}; } }
+  function questStep(id) { const s = questMap()[id]; return s == null ? -1 : s; }
+  function questDone(id) { const n = { 'q-gus': 3, 'q-wren': 4, 'q-rex': 3, 'q-nerri': 3 }[id]; return !!n && questStep(id) >= n; }
+  function questName(id) { return { 'q-gus': 'Biscuit’s First Coat', 'q-wren': 'The Old Girl', 'q-rex': 'The Audition', 'q-nerri': 'Home' }[id] || id; }
+  function questSet(id, n) { const m = questMap(); m[id] = n; store.set('ds-quests', JSON.stringify(m)); }
+  // a crewmate brings you their quest once you're friends and the story has got far enough
+  function questTick() {
+    if (intro || store.get('ds-intro', '') !== 'done') return;
+    for (const q of QUESTS) {
+      if (questStep(q.id) >= 0 || !crewIn(q.who) || heartsOf(q.who) < QUEST_HEARTS || !q.need()) continue;
+      questSet(q.id, 0);
+      sendText(q.who, q.offer);
+      setTimeout(() => showToast(`New quest from ${SIGN[q.who]}: ${q.name}`, 2600), 2400);
+      return;   // one at a time
+    }
+  }
+  function questAdvance(id) {
+    const q = QUESTS.find(x => x.id === id); if (!q) return;
+    const n = questStep(id) + 1; questSet(id, n);
+    if (n < q.steps.length) { setTimeout(() => showToast(`${q.name}: ${q.steps[n].todo}`, 3000), 900); return; }
+    // the end of the quest: the reward, a thank-you text and a lot of hearts
+    if (id === 'q-gus') { owned.add('hull:classic'); saveCosmetics(); }
+    addHearts(q.who, 60);
+    setTimeout(() => { sendText(q.who, q.done); celebrate('Quest complete', q.name, q.reward, null, null, { n: 80 }); }, 1200);
+  }
+  // a quest mission flown for the first time moves its quest along
+  function questMissionDone(d) { if (d && d.quest && questStep(d.quest[0]) === d.quest[1]) questAdvance(d.quest[0]); }
+  // the phone's Today tab: where each quest has got to
+  function questTodayCard() {
+    const act = QUESTS.filter(q => questStep(q.id) >= 0 && !questDone(q.id));
+    const fin = QUESTS.filter(q => questDone(q.id)).length;
+    if (!act.length && !fin) return '';
+    return `<div class="tcard"><span class="eyebrow">Crew quests${fin ? ` · ${fin} done` : ''}</span>
+      ${act.map(q => `<div class="treq">${faceTag(q.who, '')}<p><b>${esc(q.name)}</b><br>${esc(q.steps[questStep(q.id)].todo)}</p><small>${questStep(q.id) + 1}/${q.steps.length}</small></div>`).join('') || '<p>No quests on the go. Get to know the crew and they’ll ask for help.</p>'}</div>`;
   }
   function bondTalk(who) {
     const d = shipDayKey();
@@ -18199,7 +18404,7 @@ details.act > .limits { margin: 0 0 8px; }
     const shelf = (kind, label) => `<section class="shelf"><h2>${label}</h2><div class="items">${
       itemsOf(kind).map(it => {
         const own = owned.has(kind + ':' + it.id), eq = equip[kind] === it.id;
-        const status = eq ? 'Equipped' : own ? 'Owned' : it.unlock ? 'Badge reward' : `${fmt(it.price)} cr`;
+        const status = eq ? 'Equipped' : own ? 'Owned' : it.unlock ? (it.unlock.startsWith('quest:') ? 'Quest reward' : 'Badge reward') : `${fmt(it.price)} cr`;
         return `<button class="item${eq ? ' equipped' : own ? ' owned' : ''}" data-kind="${kind}" data-id="${it.id}" aria-pressed="${trying[kind] === it.id}">
           <i class="sw" style="background:${it.swatch}"></i><b>${it.name}</b><span>${status}</span></button>`;
       }).join('')}</div></section>`;
@@ -18209,6 +18414,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (eq) action = `<button class="btn" disabled>Equipped</button>`;
     else if (own) action = `<button class="btn" id="act">Equip</button>`;
     else if (it.unlock && it.unlock.startsWith('ship:')) action = `<button class="btn" disabled>Comes with the ${landerById(it.unlock.slice(5)).name}</button>`;
+    else if (it.unlock && it.unlock.startsWith('quest:')) action = `<button class="btn" disabled>Finish ${questName(it.unlock.slice(6))} (Gus’s quest)</button>`;
     else if (it.unlock) action = `<button class="btn" disabled>Earn the ${ACH.find(a => a.id === it.unlock).name} badge</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more</button>`;
@@ -18233,7 +18439,7 @@ details.act > .limits { margin: 0 0 8px; }
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
-      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : 'Locked · badge') : `${fmt(x.price)} cr`;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : 'Locked · badge') : `${fmt(x.price)} cr`;
       return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
         <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
     };
@@ -18346,7 +18552,7 @@ details.act > .limits { margin: 0 0 8px; }
       trying[kind] = id;
       hangarSel = { kind, id };
       const x = findItem(kind, id);
-      hangarLine0 = !owned.has(kind + ':' + id) && x.unlock ? `Ooh, the ${x.name}. That one’s a badge reward. Earn it and it’s yours, free.` : gusOn(kind, x);
+      hangarLine0 = !owned.has(kind + ':' + id) && x.unlock ? (x.unlock.startsWith('quest:') ? `The ${x.name}! That’s the paint from my old photo. Help me with Biscuit’s First Coat and it’s yours.` : `Ooh, the ${x.name}. That one’s a badge reward. Earn it and it’s yours, free.`) : gusOn(kind, x);
       renderHangar(`.item[data-kind="${kind}"][data-id="${id}"]`);
     }));
     const act = $('act');
