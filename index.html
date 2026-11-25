@@ -3800,18 +3800,29 @@ details.act > .limits { margin: 0 0 8px; }
   function afterGoal(g, pad) {
     const d = mission.def, L = lander;
     if (g.refuel) { const add = Math.min(L.fuelMax - L.fuel, g.refuel * tankMul() * ship().tank); L.fuel += add; showToast(`Refueled: +${Math.round(add)} kg`, 1600); sfx.coin(); }
-    if (!d.legs) return;
+    if (!d.legs) { cpHere(pad); return; }
     if (!g.end) { if (g.done) showToast(g.done, 2000); return; }
     const next = d.legs[g.leg + 1];
     if (!next) return;
     mission.legWind = next.windMul;
-    if (pad && L.grounded && !pad.move)
-      mission.cp = { stage: mission.stage, padId: pad.id, x: L.x, fuel: L.fuel, t: flightT, carrying: mission.carrying, comfort: mission.comfort, melt: mission.melt, nagged: mission.nagged.slice(), legWind: mission.legWind, leg: g.leg + 1,
-        pk: mission.pk && mission.pk.map(p => p.got), bonus: mission.bonus, grades: mission.grades.slice(), gusUsed: mission.gusUsed, baoUsed: mission.baoUsed, saved: mission.saved,
-        surp: mission.surp, redirect: mission.redirect, altPaid: mission.altPaid, sat: mission.sat && { ...mission.sat }, sos: mission.sos && { ...mission.sos }, sputter: mission.sputter && { ...mission.sputter }, reroute: mission.reroute && { ...mission.reroute }, metShower: mission.metShower && { ...mission.metShower } };
+    if (pad && L.grounded && !pad.move) mission.cp = makeCp(pad, g.leg + 1);
     sfx.coin();
     showToast(`${g.done ? g.done + ' ' : ''}✓ Stop ${g.leg + 1} of ${d.legs.length} · Next: ${next.name}`, 2600);
     if (next.say) setTimeout(() => { if (mission && mode === 'flying') { showToast(next.say, 3400); sfx.radio(); } }, 2700);
+  }
+  // a checkpoint: everything needed to put you back on this pad after a crash
+  function makeCp(pad, leg) {
+    const L = lander;
+    return { stage: mission.stage, padId: pad.id, x: L.x, fuel: L.fuel, t: flightT, carrying: mission.carrying, comfort: mission.comfort, melt: mission.melt, nagged: mission.nagged.slice(), legWind: mission.legWind, leg,
+        pk: mission.pk && mission.pk.map(p => p.got), bonus: mission.bonus, grades: mission.grades.slice(), gusUsed: mission.gusUsed, baoUsed: mission.baoUsed, saved: mission.saved,
+        surp: mission.surp, redirect: mission.redirect, altPaid: mission.altPaid, sat: mission.sat && { ...mission.sat }, sos: mission.sos && { ...mission.sos }, sputter: mission.sputter && { ...mission.sputter }, reroute: mission.reroute && { ...mission.reroute }, metShower: mission.metShower && { ...mission.metShower } };
+  }
+  // missions without numbered stops still checkpoint at each pad along the way (a pickup, a drop-off, a visit),
+  // so a crash on the way to the next pad doesn't send you back to the very start
+  function cpHere(pad) {
+    if (!mission || mission.def.legs || !pad || !lander.grounded || pad.move) return;
+    if (mission.stage >= goalsOf(mission.def).length) return;
+    mission.cp = makeCp(pad, null);
   }
   // after a crash: back on the last stop's pad, with the fuel and time you had there
   function retryFromStop() {
@@ -4940,7 +4951,7 @@ details.act > .limits { margin: 0 0 8px; }
     else if (g.type === 'visit' && pad.id === g.pad && d.legs) { mission.stage++; sfx.coin(); afterGoal(g, pad); }
     else if (g.type === 'visit' && pad.id === g.pad) {
       mission.stage++;
-      sfx.coin();
+      sfx.coin(); cpHere(pad);
       showToast(`Pad ${pad.id} ✓ Next: pad ${currentGoal().pad}`, 1600);
     }
     else showToast('Safe on the pad. Lift off when ready.');
@@ -4965,7 +4976,7 @@ details.act > .limits { margin: 0 0 8px; }
     lander.crew = g.what === 'crew';
     if (!(mission.def.legs && g.end)) showToast(mission.def.sling ? 'Cable attached. Lift off slowly!' : g.what === 'cargo' ? 'Cargo secured. Lift off!' : currentGoal() && currentGoal().type !== 'exit' ? 'Aboard. Next stop!' : 'Crew aboard. Climb to orbit!');
     sfx.coin();
-    if (mission.def.legs) afterGoal(g, padUnder());
+    if (mission.def.legs) afterGoal(g, padUnder()); else cpHere(padUnder());
   }
   function completeMission(pad) {
     const d = mission.def, t = flightT, fuel = lander.fuel;
@@ -6447,7 +6458,7 @@ details.act > .limits { margin: 0 0 8px; }
           <p>${cap(lastResult.reasons.join(', '))}.</p>
           ${radioQuote(r.quip || FAIL_QUIPS[Math.floor(Math.random() * FAIL_QUIPS.length)])}
           <div class="btns">
-            ${mission.cp ? `<button class="btn" id="go">Retry from stop ${mission.cp.leg + 1}</button><button class="btn ghost" id="restartM">Restart mission</button>` : '<button class="btn" id="go">Retry</button>'}
+            ${mission.cp ? `<button class="btn" id="go">${mission.cp.leg != null ? `Retry from stop ${mission.cp.leg + 1}` : `Retry from ${mission.cp.padId}`}</button><button class="btn ghost" id="restartM">Restart mission</button>` : '<button class="btn" id="go">Retry</button>'}
             ${replayBtn()}
             <button class="btn ghost" id="toMissions">All missions</button>
           </div>
