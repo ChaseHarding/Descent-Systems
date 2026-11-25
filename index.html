@@ -2405,6 +2405,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'O') { drawOlloFace(c, open, blink, bare); return; }
     if (who === 'B') { drawBlipFace(c, open, blink, bare); return; }
     if (who === 'RB') { drawRustyFace(c, open, blink, bare); return; }
+    if (who === 'CH') { drawChairFace(c, open, blink, bare); return; }
+    if (who === 'AX') { drawConciergeFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -6202,11 +6204,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -8243,6 +8245,7 @@ details.act > .limits { margin: 0 0 8px; }
   function drawPerson(c, who, x, y, dir, frame, t) {
     if (who === 'Z') drawZibSprite(c, x, y, dir, t);
     else if (who === 'RB') drawRustySprite(c, x, y, dir, t);
+    else if (who === 'AX') drawConciergeSprite(c, x, y, dir, t);
     else if (who === 'P') drawSprite(c, pilotLook(), x, y, dir, frame, false);
     else if (who === 'S') { drawBrixTails(c, x, y, dir, false); drawSprite(c, LOOKS.S, x, y, dir, frame, false); drawBrixTails(c, x, y, dir, true); }
     else if (LOOKS[who]) drawSprite(c, LOOKS[who], x, y, dir, frame, false);
@@ -10962,6 +10965,8 @@ details.act > .limits { margin: 0 0 8px; }
       mdock: ['Mars · The Dock', 'Mars City, the Dock: under a glass lattice roof with the red sky and city towers beyond. From left: your ship’s docking ring, Juno’s dock office, stacked cargo pods, a glowing job board, the crane cab and the maglev platform. Drones fly overhead and dock workers walk by. Tap to walk; walk up to things to use them.'],
       mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
+      mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that glitches into a faceless gold figure, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
+      mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of past leaders with one frame empty, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering gold hologram of a figure with no face. The door at the bottom goes back to the street.'],
       moffice: ['The old office', 'Descent Systems’ old Mars office: a window onto Main Street, a framed photo from day one, an old desk, filing cabinets and the famous coffee machine, still blinking. The door at the bottom goes back to the street.'],
       pimbake: ['Ines’ Bakery', 'Ines’ bakery: shelves of bread, a chalk menu, a brick oven and a glass counter full of pastries, with a little table by the window. Walk up to the counter to buy pastries. The door at the bottom goes back to the street.'],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
@@ -10994,12 +10999,12 @@ details.act > .limits { margin: 0 0 8px; }
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else if (MARS_KINDS.includes(kind)) {
-      start = kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
+      start = kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' ? MARS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' ? MARS_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
       crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -11022,7 +11027,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -11092,6 +11097,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'mmain') { mmainThings(L); return L; }
     if (deck.kind === 'mdiner') { mdinerThings(L); return L; }
     if (deck.kind === 'moffice') { mofficeThings(L); return L; }
+    if (deck.kind === 'mapex') { mapexThings(L); return L; }
+    if (deck.kind === 'mlobby') { mlobbyThings(L); return L; }
     if (deck.kind === 'pimbake') { pimBakeThings(L); return L; }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
     if (deck.kind === 'quarters') { quartersThings(L); return L; }
@@ -11704,9 +11711,10 @@ details.act > .limits { margin: 0 0 8px; }
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
     if (SHORE_KINDS.includes(kind)) {
-      const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain';
+      const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain' || kind === 'mapex';
       shoreParty.forEach((w, i) => add(w, Math.max(16, mx - 20 - i * 14), street ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
       if (kind === 'mdiner') { add('RB', 196, 104, { baseDir: 0, local: true }); return L; }
+      if (kind === 'mlobby') { add('AX', 132, 70, { baseDir: 0, local: true }); return L; }
       if (MARS_KINDS.includes(kind)) return L;
       if (kind === 'pim') { add('M', 230, 118, { wander: true, local: true }); add('L', 366, 104, { baseDir: 2, local: true }); }
       else add('I', 196, 100, { baseDir: 0, local: true });
@@ -11758,7 +11766,7 @@ details.act > .limits { margin: 0 0 8px; }
     const first = ROM_WHO.includes(w) && bond.talk[w] !== shipDayKey(), now = performance.now();
     bondTalk(w);
     n.emote = { k: first ? 'heart' : 'dots', t0: now, until: now + 1800 }; n.notice = now + 1800; if (first) sfx.pop();
-    if (SHORE_KINDS.includes(deck.kind)) { shipSay(w, shoreLine(w)); return; }
+    if (SHORE_KINDS.includes(deck.kind)) { if (w === 'AX') { conciergeTalk(); return; } shipSay(w, shoreLine(w)); return; }
     let line = null;
     if (w !== 'Z' && w !== 'O') {
       const guests = deck.npcs.filter(o => o.visit), r = Math.random();
@@ -18057,7 +18065,7 @@ details.act > .limits { margin: 0 0 8px; }
     H: ['Ines’s star buns. Seven folds, egg wash, a pinch of salt. I’m stealing it. With respect.', 'This bakery is what a galley wants to be when it grows up.', 'I traded Ines a spice jar for her starter dough. Best trade of my life.']
   };
   const SHORE_ANY = [n => `${n}: I could get used to this. Gravity that doesn’t try to kill you. Pastries.`, n => `${n}: Look at the Earth from here. You can almost see the base.`, n => `${n}: Thanks for bringing me. I needed a day off the ship.`];
-  function shoreLine(w) { const L = (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  function shoreLine(w) { const L = (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -18811,15 +18819,242 @@ details.act > .limits { margin: 0 0 8px; }
     C: ['THIS IS THE BEST DAY OF MY LIFE. There’s a robot waiter!', 'Can we ride the maglev again? And again? Just once more?', 'I’m sending a postcard to my aunt on the Moon. I’m going to draw the drones.'],
     H: ['Rusty’s fries. Twice fried. Salted in low gravity. I need to know his secrets.', 'The market has Martian peppers! They’re red. Everything here is red. I love it.', 'A whole diner. I’m not jealous. I’m a little jealous.']
   };
+  // ---- Mars City, Apex Row: the Apex Landings tower, its showroom, and a new face at the top ----
+  // Sable is gone, but Apex isn't. Somebody new runs it now: The Chair, who never shows a face.
+  const apexMet = () => store.get('ds-apexChair', '') === '1';
+  // The Chair: a faceless gold silhouette behind scanlines
+  function drawChairFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#140a10');
+    const flick = Math.random() < 0.06;
+    c.fillStyle = flick ? 'rgba(255,210,122,0.4)' : 'rgba(255,210,122,0.85)';
+    c.beginPath(); c.ellipse(16, 13, 6, 7.5, 0, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.moveTo(4, 32); c.quadraticCurveTo(5, 22, 16, 21); c.quadraticCurveTo(27, 22, 28, 32); c.fill();
+    px(c, 13, 22, 6, 4, 'rgba(20,10,16,0.5)');
+    for (let y = 0; y < 32; y += 2) px(c, 0, y, 32, 1, 'rgba(20,10,16,0.35)');
+    px(c, 2, 2, 2, 2, '#c0392b');
+  }
+  // the Apex concierge: a white floating capsule with one red eye
+  function drawConciergeFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#1a1418');
+    c.fillStyle = '#f4f4f8'; c.beginPath(); c.ellipse(16, 15, 11, 12, 0, 0, Math.PI * 2); c.fill(); px(c, 9, 6, 6, 2, '#ffffff');
+    px(c, 7, 12, 18, 5, '#1a1418'); px(c, blink ? 15 : 12, 13, blink ? 2 : 8, 3, '#ff3b4e'); px(c, 13, 14, 2, 1, '#ffb0b8');
+    px(c, 12, 21, 8, 1, open ? '#8a93ab' : '#c9cfdc'); px(c, 14, 25, 4, 1, '#ffd27a');
+    c.fillStyle = 'rgba(255,59,78,0.25)'; c.beginPath(); c.ellipse(16, 30, 8, 2, 0, 0, Math.PI * 2); c.fill();
+  }
+  function drawConciergeSprite(c, x, y, dir, t) {
+    const bob = reduceMotion ? 0 : Math.round(Math.sin(t / 400) * 1.5);
+    c.fillStyle = '#f4f4f8'; c.beginPath(); c.ellipse(x + 8, y + 10 + bob, 6, 8, 0, 0, Math.PI * 2); c.fill(); px(c, x + 4, y + 4 + bob, 3, 2, '#ffffff');
+    if (dir !== 3) { px(c, x + 3, y + 8 + bob, 10, 3, '#1a1418'); px(c, x + (dir === 1 ? 4 : dir === 2 ? 8 : 6), y + 9 + bob, 4, 1, '#ff3b4e'); }
+    px(c, x + 7, y + 15 + bob, 2, 1, '#ffd27a');
+    c.fillStyle = 'rgba(255,59,78,0.3)'; c.beginPath(); c.ellipse(x + 8, y + 23, 5, 1.5, 0, 0, Math.PI * 2); c.fill();
+  }
+  Object.assign(SPEAKERS, { CH: { name: 'The Chair · Apex Landings', color: '#ffd27a' }, AX: { name: 'Concierge · Apex Landings', color: '#ff8a8a' } });
+  Object.assign(SIGN, { CH: 'The Chair', AX: 'Concierge' });
+  Object.assign(DEFAULT_MOOD, { CH: 'neutral', AX: 'neutral' });
+  SHORE_LOCALS.push('AX', 'CH');
+  MARS_KINDS.push('mapex', 'mlobby');
+  MAGLEV_STOPS.splice(2, 1, ['mapex', 'Apex Row', 'The Apex Landings tower · the showroom · the billboard']);
+  // security drones: they sweep the street, and give you a long red look when they pass over
+  function apexSecDrones(c, W, t, me) {
+    const tt = reduceMotion ? 30000 : t;
+    for (let i = 0; i < 3; i++) {
+      const span = W - 80, ph = (tt / 1000 * (12 + i * 4) + i * 190) % (span * 2), x = 40 + (ph < span ? ph : span * 2 - ph), y = 60 + i * 6 + Math.sin(tt / 500 + i) * 2;
+      c.fillStyle = '#e8e8f0'; c.beginPath(); c.roundRect(x - 5, y - 2, 10, 5, 2); c.fill(); px(c, x - 8, y - 3, 4, 1, '#8a93ab'); px(c, x + 4, y - 3, 4, 1, '#8a93ab');
+      mGlow(c, '#ff3b4e', 5, () => px(c, x - 1, y + 1, 3, 1, '#ff3b4e'));
+      const near = me && Math.abs(me.x - x) < 14;
+      const g = c.createLinearGradient(0, y, 0, near ? me.y : y + 36); g.addColorStop(0, near ? 'rgba(255,59,78,0.45)' : 'rgba(255,59,78,0.18)'); g.addColorStop(1, 'rgba(255,59,78,0)');
+      c.fillStyle = g; c.beginPath(); c.moveTo(x - 1, y + 2); c.lineTo(near ? me.x - 9 : x - 10, near ? me.y : y + 36); c.lineTo(near ? me.x + 9 : x + 10, near ? me.y : y + 36); c.lineTo(x + 1, y + 2); c.fill();
+    }
+  }
+  const APEX_CROWD = [{ skin: '#e8c4a8', hair: '#2a1a12', style: 'short', top: '#3a3a48', pants: '#2a2a33', shoes: '#15151f', trim: '#ffd27a' }, { skin: '#9a5f43', hair: '#141018', style: 'bun', top: '#3a3a48', pants: '#2a2a33', shoes: '#15151f', trim: '#ffd27a', acc: 'glasses' },
+    { skin: '#f0d2bc', hair: '#d7dbe3', style: 'short', top: '#f4f4f8', pants: '#3a3a48', shoes: '#15151f', trim: '#c0392b' }, { skin: '#c98a62', hair: '#2a1a12', style: 'long', top: '#3a3a48', pants: '#3a3a48', shoes: '#15151f', trim: '#ffd27a', acc: 'headset' }];
+  function apexCrowd(things, c, W, t, n) {
+    const tt = reduceMotion ? 0 : t;
+    for (let i = 0; i < n; i++) {
+      const dir = i % 2 ? -1 : 1, sp = 18 + (i * 5) % 8, span = W + 40, y = 84 + (i * 19) % 60;   // Apex people walk fast and never stop
+      const x = ((i * 131 + dir * tt * sp / 1000) % span + span) % span - 20;
+      things.push([y, () => drawSprite(c, APEX_CROWD[i % APEX_CROWD.length], Math.round(x) - 8, y - 24, dir > 0 ? 2 : 1, reduceMotion ? 0 : Math.floor(tt / 110 + i) % 4, false)]);
+    }
+  }
+  // ---- the street ----
+  function mapexThings(L) {
+    L.push({ id: 'maglev', rect: [0, 16, 80, 46], go: () => [40, 76], at: () => ({ x: 40, y: 40 }), act: () => openMaglev('mapex') });
+    L.push({ id: 'tower', rect: [96, 0, 230, 40], go: () => [210, 78], at: () => ({ x: 210, y: 20 }), act: () => shipSay(...apexSay('tower')) });
+    L.push({ id: 'doors', rect: [186, 34, 48, 30], go: () => [210, 74], at: () => ({ x: 210, y: 48 }), act: () => { sfx.click(); walkEnter = 'mapex'; setMode('mlobby'); } });
+    L.push({ id: 'showroom', rect: [340, 16, 92, 48], go: () => [386, 78], at: () => ({ x: 386, y: 40 }), act: () => shipSay(...apexSay('showroom')) });
+    L.push({ id: 'billboard', rect: [440, 4, 84, 56], go: () => [482, 80], at: () => ({ x: 482, y: 30 }), act: () => shipSay(...apexSay('billboard')) });
+    L.push({ id: 'acquired', rect: [532, 14, 60, 50], go: () => [562, 78], at: () => ({ x: 562, y: 40 }), act: () => shipSay(...apexSay('acquired')) });
+    L.push({ id: 'notices', rect: [600, 26, 34, 34], go: () => [616, 78], at: () => ({ x: 616, y: 40 }), act: () => shipSay(...apexSay('notices')) });
+  }
+  const withMe = w => deck && deck.npcs.some(n => n.who === w);
+  function apexSay(what) {
+    const pick = A => A[Math.floor(Math.random() * A.length)];
+    if (what === 'tower') return withMe('Q') ? ['Q', 'Ninety-nine floors. I lived on forty. I could see the whole dock from my window. I never once looked at the people on it.'] : withMe('R') ? ['R', 'I used to take the lift to the top just to look down. Then I realised everybody up there was doing the same thing.'] : ['P', 'The Apex Landings tower. Ninety-nine floors of mirrored glass, gold trim and a red “A” you can see from orbit. It doesn’t have a top that you can see from here.'];
+    if (what === 'showroom') return withMe('G') ? ['G', 'The Apex Nova. Ninety thousand credits. Look at the welds. LOOK at them. Biscuit has better welds. Biscuit has better everything.'] : withMe('X') ? ['X', 'They gave me one of those once. For a week. Then they took it back because I scratched it delivering their mail.'] : ['P', pick(['A brand-new Apex Nova turns slowly under spotlights. The price tag scrolls past twice: 90,000 cr. Small print: “Pilot not included. Pilot replaceable.”', 'The showroom glass has your reflection in it, and behind you, a security drone, watching.'])];
+    if (what === 'billboard') return withMe('R') ? ['R', 'That’s me. Thirty feet of me. “Rex Valor flies Apex.” I don’t anymore. They haven’t taken it down. I think they’re keeping it to annoy me. It’s working.'] : ['P', 'A thirty-foot holo billboard of Rex Valor, grinning: “REX VALOR FLIES APEX.” Every few seconds it glitches, and a gold silhouette with no face flickers through: “UNDER NEW MANAGEMENT.”'];
+    if (what === 'acquired') return withMe('J') ? ['J', 'That was Marta’s paint shop. Forty years. Apex bought the building and doubled the rent. Then they bought Marta’s name and put it on their own paint.'] : ['P', 'A shuttered little shop with a faded hand-painted sign: “MARTA’S PAINT · EST. 2091”. Across it, a bright red holo stamp: “ACQUIRED BY APEX”.'];
+    if (what === 'notices') return marsBusy() ? ['P', 'A board of paper notes, stuck on by hand under Apex’s shiny holograms. “Laid off by Apex? Mars Dock is hiring. Ask for Juno.” Someone has added a smiley face.'] : ['P', 'A board of paper notes under Apex’s holograms. “LAID OFF? You’re not alone.” “Selling my tools.” “Anyone know if the dock is hiring?” Nobody has answered.'];
+    return ['P', '…'];
+  }
+  function mapexDraw(t) {
+    const c = deck.c, W = MARS_W, me = deck.me;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    marsSky(c, W, t);
+    marsDrones(c, W, t, 3, false);
+    // maglev
+    mBlock(c, 0, 18, 80, 44, '#2a2a33', '#ffd27a', true); px(c, 4, 22, 72, 28, '#0e1428');
+    { const k = reduceMotion ? 0 : ((t + 2200) / 9000) % 1, arrive = k < 0.15 ? (1 - k / 0.15) * 120 : k > 0.85 ? -(k - 0.85) / 0.15 * 120 : 0; c.save(); c.beginPath(); c.rect(4, 22, 72, 28); c.clip(); mTram(c, 8 + arrive, 28, 56); c.restore(); }
+    mHolo(c, 8, 4, 64, 'MAGLEV · APEX ROW', '#ffd27a', 5, t);
+    // the Apex tower: mirrored glass and gold, too tall to see the top
+    px(c, 92, 0, 238, 62, '#d8dce8');
+    for (let x = 96; x < 328; x += 14) { const g = c.createLinearGradient(0, 0, 0, 60); g.addColorStop(0, '#8a6a7a'); g.addColorStop(0.6, '#e0a080'); g.addColorStop(1, '#f4c8a0'); c.fillStyle = g; c.fillRect(x, 0, 12, 60); c.fillStyle = 'rgba(255,255,255,0.18)'; c.fillRect(x + 1, 0, 2, 60); }
+    for (let y = 6; y < 60; y += 8) px(c, 92, y, 238, 1, 'rgba(60,40,50,0.35)');
+    mGlow(c, '#ffd27a', 6, () => { for (let x = 94; x < 330; x += 14) px(c, x, 0, 1, 62, '#ffd27a'); });
+    { const lit = Math.floor(t / 1500) % 7; for (let k = 0; k < 7; k++) if (k !== lit) px(c, 98 + k * 28 + 4, 10 + (k * 9) % 30, 6, 3, 'rgba(255,240,200,0.75)'); }
+    // the big red A
+    mGlow(c, '#ff3b4e', 12, () => { c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(196, 30); c.lineTo(210, 4); c.lineTo(224, 30); c.lineTo(218, 30); c.lineTo(210, 14); c.lineTo(202, 30); c.fill(); px(c, 204, 22, 12, 3, '#c0392b'); });
+    // revolving doors, a red carpet, two guard drones
+    px(c, 180, 34, 60, 28, '#2a2a33'); px(c, 184, 36, 52, 26, '#1a1a22');
+    { const r = reduceMotion ? 0 : (t / 900) % 1; for (let k = 0; k < 3; k++) { const ph = (r + k / 3) % 1, w = Math.abs(Math.cos(ph * Math.PI)) * 22; c.fillStyle = 'rgba(180,220,255,0.35)'; c.fillRect(210 - w / 2 + Math.sin(ph * Math.PI * 2) * 10, 38, Math.max(1, w), 24); } }
+    mGlow(c, '#ffd27a', 6, () => { c.strokeStyle = '#ffd27a'; c.strokeRect(184.5, 36.5, 51, 25); });
+    mHolo(c, 170, 24, 80, 'APEX LANDINGS', '#ffd27a', 6, t);
+    // the showroom: a lander on a turntable under spotlights
+    mBlock(c, 338, 16, 96, 46, '#2a2a33', '#ffd27a', false); px(c, 342, 20, 88, 38, '#140c14');
+    c.fillStyle = 'rgba(255,240,200,0.12)'; c.beginPath(); c.moveTo(360, 20); c.lineTo(352, 58); c.lineTo(380, 58); c.fill(); c.beginPath(); c.moveTo(412, 20); c.lineTo(392, 58); c.lineTo(420, 58); c.fill();
+    { c.save(); c.translate(386, 46); const sq = reduceMotion ? 1 : 0.55 + Math.abs(Math.cos(t / 1800)) * 0.45; c.scale(sq * 2.2, 2.2);
+      paintLander(c, { firing: false, model: 'apex' }, { hull: findItem('hull', 'vector'), flame: findItem('flame', 'standard'), flag: findItem('flag', 'pennant'), model: 'apex' }, t, 0.6); c.restore(); }
+    px(c, 362, 54, 48, 3, '#3a3a48'); mGlow(c, '#ffd27a', 4, () => px(c, 362, 54, 48, 1, '#ffd27a'));
+    mHolo(c, 344, 6, 84, 'APEX NOVA · 90,000 CR', '#ffd27a', 5, t);
+    // the billboard: Rex, glitching into The Chair
+    px(c, 444, 2, 80, 50, '#151a2a'); px(c, 482, 52, 4, 10, '#3a4256');
+    const chair = !reduceMotion && Math.floor(t / 2600) % 3 === 2, glitch = !reduceMotion && Math.floor(t / 80) % 31 === 0;
+    c.save(); c.beginPath(); c.rect(446, 4, 76, 46); c.clip();
+    if (!chair) {
+      c.fillStyle = '#c0392b'; c.fillRect(446, 4, 76, 46); c.fillStyle = '#ffd27a'; c.fillRect(446, 40, 76, 10);
+      drawSprite(c, LOOKS.R, 452, 16, 0, 0, false);
+      c.font = '700 6px monospace'; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('REX VALOR', 495, 18); c.fillText('FLIES', 495, 26); c.fillText('APEX', 495, 34);
+      c.fillStyle = '#2a1018'; c.font = '700 5px monospace'; c.fillText('WHY LAND? ARRIVE.', 484, 45);
+    } else {
+      c.fillStyle = '#140a10'; c.fillRect(446, 4, 76, 46);
+      mGlow(c, '#ffd27a', 8, () => { c.fillStyle = 'rgba(255,210,122,0.8)'; c.beginPath(); c.ellipse(484, 18, 6, 7, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(472, 40); c.quadraticCurveTo(473, 27, 484, 26); c.quadraticCurveTo(495, 27, 496, 40); c.fill(); });
+      c.font = '700 5px monospace'; c.fillStyle = '#ffd27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('UNDER NEW MANAGEMENT', 484, 46);
+    }
+    for (let y = 4; y < 50; y += 2) px(c, 446, y, 76, 1, 'rgba(0,0,0,0.15)');
+    if (glitch) { px(c, 446, 20, 76, 3, '#7fd6ff'); px(c, 460, 30, 50, 2, '#ff3b4e'); }
+    c.restore();
+    mGlow(c, '#ffd27a', 6, () => { c.strokeStyle = '#ffd27a'; c.strokeRect(445.5, 3.5, 77, 47); });
+    // Marta's old paint shop, acquired
+    mBlock(c, 532, 16, 64, 46, '#5a4a3a', '#5a4a3a', false); px(c, 536, 24, 56, 32, '#6a5a4a'); for (let y = 24; y < 56; y += 3) px(c, 536, y, 56, 1, '#5a4a3a');
+    px(c, 540, 18, 48, 8, '#e8dcc0'); c.font = '700 5px monospace'; c.fillStyle = '#8a4a3a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('MARTA’S PAINT', 564, 22.5);
+    c.save(); c.translate(564, 40); c.rotate(-0.18); mHolo(c, -30, -5, 60, 'ACQUIRED BY APEX', '#ff3b4e', 5, t); c.restore();
+    // the paper notice board
+    px(c, 600, 26, 34, 30, '#5a4636'); px(c, 602, 28, 30, 26, '#a47a4c'); for (let k = 0; k < 6; k++) { px(c, 604 + (k % 3) * 9, 30 + Math.floor(k / 3) * 12, 7, 9, ['#f4f1e8', '#ffe58a', '#f4f1e8', '#9fe0b8', '#f4f1e8', '#ffb0b8'][k]); px(c, 607 + (k % 3) * 9, 30 + Math.floor(k / 3) * 12, 1, 1, '#ff3b4e'); }
+    // the floor: white polished tiles with gold seams, a red carpet to the doors
+    px(c, 0, 62, W, 160 - 62, '#d8d6e0'); for (let x = 0; x < W; x += 24) px(c, x, 62, 1, 98, '#c4c2ce'); for (let y = 74; y < 160; y += 14) px(c, 0, y, W, 1, '#c4c2ce');
+    mGlow(c, '#ffd27a', 5, () => { px(c, 0, 104, W, 1, '#ffd27a'); px(c, 0, 120, W, 1, '#ffd27a'); });
+    for (let x = 0; x < W; x += 40) { c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(x + 6, 66, 10, 1); }
+    px(c, 192, 62, 36, 42, '#a8302a'); px(c, 194, 62, 1, 42, '#ffd27a'); px(c, 225, 62, 1, 42, '#ffd27a');
+    px(c, 0, 62, W, 2, '#8a93ab');
+    const things = shipFloorThings(c, t);
+    for (const gx of [176, 244]) things.push([70, () => { const b = reduceMotion ? 0 : Math.round(Math.sin(t / 500 + gx)); c.fillStyle = '#e8e8f0'; c.beginPath(); c.roundRect(gx - 5, 52 + b, 10, 14, 4); c.fill(); px(c, gx - 4, 56 + b, 8, 2, '#1a1418'); mGlow(c, '#ff3b4e', 4, () => px(c, gx - 2 + (me.x > gx ? 2 : 0), 56 + b, 3, 2, '#ff3b4e')); c.fillStyle = 'rgba(255,59,78,0.25)'; c.beginPath(); c.ellipse(gx, 72, 5, 1.5, 0, 0, Math.PI * 2); c.fill(); }]);
+    for (const [x, col] of [[90, '#ffd27a'], [336, '#ffd27a'], [438, '#ff3b4e'], [528, '#ffd27a']]) things.push([94, () => mPylon(c, x, col)]);
+    apexCrowd(things, c, W, t, 8);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    apexSecDrones(c, W, t, me);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- the lobby ----
+  function mlobbyThings(L) {
+    L.push({ id: 'chair', rect: [190, 14, 40, 60], go: () => [196, 100], at: () => ({ x: 210, y: 40 }), act: () => chairSpeak() });
+    L.push({ id: 'lift', rect: [208, 10, 44, 62], go: () => [228, 100], at: () => ({ x: 228, y: 40 }), act: () => { sfx.click(); const n = +store.get('ds-apexLift', '0') + 1; store.set('ds-apexLift', String(n)); shipSay(...(withMe('Q') ? ['Q', 'The executive lift. Floor ninety-nine. I was up there once. They took my badge at the door and gave it back after. It was warm. I don’t know why that bothered me.'] : ['P', ['The lift scans you with a thin red light. ACCESS DENIED. A tiny screen reads: “FLOOR 99 · THE CHAIR”.', 'You press the call button. The lift doesn’t come. A security drone turns to look at you.', 'ACCESS DENIED. The screen flickers. For a second it says “WE KNOW WHO YOU ARE”, then “HAVE A NICE DAY”.'][Math.min(2, n - 1)]])); } });
+    L.push({ id: 'desk', rect: [96, 54, 70, 32], go: () => [130, 100], at: () => ({ x: 130, y: 70 }), act: () => conciergeTalk() });
+    L.push({ id: 'boulder', rect: [10, 70, 50, 40], go: () => [40, 122], at: () => ({ x: 34, y: 92 }), act: () => shipSay(...(withMe('Q') ? ['Q', 'My Moon boulder. Well. Apex’s Moon boulder. I landed it here myself. The plaque says “Apex brought the Moon to Mars”. Apex didn’t. I did.'] : ['P', 'A whole Moon boulder on a plinth. The plaque: “APEX BROUGHT THE MOON TO MARS.” In smaller letters underneath, scratched in by hand: “K. did.”'])) });
+    L.push({ id: 'trophies', rect: [10, 16, 70, 40], go: () => [44, 100], at: () => ({ x: 44, y: 34 }), act: () => shipSay(...(withMe('X') ? ['X', 'Every courier record on that wall is mine. They put Sable’s name on the plaques. I counted.'] : withMe('R') ? ['R', 'Fourteen of those are mine. They polished my name off three of them. I can tell. I know my own name.'] : ['P', 'A wall of trophies under glass: “FASTEST DESCENT”, “MOST CONTRACTS”, “BEST LANDING, 10 YEARS RUNNING”. Every plaque says “APEX”. None of them name a pilot.'])) });
+    L.push({ id: 'portraits', rect: [100, 14, 80, 30], go: () => [140, 100], at: () => ({ x: 140, y: 30 }), act: () => shipSay(...(withMe('W') ? ['W', 'Look at that empty frame. That was Sable. They didn’t even wait for the dust to settle. That’s Apex. Nobody matters. Not even the people at the top.'] : ['P', 'Portraits of Apex’s past leaders, all smiling the same smile. One frame is empty, with a paler square on the wall where Sable Voss used to hang.'])) });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'mlobby'; setMode('mapex'); } });
+  }
+  const CHAIR_SAYS = ['Apex has always been here. Apex will always be here.', 'Small companies make big mistakes. Apex is here to help them stop.', 'The Chair thanks Sable Voss for her service. Sable made mistakes. The Chair does not.',
+    'Every lander in the system will fly under one name. It is not a threat. It is a forecast.', 'Your little ship is very charming. The Chair collects charming things.'];
+  function chairSpeak() {
+    sfx.click();
+    if (!apexMet()) { store.set('ds-apexChair', '1'); shipSay('CH', `Pilot. Descent Systems. The Second Wind. The Chair has been expecting you. Thank you for removing Sable. You saved Apex a great deal of paperwork.`); setTimeout(() => { if (deck && deck.kind === 'mlobby') { const w = deck.npcs.find(n => shoreParty.includes(n.who)); if (w) shipSay(w.who, ({ F: 'It knows the ship’s name. Pilot, I don’t like this. I don’t like this at all.', Q: 'That voice. It isn’t a recording. Someone’s listening up there.', X: 'Nope. Nope. We’re leaving soon, right? Right?', W: 'Sable was bad. Sable at least had a face.', R: 'It thanked us. Apex has never thanked anyone. That’s the scariest thing I’ve heard all year.', J: 'It’s the same people. It always was. Sable was just the one who talked.' })[w.who] || 'Pilot… what was that?'); } }, 5200); return; }
+    shipSay('CH', CHAIR_SAYS[Math.floor(Math.random() * CHAIR_SAYS.length)]);
+  }
+  function conciergeTalk() {
+    sfx.click();
+    const n = +store.get('ds-apexDesk', '0'); store.set('ds-apexDesk', String(n + 1));
+    shipSay('AX', [`Welcome to Apex Landings. Do you have an appointment? Checking. You do not. You are welcome to wait. Forever, if you like.`,
+      'Apex is currently recruiting pilots. Signing bonus: ten thousand credits. Your current employer would not need to know. Your current employer always knows.',
+      'I have been asked to give you this message: “The offer is open.” I have not been told what the offer is. Neither have you. That is how offers work here.',
+      'Please do not touch the boulder. It is worth more than your lander. Everything here is worth more than your lander.'][n % 4]);
+  }
+  function mlobbyDraw(t) {
+    const c = deck.c, W = 256;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    // white marble walls, a gold line, the giant red A
+    px(c, 0, 0, W, 74, '#eeeef4'); for (let k = 0; k < 14; k++) { c.strokeStyle = 'rgba(160,160,180,0.25)'; c.beginPath(); c.moveTo((k * 37) % W, 0); c.quadraticCurveTo((k * 53) % W, 30, (k * 71) % W, 74); c.stroke(); }
+    mGlow(c, '#ffd27a', 6, () => px(c, 0, 66, W, 1, '#ffd27a'));
+    // trophies
+    px(c, 10, 16, 70, 40, '#1a1418'); px(c, 12, 18, 66, 36, '#2a2430'); for (let k = 0; k < 5; k++) { const x = 16 + k * 13; px(c, x + 2, 40, 6, 10, '#ffd27a'); px(c, x, 32 - (k % 2) * 4, 10, 8, '#ffd27a'); px(c, x + 3, 50, 4, 2, '#c9a24a'); }
+    c.fillStyle = 'rgba(200,230,255,0.12)'; c.fillRect(12, 18, 66, 36);
+    // portraits, one missing
+    for (let k = 0; k < 4; k++) { const x = 102 + k * 20; px(c, x, 14, 16, 20, '#c9a24a'); if (k === 3) { px(c, x + 1, 15, 14, 18, '#e4e4ec'); px(c, x + 2, 16, 12, 16, '#f4f4f8'); } else { px(c, x + 1, 15, 14, 18, '#3a3a48'); px(c, x + 5, 19, 6, 6, ['#e8c4a8', '#9a5f43', '#f0d2bc'][k]); px(c, x + 3, 26, 10, 6, '#2a2a33'); } }
+    // the executive lift and The Chair's hologram
+    px(c, 208, 10, 44, 62, '#2a2a33'); px(c, 212, 14, 36, 58, '#c9a24a'); px(c, 229, 14, 2, 58, '#8a6a2a');
+    mGlow(c, '#ff3b4e', 6, () => px(c, 226, 6, 8, 3, Math.floor(t / 700) % 2 ? '#ff3b4e' : '#7a1a24'));
+    mHolo(c, 208, 0, 44, 'FLOOR 99', '#ff3b4e', 4, t);
+    // the reception desk
+    const things = [];
+    px(c, 0, 74, W, SHIP_H - 74, '#f4f4f8'); for (let x = 0; x < W; x += 32) px(c, x, 74, 1, SHIP_H - 74, '#dcdce6'); for (let y = 90; y < SHIP_H; y += 16) px(c, 0, y, W, 1, '#dcdce6');
+    c.fillStyle = 'rgba(255,210,122,0.1)'; c.beginPath(); c.ellipse(128, 118, 80, 18, 0, 0, Math.PI * 2); c.fill();
+    px(c, 104, 152, 48, 8, '#a8302a'); doorPlate(c, 128, 150, 'APEX ROW', true);
+    const fl = shipFloorThings(c, t), me = deck.me; things.push(...fl);
+    // the giant A behind the desk
+    things.push([0, () => mGlow(c, '#ff3b4e', 14, () => { c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(112, 54); c.lineTo(132, 10); c.lineTo(152, 54); c.lineTo(144, 54); c.lineTo(132, 26); c.lineTo(120, 54); c.fill(); px(c, 124, 40, 16, 4, '#c0392b'); })]);
+    things.push([86, () => { c.fillStyle = '#1a1418'; c.beginPath(); c.roundRect(96, 62, 72, 24, [10, 10, 2, 2]); c.fill(); mGlow(c, '#ffd27a', 5, () => px(c, 98, 64, 68, 1, '#ffd27a')); px(c, 110, 58, 12, 6, '#2a2a33'); mGlow(c, '#7fd6ff', 3, () => px(c, 112, 59, 8, 3, '#7fd6ff')); }]);
+    things.push([108, () => { px(c, 12, 98, 46, 10, '#2a2a33'); mGlow(c, '#ffd27a', 4, () => px(c, 12, 98, 46, 1, '#ffd27a')); c.fillStyle = '#a8a8b0'; c.beginPath(); c.ellipse(35, 86, 20, 14, 0, 0, Math.PI * 2); c.fill(); for (const [x, y, r] of [[28, 82, 3], [40, 90, 2], [44, 80, 2]]) { c.fillStyle = '#8a8a94'; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } px(c, 26, 102, 18, 4, '#ffd27a'); }]);
+    // The Chair: a gold silhouette that never quite holds still
+    things.push([96, () => {
+      const fl2 = !reduceMotion && Math.random() < 0.05, a = fl2 ? 0.3 : 0.7;
+      c.fillStyle = 'rgba(255,210,122,0.12)'; c.beginPath(); c.moveTo(196, 94); c.lineTo(188, 40); c.lineTo(204, 40); c.fill();
+      mGlow(c, '#ffd27a', 10, () => { c.fillStyle = `rgba(255,210,122,${a})`; c.beginPath(); c.ellipse(196, 56, 6, 7, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(184, 90); c.quadraticCurveTo(185, 66, 196, 65); c.quadraticCurveTo(207, 66, 208, 90); c.fill(); });
+      for (let y = 46; y < 92; y += 2) px(c, 184, y, 24, 1, 'rgba(255,255,255,0.18)');
+      px(c, 186, 92, 20, 3, '#2a2a33'); mGlow(c, '#ffd27a', 4, () => px(c, 186, 92, 20, 1, '#ffd27a'));
+    }]);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  const APEX_SAYS = {
+    F: ['Everything here is very clean. Too clean. Like nobody’s allowed to make a mistake.', 'Sable used to stand right there and tell us we were finished. We weren’t.', 'Walk quickly. Don’t make eye contact with the drones.'],
+    G: ['Their landers are shiny, but I can hear the cheap bearings from here. Squeak, squeak.', 'The drones keep scanning my toolbelt. It’s just wrenches! Mostly!', 'I applied here once. They said I was “too enthusiastic”. I took it as a compliment.'],
+    W: ['I flew for a company like this once. I quit by landing on their CEO’s car. Gently.', 'Apex used to be three pilots in a shed. Everything starts small. That’s what scares me.'],
+    R: ['I lived on this street for ten years. I never once walked it. Limo, lift, launch pad.', 'People are pointing at me. Then at the billboard. Then back at me. Yes. It’s me. I got out.'],
+    J: ['Every shiny window on this street was paid for by someone like my dockhands.', 'I’m not afraid of Apex. I’m angry at them. It feels better.'],
+    Q: ['I used to walk this street like I owned it. Turns out they owned me.', 'Same drones. Same smell of new carpet. I hate it here. I’m glad I came. Both of those.', 'Somebody new is in charge. I can feel it. The whole street is quieter.'],
+    X: ['Keep your head down. They track courier faces. Old habit. I’m fine. I’m fine.', 'My old locker’s on floor twelve. I left a sandwich in it. That sandwich is now Apex property.'],
+    Z: ['Zib tried to trade with an Apex person. They said “we do not negotiate”. Zib has never been so offended.', 'The drones here do not wave back. Zib does not like these drones.'],
+    C: ['Is it bad that I think it looks cool? It looks cool. I know they’re the bad guys. It looks cool.', 'Aunt Mira says Apex tried to buy her school. She said no. She’s scary.'],
+    H: ['The Apex cafeteria only serves protein cubes. In beige. I’d rather starve.', 'This street has no smell at all. That’s how you know something’s wrong.'],
+    O: ['There is no warmth here, little pilot. Only light.', 'My moths would not come here. They know.']
+  };
   function shoreHello(kind) {
     if (deck.scene) return;
     if (MARS_KINDS.includes(kind)) {
       const p = shoreParty.length ? shoreParty[Math.floor(Math.random() * shoreParty.length)] : null, first = k => { const f = store.get('ds-marsSeen-' + k, '') !== '1'; store.set('ds-marsSeen-' + k, '1'); return f; };
+      if (kind === 'mlobby') {
+        if (!apexMet()) { shipSay('AX', 'Welcome to Apex Landings. Please wait. Someone would like a word with you.'); setTimeout(() => { if (deck && deck.kind === 'mlobby' && !deck.scene) chairSpeak(); }, 2600); return; }
+        shipSay('AX', 'Welcome back to Apex Landings. You are being recorded for quality purposes. And other purposes.'); return;
+      }
+      if (kind === 'mapex' && first('apex')) { shipSay(...(shoreParty.includes('R') ? ['R', 'Apex Row. My old street. Is that… yes. That’s my billboard. Still up. Of course it is.'] : shoreParty.includes('Q') ? ['Q', 'Apex Row. I swore I’d never come back here. Stay close, pilot. The drones remember faces.'] : shoreParty.includes('X') ? ['X', 'Oh no. Oh no no no. Apex Row. Okay. Walk normally. Walk like a person who has never been fired.'] : ['P', 'Apex Row. The air is cooler here, the floors are spotless, and every drone has a red eye. Somewhere above you, a building with no top is watching.'])); return; }
       if (kind === 'mdiner') { shipSay('RB', first('diner') ? 'NEW CUSTOMER DETECTED. Welcome to the Red Planet Diner. I am Rusty. I have one wheel and a very good memory. Sit anywhere. Order at the counter.' : 'WELCOME BACK. Your usual booth is available. You do not have a usual booth. Now you do.'); return; }
       if (kind === 'moffice') { shipSay(...(shoreParty.includes('F') ? ['F', first('office') ? 'Oh. Oh, it’s exactly the same. The desk. The photo. The coffee machine is still on. Thirty years and nobody turned it off.' : 'Back again. I keep thinking I’ll find something I forgot. I think it’s just the feeling.'] : ['P', 'The old Descent Systems office. Dusty, small, and somehow still warm. The coffee machine’s little red light is blinking at you.'])); return; }
       if (kind === 'mdock' && first('dock')) { shipSay(...(shoreParty.includes('J') ? ['J', marsBusy() ? 'Welcome to my dock, pilot. Busy, isn’t it? Six months ago you could hear the wind in here. The job board’s by the crane.' : 'My dock. Half empty since Apex moved in. It used to be the loudest place on Mars. One day it will be again.'] : ['P', marsBusy() ? 'Mars City. The dock is roaring: cranes swinging, pods stacking, drones zipping overhead. A holo sign says “WELCOME BACK, BISCUIT”.' : 'Mars City. The dock is quiet, half its bays empty under a “FOR LEASE” sign. Drones still zip about overhead. The maglev is at the far end.'])); return; }
       if (p) { shipSay(p, shoreLine(p)); return; }
-      shipSay('P', kind === 'mdock' ? 'The dock hums. A drone drops a parcel next to you, beeps an apology and takes it back.' : 'Main Street: neon, noise, drones, and the smell of Rusty’s fries drifting out of the diner.');
+      shipSay('P', kind === 'mapex' ? 'A security drone sweeps its red light across your boots, pauses, and moves on.' : kind === 'mdock' ? 'The dock hums. A drone drops a parcel next to you, beeps an apology and takes it back.' : 'Main Street: neon, noise, drones, and the smell of Rusty’s fries drifting out of the diner.');
       return;
     }
     if (kind === 'pimbake') { const first = store.get('ds-pimFree', '') !== '1'; shipSay('I', first ? 'Welcome, welcome! Come to the counter, love. I’ve been saving you something.' : pick1(['Back again! The star buns are just out.', 'Mind the flour on the floor. Pim was “helping”.', 'Sit anywhere. Well. There are two stools. Sit on one of those.'])); return; }
