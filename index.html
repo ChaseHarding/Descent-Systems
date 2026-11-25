@@ -387,7 +387,33 @@ kbd {
 .ph-app { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .ph-app b { font-size: 12px; font-weight: 500; }
 .ph-ic { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; font-size: 28px; background: #26304f; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25); }
-.ph-ic.texts { background: #2f8a55; } .ph-ic.inbox { background: #3a5aa8; } .ph-ic.map { background: #7a4ab8; } .ph-ic.today { background: #c0603a; }
+.ph-ic.texts { background: #2f8a55; } .ph-ic.inbox { background: #3a5aa8; } .ph-ic.map { background: #7a4ab8; } .ph-ic.today { background: #c0603a; } .ph-ic.quests { background: #b8892a; }
+.qlist { display: flex; flex-direction: column; gap: 8px; }
+.qlist .eyebrow { margin-top: 6px; }
+.qcard { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1px solid #b8892a; border-radius: 8px; background: rgba(255,207,58,0.06); }
+.qcard.done { border-color: var(--space-2); background: none; opacity: .85; }
+.qcard.soon { border-style: dashed; border-color: var(--space-2); background: none; }
+.qcard canvas.face { flex: none; width: 36px; height: 36px; }
+.qbody { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.qbody b { font-family: var(--f-display); font-size: 14px; letter-spacing: .04em; color: #ffcf3a; }
+.qcard.done .qbody b, .qcard.soon .qbody b { color: var(--regolith); }
+.qwho { font-size: 11px; color: var(--regolith-dim); }
+.qbody p { margin: 2px 0 0; font-size: 12px; line-height: 1.45; color: var(--regolith); }
+.qbody p em { font-style: normal; color: #ffcf3a; }
+.qbar { display: block; height: 4px; border-radius: 2px; background: var(--space-2); overflow: hidden; }
+.qbar i { display: block; height: 100%; background: #ffcf3a; }
+.qtrack { position: fixed; z-index: 30; top: calc(env(safe-area-inset-top, 0px) + 8px); left: 50%; transform: translateX(-50%); max-width: min(92vw, 30rem);
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid #b8892a; background: rgba(10,14,28,.92);
+  color: var(--regolith); font: 12px/1.3 var(--f-mono); text-align: left; cursor: pointer; }
+.qtrack b { color: #ffcf3a; font-weight: 700; flex: none; }
+.qtrack span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.qtrack .qstar { color: #ffcf3a; flex: none; }
+.qnew { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(5,8,18,.7); padding: 16px; }
+.qnew[hidden] { display: none; }
+.qnew-card { max-width: 24rem; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 18px 16px; border: 1px solid #ffcf3a; border-radius: 12px; background: var(--space); }
+.qnew-card canvas.face { width: 56px; height: 56px; }
+.qnew-card b { font-family: var(--f-display); font-size: 20px; letter-spacing: .05em; text-transform: uppercase; color: #ffcf3a; }
+.qnew-card p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--regolith); }
 .ph-badge2 { position: absolute; top: 0; right: calc(50% - 38px); min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: var(--bad); color: #fff; font: 700 11px/20px var(--f-mono); font-style: normal; }
 .ph-tip { margin: auto 0 0; text-align: center; font-size: 11px; opacity: 0.55; }
 .ph-head canvas.face { width: 26px; height: 26px; border-radius: 6px; image-rendering: pixelated; }
@@ -3560,6 +3586,79 @@ details.act > .limits { margin: 0 0 8px; }
       react: [['N', 'A bumpy ride. But they weren’t angry. Mama cried. Papa cried.'], ['N', 'They weren’t angry. Mama cried. Papa cried. My little brother tried to steal my helmet.'], ['N', 'They weren’t angry! Mama cried. Papa cried. Can we go back up now? I want to tell everyone. I want to tell the shrimp.']] }
   });
   SIDES.push(...QUEST_MISSIONS);
+  // ---- crew quests, second wave: missions ----
+  SIDES.push(
+    { id: 'q-dayoff', name: 'Dottie’s Day Off', side: true, giver: 'F', quest: ['q-dottie', 1], world: 'moon', kind: 'land',
+      label: 'Quest · Multi-stop', fuel: 420, credits: 320,
+      brief: 'Dottie is on her first day off in twelve years, so you’re covering her jobs: drop the bank forms at BANK, sign for the fuel at DEPOT, pick up Apogee’s food at STORE, then land back at the HANGAR. Don’t tell her. She’ll come back to help.',
+      spawn: { x: 60, y: 90, vx: 0 }, stars: { fuel: 120, time: 105 },
+      ground: [[0, 40], [14, 36], [42, 38], [60, 46], [80, 52], [95, 56], [110, 54], [125, 50], [140, 44], [160, 40], [175, 36], [200, 38], [215, 46], [240, 44]],
+      legs: [
+        { name: 'Drop the bank forms at BANK', goals: [{ type: 'visit', pad: 'BANK', text: 'Land at BANK with the forms', done: 'Bank clerk: “Where’s Dottie? Is she ill?” She’s on holiday. “…Dottie?”' }] },
+        { name: 'Sign for the fuel at DEPOT', say: 'ENGINEERING: She called me. Twice. I said everything’s fine. Everything IS fine. Mostly.', goals: [{ type: 'visit', pad: 'DEPOT', text: 'Land at DEPOT and sign for the fuel', done: 'Signed: “Pilot, for Dottie, who is RESTING.”' }] },
+        { name: 'Pick up Apogee’s food at STORE', goals: [{ type: 'visit', pad: 'STORE', text: 'Land at STORE for the cat food', done: 'The good kind. Apogee will know if it isn’t the good kind.' }] },
+        { name: 'Home to the HANGAR', say: 'FLIGHT: I’m not checking in. I’m just… saying hello. Hello. How’s it going. Is it going.', goals: [{ type: 'land', pad: 'HANGAR' }] }],
+      pads: [{ id: 'BANK', x1: 16, x2: 34, y: 37 }, { id: 'DEPOT', x1: 100, x2: 118, y: 55 }, { id: 'STORE', x1: 150, x2: 166, y: 41 }, { id: 'HANGAR', x1: 196, x2: 214, y: 39 }] },
+    { id: 'q-dockhands', name: 'Calling the Crew', side: true, giver: 'J', quest: ['q-juno', 0], world: 'mars', kind: 'land',
+      label: 'Quest · Multi-stop', windMul: 0.6, fuel: 440, credits: 420,
+      brief: 'Juno’s old dockhands still live in the habs around her dock. Pick up Mo at HAB1, Ana at HAB2 and Big Tam at HAB3, then bring all three back to the DOCK. Gusts all the way.',
+      spawn: { x: 30, y: 100, vx: 0 }, stars: { fuel: 130, time: 110 },
+      ground: [[0, 30], [12, 28], [40, 30], [55, 36], [70, 44], [90, 48], [110, 44], [130, 50], [150, 54], [165, 50], [180, 44], [195, 40], [226, 42], [240, 48]],
+      legs: [
+        { name: 'Pick up Mo at HAB1', goals: [{ type: 'visit', pad: 'HAB1', text: 'Land at HAB1 for Mo', done: 'Mo: “Juno’s reopening? I’ve had my boots on for a year.”' }] },
+        { name: 'Pick up Ana at HAB2', say: 'JUNO: Ana runs the cranes. Nobody runs the cranes like Ana.', goals: [{ type: 'visit', pad: 'HAB2', text: 'Land at HAB2 for Ana', done: 'Ana: “Tell Juno I’m bringing my own gloves.”' }] },
+        { name: 'Pick up Big Tam at HAB3', goals: [{ type: 'visit', pad: 'HAB3', text: 'Land at HAB3 for Big Tam', done: 'Big Tam: “Hello.” (Big Tam is not big. Nobody knows why.)' }] },
+        { name: 'Bring them to the DOCK', say: 'JUNO: Three for three. Bring them home.', goals: [{ type: 'land', pad: 'DOCK' }] }],
+      pads: [{ id: 'HAB1', x1: 14, x2: 34, y: 26 }, { id: 'HAB2', x1: 84, x2: 100, y: 47 }, { id: 'HAB3', x1: 154, x2: 168, y: 53 }, { id: 'DOCK', x1: 200, x2: 220, y: 40 }] },
+    { id: 'q-crane', name: 'The New Crane', side: true, giver: 'J', quest: ['q-juno', 1], world: 'mars', kind: 'sling',
+      label: 'Quest · Sling load', cargoName: 'crane arm', sling: 9, fragile: 1.5, windMul: 1.0, fuel: 470, credits: 460,
+      brief: 'The dock needs a crane. Clip the new crane arm on the cable at PICKUP and lower it onto its base at DROP. The wind is strong today, and a crane arm swings like a pendulum.',
+      spawn: { x: 60, y: 95, vx: 0 }, stars: { fuel: 150, time: 90 },
+      ground: [[0, 34], [12, 30], [40, 30], [60, 40], [85, 52], [110, 58], [130, 54], [150, 46], [176, 44], [202, 44], [220, 50], [240, 54]],
+      pads: [{ id: 'PICKUP', x1: 14, x2: 34, y: 30 }, { id: 'DROP', x1: 178, x2: 200, y: 44 }] },
+    { id: 'q-trades', name: 'The Big Trade', side: true, giver: 'Z', quest: ['q-zib', 1], world: 'ganymede', kind: 'land',
+      label: 'Quest · Multi-stop', fuel: 430, credits: 420,
+      brief: 'Zib has a plan: trade the spoon for a lamp at LAMP, the lamp for a crystal at GEMS, the crystal for “something very shiny” at SHINY, then home to the SHIP. Zib will narrate.',
+      spawn: { x: 30, y: 105, vx: 0 }, stars: { fuel: 130, time: 110 },
+      ground: [[0, 40], [20, 36], [44, 38], [66, 46], [86, 52], [104, 48], [124, 42], [142, 46], [160, 52], [180, 48], [200, 40], [222, 40], [240, 46]],
+      legs: [
+        { name: 'Trade the spoon at LAMP', goals: [{ type: 'visit', pad: 'LAMP', text: 'Land at LAMP and trade the spoon', done: 'Zib: “A LAMP! For a SPOON! Zib is a genius!”' }] },
+        { name: 'Trade the lamp at GEMS', say: 'ZIB: The gem lady likes lamps. Everyone likes lamps. Zib likes lamps. Zib will miss this lamp.', goals: [{ type: 'visit', pad: 'GEMS', text: 'Land at GEMS and trade the lamp', done: 'Zib: “A crystal! It hums! Zib is going to cry. Happy crying.”' }] },
+        { name: 'Trade the crystal at SHINY', goals: [{ type: 'visit', pad: 'SHINY', text: 'Land at SHINY for the final trade', done: 'Zib: “…It’s a stall. A whole STALL. Folded up. For Zib.”' }] },
+        { name: 'Home to the SHIP', say: 'ZIB: Zib has a stall now! Zib needs to open it! Fly fast! But safe! But fast!', goals: [{ type: 'land', pad: 'SHIP' }] }],
+      pads: [{ id: 'LAMP', x1: 22, x2: 40, y: 37 }, { id: 'GEMS', x1: 104, x2: 120, y: 47 }, { id: 'SHINY', x1: 144, x2: 158, y: 47 }, { id: 'SHIP', x1: 200, x2: 220, y: 40 }] },
+    { id: 'q-moss', name: 'Lantern Moss', side: true, giver: 'O', quest: ['q-ollo', 1], world: 'titan', kind: 'land',
+      label: 'Quest · In the dark', dark: 24, noSurprise: true, fuel: 380, credits: 440,
+      brief: 'Ollo’s lantern needs a glowing moss that only grows at the bottom of a deep crater on Titan. It is pitch black down there: only your headlamp and the pad beacons. Land at MOSS, then climb back out.',
+      spawn: { x: 30, y: 105, vx: 0 }, stars: { fuel: 120, time: 70 },
+      ground: [[0, 50], [18, 48], [36, 46], [56, 40], [74, 30], [92, 22], [104, 20], [124, 20], [136, 24], [154, 34], [172, 44], [196, 48], [220, 50], [240, 52]],
+      legs: [
+        { name: 'Find the moss at MOSS', goals: [{ type: 'visit', pad: 'MOSS', text: 'Find the beacon at MOSS', done: 'Ollo: “There. Can you see it glow? Take only a little. It grows slowly.”' }] },
+        { name: 'Climb out of the crater', say: 'OLLO: Up now, little ship. Toward the light. Always toward the light.', goals: [{ type: 'exit' }] }],
+      pads: [{ id: 'MOSS', x1: 106, x2: 122, y: 20 }] },
+    { id: 'q-sunrise', name: 'First Sunrise', side: true, giver: 'V', quest: ['q-twins', 1], world: 'earth', kind: 'land',
+      label: 'Quest · Against the clock', fuel: 300, credits: 420,
+      timeLimit: 60, limitText: 'Land on the RIDGE within 60 seconds, before the sun comes up', spareText: 'to spare before sunrise',
+      brief: 'Kael and Lyra have never seen a sunrise on a world with air. Get them down on the RIDGE before the sun clears the horizon. You have one minute.',
+      briefSteps: ['Land the twins on the RIDGE'],
+      spawn: { x: 30, y: 100, vx: 1 }, stars: { fuel: 130, time: 40 },
+      ground: [[0, 40], [20, 38], [40, 44], [62, 50], [84, 46], [106, 40], [128, 46], [150, 52], [170, 42], [184, 32], [206, 32], [222, 40], [240, 46]],
+      pads: [{ id: 'RIDGE', x1: 186, x2: 204, y: 32 }] });
+  Object.assign(STORY, {
+    'q-dayoff': { intro: [['G', 'Dottie’s gone to sit in the window with a book. A whole book. She looked so confused.'], ['W', 'Three jobs and home. Fly them like she would. Quietly, and twice as fast.']],
+      react: [['G', 'All done! She only called four times. That’s a record. A good record.'], ['G', 'Every job done! She called twice. Once was to ask what a nap is.'], ['G', 'Perfect! She didn’t call once! …Wait, is she okay? Somebody check on her.']] },
+    'q-dockhands': { intro: [['J', 'They were the best crew on Mars. Apex laid them off the day they bought the dock next to mine.'], ['J', 'Three habs, three dockhands. They don’t know I’m coming. Let’s surprise them.']],
+      react: [['J', 'Bumpy ride. They’re not complaining. They’re home.'], ['J', 'All three aboard. Mo’s already arguing with Ana. It’s like old times.'], ['J', 'Perfect pickup. My crew is back. …Give me a second. Dust in my eye. Mars dust. Very common.']] },
+    'q-crane': { intro: [['J', 'Ana says the crane arm weighs more than Biscuit. Go gently.'], ['J', 'If it swings, don’t fight it. Ride it out.']],
+      react: [['J', 'It’s on. A bit crooked. Ana says “character”.'], ['J', 'Clean. Ana is applauding. Ana never applauds.'], ['J', 'Dead centre. The dock has a crane again. We’re open, pilot. We’re actually open.']] },
+    'q-trades': { intro: [['Z', 'Zib has a spoon. A very good spoon. Zib has a PLAN for the spoon.'], ['Z', 'Spoon to lamp! Lamp to crystal! Crystal to something shiny! Zib has done this before. Mostly with less shiny things.']],
+      react: [['Z', 'Zib has a stall! It wobbles a bit! Zib also wobbles a bit!'], ['Z', 'All the trades! Zib is the best trader on Ganymede! Possibly in the system!'], ['Z', 'Perfect trades! Perfect flying! Zib will name the stall after you! Zib will name it “Pilot’s”.']] },
+    'q-moss': { intro: [['O', 'My lantern has been with me for forty years. Tonight, it flickered. I think it is hungry.'], ['O', 'The moss grows where no light reaches. Go down slowly. I will be right here, on the radio.']],
+      react: [['O', 'You found it. A little bruised. The lantern will not mind.'], ['O', 'The moss is perfect. Already, the lantern is warmer.'], ['O', 'You flew the dark like a moth. The lantern is singing. Can you hear it? No? It is singing.']] },
+    'q-sunrise': { intro: [['V', 'We have studied sunrises. In books. They sound overrated.'], ['Y', 'They sound wonderful. Ignore him. Please hurry. The sun is coming.']],
+      react: [['Y', 'We made it. Just. The top of the sun is up. That still counts. Lyra rules it counts.'], ['V', 'Oh. Oh, that’s… Lyra, look at the clouds. They’re pink. Nobody told us they’d be pink.'], ['Y', 'Right on time. Kael is crying. Kael says he isn’t. Kael is.']] }
+  });
+
   const ALL = MISSIONS.concat(SIDES);
   const RING_R = 7;
   const sideStars = () => SIDES.reduce((n, d) => n + (missionStars[d.id] || 0), 0);
@@ -4128,6 +4227,8 @@ details.act > .limits { margin: 0 0 8px; }
   };
   const COP_ORDER = ['F', 'G', 'W', 'R', 'J', 'Z', 'O', 'V', 'Y', 'N', 'S', 'C', 'H', 'D', 'T', 'X'];
   let copilot = store.get('ds-copilot', '');
+  Object.defineProperty(COPILOTS.F, 'what', { get: () => questDone('q-dottie') ? 'Rested Dottie: time goals for the third star are 25% longer' : 'Time goals for the third star are 15% longer' });
+  Object.defineProperty(COPILOTS.F, 'go', { get: () => questDone('q-dottie') ? 'Flight plan filed. I slept eight hours. I feel like a new woman. A calm one. Let’s fly.' : 'Flight plan filed. Checklist complete. Try to stay on schedule.' });
   const copAvail = () => COP_ORDER.filter(w => romMet[w] && romMet[w]());
   const cop = () => (mission && mission.cop) || null;
   const copHas = w => cop() === w;
@@ -4573,6 +4674,7 @@ details.act > .limits { margin: 0 0 8px; }
     windDir = rng() < 0.5 ? -1 : 1; windSeed = rrand(0, 100);
     makeBackdrop();
     levelFuel = d.fuel;
+    if (d.world === 'mars' && questDone('q-juno')) { levelFuel = Math.round(d.fuel * 1.15); setTimeout(() => { if (mission && mode === 'flying') showToast('Juno’s dock topped you up: +15% fuel', 2200); }, 1600); }
     spawn(d.spawn);
     if (copHas('Y')) { lander.fuel *= 1.1; lander.fuelMax *= 1.1; }
     if (encFuel && !ghostRun && encFuelFor === missionSel) { lander.fuel = Math.max(20, lander.fuel + encFuel); if (lander.fuel > lander.fuelMax) lander.fuelMax = lander.fuel; popText(`${encFuel > 0 ? '+' : '−'}${Math.abs(encFuel)} kg fuel`, encFuel > 0 ? '#7cf0b0' : '#ff9a5e', lander.x, lander.y + 6, true); }
@@ -4980,7 +5082,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function completeMission(pad) {
     const d = mission.def, t = flightT, fuel = lander.fuel;
-    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? 1.15 : copHas('Q') ? 1.25 : 1)];
+    const met = [true, fuel >= d.stars.fuel * (copHas('V') ? 0.8 : 1), t <= d.stars.time * (copHas('F') ? (questDone('q-dottie') ? 1.25 : 1.15) : copHas('Q') ? 1.25 : 1)];
     const starsWon = met.filter(Boolean).length;
     const prev = missionStars[d.id] || 0;
     const rex = copHas('R') ? 1.25 : 1, pay = Math.round(Math.max(0, starsWon - prev) * d.credits * rex), extra = Math.round(mission.bonus * rex * (copHas('E') ? 1.5 : 1));
@@ -6057,6 +6159,7 @@ details.act > .limits { margin: 0 0 8px; }
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
+    setTimeout(() => { try { questTrack(); } catch (e) {} }, 0);
     if (MENU_MODES.includes(m) && !['brief', 'setup'].includes(m)) { achvQueue.length = 0; const ac = $('achv'); if (ac) ac.hidden = true; }
     try { emergUi(m); } catch (e) {}
     if (introHold && m !== 'flying' && introEnd) introEnd();
@@ -6629,7 +6732,7 @@ details.act > .limits { margin: 0 0 8px; }
     setMode('setup');
   }
   function renderSettings(focusId) {
-    if (focusId) { const tabOfId = { setSound: 'sound', setMusic: 'sound', setStory: 'story', setRomance: 'story' }; if (tabOfId[focusId]) setTab = tabOfId[focusId]; }
+    if (focusId) { const tabOfId = { setSound: 'sound', setMusic: 'sound', setStory: 'story', setRomance: 'story', setQTrack: 'story' }; if (tabOfId[focusId]) setTab = tabOfId[focusId]; }
     const row = (id, label, sub, on) => `<button class="toggle" id="${id}" aria-pressed="${on}">
       <span><b>${label}</b><small>${sub}</small></span><i aria-hidden="true"></i></button>`;
     const keyRows = [['Main engine', '↑ or W'], ['Rotate', '← → or A D'], ['Pause', 'P or Esc'], ['Sound', 'M'], ['Music', 'N'],
@@ -6659,6 +6762,7 @@ details.act > .limits { margin: 0 0 8px; }
       <section class="sset"${sec('story')}>
         <div class="settings">
           ${row('setStory', 'Story scenes', 'Radio chatter from mission control before each mission', storyOn)}
+          ${row('setQTrack', 'Quest tracker', 'Show your current crew quest at the top of each room. Tap it to open your quests', store.get('ds-qtrack', '1') === '1')}
           ${row('setRomance', 'Romance', 'Date the crew once you’re close (Friends ♥ in the break room). Date more than one at a time if you dare: jealousy, exes, rivals and gossip included. Off keeps everyone as friends', romanceOn)}
         </div>
         <div class="btns">
@@ -6687,6 +6791,7 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.stab === setTab) return; setTab = b.dataset.stab; sfx.click(); renderSettings(); const t2 = card.querySelector('.stabs .mtab.on'); if (t2) t2.focus({ preventScroll: true }); }));
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
+    $('setQTrack').addEventListener('click', () => { store.set('ds-qtrack', store.get('ds-qtrack', '1') === '1' ? '0' : '1'); renderSettings('setQTrack'); });
     $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
     $('setRomance').addEventListener('click', () => {
       romanceOn = !romanceOn; store.set('ds-romance', romanceOn ? '1' : '0');
@@ -9228,6 +9333,33 @@ details.act > .limits { margin: 0 0 8px; }
       feed: ['A pinch of ice-algae. The glowfish blink faster. Nerri says that means “thank you” and also “more”.', 'The glowfish have eaten. They’re blinking slowly now. Nerri says that’s fish for “nap time”.'],
       draw(c, x, y, t) { const tt = reduceMotion ? 0 : t; srCab(c, x, y + 22, 38, '#3a4668'); srTank(c, x, y, '#0c1a3a', '#1a2a4a'); glow(c, x + 19, y + 12, 15, 'rgba(90,180,255,0.2)');
         for (let i = 0; i < 5; i++) { const fx = x + 3 + ((i * 7 + tt / (500 + i * 90)) % 30), fy = y + 6 + (i * 4) % 11 + Math.round(Math.sin(tt / 700 + i)); const on = reduceMotion || Math.floor(tt / (300 + i * 70) + i) % 3; px(c, Math.round(fx), fy, 3, 2, on ? '#7fd6ff' : '#2a5a8a'); } } });
+  // crew quest rewards, second wave
+  DEN_ITEMS.desk.push({ id: 'bossmug', name: 'World’s Okayest Boss mug', price: 0, quest: 'q-dottie', blurb: 'A gift from the crew to Dottie, and a spare from Dottie to you. It says “World’s Okayest Boss”. Gus picked the font.',
+    draw(c, x, y) { px(c, x + 8, y + 3, 10, 11, '#f4f1e8'); px(c, x + 8, y + 3, 10, 1, '#ffffff'); px(c, x + 18, y + 5, 3, 1, '#f4f1e8'); px(c, x + 20, y + 5, 1, 5, '#f4f1e8'); px(c, x + 18, y + 9, 3, 1, '#f4f1e8'); px(c, x + 10, y + 6, 6, 1, '#c94236'); px(c, x + 10, y + 8, 5, 1, '#3a3048'); px(c, x + 10, y + 10, 6, 1, '#3a3048'); px(c, x + 10, y + 1, 1, 2, 'rgba(255,255,255,0.4)'); px(c, x + 13, y, 1, 2, 'rgba(255,255,255,0.4)'); } });
+  DEN_ITEMS.wallR.push(
+    { id: 'eotm', name: 'Employee of the Month', price: 0, quest: 'q-dottie', blurb: 'Dottie made you a certificate. It says “Employee of the Month: every month”. She laminated it.',
+      draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#c9a06a'); px(c, x + 4, y + 3, 22, 14, '#fff8e8'); px(c, x + 8, y + 5, 14, 2, '#c94236'); px(c, x + 6, y + 9, 18, 1, '#8a8478'); px(c, x + 6, y + 11, 15, 1, '#8a8478'); circ(c, x + 21, y + 14, 2.5, '#ffd36a'); px(c, x + 20, y + 16, 1, 2, '#c94236'); px(c, x + 22, y + 16, 1, 2, '#c94236'); } },
+    { id: 'zibspoon', name: 'Zib’s best spoon', price: 0, quest: 'q-zib', blurb: 'The spoon that started it all, framed by Zib. A brass plaque underneath says: “SPOON”.',
+      draw(c, x, y) { px(c, x + 3, y + 1, 24, 18, '#6a4a36'); px(c, x + 5, y + 3, 20, 14, '#2a2e3c'); px(c, x + 8, y + 9, 12, 2, '#d8dce6'); oval(c, x + 21, y + 10, 3, 2, '#e8ecf4'); px(c, x + 12, y + 15, 6, 1, '#e8c25a'); } },
+    { id: 'twinsphoto', name: 'Sunrise photo', price: 0, quest: 'q-twins', blurb: 'Kael and Lyra on the ridge, pink clouds behind them. Lyra swears she isn’t holding Kael’s hand. She is. You’re in the corner, waving.',
+      draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#f4f1e8'); px(c, x + 4, y + 3, 22, 12, '#ffb08a'); px(c, x + 4, y + 3, 22, 4, '#ff9ad5'); circ(c, x + 15, y + 12, 3, '#ffe08a'); px(c, x + 4, y + 12, 22, 3, '#5a4a6a'); px(c, x + 9, y + 8, 2, 5, '#3a3048'); px(c, x + 13, y + 8, 2, 5, '#3a3048'); px(c, x + 23, y + 11, 1, 2, '#3a3048'); } });
+  DEN_ITEMS.wallL.push({ id: 'docksign', name: 'Mars Dock sign', price: 0, quest: 'q-juno', blurb: 'Ana built it from an old landing beacon. “MARS DOCK · OPEN”, in red light. The second N in OPEN is from the original banner.',
+    draw(c, x, y, t) { const on = reduceMotion || Math.floor(t / 900) % 7 !== 0; px(c, x + 1, y + 6, 28, 15, '#1a1c26'); px(c, x + 2, y + 7, 26, 13, '#241a1e');
+      if (on) glow(c, x + 15, y + 13, 14, 'rgba(255,107,94,0.25)'); c.fillStyle = on ? '#ff6b5e' : '#6a3a3a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('MARS DOCK', x + 15, y + 12); c.fillText('OPEN', x + 15, y + 18); c.textAlign = 'left'; px(c, x + 8, y + 2, 1, 4, '#8a93ab'); px(c, x + 21, y + 2, 1, 4, '#8a93ab'); } });
+  DEN_ITEMS.floor.push(
+    { id: 'cranemodel', name: 'Dock crane model', price: 0, quest: 'q-juno', blurb: 'A little model of the new crane at Juno’s dock. The arm really swings. Ana sent it with a note: “gently”.',
+      draw(c, x, y, t) { px(c, x + 4, y + 26, 16, 3, '#5a4a3a'); px(c, x + 10, y + 6, 3, 20, '#ffb547'); for (let k = 8; k < 26; k += 4) px(c, x + 10, y + k, 3, 1, '#c97a20'); px(c, x + 3, y + 5, 18, 2, '#ffb547');
+        const sw = reduceMotion ? 0 : Math.round(Math.sin(t / 700) * 1.5); px(c, x + 19 + sw, y + 7, 1, 7, '#8a93ab'); px(c, x + 17 + sw, y + 14, 5, 3, '#c9cfdc'); } },
+    { id: 'tradestall', name: 'Tiny trade stall', price: 0, quest: 'q-zib', blurb: 'Zib built you a stall of your own. It’s the size of a shoebox. It has tiny goods, a tiny awning and a tiny sign that says “ZIB’S (SMALL)”.',
+      draw(c, x, y) { px(c, x + 2, y + 18, 20, 11, '#7a5c44'); px(c, x + 2, y + 18, 20, 2, '#9a7656'); for (let k = 0; k < 5; k++) px(c, x + 1 + k * 4, y + 8, 4, 4, k % 2 ? '#c8a2ff' : '#f4f1e8'); px(c, x + 2, y + 12, 1, 6, '#5a4232'); px(c, x + 21, y + 12, 1, 6, '#5a4232');
+        px(c, x + 5, y + 15, 3, 3, '#ffd36a'); px(c, x + 10, y + 14, 3, 4, '#7fd6ff'); px(c, x + 15, y + 15, 4, 3, '#ff9ad5'); px(c, x + 8, y + 22, 8, 3, '#2a2e3c'); } },
+    { id: 'ollolantern', name: 'Little lantern', price: 0, quest: 'q-ollo', blurb: 'A small lantern, lit from Ollo’s own. It isn’t very bright, but it is very loyal. It glows a little warmer when you’re near.',
+      draw(c, x, y, t) { const f = reduceMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t / 600); glow(c, x + 12, y + 14, 14, `rgba(255,214,106,${(0.25 + f * 0.2).toFixed(2)})`); px(c, x + 11, y + 18, 2, 10, '#5a4232'); px(c, x + 6, y + 27, 12, 2, '#5a4232');
+        px(c, x + 11, y + 2, 2, 3, '#8a7a5a'); px(c, x + 7, y + 5, 10, 2, '#8a7a5a'); px(c, x + 8, y + 7, 8, 10, '#ffd36a'); px(c, x + 10, y + 9, 4, 6, '#fff1c0'); px(c, x + 7, y + 17, 10, 2, '#8a7a5a'); } });
+  DEN_ITEMS.window.push({ id: 'sunrise', name: 'Earth sunrise', price: 0, quest: 'q-twins', blurb: 'The view from the twins’ ridge on Earth: pink clouds, then gold, then a colour Kael calls “morning”.',
+    draw(c, x, y, t) { const g = c.createLinearGradient(0, y, 0, y + 40); g.addColorStop(0, '#5a6aa8'); g.addColorStop(0.45, '#ff9ad5'); g.addColorStop(0.75, '#ffb08a'); g.addColorStop(1, '#ffe08a'); c.fillStyle = g; c.fillRect(x, y, 54, 40);
+      const up = reduceMotion ? 0 : Math.round(Math.sin(t / 4000) * 1.5); circ(c, x + 27, y + 31 - up, 7, '#fff4c8'); c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(x + 6, y + 14, 16, 2); c.fillRect(x + 30, y + 19, 18, 2);
+      px(c, x, y + 32, 54, 8, '#4a3a5a'); px(c, x + 10, y + 30, 14, 2, '#4a3a5a'); px(c, x + 34, y + 29, 12, 3, '#4a3a5a'); } });
   DEN_ITEMS.window.push(
     { id: 'aurora', name: 'Aurora', price: 1000, blurb: 'Green and pink light rippling over a planet’s night side. Zib says it’s the planet “waving”.',
       draw(c, x, y, t) {
@@ -9663,7 +9795,7 @@ details.act > .limits { margin: 0 0 8px; }
   const DEN_ALONE = ['Pilot, your cabin’s looking good. Try not to crash it.', 'Quiet in here. Enjoy it while it lasts. Gus is testing the toaster again.', 'Apogee isn’t in your cabin? Check under the bunk. Actually, don’t. She bites.'];
   function denTalkFor(who, look) {
     const spec = Object.entries(DEN_TALK[who] || {}).filter(([k]) => { const [pool, id] = k.split(':'); return DEN_SPOTS.some(x => x.pool === pool && look[x.id] === id && (!x.lng || srCanDeco()) && !!x.balc === inBalc()); }).map(([, t]) => t);
-    const idle = DEN_IDLE[who];
+    const idle = who === 'R' && questDone('q-rex') ? DEN_IDLE.R.concat(REX_HONEST) : DEN_IDLE[who];
     let pool = spec.length && Math.random() < 0.65 ? spec : idle;
     if (denUI && pool.length > 1) pool = pool.filter(t => t !== denUI.lastLine);
     const line = pool[Math.floor(Math.random() * pool.length)];
@@ -10212,6 +10344,79 @@ details.act > .limits { margin: 0 0 8px; }
         ['D', 'Will you stay down there?'],
         ['N', 'I thought I would. But when we flew back up… this felt like home too. Is that allowed? Two homes?'],
         ['P', null, { who: 'N', choice: [['Two homes is the best kind.', 'The best kind. I’m going to tell the shrimp. They’ll be so pleased.', 30], ['You’re always welcome here.', 'Always. Okay. I’m keeping that word, too. Next to “safe”.', 30], ['As long as you visit them often.', 'Every time we pass Jupiter. I promised. And I keep my promises. Mostly.', 20]] }]] },
+    { id: 'qs-dottie-plan', room: 'galley', quest: ['q-dottie', 0], need: ['G'],
+      cast: [['G', 112, 118], ['W', 176, 104], ['R', 60, 120]],
+      lines: [['G', 'Okay, everyone, quick, before she comes in. Operation Day Off.'],
+        ['W', 'Twelve years without a day off. That’s not dedication, Gus. That’s a cry for help.'],
+        ['R', 'I’ve booked her a spa. It’s a bucket of warm water and a cucumber. It’s the best I could do on the Moon.'],
+        ['G', 'And the pilot covers her jobs! Pilot, you’re in, right? Please say you’re in. I already told her you’re in.'],
+        ['P', null, { who: 'G', choice: [['Of course I’m in. She deserves it.', 'Yes! Team Day Off! I’m making badges. I’m making terrible badges.', 30], ['Does Dottie know how to take a day off?', 'No. That’s why we’re doing it. Like teaching a cat to swim. Not that we’d do that. Sorry, Apogee.', 20], ['Who’s going to tell her?', '…I thought you would. You’re her favourite. Don’t tell her I said that either.', 15]] }],
+        ['G', 'It’s on your Side jobs list. Bank, depot, store, home. Go, go, before she finds a clipboard.']] },
+    { id: 'qs-dottie-mug', room: 'galley', quest: ['q-dottie', 2], need: ['F', 'G'],
+      cast: [['F', 112, 118], ['G', 160, 118], ['R', 60, 120]],
+      lines: [['F', 'I sat in the window for eight hours. I read a whole book. I read it twice. I didn’t know what to do with my hands.'],
+        ['G', 'Surprise! For you! It’s a mug!'],
+        ['F', '“World’s Okayest Boss.” …Gus.'],
+        ['R', 'I wanted “World’s Best”. Gus said you’d never believe it.'],
+        ['F', 'He’s right. I wouldn’t. I don’t know how to rest. I don’t know how to stop. If I stop, I think everything falls apart.'],
+        ['P', null, { who: 'F', choice: [['Everything was fine today. We’ve got you.', 'You did, didn’t you. Nothing fell apart. …I might try this again. In about twelve years.', 35], ['You’re allowed to be tired, Dottie.', 'Am I? …Huh. Nobody’s ever said that out loud. Okay. I’m tired. Wow. That felt strange.', 30], ['The bank forms nearly blew away, though.', 'NEARLY? Pilot. I need details. …No. No, I don’t. I’m on holiday. For one more hour.', 15]] }],
+        ['F', 'Thank you. All of you. Now get out of my galley. I’m making cocoa. For everyone. Slowly.']] },
+    { id: 'qs-juno-open', room: 'bridge', quest: ['q-juno', 2], need: ['J'],
+      cast: [['J', 182, 126], ['F', 52, 130]],
+      lines: [['J', 'Look. On the comms screen. That’s the dock, live. Lights on every pad.'],
+        ['F', 'Is that a party?'],
+        ['J', 'Ana’s idea. The crane’s lifting a banner. It says “OPEN”. Mo spelled it. It has three Ns.'],
+        ['J', 'I put my dock up as collateral once, to keep this ship flying. I thought I’d never see it like this again.'],
+        ['P', null, { who: 'J', choice: [['You built that. You and your crew.', 'We built it. You flew half of it in. …Thank you, pilot. I mean that. Logged as perfect.', 35], ['Will you go back to running it?', 'Someday. Not yet. Somebody has to run your docking. Ana can run mine.', 20], ['Three Ns is very Mars.', 'It IS very Mars. I’m keeping the banner. I’m framing the banner.', 25]] }],
+        ['J', 'Channel nine, Mars Dock. This is Juno. …We’re open.']] },
+    { id: 'qs-zib-plan', room: 'hall', rel: true, quest: ['q-zib', 0], need: ['Z'],
+      cast: [['Z', 34, 104], ['G', -36, 106]],
+      lines: [['Z', 'Pilot! Zib misses the market. The noise! The smells! The shouting about prices!'],
+        ['G', 'We do have shouting. Mostly me. About the coffee machine.'],
+        ['Z', 'Zib wants a stall. Here! In the corridor! But Zib traded the old stall for spoons. So Zib has… a spoon.'],
+        ['Z', 'But! A spoon can become a lamp! A lamp can become a crystal! A crystal can become ANYTHING!'],
+        ['P', null, { who: 'Z', choice: [['Let’s go trading, Zib!', 'YES! Zib knew you would say yes! Zib packed already! Zib packed the spoon!', 30], ['Can a spoon really become a stall?', 'Everything can become everything! That is the first law of trading! Zib made it up!', 20], ['Where would the stall even go?', 'Here! Right here! Next to Gus! Gus will love it!', 15]] }],
+        ['G', 'I… will love it. Probably. The Big Trade’s on your Side jobs list.']] },
+    { id: 'qs-zib-open', room: 'hall', rel: true, quest: ['q-zib', 2], need: ['Z'],
+      cast: [['Z', 34, 104], ['G', -36, 106], ['R', 70, 108]],
+      lines: [['Z', 'Welcome! Welcome to Zib’s! Everything is for trade! Except the jar.'],
+        ['R', 'Zib, darling, what will you take for this… is it a rock?'],
+        ['Z', 'It is a very good rock. For you, Rex, one autograph.'],
+        ['R', 'Done. That’s the best deal I’ve ever made.'],
+        ['G', 'Zib, I’ll trade you a wrench for that bolt.'],
+        ['Z', 'No. Zib knows that wrench. That wrench is Wren’s.'],
+        ['P', null, { who: 'Z', choice: [['It’s the best stall in the system, Zib.', 'In the SYSTEM! Zib is putting that on a sign! A big sign!', 30], ['What would you trade for a hug?', 'A hug is free! Hugs are always free at Zib’s! Come here!', 30], ['Do you take credits?', 'Credits are boring. Zib takes stories, spoons and shiny things.', 15]] }]] },
+    { id: 'qs-ollo-dim', room: 'bridge', quest: ['q-ollo', 0], need: ['O'],
+      cast: [['O', 204, 122], ['J', 82, 140]],
+      lines: [['J', 'Ollo’s lantern has been flickering all evening. I can’t read my gauges.'],
+        ['O', 'It is old, little pilot. Older than me. It eats a moss that grows only in the dark, at the bottom of a crater on Titan.'],
+        ['O', 'I could ask someone else. But I would like it to be you. You have gentle hands on the stick.'],
+        ['P', null, { who: 'O', choice: [['I’ll find your moss, Ollo.', 'Thank you. The lantern thanks you too. It is flickering “thank you”. Or possibly “hurry”.', 30], ['How dark is the crater?', 'Very. Darker than closing your eyes. But your headlamp will be enough. I have seen you fly.', 20], ['What happens if it goes out?', 'Then I will sit in the dark and remember it. But it will not go out. Not tonight.', 25]] }],
+        ['O', 'Lantern Moss. It is on your list. Go down slowly. Come back up toward the light.']] },
+    { id: 'qs-ollo-bright', room: 'bridge', quest: ['q-ollo', 2], need: ['O'],
+      cast: [['O', 204, 122], ['J', 82, 140], ['G', 50, 132]],
+      lines: [['G', 'Whoa. Is it… brighter? It’s brighter. I can see the dust on the console. I didn’t want to see the dust on the console.'],
+        ['O', 'It ate. It is happy. Look how it glows. That is the colour of contentment.'],
+        ['J', 'I can read every gauge on the bridge. Thank you, lantern.'],
+        ['O', 'Little pilot. You carried light out of the dark for an old moth. I will not forget it.'],
+        ['P', null, { who: 'O', choice: [['Anytime, Ollo. Truly.', 'Anytime. I will hold you to that, gently, the way you hold the stick.', 30], ['Does the lantern have a name?', 'It does. It has never told me. I think it is something warm.', 25], ['Can I borrow it to read in bed?', 'It would like that. It will glow quietly. It knows not to wake you.', 20]] }]] },
+    { id: 'qs-twins-spot', room: 'galley', quest: ['q-twins', 0], need: ['V', 'Y'],
+      cast: [['V', 112, 120], ['Y', 146, 120], ['H', 196, 94]],
+      lines: [['V', 'We have never seen a sunrise. Not on a world with air. Titan doesn’t count. Titan is orange all day.'],
+        ['Y', 'We agree on the sunrise. We disagree on where.'],
+        ['V', 'A beach. Waves. Sand. Classic.'],
+        ['Y', 'A mountain ridge. Above the clouds. Obviously.'],
+        ['H', 'Have you tried a kitchen window? There’s a lovely one right here. It faces a wall.'],
+        ['P', null, { who: ['V', 'Y'], choice: [['The ridge. Above the clouds.', 'The ridge. Fine. Lyra wins. Lyra always wins. Write it down, Lyra. She’s writing it down.', 30], ['Why not see both, one day?', 'Both. A compromise. Lyra, this is what diplomats are supposed to do. We forgot.', 30], ['The beach sounds nice.', 'The beach is booked. Apparently. Lyra checked. The ridge it is.', 15]] }],
+        ['Y', 'First Sunrise. It’s on your list. We leave before dawn. Obviously.']] },
+    { id: 'qs-twins-after', room: 'galley', quest: ['q-twins', 2], need: ['V', 'Y'],
+      cast: [['V', 112, 120], ['Y', 146, 120], ['F', 60, 120]],
+      lines: [['F', 'You two have been quiet all morning. It’s a bit unsettling.'],
+        ['V', 'The clouds went pink. Then gold. Then a colour I don’t have a word for.'],
+        ['Y', 'We didn’t argue once. For forty minutes. That’s a record.'],
+        ['V', 'Lyra held my hand. She says she didn’t.'],
+        ['Y', 'I didn’t.'],
+        ['P', null, { who: ['V', 'Y'], choice: [['I’m glad I got to see it with you.', 'So are we. You’re in the photo, you know. Small. In the corner. Waving.', 30], ['What was the colour, Kael?', '“Morning”. I’ve decided it’s called morning. Lyra disagrees. Lyra is wrong.', 25], ['Same time tomorrow?', 'Every day, if we could. We’re going to be insufferable about sunrises now.', 20]] }]] },
     // ---- reactions: the crew catching their breath after the big moments ----
     { id: 'rx-lights', room: 'galley', after: 'final-notice', until: 'scrap-run', need: ['F', 'G'],
       cast: [['F', 96, 118], ['G', 150, 118]],
@@ -10452,7 +10657,7 @@ details.act > .limits { margin: 0 0 8px; }
   function roomSceneFor(kind) {
     const seen = rsSeen();
     return ROOM_SCENES.find(s => s.room === kind && (s.quest ? questStep(s.quest[0]) === s.quest[1] : storyDone(s.after)) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
-      && (!s.need || s.need.every(rsHere)) && s.cast.filter(([w]) => rsHere(w)).length >= Math.min(2, s.cast.length));
+      && (!s.need || s.need.every(rsHere)) && s.cast.filter(([w]) => rsHere(w)).length >= (s.need ? 1 : Math.min(2, s.cast.length)));
   }
   // ---- Crew moments: little unscripted scenes you sometimes walk in on between missions ----
   // At most one a ship day, a 35% chance when you enter a room, and each one plays only once.
@@ -11229,6 +11434,7 @@ details.act > .limits { margin: 0 0 8px; }
         if (!open) for (let yy = 22; yy < 54; yy += 8) { px(c, x0 + 2, yy, w - 4, 3, '#c9a24a'); for (let xx = x0 + 2; xx < x0 + w - 2; xx += 4) px(c, xx, yy, 2, 3, '#26304f'); }
       }
       doorPlate(c, x, 6, label, open);
+      if (questDoorWant(to, isLift)) drawQuestMark(c, x, 30, t);
     }
     // floor
     px(c, 0, 60, W, SHIP_H - 60, K.floor);
@@ -11522,6 +11728,7 @@ details.act > .limits { margin: 0 0 8px; }
       }
       drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t);
       if (n.emote && t >= n.emote.t0 && t < n.emote.until) drawEmote(c, n.emote.k, n.x, n.y - 28, t, n.emote.t0);
+      else if (!n.script && questCrewWaiting(n.who)) drawQuestMark(c, n.x, n.y - 27, t);
       else if (!n.script && ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
       if (n.script && deck.scene && deck.scene.speaker === n.who) drawEmote(c, 'dots', n.x, n.y - 28, t, null);
     }]);
@@ -15769,7 +15976,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     if (who) phoneAdd(who, m[2], 'Radio');
   }
-  const phoneUnread = () => { let t = 0; try { t = textsUnread(); } catch (e) {} return phoneLog.filter(p => p.at > phoneSeen).length + t; };
+  const phoneUnread = () => { let t = 0; try { t = textsUnread() + questNewCount(); } catch (e) {} return phoneLog.filter(p => p.at > phoneSeen).length + t; };
   const PHONE_HIDE = ['flying', 'touchdown', 'paused', 'datescene', 'tutorial', 'intro', 'race'];
   // the little phone on the right edge, with a count of unread messages
   function phoneButton() {
@@ -16158,7 +16365,7 @@ details.act > .limits { margin: 0 0 8px; }
         if (t.dataset.open) { sfx.click(); startText(phoneView.slice(7), t.dataset.open); renderPhone(); return; }
         if (t.id === 'phoneClear') { phoneLog = []; phoneSave(); renderPhone(); phoneButton(); return; }
         if (t.id === 'phReq') { sfx.click(); closePhone(); reqFrom = 'title'; setMode('requests'); return; }
-        if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
+        if (t.dataset.app) { sfx.click(); phoneView = t.dataset.app; if (phoneView === 'quests') setTimeout(() => { questMarkSeen(); phoneButton(); }, 0); if (phoneView === 'inbox') { setTimeout(() => { phoneSeen = Date.now(); store.set('ds-phoneSeen', String(phoneSeen)); phoneButton(); }, 0); } renderPhone(); return; }
         if (t.dataset.thread) { sfx.click(); phoneView = 'thread:' + t.dataset.thread; renderPhone(); return; }
         if (t.dataset.group) { sfx.click(); phoneView = 'group'; renderPhone(); return; }
         if (calClick(t)) { renderPhone(); return; }
@@ -16167,10 +16374,10 @@ details.act > .limits { margin: 0 0 8px; }
       });
     }
     const v = phoneView, tw = v.startsWith('thread:') ? v.slice(7) : null;
-    const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0], ['cal', '📅', 'Calendar', bdayWho().length]];
-    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', group: 'Second Wind crew 🚀', inbox: 'Inbox', map: 'Ship map', today: 'Today', cal: 'Calendar' }[v];
+    const apps = [['texts', '💬', 'Texts', textsUnread()], ['inbox', '📥', 'Inbox', inboxUnread()], ['map', '🗺️', 'Ship map', 0], ['today', '✅', 'Today', 0], ['quests', '⭐', 'Quests', questNewCount()], ['cal', '📅', 'Calendar', bdayWho().length]];
+    const title = tw ? SIGN[tw] : { home: `Day ${shipDay}`, texts: 'Texts', contacts: 'New text', group: 'Second Wind crew 🚀', inbox: 'Inbox', map: 'Ship map', today: 'Today', quests: 'Crew quests', cal: 'Calendar' }[v];
     const body = v === 'home' ? `<div class="ph-home"><p class="ph-clock">${eveLevel() > 0 ? eveName() : 'Ship time'} · Day ${shipDay}</p><div class="ph-apps">${apps.map(([id, ic, name, n]) => `<button class="ph-app" data-app="${id}"><span class="ph-ic ${id}" aria-hidden="true">${ic}</span><b>${name}</b>${n ? `<i class="ph-badge2">${n}</i>` : ''}</button>`).join('')}</div><p class="ph-tip">Reply to texts to grow closer. Map and Today are here, not in the Menu.</p></div>`
-      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : v === 'group' ? groupHtml() : v === 'cal' ? `<div class="ph-scroll">${calHtml()}</div>` : threadHtml(tw);
+      : v === 'texts' ? textsHtml() : v === 'contacts' ? contactsHtml() : v === 'inbox' ? inboxHtml() : v === 'map' ? `<div class="ph-scroll">${driftHtml()}${shipMapHtml()}<p class="limits">Walk through doors and take the lift to get around.</p></div>` : v === 'today' ? `<div class="ph-scroll">${todayHtml()}</div>` : v === 'quests' ? questsHtml() : v === 'group' ? groupHtml() : v === 'cal' ? `<div class="ph-scroll">${calHtml()}</div>` : threadHtml(tw);
     p.innerHTML = `<div class="ph-frame"><div class="ph-notch" aria-hidden="true"></div>
       <div class="ph-head">${v !== 'home' ? '<button class="ph-x" id="phoneBack" aria-label="Back">‹</button>' : ''}${tw ? faceTag(tw, '') : ''}<b>${esc(title)}</b><span></span><button class="ph-x" id="phoneClose" aria-label="Close the phone">✕</button></div>
       ${body}</div>`;
@@ -16993,21 +17200,47 @@ details.act > .limits { margin: 0 0 8px; }
       done: 'My family sent presents! A glowfish for your tank, and a piece of real Europa ice that never melts. They said thank you. So do I.',
       reward: 'A Europan glowfish tank and a crystal of Europa ice for your Pad' }
   ];
+  QUESTS.push(
+    { id: 'q-dottie', who: 'F', name: 'The Day Off', need: () => storyDone('scrap-run'),
+      offer: 'Pilot, quick question. Gus says the crew wants to “talk to me about something”. Gus was sweating. Do you know anything about this?',
+      steps: [{ scene: 'qs-dottie-plan', todo: 'Meet the crew in the galley (Dottie isn’t invited)' }, { m: 'q-dayoff', todo: 'Fly Dottie’s Day Off (Side jobs)' }, { scene: 'qs-dottie-mug', todo: 'Find Dottie in the galley' }],
+      done: 'I had a whole day off and nothing caught fire. I’m keeping the mug. And the certificate. I’ve hung it where Gus can see it.',
+      reward: 'A “World’s Okayest Boss” mug and an Employee of the Month certificate for your Pad' },
+    { id: 'q-juno', who: 'J', name: 'Rebuild the Dock', need: () => junoMet() && !inBase(),
+      offer: 'Pilot. The dock on Mars is half empty since Apex moved in. I want it running again. I need my old crew back, and a crane. You in?',
+      steps: [{ m: 'q-dockhands', todo: 'Fly Calling the Crew (Side jobs)' }, { m: 'q-crane', todo: 'Fly The New Crane (Side jobs)' }, { scene: 'qs-juno-open', todo: 'Find Juno on the bridge' }],
+      done: 'The dock’s open again. Ana sent you a sign. It lights up. She made it out of an old landing beacon. Hang it somewhere bright.',
+      reward: 'A glowing “Mars Dock · Open” sign and a little crane model for your Pad' },
+    { id: 'q-zib', who: 'Z', name: 'The Big Trade', need: () => zibMet(),
+      offer: 'Pilot! Zib has had the BEST idea! Zib wants a stall! On the ship! Come to the corridor, Zib will explain! With hands!',
+      steps: [{ scene: 'qs-zib-plan', todo: 'Find Zib in the corridor' }, { m: 'q-trades', todo: 'Fly The Big Trade (Side jobs)' }, { scene: 'qs-zib-open', todo: 'Visit Zib’s new stall in the corridor' }],
+      done: 'Zib made you a little stall too! For your Pad! It’s small! It has tiny goods! Zib also framed your spoon. Zib means Zib’s spoon. Now it is your spoon.',
+      reward: 'A tiny trade stall and Zib’s best spoon, framed, for your Pad' },
+    { id: 'q-ollo', who: 'O', name: 'The Dimming Lantern', need: () => olloMet(),
+      offer: 'Little pilot. Would you come to the bridge tonight? My lantern is not well. I would like to ask you something, in person.',
+      steps: [{ scene: 'qs-ollo-dim', todo: 'Find Ollo on the bridge' }, { m: 'q-moss', todo: 'Fly Lantern Moss (Side jobs)' }, { scene: 'qs-ollo-bright', todo: 'Find Ollo on the bridge' }],
+      done: 'I asked the lantern to make you a small one. It agreed. It is not very bright, but it is very loyal. Keep it by your bed.',
+      reward: 'A little glowing lantern for your Pad' },
+    { id: 'q-twins', who: 'V', name: 'First Sunrise', need: () => twinsMet(),
+      offer: 'Pilot. Lyra and I have a disagreement we need you to settle. It concerns the sun. Meet us in the galley?',
+      steps: [{ scene: 'qs-twins-spot', todo: 'Meet Kael and Lyra in the galley' }, { m: 'q-sunrise', todo: 'Fly First Sunrise (Side jobs)' }, { scene: 'qs-twins-after', todo: 'Find the twins in the galley' }],
+      done: 'We had a photo printed of the sunrise. One for us, one for you. And Lyra found a window view of it. She negotiated. Don’t ask with whom.',
+      reward: 'A sunrise window view (cabin and lounge) and a photo of the twins for your Pad' });
   const QUEST_HEARTS = 3;
   // (function declarations, so the mission list and the Pad can ask about quests before this point in the file runs)
   function questMap() { try { return JSON.parse(localStorage.getItem('ds-quests') || '{}') || {}; } catch (e) { return {}; } }
   function questStep(id) { const s = questMap()[id]; return s == null ? -1 : s; }
-  function questDone(id) { const n = { 'q-gus': 3, 'q-wren': 4, 'q-rex': 3, 'q-nerri': 3 }[id]; return !!n && questStep(id) >= n; }
-  function questName(id) { return { 'q-gus': 'Biscuit’s First Coat', 'q-wren': 'The Old Girl', 'q-rex': 'The Audition', 'q-nerri': 'Home' }[id] || id; }
-  function questSet(id, n) { const m = questMap(); m[id] = n; store.set('ds-quests', JSON.stringify(m)); }
+  function questDone(id) { const n = { 'q-gus': 3, 'q-wren': 4, 'q-rex': 3, 'q-nerri': 3, 'q-dottie': 3, 'q-juno': 3, 'q-zib': 3, 'q-ollo': 3, 'q-twins': 3 }[id]; return !!n && questStep(id) >= n; }
+  function questName(id) { return { 'q-gus': 'Biscuit’s First Coat', 'q-wren': 'The Old Girl', 'q-rex': 'The Audition', 'q-nerri': 'Home', 'q-dottie': 'The Day Off', 'q-juno': 'Rebuild the Dock', 'q-zib': 'The Big Trade', 'q-ollo': 'The Dimming Lantern', 'q-twins': 'First Sunrise' }[id] || id; }
+  function questSet(id, n) { const m = questMap(); m[id] = n; store.set('ds-quests', JSON.stringify(m)); store.set('ds-questPin', id); try { questTrack(); phoneButton(); } catch (e) {} }
   // a crewmate brings you their quest once you're friends and the story has got far enough
   function questTick() {
     if (intro || store.get('ds-intro', '') !== 'done') return;
     for (const q of QUESTS) {
       if (questStep(q.id) >= 0 || !crewIn(q.who) || heartsOf(q.who) < QUEST_HEARTS || !q.need()) continue;
       questSet(q.id, 0);
-      sendText(q.who, q.offer);
-      setTimeout(() => showToast(`New quest from ${SIGN[q.who]}: ${q.name}`, 2600), 2400);
+      sendText(q.who, q.offer, null, true);
+      setTimeout(() => questArrival(q), 900);
       return;   // one at a time
     }
   }
@@ -17025,11 +17258,90 @@ details.act > .limits { margin: 0 0 8px; }
   // the phone's Today tab: where each quest has got to
   function questTodayCard() {
     const act = QUESTS.filter(q => questStep(q.id) >= 0 && !questDone(q.id));
+    if (act.length) return `<div class="tcard"><span class="eyebrow">Crew quests · ${act.length} on the go</span><p>${act.map(q => esc(q.name)).join(', ')}</p><button class="btn ghost" data-app="quests">Open Quests ⭐</button></div>`;
     const fin = QUESTS.filter(q => questDone(q.id)).length;
     if (!act.length && !fin) return '';
     return `<div class="tcard"><span class="eyebrow">Crew quests${fin ? ` · ${fin} done` : ''}</span>
       ${act.map(q => `<div class="treq">${faceTag(q.who, '')}<p><b>${esc(q.name)}</b><br>${esc(q.steps[questStep(q.id)].todo)}</p><small>${questStep(q.id) + 1}/${q.steps.length}</small></div>`).join('') || '<p>No quests on the go. Get to know the crew and they’ll ask for help.</p>'}</div>`;
   }
+  // ---- Finding your quests: a Quests app, gold markers in the world, a pinned tracker and an arrival card ----
+  const questActive = () => QUESTS.filter(q => questStep(q.id) >= 0 && !questDone(q.id));
+  const questCur = q => q.steps[questStep(q.id)];
+  const questSceneOf = st => st && st.scene ? ROOM_SCENES.find(s => s.id === st.scene) : null;
+  // a quest step counts as "new" until you've looked at it in the Quests app
+  const questSeenMap = () => { try { return JSON.parse(store.get('ds-questSeen', '{}')) || {}; } catch (e) { return {}; } };
+  const questNewCount = () => { const seen = questSeenMap(); return questActive().filter(q => seen[q.id] !== questStep(q.id)).length; };
+  function questMarkSeen() { const m = {}; QUESTS.forEach(q => { if (questStep(q.id) >= 0) m[q.id] = questStep(q.id); }); store.set('ds-questSeen', JSON.stringify(m)); }
+  // which rooms (and whether the mission desk) a quest is waiting in
+  function questTargets() {
+    const rooms = new Set(); let mission = false;
+    for (const q of questActive()) { const st = questCur(q); if (st.m) mission = true; else { const sc = questSceneOf(st); if (sc && sc.room !== 'hall') rooms.add(sc.room); } }
+    if (mission) rooms.add(inBase() ? 'office' : 'bridge');
+    return rooms;
+  }
+  // should this corridor door wear a gold quest marker? (the lift does, when the room you need is on another deck)
+  function questDoorWant(to, isLift) {
+    const T = questTargets(); if (!T.size) return false;
+    if (to && T.has(to)) return true;
+    if (!isLift) return false;
+    const here = new Set(HALL_DOORS.map(d => hallDoorTo(d)).filter(Boolean));
+    return [...T].some(r => DECK_KINDS.includes(r) && r !== 'hall' && !here.has(r));
+  }
+  // a crewmate with a quest scene waiting for you
+  const questCrewWaiting = w => questActive().some(q => { const sc = questSceneOf(questCur(q)); return sc && (q.who === w || (sc.need || []).includes(w)); });
+  function drawQuestMark(c, x, y, t) {
+    const b = reduceMotion ? 0 : Math.round(Math.sin(t / 220) * 1.5);
+    px(c, x - 4, y - 9 + b, 9, 10, '#2a1d0a'); px(c, x - 3, y - 8 + b, 7, 8, '#ffcf3a'); px(c, x, y - 7 + b, 1, 4, '#2a1d0a'); px(c, x, y - 2 + b, 1, 1, '#2a1d0a');
+  }
+  // the Quests app
+  function questsHtml() {
+    const act = questActive(), fin = QUESTS.filter(q => questDone(q.id));
+    const soon = QUESTS.filter(q => questStep(q.id) < 0 && crewIn(q.who) && q.need());
+    const card = q => { const n = questStep(q.id), done = questDone(q.id), st = done ? null : q.steps[n];
+      return `<div class="qcard${done ? ' done' : ''}">${faceTag(q.who, '')}<div class="qbody"><b>${esc(q.name)}</b><span class="qwho">${SIGN[q.who]}${q.who === 'V' ? ' and Lyra' : ''}</span>
+        <span class="qbar" aria-hidden="true"><i style="width:${Math.round(Math.min(n, q.steps.length) / q.steps.length * 100)}%"></i></span>
+        <p>${done ? `✓ Done · ${esc(q.reward)}` : `<em>Next:</em> ${esc(st.todo)}`}</p></div></div>`; };
+    return `<div class="ph-scroll qlist">
+      ${act.length ? `<span class="eyebrow">On the go</span>${act.map(card).join('')}` : '<p class="limits">No quests on the go right now.</p>'}
+      ${soon.length ? `<span class="eyebrow">Coming up</span>${soon.map(q => `<div class="qcard soon">${faceTag(q.who, '')}<div class="qbody"><b>${SIGN[q.who]}</b><p>Has something to ask you. ${Math.min(heartsOf(q.who), QUEST_HEARTS)} of ${QUEST_HEARTS} hearts.</p></div></div>`).join('')}` : ''}
+      ${fin.length ? `<span class="eyebrow">Finished</span>${fin.map(card).join('')}` : ''}
+      <p class="limits">Crewmates ask for help once you’re friends (3 hearts). Quest missions are in Side jobs, and gold markers show where to go.</p></div>`;
+  }
+  function openQuests() { if (!phoneOpen) openPhone(); phoneView = 'quests'; renderPhone(); }
+  // the pinned tracker: the quest you touched most recently, under the room title
+  const TRACK_MODES = ['den', 'lounge', 'hall', 'bridge', 'garden', 'galley', 'engine', 'dome', 'quarters', 'garage', 'lift', 'bedroom'];
+  function questTrack() {
+    let el = $('qTrack');
+    const on = store.get('ds-qtrack', '1') === '1', act = questActive();
+    if (!on || !act.length || !TRACK_MODES.includes(mode) || intro) { if (el) el.hidden = true; return; }
+    const pin = act.find(q => q.id === store.get('ds-questPin', '')) || act[0];
+    if (!el) { el = document.createElement('button'); el.id = 'qTrack'; el.className = 'qtrack'; el.type = 'button'; document.body.appendChild(el); el.addEventListener('click', () => { sfx.click(); openQuests(); }); }
+    el.innerHTML = `<span class="qstar" aria-hidden="true">★</span><b>${SIGN[pin.who]}</b><span>${esc(questCur(pin).todo)}</span>`;
+    el.setAttribute('aria-label', `Quest: ${pin.name}. ${questCur(pin).todo}. Open quests`);
+    el.hidden = false;
+  }
+  // a new quest arrives with a proper card
+  function questArrival(q) {
+    let el = $('qNew');
+    if (!el) { el = document.createElement('div'); el.id = 'qNew'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'New quest'); document.body.appendChild(el); }
+    el.innerHTML = `<div class="qnew-card">${faceTag(q.who, '')}<span class="eyebrow">New quest from ${SIGN[q.who]}</span><b>${esc(q.name)}</b><p>${esc(q.offer)}</p>
+      <div class="btns"><button class="btn" id="qNewGo">View quest</button><button class="btn ghost" id="qNewLater">Later</button></div></div>`;
+    paintFaces(el); el.hidden = false; sfx.coin();
+    const close = () => { el.hidden = true; };
+    $('qNewGo').addEventListener('click', () => { close(); openQuests(); });
+    $('qNewLater').addEventListener('click', () => { sfx.click(); close(); });
+    setTimeout(() => { const b = $('qNewGo'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  // ---- quest rewards that change things ----
+  // Rex, after The Audition: quieter, honest lines
+  const REX_HONEST = [
+    'Can I tell you something? I practise my lines in the mirror because I’m scared of forgetting them. I always have been.',
+    'I still read that script sometimes. The one I didn’t get. It’s a good script. I’d have been good in it.',
+    'You know what I like about this ship? Nobody here asks for an autograph. Well. Zib. But Zib asks for everything.',
+    'I used to think being famous meant being liked. Turns out it just means being looked at. This is better.',
+    'Thank you for that night in the galley. I mean it. No camera. Just me, meaning it.',
+    'I called my dad today. The real one, not the stunt double. We talked for an hour. About nothing. It was wonderful.'
+  ];
   function bondTalk(who) {
     const d = shipDayKey();
     if (!ROM_WHO.includes(who) || bond.talk[who] === d) return;
@@ -17301,6 +17613,7 @@ details.act > .limits { margin: 0 0 8px; }
   // a line for the Chat button: what they'd say in the break room, plus their dating lines if you're together
   function chatLine(who) {
     let L = who === 'R' ? DEN_IDLE.R.slice() : loungeLines(who).slice();
+    if (who === 'R' && questDone('q-rex')) L = L.concat(REX_HONEST, REX_HONEST);
     if (messyOn && isEx(who)) return dramaLine(who, 'ex');
     const conf = messyOn && admirerConfess(who); if (conf) return conf;
     if (messyOn && isPartner(who) && !bond.open && (bond.sus[who] || 0) >= 40 && Math.random() < 0.5) return dramaLine(who, 'jealous');
