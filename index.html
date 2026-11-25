@@ -1145,6 +1145,11 @@ details.act > .limits { margin: 0 0 8px; }
 .coach span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
 .coach b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
 .coach small { font-size: 12px; line-height: 1.5; color: var(--regolith); }
+.schoice { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.schoice .eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--regolith-dim); }
+.schoice .btn { width: 100%; text-align: left; text-transform: none; letter-spacing: .02em; font-size: 13px; line-height: 1.4; padding: 10px 14px; }
+.syou { margin: 0; color: var(--regolith); font-size: 14px; line-height: 1.5; }
+.syou b { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--flame); margin-bottom: 4px; }
 .coach #coachGo { align-self: center; margin-top: 6px; padding: 8px 22px; }
 .hud .hl { background: rgba(255, 181, 71, 0.22); color: var(--flame); }
 /* menus hide the flight instruments */
@@ -10038,6 +10043,7 @@ details.act > .limits { margin: 0 0 8px; }
         ['W', 'Gus. Your engine bell bolts were finger-tight. I fixed them at six this morning.'],
         ['G', '…Thank you?'],
         ['W', 'And you. That was a pilot’s landing yesterday. Don’t let it go to your head. Let it go to your hands.'],
+        ['P', null, { who: 'W', choice: [['Thanks. I’ll keep my hands busy.', 'Good. Busy hands don’t shake. Mine haven’t in thirty years.', 30], ['You’re going to love it here.', 'We’ll see. I’ve loved places before. They tend to fall apart.', 15], ['Did you really fix Gus’s bolts at six a.m.?', 'Five fifty-two. I don’t sleep much. Don’t tell him.', 20]] }],
         ['F', 'House rules: no flying in the corridor, the coffee is shared, and Apogee is in charge.'],
         ['W', 'And shoes off in my room. That’s my rule.']] },
     // Rex Valor arrives with all eleven bags and finds out the kitchen is shared
@@ -10050,7 +10056,87 @@ details.act > .limits { margin: 0 0 8px; }
         ['R', 'And you are? No, don’t tell me. Grizzled veteran. Heart of gold. Noble sacrifice in the third act.'],
         ['W', 'I’m Wren. And I’m not dying in your third act.'],
         ['G', 'Rex paid for the whole life-support upgrade! The air in here is twenty percent fancier now.'],
-        ['R', 'You’re welcome. Breathe deeply, everyone. On me.']] },
+        ['R', 'You’re welcome. Breathe deeply, everyone. On me.'],
+        ['P', null, { who: 'R', choice: [['Welcome aboard, Mr. Valor. Big fan.', 'Rex, please. Mr. Valor is my father. Also my stunt double. Long story.', 30], ['Rule one: the hair dryer has a schedule.', 'A schedule. For art. Fine. I’ll take the six a.m. slot. Beauty doesn’t sleep.', 15], ['Do you even know how to wash a dish?', 'I’ve played a man who washed dishes. Three Emmys. So… yes. Spiritually.', 10]] }]] },
+    // ---- arrivals on the Second Wind: each new crewmate's first evening aboard, with a reply from you ----
+    { id: 'rs-juno', room: 'bridge', after: 'red-dock', until: 'dust-bowl',
+      cast: [['J', 182, 126], ['F', 52, 130], ['R', 220, 140]],
+      lines: [['J', 'Juno, approach control. I’ve rewired your docking clamp, moved your comms to channel nine, and labelled every switch on this bridge.'],
+        ['F', 'You labelled them?'],
+        ['J', 'In marker. Somebody had stuck a sticker on the main breaker that said “probably fine”.'],
+        ['R', 'That was me. It’s called optimism, darling.'],
+        ['P', null, { who: 'J', choice: [['Glad to have a pro on the radio.', 'Good. Then listen to the pro. I don’t repeat clearances twice.', 30], ['Don’t you miss your dock already?', 'Every minute. It was mine. Apex can’t have it if nobody’s there to sell it.', 20], ['Can you make the docking easier?', 'No. I can make it clearer. Easy is your job.', 10]] }],
+        ['J', 'Channel nine. Ask for Juno. I’ll talk you down every time.']] },
+    { id: 'rs-brix', room: 'garden', after: 'stone-patient', until: 'overdue',
+      cast: [['S', 128, 121], ['G', 64, 122], ['W', 192, 122]],
+      lines: [['G', 'Okay, Brix! Garden or bunk? You can pick anywhere you like.'],
+        ['S', '…'],
+        ['W', 'He’s thinking, Gus. Give him a minute.'],
+        ['S', '…Here. Near… the green things. They grow… at my speed.'],
+        ['G', 'Garden it is! I’ll bring you a cushion. Do rocks like cushions?'],
+        ['P', null, { who: 'S', choice: [['Take all the time you need.', '…Thank you. Nobody… has said that… in a very long time.', 30], ['How old is the rock, exactly?', 'Four thousand… and eleven. Its birthday… is in spring. You are… invited.', 20], ['Could you talk a bit faster?', '…I… am… trying.', 0]] }],
+        ['S', 'I am… home. I think.']] },
+    { id: 'rs-marisol', room: 'galley', after: 'dead-air', until: 'catch',
+      cast: [['D', 128, 120], ['F', 60, 124], ['G', 196, 120]],
+      lines: [['D', 'Doc Marisol Ibarra. I was the last medic at the sky resort. Now, apparently, I’m yours.'],
+        ['F', 'We’re very glad to have you. We’re also very bad at going to the doctor.'],
+        ['D', 'I noticed. Gus, your wrist. Dottie, your eyes. And you, pilot: when did you last drink water?'],
+        ['G', 'Is coffee water?'],
+        ['D', 'No.'],
+        ['P', null, { who: 'D', choice: [['I’ll drink some water. Promise.', 'Good. I’ll check. I always check. It’s my best and worst quality.', 30], ['I feel fine, honestly.', 'That’s what everyone says right before they fall over. I’ll be watching you.', 10], ['Can you look at Gus’s wrist? He bangs it a lot.', 'Already on my list. Twice. Thank you for looking out for him.', 25]] }],
+        ['D', 'My door’s the one in the crew wing with the first-aid sticker. Come by. Even when nothing hurts.']] },
+    { id: 'rs-zib', room: 'hall', rel: true, after: 'market-day', until: 'under-the-ice',
+      cast: [['Z', 120, 110, 40], ['F', -36, 120], ['G', -10, 126]],
+      lines: [['Z', 'Zib is HERE! Zib brought gifts! A spoon! A different spoon! A very small lamp!', { to: [40, 110] }],
+        ['F', 'Zib, where did all of this come from?'],
+        ['Z', 'The market! Zib traded the stall! Zib does not need a stall! Zib has a SHIP now!'],
+        ['G', 'You traded your whole stall for… spoons?'],
+        ['Z', 'And the jar. Zib always keeps the jar.'],
+        ['P', null, { who: 'Z', choice: [['Welcome to the crew, Zib!', 'Crew! Zib is CREW! Zib will tell the whole market! Zib will tell the WHOLE MOON!', 30], ['Please don’t trade away the engine.', 'Zib would never! …Zib would ask first. Probably.', 15], ['Where are you going to sleep?', 'Zib sleeps in a jar! A big jar! Zib brought the jar!', 20]] }],
+        ['Z', 'Zib loves it here! Zib is going to float up and down every corridor! Twice!']] },
+    { id: 'rs-nerri', room: 'garden', after: 'under-the-ice', until: 'left-behind',
+      cast: [['N', 128, 121], ['D', 64, 122], ['G', 192, 122]],
+      lines: [['D', 'Vitals are good. Gills are good. Hydration: much better. I’ve signed off on the bathtub.'],
+        ['N', 'I filled it with water from home. Well. Ice from home. It’s melting. It smells like Europa.'],
+        ['G', 'It smells a bit like a fish market.'],
+        ['N', 'That’s what I said. Like home.'],
+        ['P', null, { who: 'N', choice: [['You’re safe now. Take it easy.', 'Safe. That’s… a really nice word. I’m going to say it to the shrimp. Safe.', 30], ['The bath’s all yours, don’t worry.', 'Thank you! I’ll only flood it a little. Small floods. Polite floods.', 20], ['Wait, you’re living in the tub?', 'Is that… not okay? I can live in a bucket. I’ve lived in a bucket.', 5]] }],
+        ['N', 'I’m going to look at every plant in here. Slowly. Then again.']] },
+    { id: 'rs-dash', room: 'hall', rel: true, after: 'left-behind', until: 'the-overdrive',
+      cast: [['X', 46, 118], ['W', -40, 120], ['F', -12, 124]],
+      lines: [['W', 'So. An Apex courier. On our ship.'],
+        ['X', 'Ex-Apex. They left me on a rock for three days. That kind of ends a job.'],
+        ['F', 'Wren, she’s our guest.'],
+        ['W', 'I know. I’m just saying it out loud so it stops itching.'],
+        ['X', 'Fair. I’d itch too. I’ll earn my bunk. I’m fast and I don’t complain.'],
+        ['P', null, { who: 'X', choice: [['Nobody gets left behind. That’s all.', 'Yeah. I heard. Took me three days to believe it. Thanks.', 30], ['Apex really just abandoned you?', 'They sent a form. It said “please wait”. I waited. Then you came.', 15], ['Are you still working for Apex?', 'Not anymore. Not after that. I’ll prove it. Give me time.', 20]] }],
+        ['W', '…Fine. Welcome aboard, courier. Wipe your boots.']] },
+    { id: 'rs-ollo', room: 'bridge', after: 'lantern-light', until: 'the-envoys',
+      cast: [['O', 204, 122], ['G', 50, 132], ['J', 82, 140]],
+      lines: [['O', 'Your bridge is very dark, little ship. May I hang my lantern here? Just above the window.'],
+        ['G', 'Please! The bulb in here died two years ago. I keep meaning to fix it.'],
+        ['J', 'It’s… actually really nice. I can read my gauges.'],
+        ['O', 'Light is for sharing. A lantern kept to yourself is just a warm hand.'],
+        ['P', null, { who: 'O', choice: [['Your lantern is beautiful.', 'It is my oldest friend. It has never once been afraid of the dark. I try to learn from it.', 30], ['Do moths really fly toward light?', 'Some do. I fly toward people. It is a similar feeling, but warmer.', 25], ['Please don’t set anything on fire.', 'It is a cold light. It burns nothing. Except, a little, the hearts of the curious.', 10]] }],
+        ['O', 'I will stand here, by the window, and watch where we go. I have always wanted to see where things go.']] },
+    { id: 'rs-twins', room: 'galley', after: 'the-envoys', until: 'cold-storage',
+      cast: [['V', 112, 120], ['Y', 146, 120], ['F', 56, 124], ['H', 176, 96]],
+      lines: [['V', 'Kael and Lyra, reporting aboard. We’ve drawn up a seating plan for the galley.'],
+        ['Y', 'Twelve seats, three tables, nobody next to anyone they’ve argued with this week.'],
+        ['H', 'There are four chairs. Four. And a stool.'],
+        ['V', 'Then we negotiate.'],
+        ['F', 'Please don’t negotiate with Bao. He wins.'],
+        ['P', null, { who: ['V', 'Y'], choice: [['Welcome aboard, both of you.', 'Thank you, pilot. Formally received. Lyra, write it down. She’s writing it down.', 30], ['Do you two ever disagree?', 'Only about everything. That’s why we’re good at our jobs.', 20], ['Please don’t start any treaties in the kitchen.', 'No promises. The kitchen is where all the best treaties happen.', 15]] }],
+        ['Y', 'We’ll start with the inner planets. Then the outer ones. Then the snacks.']] },
+    { id: 'rs-tamsin', room: 'garden', after: 'seedling-run',
+      cast: [['T', 128, 121], ['G', 64, 122], ['N', 192, 122]],
+      lines: [['T', 'Tamsin Moss, botanist! Oh. Oh, look at you. You poor, lovely little garden.'],
+        ['G', 'It’s not crying! It’s… a bit droopy. Everything’s a bit droopy in space.'],
+        ['T', 'A bit of light, a bit of talking to, and a lot of patience. They just need someone to notice them.'],
+        ['N', 'I talk to the plants too! Every morning.'],
+        ['T', 'I knew I’d like it here.'],
+        ['P', null, { who: 'T', choice: [['I’d love to help with the garden.', 'Really? Oh, wonderful! The tomatoes will be thrilled. I can tell. Look at them.', 30], ['The garden looks fine to me.', 'Fine is a start! Fine is where every great garden begins. Fine is a seed.', 15], ['Gus might be a little hurt.', 'Oh no. Gus, I didn’t mean it! Your garden isn’t crying. It’s… dewy.', 20]] }],
+        ['T', 'First job: names. Every plant deserves a name. That one’s Gus.']] },
     // Gus introduces Crumb in the base corridor, the day before his first road trip
     { id: 'rs-crumb', room: 'hall', after: 'star-client', until: 'dark-side',
       cast: [['G', 74, 118], ['K', 26, 74], ['F', 124, 102]],
@@ -10142,7 +10228,7 @@ details.act > .limits { margin: 0 0 8px; }
     const bx = s.rel ? deck.me.x : 0, clampX = x => Math.max(20, Math.min(deck.W - 20, x));
     const cast = s.cast.filter(([w]) => rsHere(w));
     deck.npcs = cast.map(([w, x, y, gx]) => ({ who: w, x: clampX(bx + x), y, dir: 0, baseDir: 0, goal: gx != null ? [clampX(bx + gx), y] : null, pause: 0, moving: false, script: true }));
-    deck.scene = { s, bx, lines: s.lines.filter(([w]) => rsHere(w)), i: -1, timer: 0, speaker: null, ready: false };
+    deck.scene = { s, bx, lines: s.lines.filter(([w, , cue]) => w === 'P' ? [].concat(cue.who).some(rsHere) : rsHere(w)), i: -1, timer: 0, speaker: null, ready: false };
     const me = deck.me; me.goal = null; me.moving = false; me.sit = false; deck.target = null; deck.keys = {};
     const box = card.querySelector('.shiproom'); if (box) box.classList.add('scene');
     const sk = $('sceneSkip'); if (sk) sk.hidden = false;
@@ -10158,15 +10244,36 @@ details.act > .limits { margin: 0 0 8px; }
     return [deck.npcs.reduce((a, n) => a + n.x, 0) / deck.npcs.length, deck.npcs.reduce((a, n) => a + n.y, 0) / deck.npcs.length - 8];
   }
   function roomSceneNext() {
-    const S = deck && deck.scene; if (!S) return;
+    const S = deck && deck.scene; if (!S || S.choosing) return;
     clearTimeout(S.timer); S.i++;
     if (S.i >= S.lines.length) { endRoomScene(); return; }
     const [w, text, cue] = S.lines[S.i];
+    if (cue && cue.choice) { sceneChoice(S, cue); return; }
     if (cue && cue.to) { const n = deck.npcs.find(o => o.who === w); if (n) n.goal = [Math.max(20, Math.min(deck.W - 20, (S.s.rel ? S.bx : 0) + cue.to[0])), cue.to[1]]; }
     if (cue && (cue.face || cue.spin)) { const n = deck.npcs.find(o => o.who === w); if (n) { if (cue.face) n.face = cue.face; if (cue.spin) n.spinT = performance.now(); } }
     S.speaker = w;
     shipSay(w, text);
     S.timer = setTimeout(roomSceneNext, 6000 + text.length * 55);   // a slow fallback; a tap moves things along
+  }
+  // your turn to talk: pick a reply, and whoever you're talking to answers (and remembers)
+  function sceneChoice(S, cue) {
+    const box = $('shipSay'); if (!box) { roomSceneNext(); return; }
+    const who = [].concat(cue.who).filter(rsHere), main = who[0];
+    S.choosing = true; S.speaker = null;
+    box.innerHTML = `<div class="schoice"><span class="eyebrow">Your reply${main ? ` to ${who.map(w => SIGN[w]).join(' and ')}` : ''}</span>
+      ${cue.choice.map(([t], i) => `<button class="btn ghost" type="button" data-sch="${i}">${esc(t)}</button>`).join('')}</div>`;
+    const first = box.querySelector('[data-sch]'); if (first) setTimeout(() => first.focus({ preventScroll: true }), 50);
+    box.querySelectorAll('[data-sch]').forEach(b => b.addEventListener('click', ev => {
+      ev.stopPropagation();
+      if (!S.choosing || deck.scene !== S) return;
+      const [t, reply, pts] = cue.choice[+b.dataset.sch];
+      S.choosing = false; sfx.click();
+      box.innerHTML = `<p class="syou"><b>You</b> “${esc(t)}”</p>`;
+      if (main) S.lines.splice(S.i + 1, 0, [main, reply]);
+      if (pts) for (const w of who) addHearts(w, pts);
+      if (pts >= 25 && main) setTimeout(() => showToast(`${who.map(w => SIGN[w]).join(' and ')} liked that ♥`, 1800), 400);
+      S.timer = setTimeout(() => { if (deck && deck.scene === S) roomSceneNext(); }, 1100);
+    }));
   }
   function endRoomScene() {
     const S = deck.scene; deck.scene = null; if (!S) return; clearTimeout(S.timer);
@@ -10181,7 +10288,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (crumbIntroNext != null) { const i = crumbIntroNext; crumbIntroNext = null; setTimeout(() => { if (mode === 'hall') openMission(i); }, 900); }
     }
   }
-  document.addEventListener('click', e => { if (!deck || !deck.scene || !e.target || !e.target.closest) return; if (e.target.closest('#sceneSkip')) { sfx.click(); endRoomScene(); return; } if (e.target.closest('#shipSay') && deck.scene.ready) roomSceneNext(); });
+  document.addEventListener('click', e => { if (!deck || !deck.scene || !e.target || !e.target.closest) return; if (e.target.closest('#sceneSkip')) { sfx.click(); endRoomScene(); return; } if (e.target.closest('#shipSay') && deck.scene.ready && !deck.scene.choosing && !e.target.closest('[data-sch]')) roomSceneNext(); });
   function shipSay(who, text) {
     const box = $('shipSay'); if (!box) return;
     box.innerHTML = radioQuote([who, text]).replace(/^<div class="radio quote">|<\/div>$/g, '');
