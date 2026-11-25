@@ -1145,6 +1145,7 @@ details.act > .limits { margin: 0 0 8px; }
 .coach span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--regolith-dim); }
 .coach b { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--flame); }
 .coach small { font-size: 12px; line-height: 1.5; color: var(--regolith); }
+.coach #coachGo { align-self: center; margin-top: 6px; padding: 8px 22px; }
 .hud .hl { background: rgba(255, 181, 71, 0.22); color: var(--flame); }
 /* menus hide the flight instruments */
 .stage.in-menu .hud, .stage.in-menu .score, .stage.in-menu .objective { display: none; }
@@ -1249,7 +1250,7 @@ details.act > .limits { margin: 0 0 8px; }
     </div>
     <div class="achv" id="achv" role="status" hidden><span>Badge earned</span><b id="achvName"></b><small id="achvSub"></small></div>
   </div>
-  <div class="coach" id="coach" role="status" hidden><span id="coachStep" hidden></span><b id="coachTitle"></b><small id="coachText"></small></div>
+  <div class="coach" id="coach" role="status" hidden><span id="coachStep" hidden></span><b id="coachTitle"></b><small id="coachText"></small><button class="btn" id="coachGo" type="button" hidden>I’m ready</button></div>
   <div class="pad" id="pad">
     <button id="bl" aria-label="Rotate left">◀ ROT</button>
     <button id="bt" class="thrust" aria-label="Thrust">THRUST</button>
@@ -3491,6 +3492,13 @@ details.act > .limits { margin: 0 0 8px; }
   let missionStars;
   try { missionStars = JSON.parse(store.get('ds-missions', '{}')) || {}; } catch (e) { missionStars = {}; }
   const totalStars = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).reduce((n, d) => n + (missionStars[d.id] || 0), 0);
+  // flight modes open up as you fly story missions; each gets a New tag until you try it
+  const FEAT_AT = { free: 1, req: 1, daily: 3, mining: 3, hotseat: ACT1, run: ACT1 };
+  const featOpen = k => completedCount() >= FEAT_AT[k];
+  const featNew = k => featOpen(k) && !store.get('ds-featSeen', '').split(',').includes(k);
+  const featSee = k => { const a = store.get('ds-featSeen', '').split(',').filter(Boolean); if (!a.includes(k)) { a.push(k); store.set('ds-featSeen', a.join(',')); } };
+  const featTag = k => featNew(k) ? '<i class="dot">New</i>' : '';
+  const featMore = () => Object.keys(FEAT_AT).some(k => !featOpen(k)) ? `<p class="limits">More flight modes open up as you fly missions.</p>` : '';
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
   const missionOpen = i => i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   // story missions are one a day: after a new story mission, the next one waits until you've slept
@@ -3953,8 +3961,11 @@ details.act > .limits { margin: 0 0 8px; }
         d: `${touch ? 'Hold THRUST' : 'Hold ↑ or W'}. Each burn pushes you up against gravity and uses fuel. Watch the gauge drop.` },
       { t: 'Tilt the lander', hl: ['ang'],
         d: `${touch ? 'Tap ◀ ROT or ROT ▶' : 'Tap ← and → (or A and D)'}. Tilting points the engine sideways, which is how you move left and right.` },
-      { t: 'Gravity on. Watch your speed', hl: ['vy', 'vx'],
-        d: 'Touch down slower than 2 m/s, drifting under 1 m/s, within 10° of level. These gauges turn amber, then red, when you’re too fast.' },
+      tut && !tut.ready
+        ? { t: 'Next: gravity', hl: ['vy', 'vx'], ready: true,
+          d: `When gravity switches on, Biscuit starts to fall. Touch down slower than 2 m/s, drifting under 1 m/s, within 10° of level. These gauges turn amber, then red, when you’re too fast. ${touch ? 'Tap I’m ready, or hold THRUST,' : 'Press Enter, or hold ↑,'} when you are.` }
+        : { t: 'Gravity on. Watch your speed', hl: ['vy', 'vx'],
+          d: 'Touch down slower than 2 m/s, drifting under 1 m/s, within 10° of level. These gauges turn amber, then red, when you’re too fast. The green arrow points to the pad.' },
       { t: 'Land on the pad', hl: [],
         d: 'Get above the orange pad, level out, then come down gently. Short taps of thrust beat long burns.' }
     ];
@@ -3967,13 +3978,21 @@ details.act > .limits { margin: 0 0 8px; }
     $('coachTitle').textContent = c.t;
     $('coachText').textContent = c.d;
     for (const id of c.hl) { const dd = $(id); dd.classList.add('hl'); dd.previousElementSibling.classList.add('hl'); }
+    const go = $('coachGo'); if (go) go.hidden = !c.ready;
   }
+  // gravity waits until you say so
+  function tutReady() {
+    if (!tut || tut.step !== 2 || tut.ready) return;
+    tut.ready = true; tut.t = 0; sfx.click(); renderCoach();
+  }
+  document.addEventListener('click', e => { if (e.target && e.target.id === 'coachGo') tutReady(); });
+  window.addEventListener('keydown', e => { if (e.code === 'Enter' && mode === 'flying' && tut && tut.step === 2 && !tut.ready) { e.preventDefault(); tutReady(); } });
   function nextTut() {
     tut.step++; tut.t = 0;
     sfx.click();
     renderCoach();
   }
-  function startTutorial() {
+  function startTutorial(resume) {
     world = WORLDS.find(w => w.id === 'moon');
     match = null; daily = null; mission = null; ghost = null; rng = Math.random;
     buildMissionTerrain(TUT_TERRAIN);
@@ -3981,7 +4000,7 @@ details.act > .limits { margin: 0 0 8px; }
     makeBackdrop();
     level = 1; lives = 3; score = 0; levelFuel = 200;
     spawn({ x: 70, y: 110, vx: 0 });
-    tut = { step: 0, burn: 0, t: 0 };
+    tut = { step: resume ? 2 : 0, burn: 0, t: 0, ready: false };
     fly(null);
   }
   function tutorialLanded(pad, vy, vx, ang) {
@@ -4101,6 +4120,7 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Wayfinding: the current goal pad glows mint with a light beam, and an arrow around Biscuit points the way ----
   const GOAL_COL = '#7cf0b0';
   function goalTarget() {
+    if (tut && !mission) { const p = pads[0], on = tut.step >= 3 || (tut.step === 2 && tut.ready); return p && on ? { x: (p.x1 + p.x2) / 2, y: p.y + 0.5, label: p.label || p.id, pad: p, col: GOAL_COL } : null; }
     const g = currentGoal(), L = lander;
     if (!g || !L || mission.loading || mission.rover || mission.docking != null) return null;
     if (g.type === 'ring') { const [x, y] = ringAt(mission.def, g.i); return { x, y, label: `MARKER ${g.i + 1}`, col: '#ff9ad5' }; }
@@ -4128,14 +4148,14 @@ details.act > .limits { margin: 0 0 8px; }
     ctx.restore();
   }
   function drawGoalArrow(time) {
-    if (mode !== 'flying' || !mission || introHold) return;
+    if (mode !== 'flying' || (!mission && !tut) || introHold) return;
     const t = goalTarget(), L = lander; if (!t) return;
     if (t.pad && L.grounded) return;
     const lx = sx(L.x), ly = sy(L.y), tx = sx(t.x), ty = t.up ? -1e4 : sy(t.y);
     const dist = t.up ? null : Math.hypot(t.x - L.x, t.y - L.y);
     if (dist != null && dist < 12) return;
     const ang = Math.atan2(ty - ly, tx - lx);
-    const stormy = (world.hazard === 'storm' || mission.def.storm) && stormState().on;
+    const stormy = (world.hazard === 'storm' || (mission && mission.def.storm)) && stormState().on;
     const R = Math.max(38, scale * 8), s = 11, pulse = 0.75 + 0.25 * Math.sin(time / 180);
     ctx.save();
     ctx.globalAlpha = pulse;
@@ -4424,8 +4444,8 @@ details.act > .limits { margin: 0 0 8px; }
         <span class="icard-job">${d.label || KIND_LABEL[d.kind] || ''}</span>
         <p class="icard-twist"><b>Twist</b>${twistFor(d, w)}</p>
         <span class="icard-chips">${chips.map(c => `<i>${c}</i>`).join('')}</span>
-      </div>
-      <span class="icard-skip">Tap to fly</span>`;
+        <span class="icard-skip">Tap to fly</span>
+      </div>`;
     host.appendChild(el);
     introHold = true;
     sfx.radio();
@@ -4450,7 +4470,7 @@ details.act > .limits { margin: 0 0 8px; }
   function startMission(ghostRun) {
     let d = ALL[missionSel];
     world = WORLDS.find(w => w.id === d.world);
-    match = null; daily = null;
+    match = null; daily = null; tut = null;
     mission = { def: d, stage: 0, carrying: null, loading: false, loadT: 0, result: null, dropped: null, comfort: 100, melt: 0, nagged: [],
       items: (d.items || []).map(it => ({ ...it, done: false, t: 0 })), rover: null, docking: null, docked: false,
       cop: copAvail().includes(copilot) ? copilot : null, grades: [], bonus: 0, pops: [], pk: null };
@@ -5654,8 +5674,9 @@ details.act > .limits { margin: 0 0 8px; }
         tut.t += dt;
         if (tut.step === 0 && tut.burn > 0.8) nextTut();
         else if (tut.step === 1 && Math.abs(L.a) > 0.3) nextTut();
-        else if (tut.step === 2 && tut.t > 5) nextTut();
-        if (tut.step < 2) { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }   // training hold: gravity switches on at step 3
+        else if (tut.step === 2 && !tut.ready && L.firing && tut.t > 0.8) tutReady();
+        else if (tut.step === 2 && tut.ready && tut.t > 5) nextTut();
+        if (tut.step < 2 || (tut.step === 2 && !tut.ready)) { ax = 0; ay = 0; L.vx = 0; L.vy = 0; }   // training hold: gravity waits until you're ready
       }
       if (L.grounded) {
         // resting on a pad: stay put until the engine can lift you.
@@ -5944,6 +5965,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
+    if (MENU_MODES.includes(m) && !['brief', 'setup'].includes(m)) { achvQueue.length = 0; const ac = $('achv'); if (ac) ac.hidden = true; }
     try { emergUi(m); } catch (e) {}
     if (introHold && m !== 'flying' && introEnd) introEnd();
     try { if (phoneOpen && PHONE_HIDE.includes(m)) closePhone(); } catch (e) {}
@@ -6066,13 +6088,14 @@ details.act > .limits { margin: 0 0 8px; }
           </button>
         </div>
         <nav class="menu" aria-label="Game modes">
-          <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
+          ${featOpen('free') ? `<button class="mode" data-setup="solo" data-feat="free"><b>Free flight</b>${featTag('free')}<span>Pick a world and land site after site</span></button>` : ''}
           <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : newMissions().length ? `<i class="dot">${newMissions().length} new</i>` : ''}<span>${completedCount()} of ${MISSIONS.length} done · ${totalStars()} of ${MISSIONS.length * 3} ★</span></button>
-          <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
-          <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
-          <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
+          ${featOpen('daily') ? `<button class="mode" data-setup="daily" data-feat="daily"><b>Daily challenge</b>${featTag('daily')}<span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>` : ''}
+          ${featOpen('hotseat') ? `<button class="mode" data-setup="hotseat" data-feat="hotseat"><b>Hot-seat</b>${featTag('hotseat')}<span>Two pilots, one screen, ${ROUNDS} rounds</span></button>` : ''}
+          ${featOpen('run') ? `<button class="mode wide" data-go="run" data-feat="run"><b>Endless run</b>${featTag('run')}<span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>` : ''}
         </nav>
-        <button class="reqstrip" id="reqBtn">${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === st.items.length ? 'All done today. Nice work!' : `${d} of ${st.items.length} done · new in ${untilReset()}`}</span></span>${d < st.items.length ? `<i class="dot">${st.items.length - d} open</i>` : ''}`; })()}</button>
+        ${featMore()}
+        <button class="reqstrip" id="reqBtn"${featOpen('req') ? '' : ' hidden'}>${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === st.items.length ? 'All done today. Nice work!' : `${d} of ${st.items.length} done · new in ${untilReset()}`}</span></span>${d < st.items.length ? `<i class="dot">${st.items.length - d} open</i>` : ''}`; })()}</button>
         <div class="subnav">
           <button class="link" id="badgesBtn">Badges<span>${earned()}/${ACH.length}</span></button>
           <button class="link" id="licenseBtn">License<span>${rankOf().name}</span></button>
@@ -6134,13 +6157,14 @@ details.act > .limits { margin: 0 0 8px; }
         <p class="tagline">Where to today, pilot?</p>
         <nav class="menu" aria-label="Flight modes">
           <button class="mode${store.get('ds-nudge', '') === 'missions' ? ' nudge' : ''}" data-go="missions"><b>Missions</b>${store.get('ds-nudge', '') === 'missions' ? '<i class="dot">Start here</i>' : newMissions().length ? `<i class="dot">${newMissions().length} new</i>` : ''}<span>The story, side jobs and round trips</span></button>
-          <button class="mode" data-setup="solo"><b>Free flight</b><span>Pick a world and land site after site</span></button>
-          <button class="mode" data-setup="daily"><b>Daily challenge</b><span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>
-          <button class="mode" data-setup="hotseat"><b>Hot-seat</b><span>Two pilots, one screen, ${ROUNDS} rounds</span></button>
-          <button class="mode wide" id="mineBtn"><b>Asteroid mining</b><span>${minePermits()} of ${MINE_PERMITS} pod runs left today · ore for credits, gems for gifts</span></button>
-          <button class="mode wide" data-go="run"><b>Endless run</b><span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>
+          ${featOpen('free') ? `<button class="mode" data-setup="solo" data-feat="free"><b>Free flight</b>${featTag('free')}<span>Pick a world and land site after site</span></button>` : ''}
+          ${featOpen('daily') ? `<button class="mode" data-setup="daily" data-feat="daily"><b>Daily challenge</b>${featTag('daily')}<span>Today: ${dailyWorld().name} · new in ${untilReset()}</span></button>` : ''}
+          ${featOpen('hotseat') ? `<button class="mode" data-setup="hotseat" data-feat="hotseat"><b>Hot-seat</b>${featTag('hotseat')}<span>Two pilots, one screen, ${ROUNDS} rounds</span></button>` : ''}
+          ${featOpen('mining') ? `<button class="mode wide" id="mineBtn" data-feat="mining"><b>Asteroid mining</b>${featTag('mining')}<span>${minePermits()} of ${MINE_PERMITS} pod runs left today · ore for credits, gems for gifts</span></button>` : ''}
+          ${featOpen('run') ? `<button class="mode wide" data-go="run" data-feat="run"><b>Endless run</b>${featTag('run')}<span>${runBest() ? `Best: site ${runBest().sites} · ${fmt(runBest().score)} pts` : 'One lander, random worlds, perks from Gus'}</span></button>` : ''}
         </nav>
-        <button class="reqstrip" id="reqBtn">${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === 3 ? 'All done today ✓' : `${3 - d} of 3 open today`}</span></span>`; })()}</button>
+        ${featMore()}
+        <button class="reqstrip" id="reqBtn"${featOpen('req') ? '' : ' hidden'}>${(() => { const st = reqToday(), d = st.items.filter(i => i.done).length; return `<span class="rfaces">${st.items.map(i => faceTag(reqWho(i), '')).join('')}</span><span class="rt"><b>Crew requests</b><span>${d === 3 ? 'All done today ✓' : `${3 - d} of 3 open today`}</span></span>`; })()}</button>
         <div class="btns"><button class="btn ghost" id="shipBack">${flightsFrom === 'bridge' ? 'Back to the bridge' : flightsFrom === 'office' || inBase() ? 'Back to the base' : 'Back to the ship'}</button></div>`;
     } else if (m === 'setup') {
       const best = bestFor(world);
@@ -6290,8 +6314,8 @@ details.act > .limits { margin: 0 0 8px; }
           <span>★ Finish within ${d.stars.time} seconds</span>
         </div>
         <p class="limits">Fuel ${d.fuel} kg · Gravity ${world.g.toFixed(2)} m/s² · ${effectText(world)} · ${fmt(d.credits)} credits per new star</p>
-        <p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare. Expect surprises: reroutes, engine trouble, falling satellites, SOS calls.</p>
-        ${copPickerHtml()}
+        ${!d.side && MISSIONS.indexOf(d) < 2 ? '<p class="limits">Bonus credits for Butter and Clean landings.</p>' : `<p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare. Expect surprises: reroutes, engine trouble, falling satellites, SOS calls.</p>
+        ${copPickerHtml()}`}
         ${best ? `<p class="mstars">${starHtml(best)}</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">Launch</button>
@@ -6380,7 +6404,7 @@ details.act > .limits { margin: 0 0 8px; }
       html = `<span class="eyebrow">Tutorial</span>
         <h1 class="bad">Not quite</h1>
         <p>${cap(lastResult.reasons.join(', '))}.</p>
-        <p class="limits">Under 2 m/s down, under 1 m/s sideways, nearly level. Near the ground, use short taps of thrust.</p>
+        <p class="limits">Under 2 m/s down, under 1 m/s sideways, nearly level. Near the ground, use short taps of thrust. You’ll pick up at the landing step.</p>
         <div class="btns">
           <button class="btn" id="go">Try again</button>
           <button class="btn ghost" id="pick">Back to the ship</button>
@@ -6438,7 +6462,9 @@ details.act > .limits { margin: 0 0 8px; }
     });
     const hb = $('hangarBtn');
     if (hb) hb.addEventListener('click', () => setMode('garage'));
+    card.querySelectorAll('[data-feat]').forEach(b => b.addEventListener('click', () => featSee(b.dataset.feat), true));
     const rqb = $('reqBtn');
+    if (rqb && !rqb.hidden) featSee('req');
     if (rqb) { paintFaces(rqb); rqb.addEventListener('click', () => { reqFrom = m === 'flights' ? 'flights' : 'title'; setMode('requests'); }); }
     const lcb = $('licenseBtn');
     if (lcb) lcb.addEventListener('click', () => { licenseFrom = 'title'; setMode('license'); });
@@ -7294,7 +7320,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (ch) store.set(k, JSON.stringify([...st]));
   };
   // missions you can fly now, haven't flown, and haven't seen in the list yet
-  const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => missionOpen(i) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
+  const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => missionOpen(i) && !(d.side ? false : restLocked(MISSIONS.indexOf(d))) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
   const radioNew = () => (junoMet() || pimMet() || zibMet() || olloMet() || twinsMet()) && store.get('ds-radioSeen', '') !== '1';
   const crumbNew = () => crumbHome() && store.get('ds-crumbSeen', '') !== '1';
   // Pad items you've earned (souvenirs, Crumb's finds, Pim's drawing) but haven't looked at yet
@@ -8124,7 +8150,28 @@ details.act > .limits { margin: 0 0 8px; }
     else { const pt = th.near ? th.near : { x: th.nearPt[0], y: th.nearPt[1] }; me.dir = faceToward(me, pt); }
     th.act();
   }
+  // the first time you wander up to the postcard box, the poster or Apogee, someone tells you what it is
+  const WALK_HINTS = [
+    ['box', 'F', 'Every time you land somewhere new, one of us sends you a postcard. They go in that box. Tap it for a look.'],
+    ['poster', 'G', 'Behind Biscuit’s poster is my maintenance log. Every dent you make, I write down. With love. Tap it to read.'],
+    ['A', 'A', 'Mrrp. (Apogee is watching you. Tap her. Gently.)']
+  ];
+  function walkHints() {
+    if (intro || !walk || !walk.me || lounge.say && lounge.sayT && performance.now() - lounge.sayT < 2500) return;
+    const seen = store.get('ds-walkHints', '').split(',');
+    for (const [id, who, text] of WALK_HINTS) {
+      if (seen.includes(id)) continue;
+      let p = null;
+      if (id === 'A') { if (!walk.cat) continue; const [cx, cy] = walk.catPos(); p = [cx + 7, cy + 8]; }
+      else p = id === 'box' ? [212, 152] : [206, 54];
+      if (Math.hypot(p[0] - walk.me.x, p[1] - walk.me.y) > 26) continue;
+      seen.push(id); store.set('ds-walkHints', seen.filter(Boolean).join(','));
+      loungeSay(who, text); lounge.sayT = performance.now();
+      return;
+    }
+  }
   function walkStep(dt, t) {
+    walkHints();
     const me = walk.me, SPEED = 54;
     // keyboard walking
     const kx = (walk.keys.ArrowRight ? 1 : 0) - (walk.keys.ArrowLeft ? 1 : 0), ky = (walk.keys.ArrowDown ? 1 : 0) - (walk.keys.ArrowUp ? 1 : 0);
@@ -9501,7 +9548,7 @@ details.act > .limits { margin: 0 0 8px; }
   };
   const DEN_ALONE = ['Pilot, your cabin’s looking good. Try not to crash it.', 'Quiet in here. Enjoy it while it lasts. Gus is testing the toaster again.', 'Apogee isn’t in your cabin? Check under the bunk. Actually, don’t. She bites.'];
   function denTalkFor(who, look) {
-    const spec = Object.entries(DEN_TALK[who] || {}).filter(([k]) => { const [pool, id] = k.split(':'); return DEN_SPOTS.some(x => x.pool === pool && look[x.id] === id); }).map(([, t]) => t);
+    const spec = Object.entries(DEN_TALK[who] || {}).filter(([k]) => { const [pool, id] = k.split(':'); return DEN_SPOTS.some(x => x.pool === pool && look[x.id] === id && (!x.lng || srCanDeco()) && !!x.balc === inBalc()); }).map(([, t]) => t);
     const idle = DEN_IDLE[who];
     let pool = spec.length && Math.random() < 0.65 ? spec : idle;
     if (denUI && pool.length > 1) pool = pool.filter(t => t !== denUI.lastLine);
@@ -9610,7 +9657,7 @@ details.act > .limits { margin: 0 0 8px; }
     srGrant();
     if (denUI.pendingSay) { denUI.say = denUI.pendingSay; denUI.pendingSay = null; fresh = true; }
     if (!keepSpot && denUI) denUI.trying = null;
-    if (intro && intro.step === 'den') denUI.edit = true;
+    if (intro && intro.step === 'den') denUI.edit = false;
     const editing = !!denUI.edit;
     card.classList.add('wide');
     const spot = denUI.spot, s = denSpot(spot), pool = s.pool, list = DEN_ITEMS[pool];
@@ -9635,7 +9682,7 @@ details.act > .limits { margin: 0 0 8px; }
     else action = `<button class="btn" disabled>Need ${fmt(it.price - credits)} more cr</button>`;
     card.innerHTML = `<div class="den">
       <h1 class="good">${inBalc() ? 'The Balcony' : inBase() ? 'Your Bunk' : 'The Pad'}</h1>
-      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : inBase() ? 'Your corner of the Moon base. Walk around, or tap Decorate to change things.' : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
+      <p class="sub">${editing ? 'Decorating. Pick a spot, then pick what goes there.' : inBalc() ? 'Your balcony. Walk around, or tap Decorate to change things.' : inBase() ? (intro && intro.step === 'den' ? 'Your corner of the Moon base. Tap the floor to walk around.' : 'Your corner of the Moon base. Walk around, or tap Decorate to change things.') : 'Your cabin. Walk around, or tap Decorate to change things.'} <span class="cr">${fmt(credits)} cr</span></p>
       <div class="bay${editing ? '' : ' viewing'}">
         <div class="col">
           <canvas class="room padroom${padLounge() ? ' lng' : ''}" id="denCv" width="${padVW() * PS}" height="${PH * PS}" style="aspect-ratio: ${padVW()} / ${PH}" tabindex="0" role="application" aria-label="Your cabin. Tap anywhere to walk, or tap a guest to chat. Press Decorate, then tap furniture to change it. With a keyboard, arrow keys walk and Enter uses whatever is nearest."></canvas>
@@ -9644,10 +9691,10 @@ details.act > .limits { margin: 0 0 8px; }
           <div class="who-row">
             ${denUI.cat && !inBalc() ? '<button class="btn ghost" id="denPet">Pet Apogee</button>' : ''}
             ${denUI.visitor ? `<button class="btn ghost" id="denChat">Chat with ${SIGN[denUI.visitor]}</button>` : ''}
-            <button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>
+            ${intro && intro.step === 'den' ? '' : `<button class="btn ghost" id="denInvite">${denUI.visitor ? 'Invite someone else' : 'Invite someone over'}</button>`}
             ${!editing && !inBalc() && !(intro && intro.step === 'den') ? '<button class="btn ghost" id="denSleep">🌙 Sleep</button>' : ''}
             ${balcOpen() && !(intro && intro.step === 'den') ? `<button class="btn ghost" id="denBalc">${inBalc() ? '← Back inside' : 'Balcony →'}</button>` : ''}
-            <button class="btn ghost" id="denSnap">Take a photo</button>
+            ${intro && intro.step === 'den' ? '' : '<button class="btn ghost" id="denSnap">Take a photo</button>'}
             ${(denLook.floor === 'arcade' || (srCanDeco() && denLook.lcorner === 'arcade')) && !inBalc() ? '<button class="btn" id="denArcade">Play the arcade</button>' : ''}
             ${intro && intro.step === 'den' ? '' : `<button class="btn${editing ? ' ghost' : ''}" id="denEdit">${editing ? 'Done decorating' : 'Decorate'}</button>`}
           </div>
@@ -9690,7 +9737,7 @@ details.act > .limits { margin: 0 0 8px; }
     startPadWalk(look, tapSpot, pet, chat, crumbTalk);
     const petB = $('denPet'); if (petB) petB.addEventListener('click', pet);
     const chatB = $('denChat'); if (chatB) chatB.addEventListener('click', chat);
-    $('denSnap').addEventListener('click', denSnap);
+    { const sn = $('denSnap'); if (sn) sn.addEventListener('click', denSnap); }
     const slb = $('denSleep'); if (slb) slb.addEventListener('click', () => padSleep());
     const eb = $('denEdit');
     if (eb) eb.addEventListener('click', () => {
@@ -9703,7 +9750,7 @@ details.act > .limits { margin: 0 0 8px; }
     });
     const balB = $('denBalc'); if (balB) balB.addEventListener('click', () => balcGo(!inBalc()));
     const arcB = $('denArcade'); if (arcB) arcB.addEventListener('click', () => { sfx.click(); setMode('arcade'); });
-    $('denInvite').addEventListener('click', () => {
+    if ($('denInvite')) $('denInvite').addEventListener('click', () => {
       const guests = denGuests().filter(g => g !== denUI.visitor);
       const pg = bond.partners.filter(w => guests.includes(w)), who = pg.length && Math.random() < 0.5 ? pg[Math.floor(Math.random() * pg.length)] : guests[Math.floor(Math.random() * guests.length)];
       denUI.visitor = who; sfx.knock();
@@ -10645,6 +10692,10 @@ details.act > .limits { margin: 0 0 8px; }
         if (S === 'eng') { px(c, x0 + 2, 26, w - 4, 1, '#2e3446'); px(c, x0 + 2, 46, w - 4, 1, '#2e3446'); }
         px(c, x + 6, 36, 2, 2, open ? '#58e0a0' : '#ff6b5e');
         if (to === 'garden' && gardenReady() && (reduceMotion || Math.floor(t / 400) % 2)) px(c, x + 7, 18, 3, 3, '#ffe58a');
+        if (to === 'office' && newMissions().some(id => !restLocked(ALL.findIndex(d => d.id === id)))) {   // a bouncing green arrow: new work on Dottie's desk
+          const by = 22 + (reduceMotion ? 0 : Math.round(Math.sin(t / 220) * 1.5));
+          px(c, x - 4, by, 9, 2, '#7cf0b0'); px(c, x - 3, by + 2, 7, 2, '#7cf0b0'); px(c, x - 2, by + 4, 5, 2, '#7cf0b0'); px(c, x - 1, by + 6, 3, 2, '#7cf0b0'); px(c, x, by + 8, 1, 1, '#7cf0b0');
+        }
         if (!open) for (let yy = 22; yy < 54; yy += 8) { px(c, x0 + 2, yy, w - 4, 3, '#c9a24a'); for (let xx = x0 + 2; xx < x0 + w - 2; xx += 4) px(c, xx, yy, 2, 3, '#26304f'); }
       }
       doorPlate(c, x, 6, label, open);
@@ -12779,6 +12830,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (p && p.textContent.length < full.length) { clearInterval(s.typer); p.textContent = full; return; }   // finish the line first
     if (s.i < s.lines.length - 1) { s.i++; sfx.click(); dateLine(); return; }
     s.phase = 'outro'; s.outroAt = performance.now(); if (s.romantic) sfx.coin();
+    const nb = $('dateNext'); if (nb) { nb.disabled = true; nb.textContent = '…'; }
   }
   function dateEnd() {
     const s = dateS; if (!s) return;
@@ -14901,6 +14953,14 @@ details.act > .limits { margin: 0 0 8px; }
     intro = { step: 'cards', i: 0, tour: 0 };
     setMode('intro');
   }
+  // the end of the Pad tour: straight to the first job (the story scene still plays first)
+  function introToMission() {
+    store.set('ds-intro', 'done');
+    if (intro) clearInterval(intro.anim);
+    intro = null; lastRoom = 'den'; tut = null;
+    flightsFrom = 'office'; missionsFrom = 'flights'; missionTab = 'story';
+    openMission(ALL.indexOf(MISSIONS[0]));
+  }
   function endIntro(toMissions) {
     store.set('ds-intro', 'done');
     if (toMissions) store.set('ds-nudge', 'missions');
@@ -15045,10 +15105,7 @@ details.act > .limits { margin: 0 0 8px; }
   const LOUNGE_TOUR = [
     { hl: 'crew', who: 'F', say: 'Welcome to the break room, pilot! This is where we live between flights. Mostly on the coffee.', tip: 'This is the crew. Tap anyone to chat. What they say changes as you play.' },
     { hl: 'board', who: 'G', say: 'That’s the bulletin board! Crew notes, your best landing, and the karaoke sign-up sheet. Your name is already on it. Sorry.', tip: 'Tap the bulletin board any time to read the crew’s notes.' },
-    { hl: 'board', who: 'F', say: 'Every day the crew pins three requests on that board. Small jobs, real credits. Well. Real-ish. Today’s are already up.', tip: 'Crew requests: three small jobs a day, the same for every pilot. Each pays credits, and finishing all three earns a bonus. Find them on the main menu or with the Crew requests button below.' },
-    { hl: 'box', who: 'F', say: 'Every time you land somewhere new, one of us sends you a postcard. There’s already one from the Moon in that box.', tip: 'Your postcards collect in this box, one for every world.' },
-    { hl: 'poster', who: 'G', say: 'And behind Biscuit’s poster is my maintenance log. Every dent you make, I write down. With love.', tip: 'Tap the poster to read Gus’s maintenance log.' },
-    { hl: 'cat', who: 'A', say: 'Mrrp. (Apogee is watching you. Tap her. Gently.)', tip: 'Tap Apogee to pet her. She purrs. Usually.' },
+    { hl: 'board', who: 'F', say: 'Every day the crew pins three requests on that board. Small jobs, real credits. Well. Real-ish. Today’s are already up.', tip: 'Crew requests: three small jobs a day, the same for every pilot. Each pays credits, and finishing all three earns a bonus. They open on Dottie’s desk after your first mission.' },
     { hl: null, who: 'W', say: '', tip: 'One more thing: you get your own cabin. Let’s go see it.', last: true }
   ];
   function loungeTourStep() {
@@ -15081,8 +15138,8 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="btns"><button class="link" id="tourSkip">Skip tour</button></div></div>`;
     const steps = [
       null,
-      ['This is your Pad. Tap any spot in the room to decorate it. Free items are yours, and credits from landings buy the rest.', 'Next'],
-      ['Apogee visits all the time, and so does the crew. You’ll be fine. Your first real job is waiting in Missions.', 'Let’s fly']
+      ['This is your Pad. Walk around by tapping the floor. Later, tap Decorate to change anything: free items are yours, and credits from landings buy the rest.', 'Next'],
+      ['Apogee visits all the time, and so does the crew. You’ll be fine. Dottie has your first real job ready.', 'Let’s fly']
     ];
     const S = steps[Math.max(1, k)];
     return `<div class="tour" id="tour"><span class="tstep">Your Pad · ${Math.max(1, k) + 1} of 3</span><p>${S[0]}</p>
@@ -15101,7 +15158,7 @@ details.act > .limits { margin: 0 0 8px; }
     const n = $('tourNext');
     if (n) n.addEventListener('click', () => {
       sfx.click();
-      if (intro.tour >= 2) { endIntro(true); return; }
+      if (intro.tour >= 2) { introToMission(); return; }
       intro.tour = 2; denUI.spot = 'bed';
       denUI.pendingSay = ['A', 'Mrrp. (Apogee has claimed your bunk. It is her bunk now. You may borrow it.)'];
       renderDen(true);
@@ -15119,11 +15176,11 @@ details.act > .limits { margin: 0 0 8px; }
       alt: ['G', 'Land with at least half your fuel left. Fuel is expensive. I’ve seen the receipts. I cried.'] },
     tilt: { who: 'G', n: 2, pay: 250, text: () => 'Land perfectly level, under 2° of tilt, twice. I’ll know if you lean.' },
     rover: { who: 'G', n: 1, pay: 350, text: () => 'Land on a moving rover or the barge. The drivers say hi. They also say please hurry.' },
-    site: { who: 'F', n: 1, pay: 350, text: () => 'Reach site 3 in a single free flight. One lander, three landings, no excuses.' },
+    site: { who: 'F', n: 1, pay: 350, text: () => 'Reach site 3 in a single free flight. One lander, three landings, no excuses.', needs: () => featOpen('free') },
     stars: { who: 'F', n: 3, pay: 300, text: () => 'Earn 3 stars in missions. Any missions. Old ones count. I just need numbers for my report.' },
-    daily: { who: 'F', n: 1, pay: 300, text: () => 'Finish all three sites of today’s daily challenge. Everyone else is doing it. Don’t let everyone else win.' },
-    run: { who: 'G', n: 1, pay: 350, text: () => 'Reach site 4 in an endless run. I’ve got a new perk I want to see in action. It probably won’t explode.' },
-    share: { who: 'F', n: 1, pay: 200, text: () => 'Send someone a ghost challenge after a free-flight landing. I want to know who’s faster. For science. And gossip.' },
+    daily: { who: 'F', n: 1, pay: 300, text: () => 'Finish all three sites of today’s daily challenge. Everyone else is doing it. Don’t let everyone else win.', needs: () => featOpen('daily') },
+    run: { who: 'G', n: 1, pay: 350, text: () => 'Reach site 4 in an endless run. I’ve got a new perk I want to see in action. It probably won’t explode.', needs: () => featOpen('run') },
+    share: { who: 'F', n: 1, pay: 200, text: () => 'Send someone a ghost challenge after a free-flight landing. I want to know who’s faster. For science. And gossip.', needs: () => featOpen('free') },
     pet: { who: 'A', n: 3, pay: 150, text: () => 'Mrrp. (Pet Apogee three times today, in the break room or your Pad. She has it in her calendar.)' },
     moon: { who: 'M', n: 2, pay: 250, text: () => 'Land on the Moon twice today! I’ll be at the canteen window waving. SO hard.', needs: () => pimMet() },
     dock: { who: 'J', n: 1, pay: 300, text: () => 'Dock with the mothership once today. Any round trip will do. The clamp gets lonely.', needs: () => junoMet() },
@@ -15208,9 +15265,9 @@ details.act > .limits { margin: 0 0 8px; }
     const nextP = PROJECTS.find(pj => !projDone(pj.id));
     return `<div class="todaylist">
       ${emergActive() ? emergTodayCard() : ''}${bdayTodayCard()}${eventCard()}${catTodayCard()}
-      <div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
+      ${!featOpen('req') ? '<div class="tcard"><span class="eyebrow">Crew requests</span><p>The crew start pinning up jobs after your first mission.</p></div>' : `<div class="tcard"><span class="eyebrow">Crew requests · ${st.items.length - reqOpen} of ${st.items.length} done</span>
         ${st.items.map(it => { const T = REQ_TYPES[it.type], who = reqWho(it); return `<div class="treq${it.done ? ' done' : ''}">${faceTag(who, '')}<p>${esc(reqText(it))}</p><small>${it.done ? '✓' : `${it.prog}/${T.n}`}</small></div>`; }).join('')}
-        <button class="btn ghost" id="phReq">Open crew requests</button></div>
+        <button class="btn ghost" id="phReq">Open crew requests</button></div>`}
       <div class="tcard"><span class="eyebrow">Garden</span><p>${ripe ? `${ripe} ${ripe === 1 ? 'planter is' : 'planters are'} ready to pick!` : growing ? `${growing} ${growing === 1 ? 'planter' : 'planters'} growing.` : 'Nothing planted yet.'}${basketCount() ? ` Basket: ${SEEDS.filter(s => garden.basket[s.id]).map(s => `${s.icon}×${garden.basket[s.id]}`).join(' ')}` : ''}</p>
         <p class="where">📍 ${inBase() ? 'The Garden on the Second Wind · opens after liftoff' : 'The Garden · Deck 2'}</p></div>
       <div class="tcard"><span class="eyebrow">Ship projects · ${PROJECTS.filter(pj => projDone(pj.id)).length} of ${PROJECTS.length} done</span><p>${nextP ? `Next up: ${nextP.name}, ${fmt(Math.min(nextP.cost, projPaid[nextP.id] || 0))} of ${fmt(nextP.cost)} credits raised.` : 'Every project on the board is finished. The crew are very proud.'}</p><p class="where">📍 Project board · Deck 2 corridor</p></div>
@@ -18139,7 +18196,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'runEnd') { startRun(); return; }
     if (mode === 'runSpare') { levelFuel = run.siteFuel; spawn(spawnPlan); lander.fuelMax = run.maxFuel; fly({ ...lastRun, label: 'Last try', tint: col.reg }); return; }
     if (mode === 'brief') { startMission(null); return; }
-    if (mode === 'tutFail') { startTutorial(); return; }
+    if (mode === 'tutFail') { startTutorial(true); return; }
     if (mode === 'tutDone') { if (intro) { intro.step = 'lounge'; intro.tour = 0; setMode('lounge'); return; } openSetup('solo'); return; }
     if (mode === 'missionEnd' && mission && mission.result && !mission.result.ok && mission.cp) { retryFromStop(); return; }
     if (mode === 'missionEnd') { startMission(lastRun ? { ...lastRun, label: 'Last try', tint: col.reg } : null); return; }
@@ -18311,11 +18368,12 @@ details.act > .limits { margin: 0 0 8px; }
       }
 
       if (waters.length) drawWater(time);
-      for (const p of pads) if (p.move) drawMover(p, time);
+      const padsShown = !MENU_MODES.includes(mode);
+      if (padsShown) for (const p of pads) if (p.move) drawMover(p, time);
       ctx.font = `600 ${Math.min(16, Math.max(10, base * 3.2 * Math.sqrt(cam.z)))}px ${C('--f-mono')}`;
       ctx.textAlign = 'center';
-      for (const p of pads) {
-        const goal = !!mission && isGoalPad(p), lit = !mission || goal;
+      if (padsShown) for (const p of pads) {
+        const goal = (!!mission && isGoalPad(p)) || (!!tut && !mission && tut.step >= 2 && (tut.ready || tut.step >= 3)), lit = !mission || goal;
         if (goal) drawGoalBeam(p, time);
         ctx.globalAlpha = !lit ? 0.35 : 1;
         ctx.strokeStyle = goal ? GOAL_COL : col.flame; ctx.lineWidth = goal ? 4.5 : 3;
@@ -18365,7 +18423,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'setup' || mode === 'settings') drawLander({ x: W / 2, y: H * 0.62, a: Math.sin(time / 1400) * 0.15, firing: true }, time);
     if (world.fog && lander && !MENU_MODES.includes(mode)) drawFog(mode === 'replay' && replay ? replay.L : lander);
     if (mission && mission.def.rings && !MENU_MODES.includes(mode)) drawRings(time);
-    if (mission) drawGoalArrow(time);
+    if (mission || tut) drawGoalArrow(time);
     if ((world.hazard === 'storm' || (mission && mission.def.storm)) && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
     if (shaking) ctx.restore();
     if (mode === 'replay' && replay) {
