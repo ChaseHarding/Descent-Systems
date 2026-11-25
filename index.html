@@ -3666,9 +3666,9 @@ details.act > .limits { margin: 0 0 8px; }
       ground: [[0, 34], [20, 30], [40, 36], [60, 32], [80, 44], [100, 36], [120, 30], [140, 38], [160, 46], [180, 36], [200, 32], [222, 30], [240, 36]],
       pads: [{ id: 'FINISH', x1: 212, x2: 230, y: 30 }] },
     { id: 'race-gp', name: 'Apex Grand Prix', world: 'mars', kind: 'route', side: true, race: 4, giver: 'R', label: 'Race vs Vanta', noSurprise: true, fuel: 320, credits: 900,
-      rival: { path: [[16, 104], [36, 56], [76, 96], [118, 50], [150, 92], [186, 58], [222, 44], [222, 32]], time: 58, name: 'VANTA', model: 'apex', hull: 'champion', winText: 'Vanta landed first', winQuip: ['R', 'Vanta wins the Grand Prix. Again. The Chair’s champion. I hate how good she is.'] },
+      rival: { path: [[16, 104], [36, 56], [76, 96], [118, 50], [150, 92], [186, 58], [222, 44], [222, 32]], time: 58, name: 'VANTA', model: 'apex', hull: 'champion', winText: 'Vanta landed first', winQuip: ['R', 'Vanta wins the Grand Prix. Again. Apex’s champion. I hate how good she is.'] },
       briefSteps: ['Fly through gates 1 to 5, in order', 'Land on FINISH before Vanta does'],
-      brief: 'The big one. Vanta, Apex’s champion, sponsored by The Chair. Five gates over the ridges. Nobody has beaten her in three seasons.',
+      get brief() { return `The big one. Vanta, Apex’s champion${storyDone('home') ? ', sponsored by The Chair' : ''}. Five gates over the ridges. Nobody has beaten her in three seasons.`; },
       spawn: { x: 16, y: 104, vx: 0 }, rings: [[36, 56], [76, 96], [118, 50], [150, 92], [186, 58]], stars: { fuel: 70, time: 50 },
       ground: [[0, 30], [20, 32], [36, 30], [56, 48], [70, 60], [84, 46], [100, 34], [118, 28], [134, 44], [146, 62], [160, 58], [174, 38], [190, 32], [212, 30], [240, 34]],
       pads: [{ id: 'FINISH', x1: 213, x2: 231, y: 30 }] }
@@ -3684,8 +3684,9 @@ details.act > .limits { margin: 0 0 8px; }
       react: [['R', 'You beat the storm AND Sola! I’m hoarse. I’ve been shouting into the wind for a minute.'], ['R', 'Sola’s spitting dust in the pit lane. Respectfully!'], ['R', 'A perfect run in a dust storm! I didn’t know that was possible. Neither did Sola.']] },
     'race-gauntlet': { intro: [['R', 'The Gauntlet! Five gates, high, low, high, low, high. Sola has never lost here. Never!'], ['R', 'If you feel sick, that means you’re doing it right. If you feel very sick, slow down.']],
       react: [['R', 'Sola loses the Gauntlet for the first time EVER! History, darling! History!'], ['R', 'Up, down, up, down, WIN! I need to sit down.'], ['R', 'Flawless Gauntlet! Sola is shaking your hand. She’s never shaken anyone’s hand. She’s squeezing quite hard.']] },
-    'race-gp': { intro: [['R', 'This is it. The Apex Grand Prix. Vanta, The Chair’s own champion, unbeaten in three seasons.'], ['R', 'There’s a gold box at the top of the stands. Nobody’s in it. Everyone’s staring at it anyway.'], ['R', 'Five gates over the ridges. Fly it like you mean it. I mean it. I really mean it.']],
-      react: [['R', 'VANTA IS BEATEN! The Apex Grand Prix goes to Descent Systems! The gold box has gone dark! I’M CRYING ON THE MICROPHONE!'], ['R', 'You beat the Chair’s champion! The stands are shaking! Somebody get Biscuit a garland!'], ['R', 'Perfect Grand Prix. In the gold box, a light just came on. Then off. Somebody up there is very unhappy. GOOD.']] }
+    'race-gp': { get intro() { return storyDone('home') ? [['R', 'This is it. The Apex Grand Prix. Vanta, The Chair’s own champion, unbeaten in three seasons.'], ['R', 'There’s a gold box at the top of the stands. Nobody’s in it. Everyone’s staring at it anyway.'], ['R', 'Five gates over the ridges. Fly it like you mean it. I mean it. I really mean it.']]
+        : [['R', 'This is it. The Apex Grand Prix. Vanta, Apex’s champion, unbeaten in three seasons.'], ['R', 'There’s a gold box at the top of the stands for Apex’s bosses. Somebody up there is watching very closely.'], ['R', 'Five gates over the ridges. Fly it like you mean it. I mean it. I really mean it.']]; },
+      react: [['R', 'VANTA IS BEATEN! The Apex Grand Prix goes to Descent Systems! The gold box has gone dark! I’M CRYING ON THE MICROPHONE!'], ['R', 'You beat Apex’s champion! The stands are shaking! Somebody get Biscuit a garland!'], ['R', 'Perfect Grand Prix. In the gold box, a light just came on. Then off. Somebody up there is very unhappy. GOOD.']] }
   });
 
   // ---- crew quests, second wave: missions ----
@@ -3780,7 +3781,7 @@ details.act > .limits { margin: 0 0 8px; }
   const featTag = k => featNew(k) ? '<i class="dot">New</i>' : '';
   const featMore = () => Object.keys(FEAT_AT).some(k => !featOpen(k)) ? `<p class="limits">More flight modes open up as you fly missions.</p>` : '';
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
-  function raceOpen(k) { try { return !inBase() && stats.worlds.includes('mars') && (k === 0 || missionStars[RACES[k - 1].id] > 0); } catch (e) { return false; } }
+  function raceOpen(k) { try { return marsOk() && speedOpen() && (k === 0 || missionStars[RACES[k - 1].id] > 0); } catch (e) { return false; } }
   const missionOpen = i => ALL[i] && ALL[i].race != null ? raceOpen(ALL[i].race) : i >= MISSIONS.length && ALL[i].quest ? questStep(ALL[i].quest[0]) >= ALL[i].quest[1] : i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   // story missions are one a day: after a new story mission, the next one waits until you've slept
   const restLocked = i => i > 0 && i < MISSIONS.length && !(missionStars[MISSIONS[i].id] > 0) && +store.get('ds-storyRest', '0') >= shipDay;
@@ -11039,8 +11040,8 @@ details.act > .limits { margin: 0 0 8px; }
       mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
       mrace: ['Mars Speedway', 'The Mars Speedway: a huge window onto Red Canyon, where race landers zoom through glowing gates. From left: the maglev, Race Control (where you pick a race), the packed stands with an empty gold box at the top, the announcer’s booth, the leaderboard, and Apex Racing’s garage with three racers. Your trophy case is by Race Control. Tap to walk; walk up to things to use them.'],
-      mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that glitches into a faceless gold figure, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
-      mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of past leaders with one frame empty, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering gold hologram of a figure with no face. The door at the bottom goes back to the street.'],
+      mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that flips to another face every few seconds, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
+      mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of Apex’s leaders, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering hologram by the lift. The door at the bottom goes back to the street.'],
       moffice: ['The old office', 'Descent Systems’ old Mars office: a window onto Main Street, a framed photo from day one, an old desk, filing cabinets and the famous coffee machine, still blinking. The door at the bottom goes back to the street.'],
       pimbake: ['Ines’ Bakery', 'Ines’ bakery: shelves of bread, a chalk menu, a brick oven and a glass counter full of pastries, with a little table by the window. Walk up to the counter to buy pastries. The door at the bottom goes back to the street.'],
       bedroom: [`${SIGN[bedroomOwner]}’s room`, `${SIGN[bedroomOwner]}’s bedroom: their bed, a window, and their things on the walls and floor. Tap to walk; tap things to hear about them. With a keyboard, arrow keys walk and Enter uses whatever is nearest.`, 'Tap things to hear about them · tap people to chat · the door out is behind you']
@@ -18140,7 +18141,10 @@ details.act > .limits { margin: 0 0 8px; }
     H: ['Ines’s star buns. Seven folds, egg wash, a pinch of salt. I’m stealing it. With respect.', 'This bakery is what a galley wants to be when it grows up.', 'I traded Ines a spice jar for her starter dough. Best trade of my life.']
   };
   const SHORE_ANY = [n => `${n}: I could get used to this. Gravity that doesn’t try to kill you. Pastries.`, n => `${n}: Look at the Earth from here. You can almost see the base.`, n => `${n}: Thanks for bringing me. I needed a day off the ship.`];
-  function shoreLine(w) { const L = (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  const APEX_PRE = () => ({ F: sableKnown() ? ['Sable is somewhere in that tower. Doing maths about us.', 'Walk quickly. Don’t make eye contact with the drones. Or the billboard.'] : ['Everything here is very clean. Too clean. Like nobody’s allowed to make a mistake.', 'Walk quickly. Don’t make eye contact with the drones.'],
+    Q: ['Sable is on floor ninety-nine right now. I can feel her looking down.', 'Same drones. Same smell of new carpet. I hate it here. I’m glad I came. Both of those.'],
+    J: sableKnown() ? ['She bought my dockhands’ jobs and Dottie’s loans with the same pen. I’d like to see that pen snap.', 'Every shiny window on this street was paid for by someone like my dockhands.'] : ['Every shiny window on this street was paid for by someone like my dockhands.', 'Apex moved in, the dock went quiet. That’s how it works here.'] });
+  function shoreLine(w) { const L = (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && !apexOpen() && APEX_PRE()[w]) || (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -18463,7 +18467,13 @@ details.act > .limits { margin: 0 0 8px; }
   };
   // ---- Mars City, stage 1: the Dock and Main Street, joined by a maglev, with a diner and Descent Systems' old office ----
   const MARS_W = 640;
-  const marsOk = () => !inBase() && stats.worlds.includes('mars');
+  const marsOk = () => !inBase() && junoMet();
+  const apexOpen = () => storyDone('home');          // The Chair only takes over once Sable is gone, at the end of the story
+  const sableKnown = () => storyDone('overdue');   // you've met Sable in Juno's office
+  // a little offscreen canvas with Sable's face, for her billboard and her portrait
+  let sableCv = null;
+  const sableFace = () => { if (!sableCv) { sableCv = document.createElement('canvas'); sableCv.width = sableCv.height = 32; drawFace(sableCv, 'U', 'neutral', false, false); } return sableCv; };
+  const speedOpen = () => romMet.R && romMet.R();   // Rex announces, so you need to know Rex
   const marsBusy = () => questDone('q-juno');   // Juno's dock comes back to life once her quest is done
   // where you can go ashore, and how each place looks on the Go ashore card
   const SHORE_PLACES = {
@@ -18751,7 +18761,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (!el) { el = document.createElement('div'); el.id = 'maglevCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'The maglev'); document.body.appendChild(el); }
     sfx.click();
     el.innerHTML = `<div class="qnew-card maglev"><span class="eyebrow">Mars City maglev</span><b>Where to?</b><div class="mlview" aria-hidden="true"><i></i></div>
-      <div class="mlroute">${MAGLEV_STOPS.map(([k, n, s]) => `<button class="mlstop${k === from ? ' here' : k ? '' : ' later'}" ${k && k !== from ? `data-ml="${k}"` : 'disabled'}>${k === from ? '<em>You’re here</em>' : ''}<b>${n}</b><span>${s}</span></button>`).join('')}</div>
+      <div class="mlroute">${MAGLEV_STOPS.map(st => st[0] === 'mrace' && !speedOpen() ? [null, st[1], 'Opening soon. The announcer hasn’t been hired yet.'] : st).map(([k, n, s]) => `<button class="mlstop${k === from ? ' here' : k ? '' : ' later'}" ${k && k !== from ? `data-ml="${k}"` : 'disabled'}>${k === from ? '<em>You’re here</em>' : ''}<b>${n}</b><span>${s}</span></button>`).join('')}</div>
       <div class="btns"><button class="btn ghost" id="mlStay">Stay here</button></div></div>`;
     el.hidden = false;
     el.querySelectorAll('[data-ml]').forEach(b => b.addEventListener('click', () => {
@@ -18897,6 +18907,8 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- Mars City, Apex Row: the Apex Landings tower, its showroom, and a new face at the top ----
   // Sable is gone, but Apex isn't. Somebody new runs it now: The Chair, who never shows a face.
   const apexMet = () => store.get('ds-apexChair', '') === '1';
+  // anyone who wandered into the lobby before this was story-gated meets The Chair properly once the story's done
+  try { if (!storyDone('home')) { store.set('ds-apexChair', ''); store.set('ds-marsSeen-apex', ''); } } catch (e) {}
   // The Chair: a faceless gold silhouette behind scanlines
   function drawChairFace(c, open, blink, bare) {
     if (!bare) px(c, 0, 0, 32, 32, '#140a10');
@@ -18966,6 +18978,9 @@ details.act > .limits { margin: 0 0 8px; }
     const pick = A => A[Math.floor(Math.random() * A.length)];
     if (what === 'tower') return withMe('Q') ? ['Q', 'Ninety-nine floors. I lived on forty. I could see the whole dock from my window. I never once looked at the people on it.'] : withMe('R') ? ['R', 'I used to take the lift to the top just to look down. Then I realised everybody up there was doing the same thing.'] : ['P', 'The Apex Landings tower. Ninety-nine floors of mirrored glass, gold trim and a red “A” you can see from orbit. It doesn’t have a top that you can see from here.'];
     if (what === 'showroom') return withMe('G') ? ['G', 'The Apex Nova. Ninety thousand credits. Look at the welds. LOOK at them. Biscuit has better welds. Biscuit has better everything.'] : withMe('X') ? ['X', 'They gave me one of those once. For a week. Then they took it back because I scratched it delivering their mail.'] : ['P', pick(['A brand-new Apex Nova turns slowly under spotlights. The price tag scrolls past twice: 90,000 cr. Small print: “Pilot not included. Pilot replaceable.”', 'The showroom glass has your reflection in it, and behind you, a security drone, watching.'])];
+    if (what === 'billboard' && !apexOpen()) return withMe('R') ? ['R', 'That’s me. Thirty feet of me. “Rex Valor flies Apex.” I don’t anymore. And every eight seconds it turns into Sable. I’m sharing a billboard with Sable. This is my villain origin story.']
+      : sableKnown() && withMe('W') ? ['W', 'She always wanted to be thirty feet tall. Now she is. Still small.'] : sableKnown() && withMe('F') ? ['F', 'Thirty feet of Sable. Smiling. She smiled exactly like that in Juno’s office, right before she ruined my week.']
+      : ['P', sableKnown() ? 'Rex’s old billboard, “REX VALOR FLIES APEX”, keeps flipping to Sable Voss in her white suit: “WE LAND EVERYTHING.” Somebody has drawn a small moustache on her. It’s already been cleaned off. Twice.' : 'A thirty-foot holo billboard of Rex Valor, grinning: “REX VALOR FLIES APEX.” Every few seconds it flips to a woman in a white suit with a red pin: “SABLE VOSS · APEX CEO · WE LAND EVERYTHING.”'];
     if (what === 'billboard') return withMe('R') ? ['R', 'That’s me. Thirty feet of me. “Rex Valor flies Apex.” I don’t anymore. They haven’t taken it down. I think they’re keeping it to annoy me. It’s working.'] : ['P', 'A thirty-foot holo billboard of Rex Valor, grinning: “REX VALOR FLIES APEX.” Every few seconds it glitches, and a gold silhouette with no face flickers through: “UNDER NEW MANAGEMENT.”'];
     if (what === 'acquired') return withMe('J') ? ['J', 'That was Marta’s paint shop. Forty years. Apex bought the building and doubled the rent. Then they bought Marta’s name and put it on their own paint.'] : ['P', 'A shuttered little shop with a faded hand-painted sign: “MARTA’S PAINT · EST. 2091”. Across it, a bright red holo stamp: “ACQUIRED BY APEX”.'];
     if (what === 'notices') return marsBusy() ? ['P', 'A board of paper notes, stuck on by hand under Apex’s shiny holograms. “Laid off by Apex? Mars Dock is hiring. Ask for Juno.” Someone has added a smiley face.'] : ['P', 'A board of paper notes under Apex’s holograms. “LAID OFF? You’re not alone.” “Selling my tools.” “Anyone know if the dock is hiring?” Nobody has answered.'];
@@ -19004,7 +19019,13 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 444, 2, 80, 50, '#151a2a'); px(c, 482, 52, 4, 10, '#3a4256');
     const chair = !reduceMotion && Math.floor(t / 2600) % 3 === 2, glitch = !reduceMotion && Math.floor(t / 80) % 31 === 0;
     c.save(); c.beginPath(); c.rect(446, 4, 76, 46); c.clip();
-    if (!chair) {
+    const sableAd = !apexOpen() && !reduceMotion && Math.floor(t / 3200) % 2 === 1;
+    if (sableAd) {
+      c.fillStyle = '#f4f1e8'; c.fillRect(446, 4, 76, 46); c.fillStyle = '#c0392b'; c.fillRect(446, 40, 76, 10);
+      c.drawImage(sableFace(), 450, 13, 24, 24);
+      c.font = '700 6px monospace'; c.fillStyle = '#1a1418'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('SABLE', 500, 20); c.fillText('VOSS', 500, 27); c.fillStyle = '#c0392b'; c.font = '700 5px monospace'; c.fillText('APEX CEO', 500, 34);
+      c.fillStyle = '#f4f1e8'; c.fillText('WE LAND EVERYTHING.', 484, 45);
+    } else if (!chair || !apexOpen()) {
       c.fillStyle = '#c0392b'; c.fillRect(446, 4, 76, 46); c.fillStyle = '#ffd27a'; c.fillRect(446, 40, 76, 10);
       drawSprite(c, LOOKS.R, 452, 16, 0, 0, false);
       c.font = '700 6px monospace'; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('REX VALOR', 495, 18); c.fillText('FLIES', 495, 26); c.fillText('APEX', 495, 34);
@@ -19042,16 +19063,26 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // ---- the lobby ----
   function mlobbyThings(L) {
-    L.push({ id: 'chair', rect: [190, 14, 40, 60], go: () => [196, 100], at: () => ({ x: 210, y: 40 }), act: () => chairSpeak() });
-    L.push({ id: 'lift', rect: [208, 10, 44, 62], go: () => [228, 100], at: () => ({ x: 228, y: 40 }), act: () => { sfx.click(); const n = +store.get('ds-apexLift', '0') + 1; store.set('ds-apexLift', String(n)); shipSay(...(withMe('Q') ? ['Q', 'The executive lift. Floor ninety-nine. I was up there once. They took my badge at the door and gave it back after. It was warm. I don’t know why that bothered me.'] : ['P', ['The lift scans you with a thin red light. ACCESS DENIED. A tiny screen reads: “FLOOR 99 · THE CHAIR”.', 'You press the call button. The lift doesn’t come. A security drone turns to look at you.', 'ACCESS DENIED. The screen flickers. For a second it says “WE KNOW WHO YOU ARE”, then “HAVE A NICE DAY”.'][Math.min(2, n - 1)]])); } });
+    L.push({ id: 'chair', rect: [182, 40, 30, 54], go: () => [196, 104], at: () => ({ x: 196, y: 60 }), act: () => apexOpen() ? chairSpeak() : sableHolo() });
+    L.push({ id: 'lift', rect: [208, 10, 44, 62], go: () => [228, 100], at: () => ({ x: 228, y: 40 }), act: () => { sfx.click(); const n = +store.get('ds-apexLift', '0') + 1; store.set('ds-apexLift', String(n)); shipSay(...(withMe('Q') ? ['Q', 'The executive lift. Floor ninety-nine. I was up there once. They took my badge at the door and gave it back after. It was warm. I don’t know why that bothered me.'] : ['P', (apexOpen() ? ['The lift scans you with a thin red light. ACCESS DENIED. A tiny screen reads: “FLOOR 99 · THE CHAIR”.', 'You press the call button. The lift doesn’t come. A security drone turns to look at you.', 'ACCESS DENIED. The screen flickers. For a second it says “WE KNOW WHO YOU ARE”, then “HAVE A NICE DAY”.']
+      : ['The lift scans you with a thin red light. ACCESS DENIED. A tiny screen reads: “FLOOR 99 · S. VOSS · CEO”.', 'You press the call button. A recording: “Ms. Voss does not take visitors. Ms. Voss takes companies.”', sableKnown() ? 'ACCESS DENIED. The screen flickers: “DESCENT SYSTEMS · 40,000 CR OUTSTANDING”. Then: “HAVE A NICE DAY”.' : 'ACCESS DENIED. A security drone turns to look at you.'])[Math.min(2, n - 1)]])); } });
     L.push({ id: 'desk', rect: [96, 54, 70, 32], go: () => [130, 100], at: () => ({ x: 130, y: 70 }), act: () => conciergeTalk() });
     L.push({ id: 'boulder', rect: [10, 70, 50, 40], go: () => [40, 122], at: () => ({ x: 34, y: 92 }), act: () => shipSay(...(withMe('Q') ? ['Q', 'My Moon boulder. Well. Apex’s Moon boulder. I landed it here myself. The plaque says “Apex brought the Moon to Mars”. Apex didn’t. I did.'] : ['P', 'A whole Moon boulder on a plinth. The plaque: “APEX BROUGHT THE MOON TO MARS.” In smaller letters underneath, scratched in by hand: “K. did.”'])) });
     L.push({ id: 'trophies', rect: [10, 16, 70, 40], go: () => [44, 100], at: () => ({ x: 44, y: 34 }), act: () => shipSay(...(withMe('X') ? ['X', 'Every courier record on that wall is mine. They put Sable’s name on the plaques. I counted.'] : withMe('R') ? ['R', 'Fourteen of those are mine. They polished my name off three of them. I can tell. I know my own name.'] : ['P', 'A wall of trophies under glass: “FASTEST DESCENT”, “MOST CONTRACTS”, “BEST LANDING, 10 YEARS RUNNING”. Every plaque says “APEX”. None of them name a pilot.'])) });
-    L.push({ id: 'portraits', rect: [100, 14, 80, 30], go: () => [140, 100], at: () => ({ x: 140, y: 30 }), act: () => shipSay(...(withMe('W') ? ['W', 'Look at that empty frame. That was Sable. They didn’t even wait for the dust to settle. That’s Apex. Nobody matters. Not even the people at the top.'] : ['P', 'Portraits of Apex’s past leaders, all smiling the same smile. One frame is empty, with a paler square on the wall where Sable Voss used to hang.'])) });
+    L.push({ id: 'portraits', rect: [100, 14, 80, 30], go: () => [140, 100], at: () => ({ x: 140, y: 30 }), act: () => shipSay(...(!apexOpen() ? (sableKnown() && withMe('W') ? ['W', 'There she is. Thirty years older. Same smile. I used to like that smile. That’s the worst part.'] : ['P', 'Portraits of Apex’s leaders, all smiling the same smile. The newest and biggest, in a gold frame: Sable Voss, CEO. White suit, red pin, a smile that doesn’t move.']) : withMe('W') ? ['W', 'Look at that empty frame. That was Sable. They didn’t even wait for the dust to settle. That’s Apex. Nobody matters. Not even the people at the top.'] : ['P', 'Portraits of Apex’s past leaders, all smiling the same smile. One frame is empty, with a paler square on the wall where Sable Voss used to hang.'])) });
     L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'mlobby'; setMode('mapex'); } });
   }
   const CHAIR_SAYS = ['Apex has always been here. Apex will always be here.', 'Small companies make big mistakes. Apex is here to help them stop.', 'The Chair thanks Sable Voss for her service. Sable made mistakes. The Chair does not.',
     'Every lander in the system will fly under one name. It is not a threat. It is a forecast.', 'Your little ship is very charming. The Chair collects charming things.'];
+  // Sable's hologram greets every visitor. Once you've met her, it has a message just for you.
+  function sableHolo() {
+    sfx.click();
+    if (!sableKnown()) { shipSay('U', ['(Recording) Welcome to Apex Landings. I’m Sable Voss. Small companies dream. Apex delivers.', '(Recording) Every great landing starts with a great company. Ideally mine.', '(Recording) Apex: why land, when you can arrive?', '(Recording) Thinking of starting your own little agency? Don’t. Come and work for me instead.'][Math.floor(Math.random() * 4)]); return; }
+    const first = store.get('ds-sableHolo', '') !== '1'; store.set('ds-sableHolo', '1');
+    if (first) { shipSay('U', '(Recording) Hello, Descent Systems. Yes, this message is just for you. The hologram recognised your boots. Forty thousand credits. The clock is running.');
+      setTimeout(() => { if (deck && deck.kind === 'mlobby') { const w = deck.npcs.find(n => shoreParty.includes(n.who)); if (w) shipSay(w.who, ({ F: 'She recorded a message. For us. Specifically. That’s not scary. That’s fine. I’m fine.', W: 'Thirty years and she still talks to people through glass.', G: 'It knew my boots. How does it know my boots? I’ve had these boots for eleven years.', R: 'I did holograms for Apex. They loop forever. She’ll be saying that to us at three in the morning.', J: 'She’s talking down to us from a lobby she bought with my dockhands’ jobs.', X: 'I delivered the parts for that hologram. I should have dropped them.', Q: 'That’s her. Even as a recording she makes my shoulders go up.' })[w.who] || 'Pilot. Let’s not stay long.'); } }, 5200); return; }
+    shipSay('U', ['(Recording) The offer stands. Warm beds. Real coffee. Sign the Second Wind over and all of this goes away.', '(Recording) Dottie, darling. Do the math again. It still comes out the same.', '(Recording) Wren, if you’re listening: you always did fly with your heart. That’s why you lost.', '(Recording) Every small agency sells, eventually. Some just take longer to admit it.'][Math.floor(Math.random() * 4)]);
+  }
   function chairSpeak() {
     sfx.click();
     if (!apexMet()) { store.set('ds-apexChair', '1'); shipSay('CH', `Pilot. Descent Systems. The Second Wind. The Chair has been expecting you. Thank you for removing Sable. You saved Apex a great deal of paperwork.`); setTimeout(() => { if (deck && deck.kind === 'mlobby') { const w = deck.npcs.find(n => shoreParty.includes(n.who)); if (w) shipSay(w.who, ({ F: 'It knows the ship’s name. Pilot, I don’t like this. I don’t like this at all.', Q: 'That voice. It isn’t a recording. Someone’s listening up there.', X: 'Nope. Nope. We’re leaving soon, right? Right?', W: 'Sable was bad. Sable at least had a face.', R: 'It thanked us. Apex has never thanked anyone. That’s the scariest thing I’ve heard all year.', J: 'It’s the same people. It always was. Sable was just the one who talked.' })[w.who] || 'Pilot… what was that?'); } }, 5200); return; }
@@ -19062,7 +19093,7 @@ details.act > .limits { margin: 0 0 8px; }
     const n = +store.get('ds-apexDesk', '0'); store.set('ds-apexDesk', String(n + 1));
     shipSay('AX', [`Welcome to Apex Landings. Do you have an appointment? Checking. You do not. You are welcome to wait. Forever, if you like.`,
       'Apex is currently recruiting pilots. Signing bonus: ten thousand credits. Your current employer would not need to know. Your current employer always knows.',
-      'I have been asked to give you this message: “The offer is open.” I have not been told what the offer is. Neither have you. That is how offers work here.',
+      apexOpen() ? 'I have been asked to give you this message: “The offer is open.” I have not been told what the offer is. Neither have you. That is how offers work here.' : sableKnown() ? 'Ms. Voss asked me to remind you: the offer is open. Warm beds. Real coffee. I do not know what coffee is. I am told it is wonderful.' : 'Ms. Voss is not available. Ms. Voss is never available. That is what makes her Ms. Voss.',
       'Please do not touch the boulder. It is worth more than your lander. Everything here is worth more than your lander.'][n % 4]);
   }
   function mlobbyDraw(t) {
@@ -19075,7 +19106,7 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 10, 16, 70, 40, '#1a1418'); px(c, 12, 18, 66, 36, '#2a2430'); for (let k = 0; k < 5; k++) { const x = 16 + k * 13; px(c, x + 2, 40, 6, 10, '#ffd27a'); px(c, x, 32 - (k % 2) * 4, 10, 8, '#ffd27a'); px(c, x + 3, 50, 4, 2, '#c9a24a'); }
     c.fillStyle = 'rgba(200,230,255,0.12)'; c.fillRect(12, 18, 66, 36);
     // portraits, one missing
-    for (let k = 0; k < 4; k++) { const x = 102 + k * 20; px(c, x, 14, 16, 20, '#c9a24a'); if (k === 3) { px(c, x + 1, 15, 14, 18, '#e4e4ec'); px(c, x + 2, 16, 12, 16, '#f4f4f8'); } else { px(c, x + 1, 15, 14, 18, '#3a3a48'); px(c, x + 5, 19, 6, 6, ['#e8c4a8', '#9a5f43', '#f0d2bc'][k]); px(c, x + 3, 26, 10, 6, '#2a2a33'); } }
+    for (let k = 0; k < 4; k++) { const x = 102 + k * 20; px(c, x, 14, 16, 20, '#c9a24a'); if (k === 3 && !apexOpen()) { px(c, x - 2, 12, 20, 24, '#ffd27a'); c.drawImage(sableFace(), x, 14, 16, 16); px(c, x, 30, 16, 4, '#1a1418'); px(c, x + 3, 31, 10, 2, '#ffd27a'); } else if (k === 3) { px(c, x + 1, 15, 14, 18, '#e4e4ec'); px(c, x + 2, 16, 12, 16, '#f4f4f8'); } else { px(c, x + 1, 15, 14, 18, '#3a3a48'); px(c, x + 5, 19, 6, 6, ['#e8c4a8', '#9a5f43', '#f0d2bc'][k]); px(c, x + 3, 26, 10, 6, '#2a2a33'); } }
     // the executive lift and The Chair's hologram
     px(c, 208, 10, 44, 62, '#2a2a33'); px(c, 212, 14, 36, 58, '#c9a24a'); px(c, 229, 14, 2, 58, '#8a6a2a');
     mGlow(c, '#ff3b4e', 6, () => px(c, 226, 6, 8, 3, Math.floor(t / 700) % 2 ? '#ff3b4e' : '#7a1a24'));
@@ -19090,8 +19121,16 @@ details.act > .limits { margin: 0 0 8px; }
     things.push([0, () => mGlow(c, '#ff3b4e', 14, () => { c.fillStyle = '#c0392b'; c.beginPath(); c.moveTo(112, 54); c.lineTo(132, 10); c.lineTo(152, 54); c.lineTo(144, 54); c.lineTo(132, 26); c.lineTo(120, 54); c.fill(); px(c, 124, 40, 16, 4, '#c0392b'); })]);
     things.push([86, () => { c.fillStyle = '#1a1418'; c.beginPath(); c.roundRect(96, 62, 72, 24, [10, 10, 2, 2]); c.fill(); mGlow(c, '#ffd27a', 5, () => px(c, 98, 64, 68, 1, '#ffd27a')); px(c, 110, 58, 12, 6, '#2a2a33'); mGlow(c, '#7fd6ff', 3, () => px(c, 112, 59, 8, 3, '#7fd6ff')); }]);
     things.push([108, () => { px(c, 12, 98, 46, 10, '#2a2a33'); mGlow(c, '#ffd27a', 4, () => px(c, 12, 98, 46, 1, '#ffd27a')); c.fillStyle = '#a8a8b0'; c.beginPath(); c.ellipse(35, 86, 20, 14, 0, 0, Math.PI * 2); c.fill(); for (const [x, y, r] of [[28, 82, 3], [40, 90, 2], [44, 80, 2]]) { c.fillStyle = '#8a8a94'; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); } px(c, 26, 102, 18, 4, '#ffd27a'); }]);
-    // The Chair: a gold silhouette that never quite holds still
-    things.push([96, () => {
+    // before the ending: Sable's recorded hologram, in red. After: The Chair, a gold silhouette that never quite holds still
+    if (!apexOpen()) things.push([96, () => {
+      const fl2 = !reduceMotion && Math.random() < 0.04;
+      c.fillStyle = 'rgba(255,90,110,0.12)'; c.beginPath(); c.moveTo(196, 94); c.lineTo(186, 40); c.lineTo(206, 40); c.fill();
+      c.save(); c.globalAlpha = fl2 ? 0.3 : 0.75; c.translate(184, 44); c.scale(1.5, 1.5); drawSprite(c, LOOKS.U, 0, 0, 0, 0, false); c.restore();
+      c.fillStyle = 'rgba(255,59,78,0.25)'; c.fillRect(184, 44, 24, 48);
+      for (let y = 44; y < 92; y += 2) px(c, 184, y, 24, 1, 'rgba(255,255,255,0.18)');
+      px(c, 186, 92, 20, 3, '#2a2a33'); mGlow(c, '#ff3b4e', 4, () => px(c, 186, 92, 20, 1, '#ff3b4e'));
+    }]);
+    else things.push([96, () => {
       const fl2 = !reduceMotion && Math.random() < 0.05, a = fl2 ? 0.3 : 0.7;
       c.fillStyle = 'rgba(255,210,122,0.12)'; c.beginPath(); c.moveTo(196, 94); c.lineTo(188, 40); c.lineTo(204, 40); c.fill();
       mGlow(c, '#ffd27a', 10, () => { c.fillStyle = `rgba(255,210,122,${a})`; c.beginPath(); c.ellipse(196, 56, 6, 7, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(184, 90); c.quadraticCurveTo(185, 66, 196, 65); c.quadraticCurveTo(207, 66, 208, 90); c.fill(); });
@@ -19224,6 +19263,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (MARS_KINDS.includes(kind)) {
       const p = shoreParty.length ? shoreParty[Math.floor(Math.random() * shoreParty.length)] : null, first = k => { const f = store.get('ds-marsSeen-' + k, '') !== '1'; store.set('ds-marsSeen-' + k, '1'); return f; };
       if (kind === 'mlobby') {
+        if (!apexOpen()) { shipSay('AX', sableKnown() ? 'Welcome to Apex Landings. Ms. Voss has left a message for you. It plays when you approach. It plays when you leave. It plays a lot.' : 'Welcome to Apex Landings. Ms. Voss sends her regards. She sends them to everyone. Automatically.'); return; }
         if (!apexMet()) { shipSay('AX', 'Welcome to Apex Landings. Please wait. Someone would like a word with you.'); setTimeout(() => { if (deck && deck.kind === 'mlobby' && !deck.scene) chairSpeak(); }, 2600); return; }
         shipSay('AX', 'Welcome back to Apex Landings. You are being recorded for quality purposes. And other purposes.'); return;
       }
