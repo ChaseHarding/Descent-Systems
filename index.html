@@ -10224,10 +10224,156 @@ details.act > .limits { margin: 0 0 8px; }
     return ROOM_SCENES.find(s => s.room === kind && storyDone(s.after) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
       && s.cast.filter(([w]) => rsHere(w)).length >= 2);
   }
+  // ---- Crew moments: little unscripted scenes you sometimes walk in on between missions ----
+  // At most one a ship day, a 35% chance when you enter a room, and each one plays only once.
+  // Everyone in the cast has to be around; `when` says which part of the story it belongs to.
+  let AMB_CHANCE = 0.35;
+  const amShip = () => !inBase();
+  const AMBIENT = [
+    // the Moon base
+    { id: 'am-wrench', room: 'hall', rel: true, when: () => inBase() && wrenHome(),
+      cast: [['G', -24, 106], ['W', 30, 108]],
+      lines: [['G', 'Wren, have you seen my wrench? The big one. The good one.'],
+        ['W', 'The one with “WREN” scratched on the handle?'],
+        ['G', '…It might have your name on it.'],
+        ['W', 'It has had my name on it since 2061, Gus.'],
+        ['G', 'Can I borrow your wrench?']] },
+    { id: 'am-bills', room: 'galley', when: () => inBase(),
+      cast: [['F', 112, 118], ['G', 176, 104]],
+      lines: [['F', 'Power bill. Water bill. Air bill. Did you know we get billed for air?'],
+        ['G', 'We could breathe less?'],
+        ['F', 'I’ve tried. I get dizzy and buy snacks. The snacks are also on a bill.'],
+        ['P', null, { who: 'F', choice: [['We’ll pay it all off. One job at a time.', 'One job at a time. I’m writing that on a sticky note. On my forehead.', 30], ['How much do we owe, exactly?', 'Exactly? I stopped saying the exact number out loud. It frightens Apogee.', 15], ['Maybe stop buying snacks?', 'You take that back.', 5]] }]] },
+    { id: 'am-rehearse', room: 'hall', rel: true, when: () => inBase() && romMet.R(),
+      cast: [['R', 34, 106], ['F', -30, 108]],
+      lines: [['R', '“The universe is big… but my heart is bigger.” No. “My heart… is a universe.” Hmm.'],
+        ['F', 'Rex, it’s seven in the morning.'],
+        ['R', 'Art doesn’t sleep, darling. Rate that one out of ten.'],
+        ['P', null, { who: 'R', choice: [['Ten. Easily.', 'I knew it. I knew it in my heart. Which, as we’ve established, is a universe.', 30], ['A solid six.', 'Six. Six is honest. I hate honest. Thank you.', 20], ['Can I get to the kitchen, please?', 'Of course. Step around the artist. Carefully.', 5]] }]] },
+    { id: 'am-toast', room: 'galley', when: () => inBase() && wrenHome(),
+      cast: [['G', 150, 104], ['W', 70, 118]],
+      lines: [['G', 'I’m making toast! For everyone! It’s going really well!'],
+        ['W', 'Gus. Smoke.'],
+        ['G', 'That’s the toast getting ready.'],
+        ['W', 'That’s the toast leaving us.']] },
+    { id: 'am-bolt', room: 'hall', rel: true, when: () => inBase() && crumbHome(),
+      cast: [['K', 40, 112], ['G', -20, 106]],
+      lines: [['K', '*beep beep beep!* (Crumb has found a bolt. He is holding it up very high.)', { face: 'happy' }],
+        ['G', 'Crumb, that’s from Biscuit’s landing leg.'],
+        ['K', '*beep.* (Crumb lowers the bolt slowly.)', { face: 'huh' }],
+        ['G', '…Keep it, buddy. I’ve got spares. Somewhere.'],
+        ['K', '*BEEP!* (Crumb rolls off at top speed to show everyone.)', { face: 'happy', to: [140, 112] }]] },
+    // aboard the Second Wind
+    { id: 'am-channels', room: 'bridge', when: () => amShip() && junoMet() && olloMet(),
+      cast: [['J', 182, 126], ['O', 214, 122]],
+      lines: [['J', 'Ollo, on the radio you say “over” when you’re done talking.'],
+        ['O', 'But I am never done. There is always more to say. Over.'],
+        ['J', 'That’s… actually kind of lovely. Over.'],
+        ['O', 'Over and over. Over.']] },
+    { id: 'am-watering', room: 'garden', when: () => amShip() && hired('T') && nerriMet(),
+      cast: [['T', 128, 121], ['N', 192, 122]],
+      lines: [['N', 'Tamsin! The little fern grew a new leaf! A whole leaf!'],
+        ['T', 'I saw! I nearly cried. I did cry. Quietly. Into the watering can.'],
+        ['N', 'Is that why it tastes salty?'],
+        ['T', 'You drink from the watering can?']] },
+    { id: 'am-cooking', room: 'galley', when: () => amShip() && baoMet() && zibMet(),
+      cast: [['H', 176, 96], ['Z', 112, 116]],
+      lines: [['H', 'Gently, Zib. You fold the dumpling. You don’t fight the dumpling.'],
+        ['Z', 'Zib is not fighting! Zib is… hugging it hard.'],
+        ['H', 'That’s a little better. That one only exploded a little.'],
+        ['P', null, { who: 'Z', choice: [['Looks delicious, Zib!', 'Zib knew it! Zib is a CHEF! Bao, Zib is a chef!', 30], ['Maybe let Bao do the folding?', 'Zib will watch. Zib will learn. Zib will fold again tomorrow.', 15], ['Is it supposed to be purple?', 'Yes. Zib made it purple. On purpose. Mostly.', 20]] }]] },
+    { id: 'am-coupling', room: 'engine', when: () => amShip() && theoMet(),
+      cast: [['G', 60, 106], ['E', 140, 110]],
+      lines: [['E', 'Gus, you’ve got this coupling in upside down.'],
+        ['G', 'It works upside down.'],
+        ['E', 'It works BETTER right way up.'],
+        ['G', '…It works fine upside down, and I don’t want to talk about it.'],
+        ['E', 'Okay. I’m flipping it when you’re asleep.']] },
+    { id: 'am-race', room: 'hall', rel: true, when: () => amShip() && hired('X') && romMet.R(),
+      cast: [['X', -60, 122, 80], ['R', -30, 116, 70]],
+      lines: [['X', 'Last one to the galley does the dishes!', { to: [80, 122] }],
+        ['R', 'I don’t run! I glide! With purpose!', { to: [70, 116] }],
+        ['X', 'You’re doing the dishes, Rex.'],
+        ['R', 'I’ll do them beautifully.']] },
+    { id: 'am-homework', room: 'galley', when: () => amShip() && kitMet(),
+      cast: [['C', 112, 118], ['F', 58, 116]],
+      lines: [['C', 'Dottie, what’s escape velocity again? For my cadet test?'],
+        ['F', 'How fast you need to go to leave a planet and never come back.'],
+        ['C', 'And what’s it called when you leave and DO come back?'],
+        ['F', 'A round trip. Or as I call it, a Tuesday.']] },
+    { id: 'am-chair', room: 'bridge', when: () => amShip() && twinsMet() && romMet.R(),
+      cast: [['V', 160, 130], ['Y', 190, 130], ['R', 220, 140]],
+      lines: [['V', 'Rex. About the captain’s chair.'],
+        ['Y', 'We propose a schedule. Mornings, Ollo. Afternoons, whoever’s flying.'],
+        ['R', 'And evenings?'],
+        ['V', 'Evenings, nobody. The chair needs rest.'],
+        ['R', 'This is the worst treaty I have ever signed. I’m signing it.']] },
+    { id: 'am-slow', room: 'garden', when: () => amShip() && brixMet() && hired('T'),
+      cast: [['S', 128, 121], ['T', 64, 122]],
+      lines: [['T', 'Brix, you’ve been watching that tomato for six hours.'],
+        ['S', 'It… grew.'],
+        ['T', 'Did it? I didn’t see it.'],
+        ['S', 'You… have to watch… for six hours.']] },
+    { id: 'am-checkup', room: 'hall', rel: true, when: () => amShip() && hired('D'),
+      cast: [['G', 50, 118, 120], ['D', -40, 120, 30]],
+      lines: [['D', 'Gus! Your checkup was at two!', { to: [30, 120] }],
+        ['G', 'Can’t stop! Very important engine thing! Very urgent!', { to: [120, 118] }],
+        ['D', 'There is no engine thing! I asked the engine!'],
+        ['P', null, { who: 'D', choice: [['I’ll make sure he comes by.', 'Thank you. Bring him by the ear if you have to. Gently. He bruises.', 30], ['Maybe the engine’s in on it.', 'The engine and I are going to have words.', 20], ['Let him go, he’s busy.', 'Everyone is busy. Right up until they’re not.', 5]] }]] },
+    { id: 'am-story', room: 'engine', when: () => amShip() && kitMet() && wrenHome(),
+      cast: [['W', 120, 108], ['C', 160, 112]],
+      lines: [['C', 'Wren, tell the Neptune story again!'],
+        ['W', 'Which one? The ice storm, or the time I lost a boot in orbit?'],
+        ['C', 'The boot one!'],
+        ['W', 'Right. So there I was. One boot. Forty minutes of air. And a very rude seagull.'],
+        ['C', 'There are no seagulls on Neptune!'],
+        ['W', 'There was that day.']] },
+    { id: 'am-diet', room: 'galley', when: () => amShip() && baoMet() && romMet.R(),
+      cast: [['R', 112, 118], ['H', 176, 96]],
+      lines: [['R', 'Bao. My trainer says no carbs.'],
+        ['H', 'Your trainer is on Earth.'],
+        ['R', 'He can see me, Bao. In my heart.'],
+        ['H', 'Here. Noodles. Your heart can look away.']] },
+    { id: 'am-rival', room: 'bridge', when: () => amShip() && kestrelMet() && junoMet(),
+      cast: [['Q', 182, 126], ['J', 52, 130]],
+      lines: [['Q', 'Your approach charts are… very good, actually.'],
+        ['J', 'I know. Yours were good too. Back when you were beating us.'],
+        ['Q', 'Back when I was beating you. Past tense. I can say that now.'],
+        ['J', 'Welcome to the losing team, Kestrel. The coffee’s better.']] },
+    { id: 'am-jar', room: 'garden', when: () => amShip() && zibMet() && nerriMet(),
+      cast: [['Z', 128, 116], ['N', 192, 122]],
+      lines: [['N', 'Zib, what’s in the jar?'],
+        ['Z', 'Zib’s jar!'],
+        ['N', 'No, I mean, what’s inside it?'],
+        ['Z', 'Zib’s other jar.'],
+        ['N', '…I have so many questions, and I’m scared of all of them.']] },
+    { id: 'am-coffee', room: 'galley', when: () => amShip() && theoMet() && hired('D'),
+      cast: [['E', 146, 118], ['D', 70, 118]],
+      lines: [['E', 'Doc! Fresh coffee! Strongest batch yet!'],
+        ['D', 'Theo, that’s your fifth cup today.'],
+        ['E', 'And it’s barely lunch! I’m ahead of schedule!'],
+        ['D', 'Your heart is ahead of schedule. Sit down. Drink water.']] },
+    { id: 'am-crumbcat', room: 'hall', rel: true, when: () => amShip() && crumbHome(),
+      cast: [['K', 30, 126], ['F', -30, 118]],
+      lines: [['F', 'Crumb, why is there a sock on your antenna?'],
+        ['K', '*beep?* (Crumb looks up. He did not know about the sock.)', { face: 'huh' }],
+        ['F', 'Apogee. It was Apogee, wasn’t it.'],
+        ['K', '*beep beep.* (Crumb has decided to keep the sock. It is his sock now.)', { face: 'happy' }]] }
+  ];
+  function ambientFor(kind) {
+    if (intro || store.get('ds-intro', '') !== 'done' || emergActive()) return null;
+    if (store.get('ds-ambDay', '') === String(shipDay) || Math.random() > AMB_CHANCE) return null;
+    const seen = rsSeen();
+    const pool = AMBIENT.filter(s => s.room === kind && !seen.includes(s.id) && (!s.when || s.when()) && s.cast.every(([w]) => rsHere(w)));
+    if (!pool.length) return null;
+    store.set('ds-ambDay', String(shipDay));
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
   function startRoomScene(s) {
     const bx = s.rel ? deck.me.x : 0, clampX = x => Math.max(20, Math.min(deck.W - 20, x));
     const cast = s.cast.filter(([w]) => rsHere(w));
     deck.npcs = cast.map(([w, x, y, gx]) => ({ who: w, x: clampX(bx + x), y, dir: 0, baseDir: 0, goal: gx != null ? [clampX(bx + gx), y] : null, pause: 0, moving: false, script: true }));
+    if (cast.some(([w]) => w === 'K') && deck.crumb) deck.crumb = null;   // only one Crumb at a time
     deck.scene = { s, bx, lines: s.lines.filter(([w, , cue]) => w === 'P' ? [].concat(cue.who).some(rsHere) : rsHere(w)), i: -1, timer: 0, speaker: null, ready: false };
     const me = deck.me; me.goal = null; me.moving = false; me.sit = false; deck.target = null; deck.keys = {};
     const box = card.querySelector('.shiproom'); if (box) box.classList.add('scene');
@@ -10281,7 +10427,7 @@ details.act > .limits { margin: 0 0 8px; }
     const sk = $('sceneSkip'); if (sk) sk.hidden = true;
     const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
     for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
-    if (S.s.id === 'rs-crumb') {
+    if (deck.npcs.some(n => n.who === 'K')) {
       const k = deck.npcs.find(n => n.who === 'K');
       deck.npcs = deck.npcs.filter(n => n.who !== 'K');
       if (k && !deck.crumb) deck.crumb = { x: k.x - 8, y: k.y - 12, dir: 1, pause: 2 };
@@ -10344,7 +10490,7 @@ details.act > .limits { margin: 0 0 8px; }
       crumb: crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
-    { const rsc = roomSceneFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
+    { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
     deck.cat = hall && !catHiding() && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
     deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
