@@ -1472,6 +1472,8 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#a8222a', stroke: '#f4e6cc', legs: '#f4e6cc', detail: '#f4e6cc', swatch: 'linear-gradient(90deg, #a8222a, #f4e6cc)' },
     { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
       fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
+    { id: 'speedway', name: 'Speedway Chequer', price: 0, unlock: 'race:race-gp', blurb: 'Black and white chequers with a red racing stripe. For the pilot who beat Apex’s champion.',
+      fill: '#15151f', stroke: '#f4f1e8', legs: '#f4f1e8', detail: '#ff3b4e', swatch: 'repeating-linear-gradient(90deg, #15151f 0 6px, #f4f1e8 6px 12px)' },
     { id: 'neptune', name: 'Neptune Blue', price: 0, unlock: 'ship:neptune', blurb: 'Wren’s colours from her Neptune runs: deep blue and brass. Comes with the Neptune Runner.',
       fill: '#1d3a5c', stroke: '#e0b060', legs: '#c9cfdc', detail: '#7fd6ff', swatch: 'linear-gradient(90deg, #1d3a5c, #e0b060)' },
     { id: 'lark', name: 'Surveyor Olive', price: 0, unlock: 'ship:lark', blurb: 'Wren’s original survey colors: olive and cream. Comes with the Lark.',
@@ -3631,6 +3633,61 @@ details.act > .limits { margin: 0 0 8px; }
       react: [['N', 'A bumpy ride. But they weren’t angry. Mama cried. Papa cried.'], ['N', 'They weren’t angry. Mama cried. Papa cried. My little brother tried to steal my helmet.'], ['N', 'They weren’t angry! Mama cried. Papa cried. Can we go back up now? I want to tell everyone. I want to tell the shrimp.']] }
   });
   SIDES.push(...QUEST_MISSIONS);
+  // ---- The Mars Speedway: five races against the Apex Racing team. Their lander flies the course beside you. ----
+  let raceFrom = false;
+  const APEX_RACERS = { jett: { name: 'JETT', hull: 'vector', who: 'Jett, Apex rookie' }, sola: { name: 'SOLA', hull: 'gold', who: 'Sola, Apex pro' }, vanta: { name: 'VANTA', hull: 'champion', who: 'Vanta, Apex champion' } };
+  const RACES = [
+    { id: 'race-rookie', name: 'Rookie Heat', world: 'mars', kind: 'route', side: true, race: 0, giver: 'R', label: 'Race vs Jett', noSurprise: true, fuel: 240, credits: 300,
+      rival: { path: [[16, 100], [60, 84], [120, 74], [176, 82], [214, 58], [215, 32]], time: 59, name: 'JETT', model: 'apex', hull: 'vector', winText: 'Jett landed first', winQuip: ['R', 'Jett takes it! Shake it off, darling. Rookies get lucky.'] },
+      briefSteps: ['Fly through gates 1 to 3, in order', 'Land on FINISH before Jett does'],
+      brief: 'Your first race at the Mars Speedway, against Apex’s rookie, Jett. Fly through all three gates and land on the finish pad before Jett does.',
+      spawn: { x: 16, y: 100, vx: 0 }, rings: [[60, 84], [120, 74], [176, 82]], stars: { fuel: 90, time: 46 },
+      ground: [[0, 34], [20, 30], [40, 36], [60, 30], [80, 40], [100, 34], [120, 28], [140, 36], [160, 30], [180, 38], [200, 34], [222, 30], [240, 36]],
+      pads: [{ id: 'FINISH', x1: 206, x2: 224, y: 30 }] },
+    { id: 'race-canyon', name: 'Canyon Sprint', world: 'mars', kind: 'route', side: true, race: 1, giver: 'R', label: 'Race vs Jett', noSurprise: true, fuel: 300, credits: 380,
+      rival: { path: [[16, 100], [48, 62], [84, 92], [112, 56], [164, 96], [196, 60], [222, 46], [223, 32]], time: 64, name: 'JETT', model: 'apex', hull: 'vector', winText: 'Jett landed first', winQuip: ['R', 'Jett again! The kid has been practising. So should you, darling.'] },
+      briefSteps: ['Fly through gates 1 to 4, in order', 'Land on FINISH before Jett does'],
+      brief: 'A rematch with Jett, through Red Canyon. Two tall ridges, four gates. Climb over each ridge, then dive for the next gate.',
+      spawn: { x: 16, y: 100, vx: 0 }, rings: [[48, 62], [112, 56], [164, 96], [196, 60]], stars: { fuel: 90, time: 52 },
+      ground: [[0, 30], [20, 34], [40, 30], [60, 40], [78, 72], [92, 74], [104, 40], [120, 32], [140, 44], [156, 68], [170, 70], [184, 44], [200, 34], [222, 30], [240, 34]],
+      pads: [{ id: 'FINISH', x1: 214, x2: 232, y: 30 }] },
+    { id: 'race-dust', name: 'Dust Devil', world: 'mars', kind: 'route', side: true, race: 2, giver: 'R', label: 'Race vs Sola', noSurprise: true, fuel: 280, credits: 460, windMul: 1.6,
+      rival: { path: [[16, 104], [60, 90], [120, 60], [180, 90], [160, 62], [159, 42]], time: 56, name: 'SOLA', model: 'apex', hull: 'gold', winText: 'Sola landed first', winQuip: ['R', 'Sola wins it! She flies wind like it owes her money.'] },
+      briefSteps: ['Fly through gates 1 to 3, in order', 'Land on FINISH before Sola does'],
+      brief: 'Sola, Apex’s pro, in a dust storm. Strong, gusty wind. Three gates out to the right, then double back to the finish pad in the middle.',
+      spawn: { x: 16, y: 104, vx: 0 }, rings: [[60, 90], [120, 60], [180, 90]], stars: { fuel: 80, time: 46 },
+      ground: [[0, 30], [20, 36], [44, 30], [70, 44], [96, 36], [120, 30], [140, 44], [150, 40], [168, 40], [190, 50], [212, 40], [240, 46]],
+      pads: [{ id: 'FINISH', x1: 150, x2: 168, y: 40 }] },
+    { id: 'race-gauntlet', name: 'The Gauntlet', world: 'mars', kind: 'route', side: true, race: 3, giver: 'R', label: 'Race vs Sola', noSurprise: true, fuel: 310, credits: 540,
+      rival: { path: [[16, 104], [40, 70], [80, 100], [120, 64], [160, 100], [200, 70], [221, 48], [221, 32]], time: 60, name: 'SOLA', model: 'apex', hull: 'gold', winText: 'Sola landed first', winQuip: ['R', 'Sola takes the Gauntlet! Up, down, up, down. My stomach hurts just watching.'] },
+      briefSteps: ['Fly through gates 1 to 5, in order', 'Land on FINISH before Sola does'],
+      brief: 'Five gates, high and low, one after the other. Sola has never lost the Gauntlet. Don’t overshoot the low ones.',
+      spawn: { x: 16, y: 104, vx: 0 }, rings: [[40, 70], [80, 100], [120, 64], [160, 100], [200, 70]], stars: { fuel: 80, time: 50 },
+      ground: [[0, 34], [20, 30], [40, 36], [60, 32], [80, 44], [100, 36], [120, 30], [140, 38], [160, 46], [180, 36], [200, 32], [222, 30], [240, 36]],
+      pads: [{ id: 'FINISH', x1: 212, x2: 230, y: 30 }] },
+    { id: 'race-gp', name: 'Apex Grand Prix', world: 'mars', kind: 'route', side: true, race: 4, giver: 'R', label: 'Race vs Vanta', noSurprise: true, fuel: 320, credits: 900,
+      rival: { path: [[16, 104], [36, 56], [76, 96], [118, 50], [150, 92], [186, 58], [222, 44], [222, 32]], time: 58, name: 'VANTA', model: 'apex', hull: 'champion', winText: 'Vanta landed first', winQuip: ['R', 'Vanta wins the Grand Prix. Again. The Chair’s champion. I hate how good she is.'] },
+      briefSteps: ['Fly through gates 1 to 5, in order', 'Land on FINISH before Vanta does'],
+      brief: 'The big one. Vanta, Apex’s champion, sponsored by The Chair. Five gates over the ridges. Nobody has beaten her in three seasons.',
+      spawn: { x: 16, y: 104, vx: 0 }, rings: [[36, 56], [76, 96], [118, 50], [150, 92], [186, 58]], stars: { fuel: 70, time: 50 },
+      ground: [[0, 30], [20, 32], [36, 30], [56, 48], [70, 60], [84, 46], [100, 34], [118, 28], [134, 44], [146, 62], [160, 58], [174, 38], [190, 32], [212, 30], [240, 34]],
+      pads: [{ id: 'FINISH', x1: 213, x2: 231, y: 30 }] }
+  ];
+  SIDES.push(...RACES);
+  Object.assign(STORY, {
+    'race-rookie': { intro: [['R', 'LADIES, GENTLEMEN AND ROBOTS! Welcome to the Mars Speedway! I’m Rex Valor, and I’ll be your announcer, because I asked very nicely and also paid them.'],
+        ['R', 'In the red corner: Jett, Apex Racing’s brand-new rookie. In the other corner: our pilot! Three gates, then the finish pad. First one down wins!']],
+      react: [['R', 'A WIN! Not pretty, darling, but a win is a win is a win!'], ['R', 'You beat Apex’s rookie! The crowd is on its feet! Well. Some of them. The rest are robots.'], ['R', 'Flawless! Jett is checking the replay to see what happened. What happened, Jett, is YOU LOST.']] },
+    'race-canyon': { intro: [['R', 'Round two! Red Canyon! Jett wants a rematch, and Jett’s been practising. I can tell. He’s wearing a new helmet.'], ['R', 'Two ridges, four gates. Up and over, up and over. Don’t scrape the canyon. Biscuit hates that.']],
+      react: [['R', 'Through the canyon and down first! Jett is sulking in the pit lane.'], ['R', 'Beautiful line over the ridges! The crowd went “ooh”. Twice.'], ['R', 'PERFECT! Jett has asked for your autograph. I’ve told him to get in line. Behind me.']] },
+    'race-dust': { intro: [['R', 'Ooh, a dust storm rolling in! Perfect racing weather, if you’re Sola. Apex’s pro. She’s never lost in wind.'], ['R', 'Three gates out to the right, then double back to the pad in the middle. Lean into the wind. Not too much. A normal amount.']],
+      react: [['R', 'You beat the storm AND Sola! I’m hoarse. I’ve been shouting into the wind for a minute.'], ['R', 'Sola’s spitting dust in the pit lane. Respectfully!'], ['R', 'A perfect run in a dust storm! I didn’t know that was possible. Neither did Sola.']] },
+    'race-gauntlet': { intro: [['R', 'The Gauntlet! Five gates, high, low, high, low, high. Sola has never lost here. Never!'], ['R', 'If you feel sick, that means you’re doing it right. If you feel very sick, slow down.']],
+      react: [['R', 'Sola loses the Gauntlet for the first time EVER! History, darling! History!'], ['R', 'Up, down, up, down, WIN! I need to sit down.'], ['R', 'Flawless Gauntlet! Sola is shaking your hand. She’s never shaken anyone’s hand. She’s squeezing quite hard.']] },
+    'race-gp': { intro: [['R', 'This is it. The Apex Grand Prix. Vanta, The Chair’s own champion, unbeaten in three seasons.'], ['R', 'There’s a gold box at the top of the stands. Nobody’s in it. Everyone’s staring at it anyway.'], ['R', 'Five gates over the ridges. Fly it like you mean it. I mean it. I really mean it.']],
+      react: [['R', 'VANTA IS BEATEN! The Apex Grand Prix goes to Descent Systems! The gold box has gone dark! I’M CRYING ON THE MICROPHONE!'], ['R', 'You beat the Chair’s champion! The stands are shaking! Somebody get Biscuit a garland!'], ['R', 'Perfect Grand Prix. In the gold box, a light just came on. Then off. Somebody up there is very unhappy. GOOD.']] }
+  });
+
   // ---- crew quests, second wave: missions ----
   SIDES.push(
     { id: 'q-dayoff', name: 'Dottie’s Day Off', side: true, giver: 'F', quest: ['q-dottie', 1], world: 'moon', kind: 'land',
@@ -3723,7 +3780,8 @@ details.act > .limits { margin: 0 0 8px; }
   const featTag = k => featNew(k) ? '<i class="dot">New</i>' : '';
   const featMore = () => Object.keys(FEAT_AT).some(k => !featOpen(k)) ? `<p class="limits">More flight modes open up as you fly missions.</p>` : '';
   const completedCount = (a = 0, b = MISSIONS.length) => MISSIONS.slice(a, b).filter(d => missionStars[d.id] > 0).length;
-  const missionOpen = i => i >= MISSIONS.length && ALL[i].quest ? questStep(ALL[i].quest[0]) >= ALL[i].quest[1] : i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
+  function raceOpen(k) { try { return !inBase() && stats.worlds.includes('mars') && (k === 0 || missionStars[RACES[k - 1].id] > 0); } catch (e) { return false; } }
+  const missionOpen = i => ALL[i] && ALL[i].race != null ? raceOpen(ALL[i].race) : i >= MISSIONS.length && ALL[i].quest ? questStep(ALL[i].quest[0]) >= ALL[i].quest[1] : i >= MISSIONS.length ? (ALL[i].afterWorld ? stats.worlds.includes(ALL[i].afterWorld) : missionStars[ALL[i].after] > 0) : i === 0 || missionStars[MISSIONS[i - 1].id] > 0;
   // story missions are one a day: after a new story mission, the next one waits until you've slept
   const restLocked = i => i > 0 && i < MISSIONS.length && !(missionStars[MISSIONS[i].id] > 0) && +store.get('ds-storyRest', '0') >= shipDay;
   const restText = () => `The crew needs rest. Sleep in your ${inBase() ? 'bunk' : 'Pad'} to unlock the next story mission. Side missions and free flight are still open.`;
@@ -3932,6 +3990,13 @@ details.act > .limits { margin: 0 0 8px; }
   function drawRival(time) {
     if (!mission.def.rival || !mission.rv) return;
     const [x, y, dir] = rivalPos(), s = scale, X = sx(x), Y = sy(y), done = mission.rv.t >= mission.def.rival.time;
+    if (mission.def.rival.model) {
+      ctx.save(); ctx.translate(X, Y); ctx.rotate(done ? 0 : dir * 0.25); ctx.scale(s, s);
+      paintLander(ctx, { firing: !done && Math.floor(time / 60) % 2 === 0, model: mission.def.rival.model }, { hull: findItem('hull', mission.def.rival.hull || 'vector'), flame: findItem('flame', 'standard'), flag: findItem('flag', 'pennant'), model: mission.def.rival.model }, time, 1.6 / s);
+      ctx.restore();
+      ctx.font = `700 ${Math.max(9, 2.2 * s)}px monospace`; ctx.textAlign = 'center'; ctx.fillStyle = '#ff8a8a'; ctx.fillText(mission.def.rival.name, X, Y - 5 * s); ctx.textAlign = 'left';
+      return;
+    }
     ctx.save(); ctx.translate(X, Y); ctx.rotate(done ? 0 : dir * 0.25);
     if (!done && Math.floor(time / 60) % 2) { ctx.fillStyle = '#7fd6ff'; ctx.beginPath(); ctx.moveTo(-0.9 * s, 1.4 * s); ctx.lineTo(0.9 * s, 1.4 * s); ctx.lineTo(0, 4 * s); ctx.closePath(); ctx.fill(); }
     ctx.fillStyle = '#c9d4e8'; ctx.fillRect(-1.6 * s, -1.8 * s, 3.2 * s, 2.6 * s);
@@ -3989,7 +4054,7 @@ details.act > .limits { margin: 0 0 8px; }
   const goalsOf = d => d.legs ? legGoals(d) : d.goals ? d.goals : d.kind === 'sling' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'deliver', pad: 'DROP' }] : d.kind === 'cargo' ? [{ type: 'pickup', pad: 'PICKUP', what: 'cargo' }, { type: 'land', pad: 'DROP' }]
     : d.kind === 'rescue' ? [{ type: 'pickup', pad: 'CREW', what: 'crew' }, { type: 'exit' }]
     : d.kind === 'trip' ? [{ type: 'land', pad: 'LZ', rover: true }, { type: 'collect' }, { type: 'board' }, { type: 'dock' }]
-    : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: 'LZ' }]
+    : d.kind === 'route' ? [...d.rings.map((r, i) => ({ type: 'ring', i })), { type: 'land', pad: d.pads.length === 1 ? d.pads[0].id : 'LZ' }]
     : [{ type: 'land', pad: d.pads.length === 1 ? d.pads[0].id : 'LZ' }];
   const currentGoal = () => { if (!mission) return null; const g = goalsOf(mission.def)[mission.stage]; const rd = mission.redirect; return g && rd && g.pad === rd.from && (g.type === 'land' || g.type === 'drop') ? { ...g, pad: rd.to } : g; };
   const isGoalPad = p => { const g = currentGoal(); return !!g && (g.pad === p.id || (!!g.pads && g.pads.includes(p.id))); };
@@ -4044,7 +4109,7 @@ details.act > .limits { margin: 0 0 8px; }
       t += ` · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} left`;
     }
     if (d.comfort) t += ` · ${d.comfortWho || 'Apogee'} ${Math.round(mission.comfort)}%`;
-    if (d.rival && mission.rv) t += ` · Kestrel ${Math.min(100, Math.round(mission.rv.t / d.rival.time * 100))}% of the way`;
+    if (d.rival && mission.rv) t += ` · ${d.rival.name ? d.rival.name[0] + d.rival.name.slice(1).toLowerCase() : 'Kestrel'} ${Math.min(100, Math.round(mission.rv.t / d.rival.time * 100))}% of the way`;
     if (mission.rover) { const b = Math.max(0, mission.rover.batt); t += ` · ${d.battLabel || 'battery'} ${Math.floor(b / 60)}:${String(Math.floor(b % 60)).padStart(2, '0')}`; }
     if (d.melt && mission.carrying) t += ` · ${Math.round(mission.melt)}% melted`;
     return t;
@@ -4095,7 +4160,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (Math.hypot(L.x - rx, L.y - ry) < RING_R) {
         mission.stage++;
         sfx.coin();
-        showToast(g.i + 1 < d.rings.length ? `Marker ${g.i + 1} of ${d.rings.length}` : 'All markers passed. Land on LZ.');
+        showToast(g.i + 1 < d.rings.length ? `Marker ${g.i + 1} of ${d.rings.length}` : d.race != null ? 'All gates done! Land on FINISH!' : 'All markers passed. Land on LZ.');
       }
     }
     return false;
@@ -5168,6 +5233,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (d.id === 'skipping-stones') award('skipper');
     if (d.side && prev === 0) addHearts(d.giver, 40);
     if (d.quest && prev === 0) questMissionDone(d);
+    if (d.race === 4 && prev === 0) { owned.add('hull:speedway'); saveCosmetics(); setTimeout(() => celebrate('Grand Prix champion', 'Apex Grand Prix', 'New hull paint: Speedway Chequer · A Grand Prix cup for your Pad', null, null, { n: 90 }), 2200); }
     const find = d.kind === 'trip' && prev === 0 && DEN_ITEMS.shelf.find(x => x.trip === d.id);
     if (find) setTimeout(() => showToast(`New for your Pad shelf, from Crumb: ${find.name}!`, 3000), 1600);
     const gift = LANDERS.find(l => l.story === d.id);
@@ -6204,11 +6270,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -6565,13 +6631,13 @@ details.act > .limits { margin: 0 0 8px; }
           <span>★ Finish within ${d.stars.time} seconds</span>
         </div>
         <p class="limits">Fuel ${d.fuel} kg · Gravity ${world.g.toFixed(2)} m/s² · ${effectText(world)} · ${fmt(d.credits)} credits per new star</p>
-        ${!d.side && MISSIONS.indexOf(d) < 2 ? '<p class="limits">Bonus credits for Butter and Clean landings.</p>' : `<p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare. Expect surprises: reroutes, engine trouble, falling satellites, SOS calls.</p>
+        ${!d.side && MISSIONS.indexOf(d) < 2 ? '<p class="limits">Bonus credits for Butter and Clean landings.</p>' : `<p class="limits">Bonus credits for Butter and Clean landings. Fuel canisters, stardust and crystals float around the map: grab them if you dare.${d.noSurprise ? '' : ' Expect surprises: reroutes, engine trouble, falling satellites, SOS calls.'}</p>
         ${copPickerHtml()}`}
         ${best ? `<p class="mstars">${starHtml(best)}</p>` : ''}
         <div class="btns">
           <button class="btn" id="go">Launch</button>
           ${STORY[d.id] ? '<button class="btn ghost" id="logBtn">Radio log</button>' : ''}
-          <button class="btn ghost" id="toMissions">All missions</button>
+          ${d.race != null ? '<button class="btn ghost" id="toTrack">Back to the Speedway</button>' : '<button class="btn ghost" id="toMissions">All missions</button>'}
         </div>`;
     } else if (m === 'missionEnd') {
       const r = mission.result, d = mission.def;
@@ -6608,7 +6674,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${EPILOGUES[d.id] ? '<button class="btn" id="epilogue">Epilogue</button>' : hasNext ? '<button class="btn" id="next">Next mission</button>' : ''}
             <button class="btn${hasNext || EPILOGUES[d.id] ? ' ghost' : ''}" id="go">Fly again</button>
             ${replayBtn()}
-            <button class="btn ghost" id="toMissions">All missions</button>
+            ${d.race != null ? '<button class="btn ghost" id="toTrack">Back to the Speedway</button>' : '<button class="btn ghost" id="toMissions">All missions</button>'}
           </div>`;
       } else {
         html = `<span class="eyebrow">${missionLabel(missionSel)} · ${d.name}</span>
@@ -6618,7 +6684,7 @@ details.act > .limits { margin: 0 0 8px; }
           <div class="btns">
             ${mission.cp ? `<button class="btn" id="go">${mission.cp.leg != null ? `Retry from stop ${mission.cp.leg + 1}` : `Retry from ${mission.cp.padId}`}</button><button class="btn ghost" id="restartM">Restart mission</button>` : '<button class="btn" id="go">Retry</button>'}
             ${replayBtn()}
-            <button class="btn ghost" id="toMissions">All missions</button>
+            ${d.race != null ? '<button class="btn ghost" id="toTrack">Back to the Speedway</button>' : '<button class="btn ghost" id="toMissions">All missions</button>'}
           </div>
           <p class="limits">${mission.cp ? `You’ll start back on ${mission.cp.padId} with the fuel you had there.` : showGhost ? 'Your last attempt flies beside you as a ghost.' : ''}</p>`;
       }
@@ -6741,6 +6807,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (cw2) cw2.addEventListener('click', () => openSetup('solo'));
     const tm = $('toMissions');
     if (tm) tm.addEventListener('click', () => setMode('missions'));
+    const tt = $('toTrack');
+    if (tt) tt.addEventListener('click', () => { sfx.click(); walkEnter = 'maglev'; setMode('mrace'); });
     const copBs = card.querySelectorAll('[data-cop]');
     if (copBs.length) { paintFaces(card); copBs.forEach(b => b.addEventListener('click', () => { copilot = b.dataset.cop; store.set('ds-copilot', copilot); sfx.click(); setMode('brief'); const nb = card.querySelector(`[data-cop="${copilot}"]`); if (nb) nb.focus({ preventScroll: true }); })); }
     const rsm = $('restartM');
@@ -7441,7 +7509,7 @@ details.act > .limits { margin: 0 0 8px; }
     setTimeout(() => $('contGo').focus({ preventScroll: true }), 0);
   }
   function renderMissions() {
-    const sideIdx = kind => SIDES.map((d, k) => MISSIONS.length + k).filter(i => (ALL[i].kind === 'trip') === (kind === 'trip'));
+    const sideIdx = kind => SIDES.map((d, k) => MISSIONS.length + k).filter(i => ALL[i].race == null && (ALL[i].kind === 'trip') === (kind === 'trip'));
     const starsOf = list => list.reduce((n, i) => n + (missionStars[ALL[i].id] || 0), 0);
     const sides = sideIdx('side'), trips = sideIdx('trip');
     freshM = new Set(newMissions());
@@ -7578,7 +7646,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (ch) store.set(k, JSON.stringify([...st]));
   };
   // missions you can fly now, haven't flown, and haven't seen in the list yet
-  const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => missionOpen(i) && !(d.side ? false : restLocked(MISSIONS.indexOf(d))) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
+  const newMissions = () => { const seen = seenSet('ds-seenM'); return ALL.filter((d, i) => d.race == null && missionOpen(i) && !(d.side ? false : restLocked(MISSIONS.indexOf(d))) && !(missionStars[d.id] > 0) && !seen.has(d.id)).map(d => d.id); };
   const radioNew = () => (junoMet() || pimMet() || zibMet() || olloMet() || twinsMet()) && store.get('ds-radioSeen', '') !== '1';
   const crumbNew = () => crumbHome() && store.get('ds-crumbSeen', '') !== '1';
   // Pad items you've earned (souvenirs, Crumb's finds, Pim's drawing) but haven't looked at yet
@@ -9377,6 +9445,10 @@ details.act > .limits { margin: 0 0 8px; }
   // crew quest rewards
   DEN_ITEMS.wallR.push({ id: 'bisphoto', name: 'Biscuit’s photo', price: 0, quest: 'q-gus', blurb: 'The faded factory photo from Gus’s wallet, framed: Biscuit in cherry red, brand new, with Gus aged nineteen grinning next to her.',
     draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#c9a06a'); px(c, x + 4, y + 3, 22, 14, '#e8dcc0'); px(c, x + 4, y + 12, 22, 5, '#b8a888'); px(c, x + 10, y + 7, 9, 5, '#a8222a'); px(c, x + 10, y + 9, 9, 1, '#f4e6cc'); px(c, x + 11, y + 12, 1, 2, '#6a5a48'); px(c, x + 17, y + 12, 1, 2, '#6a5a48'); px(c, x + 21, y + 8, 3, 3, '#e8b48a'); px(c, x + 21, y + 11, 3, 4, '#3d6b63'); px(c, x + 21, y + 7, 3, 1, '#c46a2c'); } });
+  DEN_ITEMS.floor.push({ id: 'racecup', name: 'Grand Prix cup', price: 0, raceWon: 'race-gp', blurb: 'The Apex Grand Prix cup. Apex engraved it before the race, expecting Vanta. Gus filed off “APEX” and engraved “DESCENT SYSTEMS” over the scratch.',
+    lines: ['The cup catches the light. Somewhere on floor 99, someone is very annoyed.', 'Rex polishes it every time he visits. He talks to it. Quietly.'],
+    draw(c, x, y) { px(c, x + 7, y + 24, 10, 4, '#5a4636'); px(c, x + 5, y + 27, 14, 2, '#7a5c44'); px(c, x + 10, y + 18, 4, 6, '#e0b060'); c.fillStyle = '#ffd27a'; c.beginPath(); c.moveTo(x + 4, y + 4); c.lineTo(x + 20, y + 4); c.lineTo(x + 17, y + 16); c.lineTo(x + 7, y + 16); c.closePath(); c.fill();
+      px(c, x + 1, y + 6, 3, 6, '#ffd27a'); px(c, x + 20, y + 6, 3, 6, '#ffd27a'); px(c, x + 7, y + 6, 3, 6, '#fff1c7'); px(c, x + 6, y + 12, 12, 2, '#c0392b'); } });
   DEN_ITEMS.wallR.push({ id: 'pimcard', name: 'Moonbase Pim postcard', price: 0, shore: 'pim', blurb: 'The dome at night, with Earth in the sky. Pim drew a little star in the corner and wrote “HI PILOT” on the back.',
     lines: ['“Greetings from Moonbase Pim! Population: 41 and a rover.”', 'Pim’s little star in the corner has a face. It’s smiling. It might be you.'],
     draw(c, x, y) { px(c, x + 2, y + 4, 26, 19, '#f4f1e8'); px(c, x + 3, y + 5, 24, 13, '#04060f'); px(c, x + 3, y + 15, 24, 3, '#6a6e7a'); c.fillStyle = 'rgba(160,210,255,0.35)'; c.beginPath(); c.ellipse(x + 13, y + 15, 8, 6, 0, Math.PI, 0); c.fill();
@@ -9471,7 +9543,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.shore) return store.get('ds-pimCard', '') === '1'; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.raceWon) return (missionStars[it.raceWon] || 0) > 0; if (it.shore) return store.get('ds-pimCard', '') === '1'; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -9977,12 +10049,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest || x.shore ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest || x.shore || x.raceWon ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.raceWon) action = '<button class="btn" disabled>Win the Apex Grand Prix at the Mars Speedway</button>';
     else if (it.shore) action = '<button class="btn" disabled>Go ashore at Moonbase Pim (from the bridge) and take one from the rack</button>';
     else if (it.quest) action = `<button class="btn" disabled>Finish ${questName(it.quest)} to get it</button>`;
     else if (it.ev) action = `<button class="btn" disabled>Celebrate ${EVENTS.find(e => e.id === it.ev).name} to get it</button>`;
@@ -10965,6 +11038,7 @@ details.act > .limits { margin: 0 0 8px; }
       mdock: ['Mars · The Dock', 'Mars City, the Dock: under a glass lattice roof with the red sky and city towers beyond. From left: your ship’s docking ring, Juno’s dock office, stacked cargo pods, a glowing job board, the crane cab and the maglev platform. Drones fly overhead and dock workers walk by. Tap to walk; walk up to things to use them.'],
       mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
+      mrace: ['Mars Speedway', 'The Mars Speedway: a huge window onto Red Canyon, where race landers zoom through glowing gates. From left: the maglev, Race Control (where you pick a race), the packed stands with an empty gold box at the top, the announcer’s booth, the leaderboard, and Apex Racing’s garage with three racers. Your trophy case is by Race Control. Tap to walk; walk up to things to use them.'],
       mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that glitches into a faceless gold figure, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
       mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of past leaders with one frame empty, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering gold hologram of a figure with no face. The door at the bottom goes back to the street.'],
       moffice: ['The old office', 'Descent Systems’ old Mars office: a window onto Main Street, a framed photo from day one, an old desk, filing cabinets and the famous coffee machine, still blinking. The door at the bottom goes back to the street.'],
@@ -10999,12 +11073,12 @@ details.act > .limits { margin: 0 0 8px; }
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else if (MARS_KINDS.includes(kind)) {
-      start = kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
+      start = kind === 'mrace' ? { x: 40, y: 80, dir: 0 } : kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' ? MARS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
       crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -11027,7 +11101,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -11098,6 +11172,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'mdiner') { mdinerThings(L); return L; }
     if (deck.kind === 'moffice') { mofficeThings(L); return L; }
     if (deck.kind === 'mapex') { mapexThings(L); return L; }
+    if (deck.kind === 'mrace') { mraceThings(L); return L; }
     if (deck.kind === 'mlobby') { mlobbyThings(L); return L; }
     if (deck.kind === 'pimbake') { pimBakeThings(L); return L; }
     if (deck.kind === 'garden') { gardenThings(L); return L; }
@@ -11711,7 +11786,7 @@ details.act > .limits { margin: 0 0 8px; }
     const P = crewPlaces(), who = Object.keys(P), L = [];
     const add = (w, x, y, extra) => L.push({ who: w, x, y, dir: 0, baseDir: 0, goal: null, pause: 1 + Math.random() * 3, moving: false, ...extra });
     if (SHORE_KINDS.includes(kind)) {
-      const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain' || kind === 'mapex';
+      const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace';
       shoreParty.forEach((w, i) => add(w, Math.max(16, mx - 20 - i * 14), street ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
       if (kind === 'mdiner') { add('RB', 196, 104, { baseDir: 0, local: true }); return L; }
       if (kind === 'mlobby') { add('AX', 132, 70, { baseDir: 0, local: true }); return L; }
@@ -18065,7 +18140,7 @@ details.act > .limits { margin: 0 0 8px; }
     H: ['Ines’s star buns. Seven folds, egg wash, a pinch of salt. I’m stealing it. With respect.', 'This bakery is what a galley wants to be when it grows up.', 'I traded Ines a spice jar for her starter dough. Best trade of my life.']
   };
   const SHORE_ANY = [n => `${n}: I could get used to this. Gravity that doesn’t try to kill you. Pastries.`, n => `${n}: Look at the Earth from here. You can almost see the base.`, n => `${n}: Thanks for bringing me. I needed a day off the ship.`];
-  function shoreLine(w) { const L = (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  function shoreLine(w) { const L = (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -18273,7 +18348,7 @@ details.act > .limits { margin: 0 0 8px; }
   const MAP_R = { mercury: 6, venus: 8, earth: 9, moon: 5, mars: 8, vesta: 4, io: 5, europa: 5, ganymede: 6, titan: 7, pluto: 5, eris: 4 };
   const JOVIAN = ['io', 'europa', 'ganymede'];
   const MAP_HOME = { mars: ['J', 'Juno’s home'], ganymede: ['Z', 'Zib’s home'], europa: ['N', 'Nerri’s home'], earth: [null, 'Where it all started'] };
-  const mapNew = wid => ALL.reduce((n, d, i) => n + (d.world === wid && missionOpen(i) && !(missionStars[d.id] > 0) && !(i < MISSIONS.length && restLocked(i)) ? 1 : 0), 0);
+  const mapNew = wid => ALL.reduce((n, d, i) => n + (d.world === wid && d.race == null && missionOpen(i) && !(missionStars[d.id] > 0) && !(i < MISSIONS.length && restLocked(i)) ? 1 : 0), 0);
   const mapQuest = wid => QUESTS.find(q => questStep(q.id) >= 0 && !questDone(q.id) && questCur(q).m && (ALL.find(d => d.id === questCur(q).m) || {}).world === wid);
   const mapShore = wid => Object.keys(SHORE_PLACES).find(k => SHORE_PLACES[k].world === wid && SHORE_PLACES[k].open()) || null;
   let mapSel = null;
@@ -18575,7 +18650,7 @@ details.act > .limits { margin: 0 0 8px; }
     c.setTransform(1, 0, 0, 1, 0, 0);
   }
   // the job board: Mars work, flown from the dock (so it counts as local)
-  const marsJobs = () => ALL.map((d, i) => ({ d, i })).filter(({ d, i }) => d.world === 'mars' && missionOpen(i) && !(i < MISSIONS.length && restLocked(i)));
+  const marsJobs = () => ALL.map((d, i) => ({ d, i })).filter(({ d, i }) => d.world === 'mars' && d.race == null && missionOpen(i) && !(i < MISSIONS.length && restLocked(i)));
   function openMarsJobs() {
     let el = $('marsJobs');
     if (!el) { el = document.createElement('div'); el.id = 'marsJobs'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Mars job board'); document.body.appendChild(el); }
@@ -19041,6 +19116,109 @@ details.act > .limits { margin: 0 0 8px; }
     H: ['The Apex cafeteria only serves protein cubes. In beige. I’d rather starve.', 'This street has no smell at all. That’s how you know something’s wrong.'],
     O: ['There is no warmth here, little pilot. Only light.', 'My moths would not come here. They know.']
   };
+  // ---- The Mars Speedway: a maglev stop with stands, an announcer's booth, a leaderboard and Apex Racing's garage ----
+  MARS_KINDS.push('mrace');
+  MAGLEV_STOPS.splice(MAGLEV_STOPS.findIndex(s => s[1] === 'Racetrack'), 1, ['mrace', 'Mars Speedway', 'Lander races against Apex Racing · Rex on the microphone']);
+  const raceWins = () => RACES.filter(r => missionStars[r.id] > 0).length;
+  // little race landers zooming through floating gates out in the canyon
+  function speedwayView(c, W, t) {
+    const tt = reduceMotion ? 12000 : t;
+    c.fillStyle = '#9a4a34'; c.beginPath(); c.moveTo(0, 62); for (let x = 0; x <= W; x += 30) c.lineTo(x, 46 + ((x * 17) % 13)); c.lineTo(W, 62); c.fill();
+    for (const [gx, gy] of [[120, 30], [260, 22], [400, 32], [560, 24]]) mGlow(c, '#7fd6ff', 6, () => { c.strokeStyle = '#7fd6ff'; c.lineWidth = 1.5; c.beginPath(); c.ellipse(gx, gy, 4, 7, 0, 0, Math.PI * 2); c.stroke(); c.lineWidth = 1; });
+    for (let i = 0; i < 2; i++) {
+      const span = W + 80, x = ((tt / 1000 * (70 + i * 18) + i * 300) % span) - 40, y = 28 + Math.sin(x / 70 + i) * 8;
+      c.save(); c.translate(x, y); c.rotate(0.35 + Math.cos(x / 70 + i) * 0.2); c.scale(1.4, 1.4);
+      paintLander(c, { firing: true, model: 'apex' }, { hull: findItem('hull', i ? 'standard' : 'vector'), flame: findItem('flame', 'standard'), flag: findItem('flag', 'pennant'), model: 'apex' }, tt, 0.7); c.restore();
+    }
+  }
+  function mraceThings(L) {
+    L.push({ id: 'maglev', rect: [0, 16, 80, 46], go: () => [40, 76], at: () => ({ x: 40, y: 40 }), act: () => openMaglev('mrace') });
+    L.push({ id: 'control', rect: [92, 14, 106, 50], go: () => [146, 78], at: () => ({ x: 146, y: 40 }), act: () => { sfx.click(); openRaces(); } });
+    L.push({ id: 'stands', rect: [206, 24, 120, 40], go: () => [266, 80], at: () => ({ x: 266, y: 44 }), act: () => shipSay(...speedSay('stands')) });
+    L.push({ id: 'booth', rect: [330, 6, 60, 40], go: () => [360, 78], at: () => ({ x: 360, y: 26 }), act: () => shipSay(...speedSay('booth')) });
+    L.push({ id: 'board', rect: [402, 8, 120, 54], go: () => [462, 78], at: () => ({ x: 462, y: 34 }), act: () => shipSay(...speedSay('board')) });
+    L.push({ id: 'garage', rect: [530, 14, 110, 50], go: () => [584, 78], at: () => ({ x: 584, y: 40 }), act: () => shipSay(...speedSay('garage')) });
+    L.push({ id: 'trophies', rect: [176, 72, 30, 26], go: () => [190, 108], at: () => ({ x: 190, y: 86 }), act: () => shipSay(...speedSay('trophies')) });
+  }
+  function speedSay(what) {
+    const pick = A => A[Math.floor(Math.random() * A.length)], w = raceWins();
+    if (what === 'stands') return ['P', pick(['The stands are packed: dock workers, kids with foam fingers, one person dressed as a lander. There’s a gold box at the very top. It’s always empty. Its lights are always on.', 'Someone in the stands is holding a sign: “GO BISCUIT”. Someone else is holding one that says “WHO IS BISCUIT”.', w ? `A group of dockhands start chanting your name. Then “DES-CENT SYS-TEMS”. Then they lose the rhythm and just cheer.` : 'Half the crowd is in Apex red. The other half is in whatever they had on.'])];
+    if (what === 'booth') return withMe('R') ? ['R', pick(['My booth! My microphone! They let me announce every race. Well. I let me. I bought the microphone.', 'I’ve practised my winning-race voice. And my losing-race voice. The losing one is mostly sighing.'])] : ['P', 'The announcer’s booth. A gold microphone, a jar of throat sweets, and a sticky note in Rex’s handwriting: “DO NOT TOUCH. EXCEPT ME.”'];
+    if (what === 'board') { const rows = RACES.map(r => `${r.name}: ${missionStars[r.id] > 0 ? 'YOU' : r.rival.name}`).join(' · '); return ['P', `The leaderboard holo: ${rows}.`]; }
+    if (what === 'garage') return withMe('Q') ? ['Q', 'Apex Racing. I trained half those pilots. Vanta was the best of them. She was also the one who learned the wrong lessons from me.'] : withMe('X') ? ['X', 'Their racers get new landers every season. Their couriers get a bicycle helmet and a speech about “team spirit”.'] : w >= 5 ? ['P', 'Apex Racing’s garage is very quiet. Someone has taped a printout of your Grand Prix finish to the mirror, with “WHO IS THIS” written on it in red.'] : ['P', 'Apex Racing’s garage: three gleaming racers in red, gold and crimson, and mechanics who stop talking when you walk past.'];
+    if (what === 'trophies') return ['P', w ? `Your trophy case: ${w} ${w === 1 ? 'cup' : 'cups'} with “DESCENT SYSTEMS” engraved on them. Gus has polished them. Twice. Today.` : 'An empty trophy case with a little label: “DESCENT SYSTEMS”. Someone has optimistically put it up already. It was Rex.'];
+    return ['P', '…'];
+  }
+  function openRaces() {
+    let el = $('raceCard');
+    if (!el) { el = document.createElement('div'); el.id = 'raceCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Race control'); document.body.appendChild(el); }
+    el.innerHTML = `<div class="qnew-card zstall"><span class="eyebrow">Mars Speedway · Race control</span><b>Pick a race</b>
+      <p class="zsay">Fly through every gate and land on the finish pad before the Apex racer does. Their lander flies the course beside you.</p>
+      <div class="ztrades">${RACES.map(r => { const i = ALL.findIndex(d => d.id === r.id), open = missionOpen(i), st = missionStars[r.id] || 0;
+        return `<button class="ztrade" ${open ? `data-race="${i}"` : 'disabled'}><span>${esc(r.name)}<br><small>${open ? `vs ${APEX_RACERS[r.rival.name.toLowerCase()].who} · ${r.rings.length} gates · beat ${r.rival.time} s` : `Win ${RACES[r.race - 1].name} first`}</small></span><i aria-hidden="true">${st ? '★'.repeat(st) : '→'}</i><b>${st ? 'Race again' : open ? `${fmt(r.credits)} cr` : '🔒'}</b></button>`; }).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="raceBye">Not now</button></div></div>`;
+    el.hidden = false;
+    el.querySelectorAll('[data-race]').forEach(b => b.addEventListener('click', () => { sfx.click(); el.hidden = true; raceFrom = true; openMission(+b.dataset.race); }));
+    $('raceBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const b = el.querySelector('[data-race]') || $('raceBye'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  function mraceDraw(t) {
+    const c = deck.c, W = MARS_W, me = deck.me, w = raceWins();
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    marsSky(c, W, t); speedwayView(c, W, t);
+    // the big window's frame
+    for (let x = 0; x < W; x += 80) px(c, x, 0, 3, 62, '#2a2a33'); px(c, 0, 0, W, 3, '#2a2a33');
+    // maglev
+    mBlock(c, 0, 18, 80, 44, '#2a3348', '#ffcf3a', true); px(c, 4, 22, 72, 28, '#0e1428');
+    { const k = reduceMotion ? 0 : ((t + 6600) / 9000) % 1, arrive = k < 0.15 ? (1 - k / 0.15) * 120 : k > 0.85 ? -(k - 0.85) / 0.15 * 120 : 0; c.save(); c.beginPath(); c.rect(4, 22, 72, 28); c.clip(); mTram(c, 8 + arrive, 28, 56); c.restore(); }
+    mHolo(c, 8, 4, 64, 'MAGLEV · SPEEDWAY', '#ffcf3a', 5, t);
+    // race control: a glass booth full of screens
+    mBlock(c, 92, 16, 106, 46, '#1e2a3a', '#58e0a0', true); px(c, 98, 22, 94, 26, '#0a1420');
+    for (let k = 0; k < 4; k++) { mGlow(c, '#58e0a0', 4, () => { px(c, 102 + k * 22, 26, 18, 12, '#0e2a20'); px(c, 104 + k * 22, 29, 14, 1, '#58e0a0'); px(c, 104 + k * 22, 33, 8 + (k * 3) % 6, 1, '#58e0a0'); }); }
+    px(c, 98, 48, 94, 6, '#2a3348'); mGlow(c, '#58e0a0', 6, () => px(c, 98, 48, 94, 1, '#58e0a0'));
+    mHolo(c, 106, 4, 78, 'RACE CONTROL', '#58e0a0', 6, t);
+    // the stands, with a crowd that cheers
+    for (let r = 0; r < 4; r++) px(c, 206 + r * 4, 30 + r * 8, 120 - r * 8, 8, r % 2 ? '#3a3a48' : '#2e2e3a');
+    { const tt = reduceMotion ? 0 : t; for (let r = 0; r < 4; r++) for (let k = 0; k < 13 - r; k++) { const hx = 210 + r * 4 + k * 8 + (r % 2) * 3, jump = Math.floor(tt / 200 + k * 3 + r) % 6 === 0 ? -1 : 0, col = ['#c0392b', '#ffd27a', '#7fd6ff', '#f4f1e8', '#58e0a0', '#ff8fb8'][(k + r * 2) % 6]; px(c, hx, 26 + r * 8 + jump, 4, 4, '#d9a07a'); px(c, hx, 29 + r * 8 + jump, 4, 3, col); if ((k + r) % 5 === 0 && jump) px(c, hx + 3, 22 + r * 8, 1, 4, col); } }
+    // the gold box at the top of the stands. Always empty. Always lit.
+    px(c, 250, 12, 36, 12, '#2a2a33'); px(c, 252, 14, 32, 8, w >= 5 ? '#2a2420' : '#3a2a10'); mGlow(c, '#ffd27a', 6, () => { c.strokeStyle = w >= 5 ? '#6a5a3a' : '#ffd27a'; c.strokeRect(250.5, 12.5, 35, 11); });
+    // the announcer's booth
+    mBlock(c, 334, 14, 54, 30, '#2a2238', '#ff8fb8', false); px(c, 338, 18, 46, 18, '#140c1c'); px(c, 358, 26, 2, 8, '#8a93ab'); mGlow(c, '#ffd27a', 4, () => px(c, 356, 23, 6, 4, '#ffd27a'));
+    mHolo(c, 334, 2, 54, 'ANNOUNCER', '#ff8fb8', 5, t);
+    // the leaderboard
+    c.fillStyle = 'rgba(20,40,60,0.6)'; c.fillRect(404, 10, 116, 50);
+    mGlow(c, '#7fd6ff', 6, () => { c.strokeStyle = '#7fd6ff'; c.strokeRect(404.5, 10.5, 115, 49); });
+    c.font = '700 5px monospace'; c.textAlign = 'left'; c.textBaseline = 'middle';
+    c.fillStyle = '#7fd6ff'; c.fillText('SPEEDWAY · LEADERS', 410, 16);
+    RACES.forEach((r, k) => { const won = missionStars[r.id] > 0; c.fillStyle = won ? '#58e0a0' : '#c9cfdc'; c.fillText(r.name.toUpperCase().slice(0, 14), 410, 24 + k * 7); c.fillStyle = won ? '#58e0a0' : '#ff8a8a'; c.textAlign = 'right'; c.fillText(won ? 'YOU' : r.rival.name, 515, 24 + k * 7); c.textAlign = 'left'; });
+    // Apex Racing's garage
+    mBlock(c, 530, 16, 110, 46, '#2a1418', '#ff3b4e', true); px(c, 534, 22, 102, 34, '#140a0c');
+    [['vector', 556], ['gold', 586], ['champion', 616]].forEach(([h, x]) => { c.save(); c.translate(x, 46); c.scale(2, 2); paintLander(c, { firing: false, model: 'apex' }, { hull: findItem('hull', h), flame: findItem('flame', 'standard'), flag: findItem('flag', 'pennant'), model: 'apex' }, t, 0.6); c.restore(); });
+    mHolo(c, 548, 4, 74, 'APEX RACING', '#ff3b4e', 6, t);
+    // the pit lane: dark asphalt, red and white curbs, a chequered start line
+    px(c, 0, 62, W, 160 - 62, '#2e2c34'); for (let x = 0; x < W; x += 32) px(c, x, 62, 1, 98, '#28262e'); for (let y = 76; y < 160; y += 16) px(c, 0, y, W, 1, '#28262e');
+    for (let x = 0; x < W; x += 8) { px(c, x, 62, 8, 3, (x / 8) % 2 ? '#f4f1e8' : '#c0392b'); }
+    for (let y = 100; y < 124; y += 4) for (let x = 300; x < 316; x += 4) px(c, x, y, 4, 4, ((x + y) / 4) % 2 ? '#f4f1e8' : '#15151f');
+    mGlow(c, '#ff8a5a', 5, () => { px(c, 0, 104, 300, 1, '#ff8a5a'); px(c, 316, 104, W - 316, 1, '#ff8a5a'); px(c, 0, 120, 300, 1, '#ff8a5a'); px(c, 316, 120, W - 316, 1, '#ff8a5a'); });
+    const things = shipFloorThings(c, t);
+    things.push([98, () => { c.fillStyle = 'rgba(200,230,255,0.15)'; c.fillRect(176, 74, 30, 22); px(c, 176, 94, 30, 4, '#2a3348'); mGlow(c, '#7fd6ff', 4, () => { c.strokeStyle = '#7fd6ff'; c.strokeRect(176.5, 74.5, 29, 23); });
+      for (let k = 0; k < Math.min(5, w); k++) { const x = 179 + k * 5; px(c, x, 86, 4, 6, '#ffd27a'); px(c, x - 1, 84, 6, 2, '#ffd27a'); px(c, x + 1, 92, 2, 2, '#c9a24a'); } }]);
+    for (const [x, col] of [[86, '#ffcf3a'], [202, '#58e0a0'], [396, '#7fd6ff'], [526, '#ff3b4e']]) things.push([94, () => mPylon(c, x, col)]);
+    marsCrowd(things, c, W, t, 6);
+    things.push([me.y, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    marsDrones(c, W, t + 3000, 1, true);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  const RACE_SAYS = {
+    R: ['This is my favourite place on Mars. It has everything. Noise, speed, and a microphone.', 'I raced here for Apex for ten years. Now I get to watch YOU beat them. This is better.', 'Wave to the crowd! No, the other crowd. The one that likes us.'],
+    Q: ['I won the Grand Prix four years running. The trophies have Apex on them. The bruises have my name on them.', 'Vanta flies early on the turns. Make her wait. She hates waiting.', 'Stay low between gates. Height costs time.'],
+    X: ['I used to deliver the pit crew’s lunch here. On a bicycle. On Mars.', 'If you beat Vanta, I want a photo. Of her face. When she sees.'],
+    G: ['Those Apex racers are lighter than Biscuit. But Biscuit has heart. And a slightly bent fin.', 'I could tune Biscuit for racing. I won’t. She likes being a family lander. Okay, maybe a little.'],
+    F: ['Racing is not in our insurance. I checked. I’m choosing to look the other way. Win.', 'I’ve calculated the odds. Don’t ask me the odds.'],
+    W: ['I raced here once, thirty years ago. There were no stands. Just dust and a man with a stopwatch.', 'Fly it clean. Fast is what happens when you fly clean.']
+  };
   function shoreHello(kind) {
     if (deck.scene) return;
     if (MARS_KINDS.includes(kind)) {
@@ -19048,6 +19226,10 @@ details.act > .limits { margin: 0 0 8px; }
       if (kind === 'mlobby') {
         if (!apexMet()) { shipSay('AX', 'Welcome to Apex Landings. Please wait. Someone would like a word with you.'); setTimeout(() => { if (deck && deck.kind === 'mlobby' && !deck.scene) chairSpeak(); }, 2600); return; }
         shipSay('AX', 'Welcome back to Apex Landings. You are being recorded for quality purposes. And other purposes.'); return;
+      }
+      if (kind === 'mrace') {
+        if (first('speedway')) { shipSay('R', shoreParty.includes('R') ? 'THE MARS SPEEDWAY! My favourite place on Mars! I’m the announcer now. Nobody asked me. I asked me. Race Control’s on the left. Go beat Apex for me.' : 'Rex here, live on the Speedway PA! Is that our pilot? THAT’S OUR PILOT! Head to Race Control and let’s beat some Apex racers!'); return; }
+        shipSay('R', raceWins() >= 5 ? 'Ladies and gentlemen, the Grand Prix champion has entered the building! The gold box has turned its lights off. Coincidence? No.' : ['Back for more? Race Control is ready when you are, darling.', 'The crowd’s warmed up. I’m warmed up. Are you warmed up? Don’t answer. Race!'][Math.floor(Math.random() * 2)]); return;
       }
       if (kind === 'mapex' && first('apex')) { shipSay(...(shoreParty.includes('R') ? ['R', 'Apex Row. My old street. Is that… yes. That’s my billboard. Still up. Of course it is.'] : shoreParty.includes('Q') ? ['Q', 'Apex Row. I swore I’d never come back here. Stay close, pilot. The drones remember faces.'] : shoreParty.includes('X') ? ['X', 'Oh no. Oh no no no. Apex Row. Okay. Walk normally. Walk like a person who has never been fired.'] : ['P', 'Apex Row. The air is cooler here, the floors are spotless, and every drone has a red eye. Somewhere above you, a building with no top is watching.'])); return; }
       if (kind === 'mdiner') { shipSay('RB', first('diner') ? 'NEW CUSTOMER DETECTED. Welcome to the Red Planet Diner. I am Rusty. I have one wheel and a very good memory. Sit anywhere. Order at the counter.' : 'WELCOME BACK. Your usual booth is available. You do not have a usual booth. Now you do.'); return; }
@@ -20040,7 +20222,7 @@ details.act > .limits { margin: 0 0 8px; }
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
-      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : 'Locked · badge') : `${fmt(x.price)} cr`;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : x.unlock.startsWith('race:') ? 'Locked · Speedway' : 'Locked · badge') : `${fmt(x.price)} cr`;
       return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
         <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
     };
