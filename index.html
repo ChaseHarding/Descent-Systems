@@ -6724,7 +6724,11 @@ details.act > .limits { margin: 0 0 8px; }
     if (!st || !st.chapter) return null;
     return { label: `Chapter ${st.chapter[0]} · ${WORLDS.find(w => w.id === d.world).name}`, title: st.chapter[1] };
   }
+  let crumbIntroNext = null;
   function openMission(i) {
+    if (ALL[i] && ALL[i].id === 'dark-side' && !storyDone('dark-side') && !crumbHome() && !restLocked(i) && !emergActive()) {
+      crumbIntroNext = i; walkEnter = 'office'; setMode('hall'); return;
+    }
     if (restLocked(i)) { showToast(restText(), 4200); if (mode === 'encounter') { encSkip = null; setMode('missions'); } return; }
     const fromEnc = encSkip === i; encSkip = null;
     if (emergActive()) { showToast(emergBlockText(), 4200); if (mode === 'encounter') setMode('missions'); return; }
@@ -7310,7 +7314,8 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'machine', x: 11, y: 34 }, { id: 'table', x: 66, y: 54 }, { id: 'counter', x: 26, y: 51 }, { id: 'box', x: 160, y: 66 }
   ];
   const wrenHome = () => storyDone('the-neighbor');
-  const crumbHome = () => true;   // Crumb has always lived in the garage
+  // Crumb has always lived in the garage, but he's shy: he stays in there until Gus introduces him before Dark Side
+  const crumbHome = () => storyDone('dark-side') || store.get('ds-rscenes', '').includes('rs-crumb');
   const junoMet = () => storyDone('red-dock');
   // ---- "New" markers: things that unlocked since you last looked ----
   const seenSet = k => { try { return new Set(JSON.parse(store.get(k, '[]'))); } catch (e) { return new Set(); } };
@@ -10024,6 +10029,18 @@ details.act > .limits { margin: 0 0 8px; }
         ['G', 'Bao, this is the best thing I’ve ever eaten. I say that every time. It’s true every time.'],
         ['F', 'The mining company sent a thank-you card. And a reactor core. Mostly the reactor core.'],
         ['H', 'Eat. Then fix the ship. Then eat again.']] },
+    // Gus introduces Crumb in the base corridor, the day before his first road trip
+    { id: 'rs-crumb', room: 'hall', after: 'star-client', until: 'dark-side',
+      cast: [['G', 74, 118], ['K', 26, 74], ['F', 124, 102]],
+      lines: [['G', 'Pilot! Got a minute? There’s someone I want you to meet. He’s been hiding in the garage since you arrived. He’s shy.'],
+        ['K', '*beep?* (A little robot peeks out of the garage door. Two curious dots blink on his screen.)', { to: [52, 126], face: 'curious' }],
+        ['G', 'This is Crumb. Surface rover, salvage expert, and the best workmate I’ve ever had. He has never once borrowed my wrench.'],
+        ['K', '*boop beep!* (Crumb rolls a little closer and shows you a big smile.)', { to: [96, 128], face: 'happy' }],
+        ['F', 'He’s also why the garage is full of shiny junk. He collects things. Bolts, rocks, a spoon from 2059.'],
+        ['G', 'Our next job’s on the far side. A crashed satellite in three pieces, too far apart to hop between. So you land, and Crumb drives.'],
+        ['K', '*excited whirring* (Crumb does a tiny spin. He has wanted a road trip for a very long time.)', { face: 'startled', spin: true }],
+        ['F', 'Bring him back in one piece. All of his pieces. He counts them.'],
+        ['K', '*beep beep* (Crumb would like you to know he is ready now. Right now. Any time.)', { face: 'happy' }]] },
     { id: 'rs-apex', room: 'hall', rel: true, after: 'apex-calling', until: 'all-systems-go',
       cast: [['F', -34, 120], ['G', 28, 118], ['W', 120, 122, 54]],
       lines: [['F', 'Did you see that lander? Silver. Shiny. Probably cost more than this whole base.'],
@@ -10093,7 +10110,7 @@ details.act > .limits { margin: 0 0 8px; }
         ['X', 'Get used to it. They do that here.']] }
   ];
   const rsSeen = () => { try { return JSON.parse(store.get('ds-rscenes', '[]')) || []; } catch (e) { return []; } };
-  const rsHere = w => romMet[w] && romMet[w]();
+  const rsHere = w => w === 'K' || (romMet[w] && romMet[w]());
   function roomSceneFor(kind) {
     const seen = rsSeen();
     return ROOM_SCENES.find(s => s.room === kind && storyDone(s.after) && !(s.until && storyDone(s.until)) && !seen.includes(s.id)
@@ -10124,6 +10141,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (S.i >= S.lines.length) { endRoomScene(); return; }
     const [w, text, cue] = S.lines[S.i];
     if (cue && cue.to) { const n = deck.npcs.find(o => o.who === w); if (n) n.goal = [Math.max(20, Math.min(deck.W - 20, (S.s.rel ? S.bx : 0) + cue.to[0])), cue.to[1]]; }
+    if (cue && (cue.face || cue.spin)) { const n = deck.npcs.find(o => o.who === w); if (n) { if (cue.face) n.face = cue.face; if (cue.spin) n.spinT = performance.now(); } }
     S.speaker = w;
     shipSay(w, text);
     S.timer = setTimeout(roomSceneNext, 6000 + text.length * 55);   // a slow fallback; a tap moves things along
@@ -10134,6 +10152,12 @@ details.act > .limits { margin: 0 0 8px; }
     const sk = $('sceneSkip'); if (sk) sk.hidden = true;
     const seen = rsSeen(); if (!seen.includes(S.s.id)) { seen.push(S.s.id); store.set('ds-rscenes', JSON.stringify(seen)); }
     for (const n of deck.npcs) { n.script = false; n.goal = null; n.pause = 3; }
+    if (S.s.id === 'rs-crumb') {
+      const k = deck.npcs.find(n => n.who === 'K');
+      deck.npcs = deck.npcs.filter(n => n.who !== 'K');
+      if (k && !deck.crumb) deck.crumb = { x: k.x - 8, y: k.y - 12, dir: 1, pause: 2 };
+      if (crumbIntroNext != null) { const i = crumbIntroNext; crumbIntroNext = null; setTimeout(() => { if (mode === 'hall') openMission(i); }, 900); }
+    }
   }
   document.addEventListener('click', e => { if (!deck || !deck.scene || !e.target || !e.target.closest) return; if (e.target.closest('#sceneSkip')) { sfx.click(); endRoomScene(); return; } if (e.target.closest('#shipSay') && deck.scene.ready) roomSceneNext(); });
   function shipSay(who, text) {
@@ -10983,6 +11007,13 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function npcDrawThings(c, t, things) {
     for (const n of deck.npcs) things.push([n.y, () => {
+      if (n.who === 'K') {   // Crumb in a scene: his rover body, with the screen face the scene asks for
+        const spin = n.spinT && t - n.spinT < 1200, dirK = spin ? (Math.floor((t - n.spinT) / 150) % 2 ? -1 : 1) : n.dir === 1 ? -1 : 1;
+        const talking = deck.scene && deck.scene.speaker === 'K' && Math.floor(t / 220) % 2;
+        drawCrumbSprite(c, n.x - 8, n.y - 12, dirK, t, n.moving || spin, talking && n.face === 'happy' ? 'talk' : n.face || 'happy');
+        if (n.script && deck.scene && deck.scene.speaker === 'K') drawEmote(c, 'dots', n.x + 2, n.y - 32, t, null);
+        return;
+      }
       drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 150) % 4 : 0, t);
       if (n.emote && t >= n.emote.t0 && t < n.emote.until) drawEmote(c, n.emote.k, n.x, n.y - 28, t, n.emote.t0);
       else if (!n.script && ROM_WHO.includes(n.who) && bond.talk[n.who] !== shipDayKey()) drawEmote(c, 'bang', n.x, n.y - 28, t, null);
