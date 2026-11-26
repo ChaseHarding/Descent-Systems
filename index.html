@@ -421,6 +421,13 @@ kbd {
 .qnew-card .gstats b { font: 800 15px var(--f-display); color: #f4f8ff; text-transform: none; letter-spacing: 0; }
 .gstats span { font-size: 10px; color: var(--regolith-dim); letter-spacing: .08em; text-transform: uppercase; }
 .zstall.gany { border-color: #7fe8ff; }
+.stylecard { width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid #ffb547; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; text-align: left; margin: 4px auto; }
+.stylecard .eyebrow { color: #ffb547; }
+.stylecard .srow { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: 12px; padding: 3px 0; border-bottom: 1px solid var(--space-2); }
+.stylecard .srow b { color: #ffffff; } .stylecard .srow span b { letter-spacing: .08em; }
+.stylecard .stot { display: flex; justify-content: space-between; font: 800 17px var(--f-display); color: #ffffff; margin-top: 4px; }
+.stylecard .sbar { height: 7px; border-radius: 4px; background: var(--space-2); overflow: hidden; } .stylecard .sbar i { display: block; height: 100%; background: linear-gradient(90deg, #ffe58a, #ff9ad5); }
+.stylecard .sdim { font-size: 11px; color: var(--regolith-dim); }
 .gdots { display: inline-flex; gap: 2px; vertical-align: -2px; }
 .gd { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; font-style: normal; font-size: 8px; line-height: 1; color: #0a0e1c; }
 .gd.g { background: #ffd27a; box-shadow: 0 0 6px #ffd27a; } .gd.b { background: #7fe8ff; box-shadow: 0 0 6px #7fe8ff; } .gd.p { background: #ff9ad5; box-shadow: 0 0 6px #ff9ad5; } .gd.v { background: #c8a2ff; box-shadow: 0 0 6px #c8a2ff; } .gd.m { background: #9fe0b8; box-shadow: 0 0 6px #9fe0b8; }
@@ -1511,6 +1518,10 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#a8222a', stroke: '#f4e6cc', legs: '#f4e6cc', detail: '#f4e6cc', swatch: 'linear-gradient(90deg, #a8222a, #f4e6cc)' },
     { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
       fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
+    { id: 'butter', name: 'Butter Yellow', price: 0, unlock: 'style1', blurb: 'For pilots who land like butter. Gus mixed it himself and named it before he’d finished.',
+      fill: '#ffe58a', stroke: '#6a4a10', legs: '#fff4cc', detail: '#d8a848', swatch: 'linear-gradient(90deg, #ffe58a, #fff4cc, #d8a848)' },
+    { id: 'tabby', name: 'Tabby', price: 0, unlock: 'apogee', blurb: 'Orange with cream socks, in honour of your most unhelpful co-pilot. She approves. She doesn’t care.',
+      fill: '#ff9a3d', stroke: '#5a2a0a', legs: '#fff4e0', detail: '#c96a1e', swatch: 'linear-gradient(90deg, #ff9a3d, #c96a1e, #fff4e0)' },
     { id: 'aurora', name: 'Aurora', price: 0, unlock: 'gany:aurora', blurb: 'Ganymede’s auroras, sealed in ice by Zib’s cousins and painted on. Green and violet ripples over midnight blue.',
       fill: '#141a3a', stroke: '#9fe0b8', legs: '#c8a2ff', detail: '#7fe8ff', swatch: 'linear-gradient(90deg, #141a3a, #9fe0b8, #c8a2ff)' },
     { id: 'speedway', name: 'Speedway Chequer', price: 0, unlock: 'race:race-gp', blurb: 'Black and white chequers with a red racing stripe. For the pilot who beat Apex’s champion.',
@@ -1541,6 +1552,8 @@ details.act > .limits { margin: 0 0 8px; }
       core: '#d8ffb0', tail: '#2fbf5a', swatch: 'linear-gradient(90deg, #d8ffb0, #2fbf5a)' },
     { id: 'white', name: 'White-Hot', price: 1000, blurb: 'Runs hot enough to glow white.',
       core: '#ffffff', tail: '#ffc98a', swatch: 'linear-gradient(90deg, #ffffff, #ffc98a)' },
+    { id: 'disco', name: 'Disco', price: 0, unlock: 'style2', blurb: 'A glitterball of a burn, for style icons only.',
+      core: '#fff4a8', tail: '#ff6bd5', swatch: 'linear-gradient(90deg, #fff4a8, #ff6bd5, #7fe8ff)' },
     { id: 'rainbow', name: 'Rainbow', price: 3000, blurb: 'Cycles through the whole spectrum.', rainbow: true,
       core: '#fff', tail: '#fff', swatch: 'linear-gradient(90deg, #ff5f5f, #ffb547, #f5ff6b, #6bff9a, #6bb8ff, #b86bff)' },
     { id: 'plasma', name: 'Pulsing Plasma', price: 3500, blurb: 'Throbs like an ion drive.', pulse: true,
@@ -1732,6 +1745,9 @@ details.act > .limits { margin: 0 0 8px; }
     .filter(k => owned.has(k) && findItem(k.split(':')[0], k.split(':')[1]).price > 0).length;
   const ACH = [
     { id: 'first', name: 'First contact', desc: 'Land on any pad.' },
+    { id: 'style1', name: 'Showboat', desc: 'Bank 2,500 style points from style landings.', reward: 'hull:butter', prog: () => [Math.min(styleBank(), 2500), 2500] },
+    { id: 'style2', name: 'Style icon', desc: 'Bank 10,000 style points from style landings.', reward: 'flame:disco', prog: () => [Math.min(styleBank(), 10000), 10000] },
+    { id: 'apogee', name: 'Co-pilot Apogee', desc: 'Land a mission while Apogee is “helping” on the console.', reward: 'hull:tabby' },
     { id: 'tour', name: 'Grand Tour', desc: 'Land on every world.', reward: 'hull:grand', prog: () => [BASE_WORLDS.filter(w => stats.worlds.includes(w.id)).length, BASE_WORLDS.length] },
     { id: 'earthling', name: 'Earthling', desc: 'Land on Earth.' },
     { id: 'feather', name: 'Feather', desc: 'Touch down slower than 0.3 m/s.', reward: 'flame:feather' },
@@ -4394,13 +4410,13 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // ---- Landing grades ----
   const GRADES = { butter: ['BUTTER!', '#ffe58a', 20], clean: ['Clean', '#8fe3b0', 8], bumpy: ['Bumpy', '#ffb38a', 0] };
-  function gradeLanding(pad, vy, ang) {
+  function gradeLanding(pad, vy, ang, quiet) {
     const off = Math.abs(lander.x - (pad.x1 + pad.x2) / 2) / ((pad.x2 - pad.x1) / 2);
     const g = vy < 0.7 && ang < 4 && off < 0.45 ? 'butter' : vy < 1.3 && ang < 8 ? 'clean' : 'bumpy';
     const [label, colr, cr] = GRADES[g];
     mission.grades.push(g);
     mission.bonus += cr + (copHas('C') && cr ? 10 : 0);
-    popText(label + (cr ? ` +${cr + (copHas('C') ? 10 : 0)}` : ''), colr, lander.x, lander.y + 6, g === 'butter');
+    if (!quiet) popText(label + (cr ? ` +${cr + (copHas('C') ? 10 : 0)}` : ''), colr, lander.x, lander.y + 6, g === 'butter');
     if (g === 'butter') { sfx.coin(); if (Math.random() < 0.7) setTimeout(() => copSay('nice'), 700); }
     if (g === 'bumpy' && Math.random() < 0.6) setTimeout(() => copSay('oops'), 700);
   }
@@ -4440,7 +4456,7 @@ details.act > .limits { margin: 0 0 8px; }
     const L = lander, r = copHas('Z') ? 6.4 : crumbLvl('magnet') ? 5.2 : 3.4;
     for (const p of mission.pk) {
       if (p.got || Math.hypot(L.x - p.x, L.y + 1 - p.y) > r) continue;
-      p.got = true; const P = PICK[p.type];
+      p.got = true; if (styleOn()) styleMove('grab'); const P = PICK[p.type];
       if (P.kg) { const add = Math.min(L.fuelMax - L.fuel, P.kg * tankMul() * ship().tank); L.fuel += add; popText(`+${Math.round(add)} kg`, P.col, p.x, p.y + 2); }
       else { const cr = P.cr * (copHas('T') ? 2 : 1); mission.bonus += cr; popText(`+${cr} cr`, P.col, p.x, p.y + 2, p.type === 'crystal'); }
       sfx.coin(); spawnSpark(p.x, p.y, P.col);
@@ -5197,8 +5213,9 @@ details.act > .limits { margin: 0 0 8px; }
       mission.comfort = Math.max(0, mission.comfort - 15);
       if (comfortCheck()) return;
     }
+    const styled = styleTouchdown(pad, vy, ang);
     onLanded(pad, vy, vx, ang, L.fuel);
-    gradeLanding(pad, vy, ang);
+    gradeLanding(pad, vy, ang, styled);
     surpriseTouchdown(pad);
     const g = currentGoal();
     touchdownFx(vy, g.type === 'land' && pad.id === g.pad && !g.rover);
@@ -5252,6 +5269,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (local) setTimeout(() => showToast(`📍 Local job: +${local} cr for being parked at ${worldName(d.world)}`, 2400), 900);
     sailedFor = null;
     credits += pay + extra + local;
+    const styleRes = styleBankMission();
     saveCosmetics();
     lastRun = { frames: recording, result: 'landed' };
     lastResult = { pad, pts: 0, reasons: [] };
@@ -5260,7 +5278,7 @@ details.act > .limits { margin: 0 0 8px; }
       plantFlag(pad);
     }
     const unlocked = !d.side && prev === 0 ? SIDES.filter(x => x.after === d.id).map(x => x.name) : [];
-    mission.result = { ok: true, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '', riskText: !d.side ? riskNote(d.id) : '' };
+    mission.result = { ok: true, style: styleRes, stars: starsWon, prev, pay, extra, t, fuel, met, comfort: mission.comfort, melt: mission.melt, unlocked, repair: !d.side && prev === 0 ? REPAIRS[d.id] || null : null, callText: prev === 0 ? hardCallText(d.id) : '', riskText: !d.side ? riskNote(d.id) : '' };
     try { textsAfterMission(d, starsWon); } catch (e) {}
     try { emergAfterMission(d); } catch (e) {}
     surpriseAfter();
@@ -5989,13 +6007,14 @@ details.act > .limits { margin: 0 0 8px; }
       let rot = 0;
       if (keys.left) rot -= 1;
       if (keys.right) rot += 1;
+      if (rot && styleOn() && apoOn()) rot = -rot;
       if (rot && L.fuel > 0 && !L.grounded) {
         const na = L.a + rot * ROT_RATE * rotMul() * ship().rot * (perk('gyro') ? 1.3 : 1) * dt;
         L.a = fullSpin ? Math.atan2(Math.sin(na), Math.cos(na))          // wrap to ±180°
                        : Math.max(-Math.PI / 2, Math.min(Math.PI / 2, na));
         if (!perk('gyro') && !ship().freeRcs) L.fuel = Math.max(0, L.fuel - RCS_BURN * dt);
       }
-      L.firing = keys.thrust && L.fuel > 0 && !sputtering();
+      L.firing = (keys.thrust || (styleOn() && apoKnead())) && L.fuel > 0 && !sputtering();
       let ax = windNow * ship().wind - world.drag * L.vx;
       let ay = -world.g - world.drag * L.vy;
       if (L.firing) {
@@ -6051,6 +6070,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (meteors.length) { meteorTick(); if (L.meteorHit) { checkContact(); return; } }
       if (L.sling && slingStep(dt)) return;
       flightT += dt;
+      if (styleOn()) styleTick(dt);
       const fi = Math.floor(flightT * 60);
       while (recording.length <= fi) recording.push(L.sling ? [L.x, L.y, L.a, L.firing ? 1 : 0, L.sling.x, L.sling.y] : [L.x, L.y, L.a, L.firing ? 1 : 0]);
       if (mission && missionTick(dt)) return;
@@ -6706,6 +6726,7 @@ details.act > .limits { margin: 0 0 8px; }
             ${mission.cop ? `<span>Co-pilot: ${SIGN[mission.cop]} (${COPILOTS[mission.cop].perk})</span>` : ''}
             ${mission.surp && mission.surp.kinds.filter(surpHappened).length ? `<span>Surprise: ${mission.surp.kinds.filter(surpHappened).map(k => SURP_NAMES[k] + (k === 'satellite' ? (mission.sat.state === 'caught' ? ' (caught!)' : ' (missed)') : k === 'sos' ? (mission.sos.state === 'done' ? ` (picked up ${SIGN[mission.sos.who]})` : ' (missed)') : k === 'reroute' ? (mission.altPaid ? ' (handled)' : '') : k === 'meteors' ? (mission.metShower.state === 'done' ? ' (dodged!)' : '') : '')).join(' · ')}</span>` : ''}
           </div>
+          ${r.style ? styleCardHTML(r.style) : ''}
           ${r.callText ? `<p class="balance call">⚠ ${r.callText}</p>` : ''}
           ${r.riskText ? `<p class="balance call">♥ ${r.riskText}</p>` : ''}
           ${resting && !EPILOGUES[d.id] ? `<p class="balance rest">💤 ${restText()}</p>` : ''}
@@ -20693,6 +20714,154 @@ details.act > .limits { margin: 0 0 8px; }
     return her;
   }
   addEventListener('keydown', e => { if (!deck || !deck.cut || mode !== 'gice') return; if (['Enter', ' ', 'e', 'E', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); if (performance.now() - deck.cut.t0 > 800) giCutEnd(); } else if (e.key.startsWith('Arrow')) { e.preventDefault(); e.stopPropagation(); } }, true);
+  // ======== Style landings, and Apogee on the controls ========
+  const STYLE_MOVES = { butter: ['BUTTER', '#ffe58a', 200, 'feather-soft touchdown'], needle: ['NEEDLE', '#58e0a0', 150, 'dead centre on the pad'], fumes: ['FUMES', '#ff6b5e', 120, 'landed on almost no fuel'],
+    flip: ['FLIP', '#ff9ad5', 100, 'a full rotation in mid-air'], skim: ['SKIM', '#7fe8ff', 40, 'skimmed the ground at speed'], grab: ['GRAB', '#c8a2ff', 30, 'grabbed a pickup'], cat: ['CAT', '#ff9a3d', 250, 'landed with Apogee “helping”'] };
+  const STYLE_UNLOCKS = [[2500, 'style1', 'Butter Yellow paint'], [10000, 'style2', 'Disco flame']];
+  function styleBank() { return +store.get('ds-styleBank', '0'); }
+  let styleSlowUntil = 0, apoImg = null;
+  function styleOn() { return mode === 'flying' && mission && !tut && !mission.rover && mission.docking == null; }
+  function styleInit() {
+    const d = mission.def, force = store.get('ds-apogeeTest', '') === '1', today = store.get('ds-apogeeDay', '') === String(shipDay);
+    const ok = force || (d.race == null && !today && Object.keys(missionStars || {}).length >= 4 && Math.random() < 0.06);
+    return (mission.style = { total: 0, pend: [], log: [], combos: [], fuel0: lander.fuel, spin: 0, lastA: lander.a, skimT: 0, skimCd: 0, banner: null, apo: null, apoAt: ok ? (force ? 2 : 4 + Math.random() * 6) : null, apoHad: false });
+  }
+  function styleMove(k) {
+    const S = mission && mission.style; if (!S) return;
+    const [label, col, pts] = STYLE_MOVES[k]; S.pend.push(k); S.meterT = performance.now();
+    popText(`${label}! +${pts}`, col, lander.x, lander.y + 7, k === 'flip');
+    if (k === 'flip' || k === 'skim') sfx.chime && sfx.chime();
+  }
+  function styleTick(dt) {
+    const L = lander, S = mission.style || styleInit(), now = performance.now();
+    if (!L.grounded) {
+      let d = L.a - S.lastA; if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; S.spin += d;
+      if (Math.abs(S.spin) >= Math.PI * 2 - 0.05) { S.spin = 0; styleMove('flip'); }
+    } else S.spin = 0;
+    S.lastA = L.a;
+    const alt = L.y - 3 - surfaceAt(L.x);
+    S.skimCd -= dt;
+    if (!L.grounded && alt < 3 && alt > 0.2 && Math.abs(L.vx) > 4 && flightT > 1) { S.skimT += dt; if (S.skimT > 0.35 && S.skimCd <= 0) { styleMove('skim'); S.skimCd = 1.6; S.skimT = 0; } } else S.skimT = 0;
+    // Apogee
+    if (S.apoAt != null && !S.apo && flightT >= S.apoAt && !L.grounded && alt > 10 && L.fuel > S.fuel0 * 0.2) apoStart();
+    const A = S.apo; if (!A || !A.on) return;
+    if (A.away) { if (now > A.awayUntil) { A.away = false; A.visits++; A.t0 = now; sfx.purr && sfx.purr(); apoSay(['She’s BACK. She came back for the throttle.', 'NO. She’s back. Why is she back. Who taught her the airlock.'][A.visits % 2]); } return; }
+    if (now - A.t0 > 7000) apoShoo(true);
+    if (now > A.nextPaw) { A.nextPaw = now + 330; A.paws.push({ x: 0.1 + Math.random() * 0.8, y: 0.24 + Math.random() * 0.5, r: (Math.random() - 0.5) * 1.2, t: now }); if (A.paws.length > 18) A.paws.shift(); }
+  }
+  function apoSay(text) { const S = mission && mission.style; if (S) S.apoSay = { text, t: performance.now() }; sfx.radio(); }
+  const apoOn = () => { const S = mission && mission.style; return !!(S && S.apo && S.apo.on && !S.apo.away); };
+  const apoKnead = () => apoOn() && Math.floor(flightT / 0.45) % 2 === 0;
+  function apoStart() {
+    const S = mission.style; S.apo = { on: true, t0: performance.now(), visits: 1, away: false, awayUntil: 0, paws: [], nextPaw: 0 }; S.apoHad = true;
+    store.set('ds-apogeeDay', String(shipDay)); sfx.purr && sfx.purr(); sfx.alarm && sfx.alarm();
+    apoSay('NOBODY MOVE. Apogee is on the console. She can smell fear.');
+  }
+  function apoShoo(bored) {
+    const S = mission && mission.style, A = S && S.apo; if (!A || !A.on || A.away) return;
+    sfx.pop && sfx.pop();
+    if (A.visits >= 3 || bored && A.visits >= 2) { A.on = false; A.leftAt = performance.now(); apoSay('She’s gone to sleep in the cargo hold. Fly normally. We never speak of this.'); return; }
+    A.away = true; A.awayUntil = performance.now() + 3200 + Math.random() * 1200; A.leftAt = performance.now();
+    apoSay(bored ? 'She got bored and wandered off. For now.' : ['She’s off! … She’s staring at you from the doorway.', 'Shoo! SHOO! She is not shooing! Oh. She shooed.'][A.visits % 2]);
+  }
+  // ---- touchdown: grade the landing and bank the combo ----
+  function styleTouchdown(pad, vy, ang) {
+    const S = mission && mission.style; if (!S) return false;
+    const L = lander, off = Math.abs(L.x - (pad.x1 + pad.x2) / 2) / ((pad.x2 - pad.x1) / 2), td = [];
+    if (vy < 0.6 && ang < 4) td.push('butter');
+    if (off < 0.12) td.push('needle');
+    if (L.fuel < S.fuel0 * 0.08) td.push('fumes');
+    if (S.apoHad && !S.catBanked) { td.push('cat'); S.catBanked = true; try { award('apogee'); } catch (e) {} }
+    if (S.apo) S.apo.on = false;
+    const all = [...S.pend, ...td]; S.pend = [];
+    if (!all.length) return false;
+    const sum = all.reduce((a, k) => a + STYLE_MOVES[k][2], 0), mult = Math.min(2, 1 + 0.25 * (all.length - 1)), pts = Math.round(sum * mult);
+    S.total += pts; S.log.push(...all); S.combos.push({ n: all.length, mult, pts });
+    S.banner = { t0: performance.now(), big: td.includes('cat') ? 'cat' : td[0] || all[0], chips: all, line: `${all.length > 1 ? `×${all.length} COMBO · ` : ''}+${fmt(pts)} STYLE` };
+    if (td.length || all.length >= 2) styleSlowUntil = performance.now() + 650;
+    sfx.coin(); setTimeout(() => sfx.chime && sfx.chime(), 250);
+    styleCheer(all);
+    return true;
+  }
+  function styleCheer(all) {
+    if (Math.random() > 0.75 && !all.includes('cat')) return;
+    const L = all.includes('cat') ? ['G', 'Apogee is taking full credit for that landing. She’s already asleep on the flight log.']
+      : all.includes('flip') ? ['W', 'Did you just do a FLIP in a moon lander?! Do it again! Don’t do it again!']
+      : all.includes('fumes') ? ['F', 'You landed on FUMES. I need to sit down. I am sitting down. I need to sit down more.']
+      : all.includes('butter') ? ['G', 'BUTTER! I felt NOTHING! Biscuit felt nothing! Good girl!']
+      : all.includes('needle') ? ['R', 'Dead centre! Put that on a poster. Put ME on the poster, next to it.']
+      : all.includes('skim') ? ['J', 'You were close enough to read the rocks. I’m filing a report. A glowing one.'] : null;
+    if (L) setTimeout(() => { if (mission) radio(L[0], L[1], 2800); }, 700);
+  }
+  // ---- bank it when the mission is won ----
+  function styleBankMission() {
+    const S = mission && mission.style; if (!S || !S.total) return null;
+    const before = styleBank(), after = before + S.total; store.set('ds-styleBank', String(after));
+    for (const [n, id] of STYLE_UNLOCKS) if (before < n && after >= n) try { award(id); } catch (e) {}
+    return { total: S.total, log: S.log.slice(), combos: S.combos.slice(), before, after };
+  }
+  function styleCardHTML(st) {
+    const counts = {}; st.log.forEach(k => counts[k] = (counts[k] || 0) + 1);
+    const best = st.combos.reduce((m, c) => Math.max(m, c.n), 0), next = STYLE_UNLOCKS.find(([n]) => st.after < n);
+    return `<div class="stylecard"><span class="eyebrow">Style</span>
+      ${Object.entries(counts).map(([k, n]) => `<div class="srow"><span><b style="color:${STYLE_MOVES[k][1]}">${STYLE_MOVES[k][0]}</b>${n > 1 ? ` ×${n}` : ''} · ${STYLE_MOVES[k][3]}</span><b>+${fmt(STYLE_MOVES[k][2] * n)}</b></div>`).join('')}
+      ${best > 1 ? `<div class="srow"><span>Best combo ×${best}</span><b>×${Math.min(2, 1 + 0.25 * (best - 1)).toFixed(2).replace(/0$/, '')}</b></div>` : ''}
+      <div class="stot"><span>Style</span><span>+${fmt(st.total)}</span></div>
+      <div class="sbar"><i style="width:${next ? Math.min(100, Math.round(st.after / next[0] * 100)) : 100}%"></i></div>
+      <span class="sdim">Style bank ${fmt(st.after)}${next ? ` · next: ${next[2]} at ${fmt(next[0])}` : ' · everything unlocked'}</span></div>`;
+  }
+  // ---- drawing: the banner, the meter, and the cat ----
+  function drawStyleFx(time) {
+    const S = mission && mission.style; if (!S || !(mode === 'flying' || mode === 'touchdown' || mode === 'paused')) return;
+    const c = ctx, now = performance.now(), U = Math.min(cw, ch * 0.62) / 390;
+    c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+    const pill = (txt, x, y, size, fg, bg, border) => { c.font = `800 ${size}px system-ui, sans-serif`; const w = c.measureText(txt).width + size * 1.2, h = size * 1.8; c.fillStyle = bg; c.beginPath(); c.roundRect(x - w / 2, y - h / 2, w, h, h / 2); c.fill(); if (border) { c.strokeStyle = border; c.lineWidth = 2; c.stroke(); } c.fillStyle = fg; c.fillText(txt, x, y + 1); return w; };
+    // the meter while you have moves waiting to land
+    if (mode === 'flying' && S.pend.length) {
+      const sum = S.pend.reduce((a, k) => a + STYLE_MOVES[k][2], 0), x = 14 * U, y = ch * 0.2;
+      c.textAlign = 'left'; c.fillStyle = 'rgba(10,14,28,0.85)'; c.strokeStyle = '#ffb547'; c.lineWidth = 1.5; c.beginPath(); c.roundRect(x, y, 92 * U, 46 * U, 10 * U); c.fill(); c.stroke();
+      c.fillStyle = '#ffb547'; c.font = `700 ${11 * U}px ui-monospace, monospace`; c.fillText(`STYLE ×${S.pend.length}`, x + 10 * U, y + 14 * U);
+      c.fillStyle = '#ffffff'; c.font = `800 ${18 * U}px system-ui, sans-serif`; c.fillText(fmt(sum), x + 10 * U, y + 32 * U); c.textAlign = 'center';
+    }
+    // the touchdown banner
+    const B = S.banner;
+    if (B) { const age = (now - B.t0) / 1000;
+      if (age > 2.6) S.banner = null;
+      else { const a = Math.min(1, age / 0.15, (2.6 - age) / 0.4), M = STYLE_MOVES[B.big], pop = reduceMotion ? 1 : 1 + Math.max(0, 0.35 - age) * 1.2;
+        c.globalAlpha = a;
+        if (age < 1.2) { const g = c.createRadialGradient(cw / 2, ch * 0.5, Math.min(cw, ch) * 0.2, cw / 2, ch * 0.5, Math.max(cw, ch) * 0.7); g.addColorStop(0, 'rgba(5,7,15,0)'); g.addColorStop(1, `rgba(5,7,15,${0.55 * (1 - age / 1.2)})`); c.fillStyle = g; c.fillRect(0, 0, cw, ch); }
+        c.save(); c.translate(cw / 2, ch * 0.38); c.rotate(-0.05); c.scale(pop, pop);
+        c.font = `900 ${50 * U}px system-ui, sans-serif`; c.lineWidth = 6 * U; c.strokeStyle = '#3a2a08'; c.strokeText(M[0], 0, 0); c.shadowColor = M[1]; c.shadowBlur = 20 * U; c.fillStyle = M[1]; c.fillText(M[0], 0, 0); c.restore();
+        // chips stamp in one by one
+        c.font = `800 ${12 * U}px system-ui, sans-serif`; const shown = B.chips.slice(0, Math.max(1, Math.floor(age / 0.14) + 1)), ws = shown.map(k => c.measureText(STYLE_MOVES[k][0]).width + 26 * U), tot = ws.reduce((s2, w) => s2 + w, 0) + (shown.length - 1) * 6 * U;
+        let x = cw / 2 - tot / 2; shown.forEach((k, i) => { pill(STYLE_MOVES[k][0], x + ws[i] / 2, ch * 0.38 + 46 * U, 12 * U, STYLE_MOVES[k][1], 'rgba(10,14,28,0.88)', STYLE_MOVES[k][1]); x += ws[i] + 6 * U; });
+        if (age > 0.14 * B.chips.length) { c.font = `900 ${20 * U}px system-ui, sans-serif`; c.lineWidth = 4 * U; c.strokeStyle = '#000'; c.strokeText(B.line, cw / 2, ch * 0.38 + 82 * U); c.fillStyle = '#ffffff'; c.fillText(B.line, cw / 2, ch * 0.38 + 82 * U); }
+        c.globalAlpha = 1; } }
+    // Apogee
+    const A = S.apo;
+    if (A && (A.on || (A.leftAt && now - A.leftAt < 500))) {
+      for (const p of A.paws) { const age = (now - p.t) / 2600; if (age > 1) continue; c.save(); c.globalAlpha = 0.8 * (1 - age); c.translate(p.x * cw, p.y * ch); c.rotate(p.r); c.fillStyle = '#ff9a3d';
+        c.beginPath(); c.ellipse(0, 4 * U, 9 * U, 7.5 * U, 0, 0, 7); c.fill(); for (const [tx, ty] of [[-8, -6], [-3, -10], [3, -10], [8, -6]]) { c.beginPath(); c.ellipse(tx * U, ty * U, 3.2 * U, 3.8 * U, 0, 0, 7); c.fill(); } c.restore(); }
+      const here = A.on && !A.away, k = reduceMotion ? (here ? 1 : 0) : here ? Math.min(1, (now - A.t0) / 300) : Math.max(0, 1 - (now - A.leftAt) / 300);
+      if (k > 0) {
+        if (!apoImg) { apoImg = document.createElement('canvas'); apoImg.width = apoImg.height = 32; }
+        const ac = apoImg.getContext('2d'); ac.clearRect(0, 0, 32, 32); drawCat(ac, true, Math.floor(now / 1700) % 6 === 0, true);
+        const size = Math.min(cw * 0.5, ch * 0.28), x = cw / 2 - size / 2 + (reduceMotion ? 0 : Math.sin(now / 300) * 3), y = ch - ch * 0.1 - size * k + size * 0.06;
+        c.save(); c.beginPath(); c.rect(0, 0, cw, ch - ch * 0.1 + size * 0.06); c.clip();
+        c.imageSmoothingEnabled = false; c.drawImage(apoImg, x, y, size, size); c.restore();
+        px(c, 0, ch - ch * 0.1 + size * 0.06, cw, 3 * U, '#2a2e38');
+      }
+      if (here) { const flash = reduceMotion || Math.floor(now / 350) % 2 === 0;
+        pill('⚠ CAT ON THE CONSOLE', cw / 2, ch * 0.27, 15 * U, '#ffffff', flash ? '#ff3b3b' : '#a01818');
+        pill('◀ ROT ▶ SWAPPED · THRUST KNEADING', cw / 2, ch * 0.27 + 34 * U, 11 * U, '#ffb547', 'rgba(10,14,28,0.9)', '#ffb547');
+        pill('TAP APOGEE TO SHOO HER!', cw / 2, ch - ch * 0.1 - Math.min(cw * 0.5, ch * 0.28) - 14 * U, 13 * U, '#0a0e1c', '#ffe58a'); }
+      const SY = S.apoSay; if (SY && now - SY.t < 3200) { c.globalAlpha = Math.min(1, (3200 - (now - SY.t)) / 400); c.font = `700 ${12 * U}px ui-monospace, monospace`; const words = ('GUS: ' + SY.text).split(' '), lines = []; let ln = ''; for (const w of words) { if (c.measureText(ln + w).width > cw * 0.8) { lines.push(ln.trim()); ln = ''; } ln += w + ' '; } lines.push(ln.trim());
+        const y0 = ch * 0.27 + 66 * U, lh = 16 * U, bw = cw * 0.86; c.fillStyle = 'rgba(10,14,28,0.9)'; c.strokeStyle = '#7fe8ff'; c.lineWidth = 1.5; c.beginPath(); c.roundRect(cw / 2 - bw / 2, y0 - 12 * U, bw, lines.length * lh + 10 * U, 8 * U); c.fill(); c.stroke(); c.fillStyle = '#bff4ff'; lines.forEach((l, i) => c.fillText(l, cw / 2, y0 + i * lh)); c.globalAlpha = 1; }
+    }
+    c.restore();
+  }
+  stage.addEventListener('pointerdown', e => { if (mode !== 'flying' || !apoOn()) return; const r = stage.getBoundingClientRect(); if (e.clientY - r.top > r.height * 0.5) { e.preventDefault(); apoShoo(); } });
+  addEventListener('keydown', e => { if (mode === 'flying' && apoOn() && (e.code === 'ArrowDown' || e.code === 'KeyS')) { e.preventDefault(); apoShoo(); } }, true);
   function shoreHello(kind) {
     if (deck.scene) return;
     if (kind === 'ggrotto') {
@@ -22300,6 +22469,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mission || tut) drawGoalArrow(time);
     if ((world.hazard === 'storm' || (mission && mission.def.storm)) && (mode === 'flying' || mode === 'paused') && stormState().on) drawStatic();
     if (shaking) ctx.restore();
+    drawStyleFx(time);
     if (mode === 'replay' && replay) {
       // cinematic bars
       const bh = Math.round(ch * 0.09);
@@ -23322,6 +23492,7 @@ details.act > .limits { margin: 0 0 8px; }
   function frame(now) {
     const realDt = Math.min(0.1, (now - last) / 1000);
     let frameDt = realDt;
+    if (mode === 'flying' && now < styleSlowUntil && !reduceMotion) frameDt *= 0.35;
     if (mode === 'touchdown') {
       if (hold.slow) frameDt *= 0.3;
       if (now >= hold.until) setMode(hold.next);
