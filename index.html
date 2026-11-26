@@ -420,7 +420,34 @@ kbd {
 .gstats div { border: 1px solid #2a4a6a; border-radius: 10px; padding: 6px 10px; display: flex; flex-direction: column; text-align: left; }
 .qnew-card .gstats b { font: 800 15px var(--f-display); color: #f4f8ff; text-transform: none; letter-spacing: 0; }
 .gstats span { font-size: 10px; color: var(--regolith-dim); letter-spacing: .08em; text-transform: uppercase; }
-.zstall.gany { border-color: #7fe8ff; } .zstall.gany .ztrade { border-color: #7fe8ff; }
+.zstall.gany { border-color: #7fe8ff; }
+.gdots { display: inline-flex; gap: 2px; vertical-align: -2px; }
+.gd { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; font-style: normal; font-size: 8px; line-height: 1; color: #0a0e1c; }
+.gd.g { background: #ffd27a; box-shadow: 0 0 6px #ffd27a; } .gd.b { background: #7fe8ff; box-shadow: 0 0 6px #7fe8ff; } .gd.p { background: #ff9ad5; box-shadow: 0 0 6px #ff9ad5; } .gd.v { background: #c8a2ff; box-shadow: 0 0 6px #c8a2ff; } .gd.m { background: #9fe0b8; box-shadow: 0 0 6px #9fe0b8; }
+.gd.big, .gdots.big .gd { width: 30px; height: 30px; font-size: 15px; }
+.gdots.big { gap: 6px; }
+b.gw { color: #ffffff; } .gsep { color: var(--regolith-dim); } .zt { color: var(--regolith-dim); font-size: 0.92em; }
+.gpanel.glowpanel { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.gpanel.glowpanel .eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--regolith-dim); }
+.gpanel.glowpanel .gpt { font: 800 16px var(--f-display); letter-spacing: .04em; color: #c8a2ff; }
+.gpanel.glowpanel .btns { justify-content: center; }
+.gshow { display: flex; flex-direction: column; align-items: center; gap: 4px; } .gmean { color: #ffffff; font-size: 12px; }
+.gslots { display: flex; gap: 8px; min-height: 30px; } .gslot { display: inline-block; width: 30px; height: 30px; border-radius: 50%; border: 2px dashed #4a3a7a; box-sizing: border-box; }
+.gtimer { width: 100%; max-width: 320px; height: 6px; border-radius: 3px; background: #1a1a34; overflow: hidden; } .gtimer i { display: block; height: 100%; width: 100%; background: #c8a2ff; }
+.gpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 100%; max-width: 320px; }
+.gk { aspect-ratio: 1; border-radius: 50%; border: none; font-size: 20px; color: #0a0e1c; cursor: pointer; touch-action: manipulation; }
+.gk:active { transform: scale(0.9); } .gk:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+.gk.g { background: #ffd27a; box-shadow: 0 0 14px #ffd27a; } .gk.b { background: #7fe8ff; box-shadow: 0 0 14px #7fe8ff; } .gk.p { background: #ff9ad5; box-shadow: 0 0 14px #ff9ad5; } .gk.v { background: #c8a2ff; box-shadow: 0 0 14px #c8a2ff; } .gk.m { background: #9fe0b8; box-shadow: 0 0 14px #9fe0b8; }
+.shake { animation: gshake .3s; } @keyframes gshake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
+.gprog { width: 100%; height: 8px; border-radius: 4px; background: #1a1a34; overflow: hidden; } .gprog i { display: block; height: 100%; background: linear-gradient(90deg, #ffd27a, #7fe8ff, #ff9ad5, #c8a2ff, #9fe0b8); }
+.gbrows { width: 100%; display: flex; flex-direction: column; gap: 6px; max-height: 46vh; overflow-y: auto; }
+.grow { display: grid; grid-template-columns: 68px 1fr auto; gap: 10px; align-items: center; border: 1px solid #2a2a4a; border-radius: 10px; padding: 8px 10px; text-align: left; }
+.grow.q { border-style: dashed; } .grow.q > b { color: var(--regolith-dim); }
+.qnew-card .grow b { font: 700 13px var(--f-mono); color: #ffffff; text-transform: none; letter-spacing: 0; display: flex; flex-direction: column; }
+.grow small { color: var(--regolith-dim); font-size: 10px; font-weight: 400; } .grow .btn { padding: 6px 10px; font-size: 11px; }
+.gshadow { width: 30px; height: 18px; border-radius: 50%; background: #0a1020; color: #3a5a80; display: grid; place-items: center; font-size: 11px; }
+.gguess { width: 100%; display: flex; flex-direction: column; gap: 6px; } .gguess p { margin: 0; } .zstall.gany .ztrade { border-color: #7fe8ff; }
 .maglev .mlview { width: 100%; height: 54px; border-radius: 8px; border: 1px solid var(--space-2); background: linear-gradient(#5a2a3a, #b8583a 45%, #f0a060 64%, #4a3a44 64%); position: relative; overflow: hidden; box-shadow: inset 0 -2px 0 #7fd6ff; }
 .maglev .mlview i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 46px, #2a1d28 46px 52px); animation: mlrun .5s linear infinite; }
 @keyframes mlrun { to { background-position: 52px 0; } }
@@ -5661,6 +5688,7 @@ details.act > .limits { margin: 0 0 8px; }
       liftGo() { tone(98, 'triangle', 0, 1.3, 0.07); tone(147, 'sine', 0.05, 1.2, 0.04); },
       drama() { tone(659, 'square', 0, 0.16, 0.05); tone(523, 'square', 0.16, 0.16, 0.05); tone(392, 'square', 0.32, 0.5, 0.06); tone(98, 'sawtooth', 0.32, 0.6, 0.05); },
       chime() { tone(784, 'sine', 0, 0.35, 0.08); tone(587, 'sine', 0.22, 0.5, 0.08); },
+      glow(i) { const f = [523, 659, 784, 880, 1047][i] || 660; tone(f, 'sine', 0, 0.45, 0.07); tone(f * 2, 'triangle', 0, 0.2, 0.015); },
       ding() { tone(1318, 'sine', 0, 0.6, 0.13); tone(1046, 'sine', 0.2, 0.9, 0.13); },
       cheer(love) {
         const n = love ? [784, 988, 1175, 1568] : [523, 659, 784, 1047, 784, 1047, 1319];
@@ -6280,11 +6308,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -9465,6 +9493,16 @@ details.act > .limits { margin: 0 0 8px; }
   DEN_ITEMS.wallR.push({ id: 'pearlstring', gany: 'pearlstring', name: 'String of glow-pearls', price: 0, blurb: 'Grand-Bloom’s thanks for bringing back the lost pearls. They glow softly in the dark, one for each memory.',
     lines: ['The pearls glow brighter when you’re sad. Gus has tested this. Gus was not sad. Gus was acting.', 'Every pearl is a memory, Grand-Bloom says. You’re not sure whose.'],
     draw(c, x, y, t) { c.strokeStyle = '#8a6a4a'; c.beginPath(); c.moveTo(x + 2, y + 4); c.quadraticCurveTo(x + 15, y + 20, x + 28, y + 4); c.stroke(); for (let k = 0; k < 7; k++) { const s = k / 6, px2 = x + 2 + 26 * s, py = y + 4 + 16 * 2 * s * (1 - s) * 2 * 0.5 * 2, gl = reduceMotion ? 0.5 : (Math.sin((t || 0) / 500 + k) + 1) / 2; c.fillStyle = `rgba(220,240,255,${0.3 + gl * 0.4})`; c.beginPath(); c.arc(px2, py, 3, 0, Math.PI * 2); c.fill(); c.fillStyle = '#f4f8ff'; c.beginPath(); c.arc(px2, py, 1.6, 0, Math.PI * 2); c.fill(); } } });
+  DEN_ITEMS.shelf.push({ id: 'singcrystal', gany: 'singcrystal', name: 'Singing crystal', price: 0, blurb: 'A crystal from the Grotto that opened the Deep Door. Echo says it remembers the song.',
+    lines: ['Tap it and it hums one clear note. Gus says it’s an A. Gus is wrong. It’s a gold.', 'At night it glows a soft violet and hums very quietly.'],
+    draw(c, x, y, t) { const g = reduceMotion ? 0.5 : (Math.sin((t || 0) / 600) + 1) / 2; c.fillStyle = `rgba(200,162,255,${0.15 + g * 0.2})`; c.beginPath(); c.arc(x + 8, y + 4, 9, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#8a6ac8'; c.beginPath(); c.moveTo(x + 4, y + 11); c.lineTo(x + 6, y - 3); c.lineTo(x + 8, y - 6); c.lineTo(x + 8, y + 11); c.fill(); c.fillStyle = '#c8a2ff'; c.beginPath(); c.moveTo(x + 8, y + 11); c.lineTo(x + 8, y - 6); c.lineTo(x + 10, y - 3); c.lineTo(x + 12, y + 11); c.fill();
+      px(c, x + 9, y - 2, 1, 9, '#ffffff'); px(c, x + 2, y + 11, 12, 1, '#5a4636'); } });
+  DEN_ITEMS.floor.push({ id: 'fishtank', gany: 'fishtank', name: 'Glowfish tank', price: 0, blurb: 'Finn built it for whoever caught all eight. The fish inside are tiny Ganymede cousins, and they glow words at the glass.',
+    lines: ['A minnow glows “hello” at you every morning. You glow it back. It’s your routine now.', 'Biscuit sits in front of it for hours. The fish have started glowing “no” at him.'],
+    draw(c, x, y, t) { const tt = reduceMotion ? 0 : (t || 0); px(c, x + 2, y + 24, 22, 4, '#5a4636'); c.fillStyle = 'rgba(30,90,130,0.85)'; c.fillRect(x + 3, y + 8, 20, 16); c.fillStyle = 'rgba(191,244,255,0.4)'; c.fillRect(x + 3, y + 8, 20, 2);
+      [['#7fe8ff', 0], ['#ff9ad5', 2], ['#ffd27a', 4]].forEach(([col, k]) => { const fx = x + 6 + ((tt / 60 + k * 7) % 14), fy = y + 13 + k; px(c, Math.round(fx), fy, 3, 2, col); px(c, Math.round(fx) - 1, fy, 1, 2, col); });
+      px(c, x + 3, y + 7, 20, 1, '#c9cfdc'); px(c, x + 2, y + 8, 1, 16, '#c9cfdc'); px(c, x + 23, y + 8, 1, 16, '#c9cfdc'); } });
   DEN_ITEMS.floor.push({ id: 'racecup', name: 'Grand Prix cup', price: 0, raceWon: 'race-gp', blurb: 'The Apex Grand Prix cup. Apex engraved it before the race, expecting Vanta. Gus filed off “APEX” and engraved “DESCENT SYSTEMS” over the scratch.',
     lines: ['The cup catches the light. Somewhere on floor 99, someone is very annoyed.', 'Rex polishes it every time he visits. He talks to it. Quietly.'],
     draw(c, x, y) { px(c, x + 7, y + 24, 10, 4, '#5a4636'); px(c, x + 5, y + 27, 14, 2, '#7a5c44'); px(c, x + 10, y + 18, 4, 6, '#e0b060'); c.fillStyle = '#ffd27a'; c.beginPath(); c.moveTo(x + 4, y + 4); c.lineTo(x + 20, y + 4); c.lineTo(x + 17, y + 16); c.lineTo(x + 7, y + 16); c.closePath(); c.fill();
@@ -10075,7 +10113,7 @@ details.act > .limits { margin: 0 0 8px; }
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
-    else if (it.gany) action = `<button class="btn" disabled>${it.gany === 'pearlstring' ? 'Bring Grand-Bloom 4 glow-pearls on Ganymede' : 'Trade for it in Ganymede’s Drift Market'}</button>`;
+    else if (it.gany) action = `<button class="btn" disabled>${{ pearlstring: 'Bring Grand-Bloom 4 glow-pearls on Ganymede', singcrystal: 'Open the Deep Door in Ganymede’s Crystal Grotto', fishtank: 'Catch all 8 fish in Ganymede’s Glow Pool' }[it.gany] || 'Trade for it in Ganymede’s Drift Market'}</button>`;
     else if (it.raceWon) action = '<button class="btn" disabled>Win the Apex Grand Prix at the Mars Speedway</button>';
     else if (it.shore) action = '<button class="btn" disabled>Go ashore at Moonbase Pim (from the bridge) and take one from the rack</button>';
     else if (it.quest) action = `<button class="btn" disabled>Finish ${questName(it.quest)} to get it</button>`;
@@ -10389,7 +10427,7 @@ details.act > .limits { margin: 0 0 8px; }
     holder.stepT = (holder.stepT || 0) - dt;
     if (holder.stepT <= 0) { holder.stepT = 0.3; sfx.step(surface); }
   }
-  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete', engine: 'metal', lift: 'metal' };
+  const ROOM_FLOOR = { hall: 'metal', bridge: 'metal', dome: 'metal', quarters: 'carpet', bedroom: 'carpet', garden: 'tile', galley: 'tile', lounge: 'wood', den: 'carpet', garage: 'concrete', engine: 'metal', lift: 'metal', ggrotto: 'carpet' };
   // a little speech bubble over someone's head: heart, !, wave, dots, note
   function drawEmote(c, kind, x, y, t, t0) {
     const age = t0 == null ? 1 : (t - t0) / 1000;
@@ -11060,6 +11098,8 @@ details.act > .limits { margin: 0 0 8px; }
       mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
       gany: ['The Drift Market', 'Ganymede, the Drift Market: a tall cavern under the ice with Jupiter through a crack in the ceiling. Three levels of ice ledges joined by rope bridges, with stairs, a lift, a rope climb, a kelp vine and an ice slide between them. Zib’s people, glowing jellies, live and trade here. Tap anywhere to walk there, even on another level. The Cavern map button shows what you’ve found.'],
+      ggrotto: ['The Crystal Grotto', 'The Crystal Grotto: a snowy winter landscape under the ice, with crystal pine trees, a frozen waterfall and pond, and Jupiter glowing like a moon through the ice. Five singing crystals stick out of the snow: gold, ice blue, violet, pink and mint. Echo, the old crystal elder, sleeps by the pond. A round ice door, the Deep Door, is set into a snow mound in the middle. The way out is on the left.'],
+      gpool: ['The Glow Pool', 'The Glow Pool from above: a dark, round pool ringed with ice and snow, with a wooden jetty running out into it from the bottom. Shadowy fish swim under the water. Tap the water to cast; when a fish bites it glows a word, and you tap the same colours back with the colour pads below. Up and down arrows walk along the jetty, and keys 1 to 5 glow colours.'],
       mrace: ['Mars Speedway', 'The Mars Speedway: a huge window onto Red Canyon, where race landers zoom through glowing gates. From left: the maglev, Race Control (where you pick a race), the packed stands with an empty gold box at the top, the announcer’s booth, the leaderboard, and Apex Racing’s garage with three racers. Your trophy case is by Race Control. Tap to walk; walk up to things to use them.'],
       mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that flips to another face every few seconds, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
       mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of Apex’s leaders, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering hologram by the lift. The door at the bottom goes back to the street.'],
@@ -11072,16 +11112,18 @@ details.act > .limits { margin: 0 0 8px; }
       <canvas class="room walkroom" id="shipCv" width="512" height="320" tabindex="0" role="application" aria-label="${T[1]}"></canvas>
       <div class="radio quote" id="shipSay" aria-live="polite"></div>
       <button class="btn ghost scene-skip" id="sceneSkip" hidden>Skip scene ⏭</button>
+      ${kind === 'ggrotto' || kind === 'gpool' ? '<div class="gpanel" id="glowPanel" aria-live="polite" hidden></div>' : ''}
       ${gdn ? '<div class="gpanel" id="gardenPanel" aria-live="polite"></div>' : ''}${gal ? '<div class="gpanel" id="galleyPanel" aria-live="polite"></div>' : ''}${eng ? '<div class="gpanel" id="enginePanel"></div>' : ''}${lift ? '<div class="gpanel" id="liftPanel" aria-live="polite"></div>' : ''}
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         ${kind === 'bridge' ? '<button class="btn ghost" id="shipMap">🗺️ System map</button>' : ''}
-        ${kind === 'gany' ? '<button class="btn ghost" id="ganyMapBtn">🗺️ Cavern map</button>' : ''}
+        ${GANY_KINDS.includes(kind) ? '<button class="btn ghost" id="ganyMapBtn">🗺️ Cavern map</button><button class="btn ghost" id="ganyBookBtn">📖 Glow Book</button>' : ''}
         ${kind === 'bridge' && mapShore(shipAt()) ? `<button class="btn ghost" id="shipAshore">${SHORE_PLACES[mapShore(shipAt())].icon} Go ashore</button>` : ''}
-        <button class="btn ghost" id="back">${SHORE_KINDS.includes(kind) ? '🚀 Back to the ship' : '☰ Menu'}</button>
+        <button class="btn ghost" id="back">${kind === 'ggrotto' || kind === 'gpool' ? '⬅ Back to the cavern' : SHORE_KINDS.includes(kind) ? '🚀 Back to the ship' : '☰ Menu'}</button>
       </div>
     </div>`;
-    $('back').addEventListener('click', () => SHORE_KINDS.includes(kind) ? shoreLeave() : setMode('shipmenu'));
+    $('back').addEventListener('click', () => kind === 'ggrotto' || kind === 'gpool' ? (sfx.click(), gpad = null, walkEnter = kind, setMode('gany')) : SHORE_KINDS.includes(kind) ? shoreLeave() : setMode('shipmenu'));
+    { const gb = $('ganyBookBtn'); if (gb) gb.addEventListener('click', () => { sfx.click(); openGlowBook(); }); }
     { const sa = $('shipAshore'); if (sa) sa.addEventListener('click', () => { sfx.click(); openShore(mapShore(shipAt())); }); }
     { const gm = $('ganyMapBtn'); if (gm) gm.addEventListener('click', () => { sfx.click(); openGanyMap(); }); }
     { const sm = $('shipMap'); if (sm) sm.addEventListener('click', () => { sfx.click(); mapSel = null; setMode('sysmap'); }); }
@@ -11097,27 +11139,35 @@ details.act > .limits { margin: 0 0 8px; }
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
     } else if (kind === 'gany') {
-      start = { x: 52, y: 199, dir: 0, floor: 't1' };
+      start = from === 'ggrotto' ? { x: 488, y: 338, dir: 1, floor: 't2' } : from === 'gpool' ? { x: 232, y: 519, dir: 0, floor: 't3' } : { x: 52, y: 199, dir: 0, floor: 't1' };
+    } else if (kind === 'ggrotto') {
+      start = { x: 24, y: 172, dir: 2 };
+    } else if (kind === 'gpool') {
+      start = { x: 128, y: 118, dir: 3 };
     } else if (MARS_KINDS.includes(kind)) {
       start = kind === 'mrace' ? { x: 40, y: 80, dir: 0 } : kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : kind === 'gany' ? GANY_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'gany' ? [0, 0, GANY_W, GANY_H] : kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : kind === 'gany' ? GANY_W : kind === 'ggrotto' ? GR_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'gany' ? [0, 0, GANY_W, GANY_H] : kind === 'ggrotto' ? [14, 150, 306, 192] : kind === 'gpool' ? [118, 114, 138, 286] : kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
-      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || kind === 'gany' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || GANY_KINDS.includes(kind) || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
     { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
     deck.cat = hall && !catHiding() && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
+    deck.from = from;
     if (kind === 'gany') { deck.view = { ...GANY_VIEW, cx: 0, cy: 0 }; fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y - 30, GANY_W, GANY_H); gArrive('t1'); }
+    else if (kind === 'ggrotto') { deck.H = GR_H; deck.view = { vw: 256, vh: GR_H, cx: 0, cy: 0 }; fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, GR_W, GR_H); }
+    else if (kind === 'gpool') { deck.H = PL_H; deck.fsh = { state: 'idle' }; deck.view = { vw: PL_W, vh: PL_H, cx: 0, cy: 0 }; fitRoomCanvas(cv, deck.view); }
     else { deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H); }
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
       if (deck.scene) { if (deck.scene.ready) roomSceneNext(); return; }
+      if (deck.kind === 'gpool') { const [px2, py2] = toWorld(e); poolTap(px2, py2); return; }
       const [x, y] = toWorld(e), me = deck.me, B = deck.B;
       const hit = shipThings().find(t2 => x >= t2.rect[0] && x <= t2.rect[0] + t2.rect[2] && y >= t2.rect[1] && y <= t2.rect[1] + t2.rect[3]);
       deck.target = hit || null; me.sit = false;
@@ -11128,13 +11178,13 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { gany: ganyDraw, pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { gany: ganyDraw, ggrotto: grottoDraw, gpool: poolDraw, pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
       deck.last = t;
       shipStep(dt);
-      if (!deck) return;
+      if (!deck || deck.cv !== cv) return;
       draw(t); if (!SHORE_KINDS.includes(kind)) eventDecor(deck.c, () => camT(deck.c, deck.view), deck.W, 160, t, kind, deck.view.cy);
       deck.bar = (deck.bar || 0) + ((deck.scene ? 1 : 0) - (deck.bar || 0)) * Math.min(1, dt * 7);
       if (deck.bar > 0.01) { const c = deck.c, h = Math.round(deck.cv.height * 0.12 * deck.bar); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#05070f'; c.fillRect(0, 0, deck.cv.width, h); c.fillRect(0, deck.cv.height - h, deck.cv.width, h);
@@ -11194,6 +11244,8 @@ details.act > .limits { margin: 0 0 8px; }
     npcThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
     if (deck.kind === 'gany') { ganyThings(L); return L; }
+    if (deck.kind === 'ggrotto') { grottoThings(L); return L; }
+    if (deck.kind === 'gpool') return L;
     if (deck.kind === 'pim') { pimThings(L); return L; }
     if (deck.kind === 'mdock') { mdockThings(L); return L; }
     if (deck.kind === 'mmain') { mmainThings(L); return L; }
@@ -11273,6 +11325,8 @@ details.act > .limits { margin: 0 0 8px; }
   function shipStep(dt) {
     npcStep(dt);
     if (deck.kind === 'gany') { gStep(dt); return; }
+    if (deck.kind === 'gpool') { poolStep(dt); return; }
+    if (deck.kind === 'ggrotto') grottoStep(dt);
     const me = deck.me, B = deck.B, SPEED = 56;
     const lock = !!deck.scene, kx = lock ? 0 : (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = lock ? 0 : (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
     if (lock) { me.goal = null; const sp = deck.npcs.find(n => n.who === deck.scene.speaker); if (sp) me.dir = faceToward(me, sp); }
@@ -11301,7 +11355,7 @@ details.act > .limits { margin: 0 0 8px; }
     }
     footstep(me, me.moving, dt, ROOM_FLOOR[deck.kind]);
     hallCatStep(dt);
-    if (deck.scene) { const [fx, fy] = sceneFocus(); camAim(deck.view, fx, fy, deck.W, SHIP_H, dt * 0.45); } else camAim(deck.view, me.x, me.y, deck.W, SHIP_H, dt);
+    if (deck.scene) { const [fx, fy] = sceneFocus(); camAim(deck.view, fx, fy, deck.W, deck.H || SHIP_H, dt * 0.45); } else camAim(deck.view, me.x, me.y, deck.W, deck.H || SHIP_H, dt);
   }
   // a little amber plate with a word on it
   function doorPlate(c, cx, y, label, lit) {
@@ -11818,6 +11872,8 @@ details.act > .limits { margin: 0 0 8px; }
       const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace';
       shoreParty.forEach((w, i) => add(w, Math.max(16, mx - 20 - i * 14), street ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
       if (kind === 'gany') { L.forEach(n => { n.follow = false; n.y = 199; }); return L; }
+      if (kind === 'ggrotto') { L.forEach((n, i) => { n.x = 10; n.y = 168 + i * 8; }); return L; }
+      if (kind === 'gpool') { L.forEach(n => { n.follow = false; }); return L; }
       if (kind === 'mdiner') { add('RB', 196, 104, { baseDir: 0, local: true }); return L; }
       if (kind === 'mlobby') { add('AX', 132, 70, { baseDir: 0, local: true }); return L; }
       if (MARS_KINDS.includes(kind)) return L;
@@ -18143,7 +18199,7 @@ details.act > .limits { margin: 0 0 8px; }
     sfx.click();
     const fade = document.createElement('div');
     fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
-    fade.innerHTML = `<div class="zz" aria-hidden="true">🚀</div><b>Back aboard</b><span>${deck && MARS_KINDS.includes(deck.kind) ? 'The docking ring spun shut. A drone waved goodbye. Probably.' : 'Pim waved until the airlock closed'}</span>`;
+    fade.innerHTML = `<div class="zz" aria-hidden="true">🚀</div><b>Back aboard</b><span>${deck && MARS_KINDS.includes(deck.kind) ? 'The docking ring spun shut. A drone waved goodbye. Probably.' : deck && GANY_KINDS.includes(deck.kind) ? 'The jellies glowed goodbye until the lift reached the surface' : 'Pim waved until the airlock closed'}</span>`;
     document.body.appendChild(fade);
     setTimeout(() => { walkEnter = 'missions'; setMode('bridge'); }, reduceMotion ? 50 : 900);
     setTimeout(() => fade.remove(), reduceMotion ? 1200 : 2200);
@@ -18173,7 +18229,7 @@ details.act > .limits { margin: 0 0 8px; }
   const APEX_PRE = () => ({ F: sableKnown() ? ['Sable is somewhere in that tower. Doing maths about us.', 'Walk quickly. Don’t make eye contact with the drones. Or the billboard.'] : ['Everything here is very clean. Too clean. Like nobody’s allowed to make a mistake.', 'Walk quickly. Don’t make eye contact with the drones.'],
     Q: ['Sable is on floor ninety-nine right now. I can feel her looking down.', 'Same drones. Same smell of new carpet. I hate it here. I’m glad I came. Both of those.'],
     J: sableKnown() ? ['She bought my dockhands’ jobs and Dottie’s loans with the same pen. I’d like to see that pen snap.', 'Every shiny window on this street was paid for by someone like my dockhands.'] : ['Every shiny window on this street was paid for by someone like my dockhands.', 'Apex moved in, the dock went quiet. That’s how it works here.'] });
-  function shoreLine(w) { const L = (deck && deck.kind === 'gany' && GANY_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && !apexOpen() && APEX_PRE()[w]) || (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  function shoreLine(w) { const L = (deck && GANY_KINDS.includes(deck.kind) && GANY_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && !apexOpen() && APEX_PRE()[w]) || (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -19366,7 +19422,7 @@ details.act > .limits { margin: 0 0 8px; }
       const st = deck.route[0];
       if (st.walk != null) {
         const d = st.walk - me.x;
-        if (Math.abs(d) < 1.2) { deck.route.shift(); if (!deck.route.length) { deck.route = null; shipArrive(); } }
+        if (Math.abs(d) < 1.2) { deck.route.shift(); if (!deck.route.length) { deck.route = null; shipArrive(); if (deck.kind !== 'gany') return; } }
         else { me.x += Math.sign(d) * Math.min(Math.abs(d), SPEED * dt); me.dir = d < 0 ? 1 : 2; me.moving = true; }
       } else if (st.ride) deck.ride = { c: st.ride, fwd: st.fwd, s: 0 };
     }
@@ -19406,16 +19462,18 @@ details.act > .limits { margin: 0 0 8px; }
       { id: 'l-flower', give: [['flowers', 2]], get: () => gOwn('lantern') ? ['🍵 1 tea', () => put('tea', 1)] : ['🏮 A Ganymede paper lantern for your Pad', () => gGive('lantern')], say: 'The lantern-keeper wraps it in thin ice paper and glows a happy orange.' },
       { id: 'l-pastry', give: [['pastry', 1]], get: () => ['💎 1 gem', () => put('gem', 1)], say: 'Lumen holds the pastry up to the light for a long time. Then eats it in one go.' },
       { id: 'l-tea', give: [['tea', 1]], get: () => ['🌸 3 flowers', () => put('flowers', 3)], say: 'Tea! Down here it freezes in the cup. They love it anyway.' },
+      { id: 'l-fish', give: [['glowfish', 2]], get: () => ['🍵 2 tea', () => put('tea', 2)], say: 'Lumen puts one glowfish in a lantern and the other in the soup. Both look happy about it. One more than the other.' },
       { id: 'l-coffee', give: [['coffee', 1]], get: () => ['🍫 2 chocolate', () => put('choc', 2)], say: 'The keeper sniffs the coffee and glows so bright the whole stall lights up.' }],
     shiny: [
       { id: 's-parts', give: [['parts', 2]], get: () => ['💎 1 gem', () => put('gem', 1)], say: 'BOLTS! The cousins pass them round and glow very fast. Zib says that means “we are rich now”.' },
       { id: 's-choc', give: [['choc', 1]], get: () => [`🌌 An aurora paint chip (${Math.min(3, auroraChips() + 1)} of 3)`, () => auroraChip()], say: 'The cousin with the spoon eats the chocolate with the spoon. Then gives you a chip of aurora, sealed in ice.' },
       { id: 's-pastry', give: [['pastry', 1]], get: () => gOwn('jellyglass') ? ['🍫 2 chocolate', () => put('choc', 2)] : ['🫧 A jelly-glass ornament for your Pad', () => gGive('jellyglass')], say: 'They spin a tiny jelly out of warm glass while you watch. It has Zib’s face. All of them do.' },
+      { id: 's-fish', give: [['glowfish', 3]], get: () => [`🌌 An aurora paint chip (${Math.min(3, auroraChips() + 1)} of 3)`, () => auroraChip()], say: 'The cousins put the fish in a bowl and stare at them for a long time. Apparently that is a fair trade.' },
       { id: 's-gem', give: [['gem', 1]], get: () => ['🔩 3 Crumb parts', () => store.set('ds-crumbParts', String(crumbParts() + 3))], say: 'A gem! The cousins hold it up to Jupiter’s light. Then hand over three bolts like it’s a fair trade. It is, apparently.' }]
   };
-  const gHas = ([id, n]) => id === 'parts' ? crumbParts() >= n : have(id) >= n;
-  const gTake = ([id, n]) => id === 'parts' ? store.set('ds-crumbParts', String(crumbParts() - n)) : take(id, n);
-  const gItemText = ([id, n]) => id === 'parts' ? `🔩 ${n} Crumb parts` : `${giftIcon(id)} ${n} ${giftName(id)}`;
+  const gHas = ([id, n]) => id === 'glowfish' ? gStore('fishbag', 0) >= n : id === 'parts' ? crumbParts() >= n : have(id) >= n;
+  const gTake = ([id, n]) => id === 'glowfish' ? gSet('fishbag', gStore('fishbag', 0) - n) : id === 'parts' ? store.set('ds-crumbParts', String(crumbParts() - n)) : take(id, n);
+  const gItemText = ([id, n]) => id === 'glowfish' ? `🐟 ${n} glowfish` : id === 'parts' ? `🔩 ${n} Crumb parts` : `${giftIcon(id)} ${n} ${giftName(id)}`;
   // three offers a day per stall, each once a day
   function gOffers(stall) { const L = GANY_TRADES[stall], r = mulberry32(hashStr(stall + shipDay)), pool = L.slice(), out = []; while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(r() * pool.length), 1)[0]); return out; }
   const gDone = () => { const v = gStore('trades', {}); return v.day === shipDay ? v : { day: shipDay, ids: [] }; };
@@ -19443,12 +19501,6 @@ details.act > .limits { margin: 0 0 8px; }
   // ---- the jellyfolk: everyone has Zib's face; Zib translates if he's with you ----
   const GLOW = ['🟡', '🔵', '🟣', '🩷', '🟢'];
   const gGlowWords = n => { let s = ''; for (let i = 0; i < 4; i++) s += GLOW[(n * 7 + i * 3) % GLOW.length]; return s; };
-  function gTalk(name, lines, seed) {
-    sfx.click();
-    const line = lines[Math.floor(Math.random() * lines.length)];
-    if (shoreParty.includes('Z')) shipSay('Z', `${name} says: “${line}” Zib is translating! Mostly correctly!`);
-    else shipSay('P', `${name} glows at you: ${gGlowWords(seed + Math.floor(Math.random() * 5))}. You don’t speak glow. Zib would know what it means.`);
-  }
   function grandBloom() {
     sfx.click();
     const n = gStore('pearls', []).length, given = gStore('given', 0), zib = shoreParty.includes('Z');
@@ -19460,38 +19512,41 @@ details.act > .limits { margin: 0 0 8px; }
       shipSay(zib ? 'Z' : 'P', zib ? `Grand-Bloom takes the pearls very slowly and glows like a sunrise. She says: “${n} of ${PEARL_TOTAL}. The cavern remembers you now, small warm one.”${got.length ? ` She gives you ${got.join(' and ')}!` : ''}` : `Grand-Bloom takes your pearls very slowly and glows like a sunrise. ${n} of ${PEARL_TOTAL}.${got.length ? ` She gives you ${got.join(' and ')}.` : ''}`);
       sfx.coin(); return;
     }
-    gTalk('Grand-Bloom', ['When I was small, this cavern was one room and one lantern. Now look.', 'Bring me the lost pearls, small warm one. Each one is a memory that rolled away.', 'Your Zib was the loudest baby jelly in the history of Ganymede. He still is.', 'The ice is thick this year. Some doors are still frozen. They will thaw.'], 1);
+    gTalk('Grand-Bloom', ['When I was {small}, this cavern was one room and one {light}. Now look.', 'Bring me the lost pearls, small {warm} one. Each one is a memory that rolled away.', 'Your Zib was the loudest baby jelly in the history of Ganymede. He still is. {yes}.', 'The {ice} is thick this year. Learn our words, and the frozen doors will listen.'], 1);
   }
   // ---- things in the cavern ----
   function ganyThings(L) {
     const T = (id, fl, x0, w, y0, h, gx, act) => L.push({ id, fl, rect: [x0, y0, w, h], go: () => [gx, gFloorY(fl, gx)], at: () => ({ x: x0 + w / 2, y: y0 + h / 2 }), act });
     T('ship', 't1', 26, 46, 132, 66, 50, () => shoreLeave());
     T('lanternstall', 't1', 94, 52, 160, 40, 120, () => { sfx.click(); openGanyStall('lantern'); });
-    T('lumen', 't1', 138, 18, 170, 26, 120, () => gTalk('Lumen the lantern-keeper', ['Every lantern I make goes up to Jupiter one day. That is where the old lanterns go.', 'Bring me flowers. Up here nothing grows. Well. Except me.', 'Your little ship is very loud. We like loud.'], 2));
-    T('tea', 't1', 168, 50, 160, 40, 192, () => gTalk('Steep, the tea-keeper', ['Tea freezes in the cup down here. We eat it like a sweet.', 'Sit. Drink. Nobody hurries on Ganymede. Except Zib.'], 3));
+    T('lumen', 't1', 138, 18, 170, 26, 120, () => gTalk('Lumen the lantern-keeper', ['Every {light} I make goes up to {jupiter} one day. That is where the {old} lanterns go.', '{hello}! Bring me flowers. Up here nothing grows. Well. Except me.', 'Your {small} ship is very loud. We like loud. {yes}.'], 2));
+    T('tea', 't1', 168, 50, 160, 40, 192, () => gTalk('Steep, the tea-keeper', ['{warm} tea freezes in the cup down here. We eat it like a sweet.', 'Sit. Drink. Nobody hurries on Ganymede. Except Zib. {yes}, Zib.'], 3));
     T('waterfall', 't1', 236, 36, 206, 70, 256, () => { deck.route = [{ ride: GC.find(c => c.id === 'water'), fwd: true }]; });
     T('waterBack', 'wf', 244, 18, 262, 28, 252, () => { deck.route = [{ ride: GC.find(c => c.id === 'water'), fwd: false }]; });
     T('ropeLoft', 'loft', 510, 22, 66, 28, 520, () => { deck.route = [{ ride: GC.find(c => c.id === 'rope'), fwd: false }]; });
-    T('fish', 't1', 338, 54, 156, 40, 364, () => gTalk('Finn the fishmonger', ['Glowfish! Fresh from the pool! The pool is frozen! They are very fresh!', 'Soon you can catch your own. When the jetty thaws. Grand-Bloom says soon.'], 4));
-    T('family', 't1', 424, 34, 168, 30, 436, () => gTalk('a jelly with a basket', ['Is that a human? Look, little one. A human. Don’t poke it.', 'We are going to the Glow Pool. You should come. Everyone comes.'], 5));
+    T('fish', 't1', 338, 54, 156, 40, 364, () => gTalk('Finn the fishmonger', ['{fish}! Fresh from the {water}! They were swimming a minute ago!', 'The jetty has thawed! Take the rod. A {fish} glows a word at the bait. Glow it back!', 'Six bait a day, for everyone. {no} more. The {big} ones live in the {deep} middle.'], 4));
+    T('family', 't1', 424, 34, 168, 30, 436, () => gTalk('a jelly with a basket', ['Is that a human? Look, {small} one. A human. {no} poking.', 'We are going to the Glow Pool. You should come. Bring a {friend}.'], 5));
     T('rope', 't1', 516, 24, 96, 100, 528, () => { deck.route = [{ ride: GC.find(c => c.id === 'rope'), fwd: true }]; });
     T('liftT1', 't1', 594, 26, 170, 30, 607, () => { deck.route = [{ ride: GC.find(c => c.id === 'lift'), fwd: true }]; });
-    T('loftkeeper', 'loft', 480, 24, 66, 26, 486, () => gTalk('the lamp-lighter', ['Up here you can almost touch Jupiter. Almost. I have tried.', 'I light the lanterns. Then I watch them. That is the whole job. It is the best job.'], 6));
+    T('loftkeeper', 'loft', 480, 24, 66, 26, 486, () => gTalk('the lamp-lighter', ['Up here you can almost touch {jupiter}. Almost. I have tried.', 'I {light} the lanterns. Then I watch them. That is the whole job. It is the best job.'], 6));
     T('jupiter', 'loft', 300, 120, 0, 80, 470, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'Jupiter! Zib’s big orange friend! When Zib was small, Zib thought Jupiter was a lantern. Zib still thinks that a little.' : 'Jupiter fills the crack in the ice, huge and striped and silent, with the auroras rippling across its face. It’s the best view in the game.'));
-    T('secret', 'wf', 226, 22, 266, 24, 240, () => gTalk('Hush, who sits behind the water', ['You found me. Nobody finds me. Here, look: the ice down there is thinning. Soon you can go deeper.', 'I like it behind the water. Everything sounds like rain. Do you have rain? Tell me about rain.'], 7));
+    T('secret', 'wf', 226, 22, 266, 24, 240, () => gTalk('Hush, who sits behind the water', ['You found me. Nobody finds me. This is my {secret}. The {ice} down there is thinning.', 'I like it behind the {water}. Everything sounds like rain. Tell me about rain. It can be our {secret}.'], 7));
     T('bloom', 't2', 116, 70, 270, 70, 150, () => grandBloom());
-    T('drum', 't2', 66, 24, 312, 26, 92, () => gTalk('Thump the drummer', ['We play for Grand-Bloom every day. She falls asleep. That means it is working.', 'One day you can play with us. Practise your humming.'], 8));
-    T('chimes', 't2', 198, 26, 312, 26, 196, () => gTalk('Tink the chime-player', ['Every chime is a different glow word. Listen: that one means “soup”.', 'Bring us a tune from up there. We collect tunes.'], 9));
+    T('drum', 't2', 66, 24, 312, 26, 92, () => gTalk('Thump the drummer', ['We play for Grand-Bloom every day. Then she goes to {sleep}. That means it is working.', 'One day you can play a {song} with us. Practise your humming.'], 8));
+    T('chimes', 't2', 198, 26, 312, 26, 196, () => gTalk('Tink the chime-player', ['Every chime is a different glow word. Listen: that one means {food}.', 'Bring us a {song} from up there. We collect songs.'], 9));
     T('shinystall', 't2', 358, 64, 298, 38, 390, () => { sfx.click(); openGanyStall('shiny'); });
-    T('cousins', 't2', 418, 22, 300, 30, 420, () => gTalk('Zib’s cousin with the spoon', ['Zib owes us a spoon. Tell Zib. No, do not tell Zib. He will bring us a worse spoon.', 'Zib left home to see the stars. Then he sent us a postcard of a spoon.'], 10));
-    T('grotto', 't2', 486, 20, 290, 48, 490, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'The Crystal Grotto! It is frozen shut! Grand-Bloom says it thaws soon! Zib can hear the crystals singing through the ice!' : 'A side cave sealed behind a wall of fresh blue ice. Through it you can just see giant crystals, and hear them chiming. It hasn’t thawed yet.'));
+    T('cousins', 't2', 418, 22, 300, 30, 420, () => gTalk('Zib’s cousin with the spoon', ['Zib owes us a spoon. Tell Zib. {no}, do not tell Zib. He will bring us a worse spoon.', 'Zib left {home} to see the stars. Then he sent us a postcard of a spoon.'], 10));
+    T('grotto', 't2', 486, 20, 290, 48, 490, () => { const z = shoreParty.includes('Z');
+      if (!grottoOpen()) return shipSay(z ? 'Z' : 'P', (z ? 'The Crystal Grotto! Frozen shut! Grand-Bloom says it opens for people who speak a little glow. ' : 'A side cave sealed behind a wall of blue ice. Through it you can see snow, and crystals, and hear them chiming. ') + `You know ${gKnownN()} of the ${GROTTO_WORDS} glow words it needs.`);
+      const seen = gStore('seen', []); if (!seen.includes('grotto')) { seen.push('grotto'); gSet('seen', seen); }
+      sfx.click(); walkEnter = 'gany'; setMode('ggrotto'); });
     T('slide', 't2', 286, 18, 316, 22, 296, () => { deck.route = [{ ride: GC.find(c => c.id === 'slide'), fwd: true }]; });
     T('vineT2', 't2', 46, 16, 300, 38, 52, () => { deck.route = [{ ride: GC.find(c => c.id === 'vine'), fwd: false }]; });
-    T('tree', 't3', 80, 64, 410, 108, 112, () => gTalk('a little lantern-hanger', ['I hung that one! The pink one! It is the best one!', 'On Tide days we take the lanterns down and send them up to Jupiter. You should see it.'], 11));
-    T('pool', 't3', 270, 70, 476, 44, 304, () => gTalk('Drift, who lives in the pool', ['The water is warm down here. Jupiter heats it from below. Squeeze, squeeze, squeeze.', 'The glowfish are shy. They like quiet people.'], 12));
-    T('jetty', 't3', 210, 40, 494, 26, 232, () => shipSay('P', 'A little fishing jetty with a rod left leaning on it. The line is frozen into the pool. Fishing will open when it thaws.'));
+    T('tree', 't3', 80, 64, 410, 108, 112, () => gTalk('a little lantern-hanger', ['I hung that one! The pink one! It is the best {light}!', 'On {tide} days we take the lanterns down and send them up to {jupiter}. You should see it.'], 11));
+    T('pool', 't3', 270, 70, 476, 44, 304, () => gTalk('Drift, who lives in the pool', ['The {water} is {warm} down here. {jupiter} heats it from below.', 'The {fish} are shy. They like quiet people. And bait.'], 12));
+    T('jetty', 't3', 210, 40, 494, 26, 232, () => { sfx.click(); walkEnter = 'gany'; setMode('gpool'); });
     T('ladder', 't3', 192, 20, 520, 30, 202, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'That goes down to the Old Ice. Nobody goes there. Zib went there once. Zib does not talk about it. It is VERY cold.' : 'A ladder goes down through a hole in the pool’s edge, into the dark. The ice below is still too thick to go any further.'));
-    T('hut', 't3', 488, 66, 492, 28, 500, () => { if (deck.npcs.some(n => n.who === 'X')) shipSay('X', 'That’s them. The Blooms. They fed me for a week when Apex left me here. I never paid them back. They won’t take credits. Obviously.'); else gTalk('Mother Bloom', ['A human! The last one we met was very hungry. We fed him for a week. He was sweet. He cried a lot.', 'Come in, come in. Mind the little ones, they bite. Gently.'], 13); });
+    T('hut', 't3', 488, 66, 492, 28, 500, () => { if (deck.npcs.some(n => n.who === 'X')) shipSay('X', 'That’s them. The Blooms. They fed me for a week when Apex left me here. I never paid them back. They won’t take credits. Obviously.'); else gTalk('Mother Bloom', ['A human! The last one was very hungry. We gave him {food} for a week. He cried a lot.', 'Come in, welcome {home}. Mind the {small} ones, they bite. Gently.'], 13); });
     T('liftT3', 't3', 594, 26, 490, 30, 607, () => { deck.route = [{ ride: GC.find(c => c.id === 'lift'), fwd: false }]; });
     T('vineT3', 't3', 20, 22, 470, 48, 30, () => { deck.route = [{ ride: GC.find(c => c.id === 'vine'), fwd: true }]; });
   }
@@ -19670,6 +19725,7 @@ details.act > .limits { margin: 0 0 8px; }
     const c = deck.c, me = deck.me, tt = reduceMotion ? 0 : t;
     camT(c, deck.view); c.imageSmoothingEnabled = false;
     c.drawImage(ganyBackground(), 0, 0, GANY_W, GANY_H);
+    ganyGrottoOpenDraw(c, tt);
     // lanterns floating up the shaft of light toward Jupiter
     for (let i = 0; i < 7; i++) { const ph = ((tt / 1000) * (6 + i) + i * 61) % 420, x = 240 + ((i * 53) % 160) + Math.sin(ph / 40 + i) * 4, y = 500 - ph, col = ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8'][i % 4];
       if (y > 70) { c.globalAlpha = Math.min(1, (y - 70) / 60); c.fillStyle = col + '44'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); c.fillStyle = col; c.beginPath(); c.ellipse(x, y, 2.2, 2.8, 0, 0, 7); c.fill(); px(c, x - 1, y + 3, 2, 1, '#8a5a2a'); c.globalAlpha = 1; } }
@@ -19703,14 +19759,14 @@ details.act > .limits { margin: 0 0 8px; }
     const seen = gStore('seen', []), pearls = gStore('pearls', []).length, here = deck && deck.kind === 'gany' ? deck.me.floor : null;
     const A = [['loft', 214, 24, 136, 20], ['t1', 6, 70, 348, 24], ['wf', 112, 116, 134, 22], ['t2', 22, 168, 184, 24], ['grotto', 260, 160, 76, 40], ['t3', 6, 276, 348, 24], ['oldice', 70, 322, 220, 36]];
     const known = k => k === 't1' || seen.includes(k), names = { grotto: 'Crystal Grotto', oldice: 'The Old Ice' };
-    const svg = A.map(([k, x, y, w, h]) => { const lit = GF[k] && known(k), col = { loft: '#ffc46a', t1: '#7fe8ff', wf: '#bff4ff', t2: '#c8a2ff', t3: '#6ae8dc' }[k] || '#3a5a80';
-      return lit ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${col}22" stroke="${col}"/><text x="${x + 8}" y="${y + h / 2 + 3}" fill="#e8fbff" font-size="9" font-weight="700">${esc(GF[k].name.toUpperCase())}</text>${here === k ? `<circle cx="${x + w - 12}" cy="${y + h / 2}" r="4" fill="#58e0a0"/>` : ''}`
-        : `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#0b1226" stroke="#2a3a5a" stroke-dasharray="3 2"/><text x="${x + w / 2}" y="${y + h / 2 + 4}" fill="#3a5a80" font-size="11" font-weight="700" text-anchor="middle">${names[k] && seen.includes('t2') ? (k === 'grotto' ? 'FROZEN' : '?') : '?'}</text>`; }).join('');
-    const placesTotal = 7, placesFound = 1 + ['loft', 'wf', 't2', 't3'].filter(k => seen.includes(k)).length;
+    const svg = A.map(([k, x, y, w, h]) => { const lit = (GF[k] || k === 'grotto') && known(k), col = { loft: '#ffc46a', t1: '#7fe8ff', wf: '#bff4ff', t2: '#c8a2ff', t3: '#6ae8dc', grotto: '#e8f4ff' }[k] || '#3a5a80';
+      return lit ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${col}22" stroke="${col}"/><text x="${x + 8}" y="${y + h / 2 + 3}" fill="#e8fbff" font-size="9" font-weight="700">${esc((GF[k] ? GF[k].name : 'Grotto').toUpperCase())}</text>${here === k ? `<circle cx="${x + w - 12}" cy="${y + h / 2}" r="4" fill="#58e0a0"/>` : ''}`
+        : `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#0b1226" stroke="#2a3a5a" stroke-dasharray="3 2"/><text x="${x + w / 2}" y="${y + h / 2 + 4}" fill="#3a5a80" font-size="11" font-weight="700" text-anchor="middle">${names[k] && seen.includes('t2') ? (k === 'grotto' ? (grottoOpen() ? 'OPEN!' : 'FROZEN') : '?') : '?'}</text>`; }).join('');
+    const placesTotal = 7, placesFound = 1 + ['loft', 'wf', 't2', 't3', 'grotto'].filter(k => seen.includes(k)).length;
     el.innerHTML = `<div class="qnew-card gmap"><span class="eyebrow">Ganymede · the Drift Market</span><b>Cavern map</b>
       <svg viewBox="0 0 360 370" role="img" aria-label="Map of the cavern. You have found ${placesFound} of ${placesTotal} places."><path d="M130 0 L150 14 L180 22 L210 14 L230 0" fill="#05050f" stroke="#bff4ff"/>${svg}</svg>
-      <div class="gstats"><div><b>${placesFound} of ${placesTotal}</b><span>Places found</span></div><div><b>${pearls} of ${PEARL_TOTAL}</b><span>Glow-pearls</span></div><div><b>${Math.min(3, auroraChips())} of 3</b><span>Aurora chips</span></div><div><b>${GANY_OWN().length} of 3</b><span>Keepsakes</span></div></div>
-      <p class="zhave">${!gWfFound() && seen.includes('t2') ? 'Hush’s glow is on the wind: “the water hides a door.”' : 'Tap anywhere in the cavern to walk there. Stairs, the lift, the rope, the vine and the slide take you between levels.'}</p>
+      <div class="gstats"><div><b>${placesFound} of ${placesTotal}</b><span>Places found</span></div><div><b>${pearls} of ${PEARL_TOTAL}</b><span>Glow-pearls</span></div><div><b>${Math.min(3, auroraChips())} of 3</b><span>Aurora chips</span></div><div><b>${GANY_OWN().length} of 5</b><span>Keepsakes</span></div><div><b>${gKnownN()} of ${WORD_N}</b><span>Glow words</span></div><div><b>${FISH.filter(f => fishLog()[f.id]).length} of ${FISH.length}</b><span>Fish caught</span></div></div>
+      <p class="zhave">${!gWfFound() && seen.includes('t2') ? 'Hush’s glow is on the wind: “the water hides a door.”' : seen.includes('t2') && !grottoOpen() ? `The Crystal Grotto thaws when you know ${GROTTO_WORDS} glow words. You know ${gKnownN()}. Bring Zib to translate, or fish for words at the Glow Pool.` : grottoOpen() && !seen.includes('grotto') ? 'The ice over the Crystal Grotto has melted. It’s at the right end of the Elders’ Ledge.' : 'Tap anywhere in the cavern to walk there. Stairs, the lift, the rope, the vine and the slide take you between levels.'}</p>
       <div class="btns"><button class="btn ghost" id="gmBye">Close</button></div></div>`;
     el.hidden = false; $('gmBye').addEventListener('click', () => { sfx.click(); el.hidden = true; }); setTimeout(() => $('gmBye').focus({ preventScroll: true }), 50);
   }
@@ -19737,9 +19793,511 @@ details.act > .limits { margin: 0 0 8px; }
   }
   SHORE_PLACES.gany = { name: 'Ganymede · the Drift Market', world: 'ganymede', start: 'gany', icon: '🪼', open: () => ganyOk(),
     blurb: 'A whole town under Ganymede’s ice, built by Zib’s people. Ledges and rope bridges down a huge cavern, Jupiter through a crack in the ceiling, and nobody takes credits. Bring Zib to translate.', pic: c => drawGanyPic(c) };
+  // ======== Ganymede stage 2: the glow language, the Crystal Grotto, fishing at the Glow Pool ========
+  const GANY_KINDS = ['gany', 'ggrotto', 'gpool'];
+  const GK = ['g', 'b', 'p', 'v', 'm'];
+  const GCOL = { g: '#ffd27a', b: '#7fe8ff', p: '#ff9ad5', v: '#c8a2ff', m: '#9fe0b8' };
+  const GSHAPE = { g: '●', b: '◆', p: '▲', v: '■', m: '★' };
+  const GCNAME = { g: 'gold', b: 'ice blue', p: 'pink', v: 'violet', m: 'mint' };
+  // every glow word: its colours, and what it means
+  const WORDS = {
+    hello: ['gg', 'hello'], water: ['bb', 'water'], home: ['vb', 'home'], friend: ['pg', 'friend'], fish: ['mv', 'fish'], small: ['bp', 'small'],
+    big: ['vv', 'big'], thanks: ['gbp', 'thank you'], sleep: ['vm', 'sleep'], deep: ['bvb', 'the deep'], light: ['gp', 'light'], food: ['mg', 'food'],
+    old: ['vg', 'old'], song: ['pbm', 'song'], ice: ['bm', 'ice'], warm: ['pp', 'warm'], yes: ['mm', 'yes'], no: ['pv', 'no'],
+    jupiter: ['gvg', 'Jupiter'], wake: ['gmg', 'wake'], tide: ['bbv', 'the Tide'], secret: ['ppb', 'secret'], forever: ['vgpb', 'forever']
+  };
+  const WORD_N = Object.keys(WORDS).length, GROTTO_WORDS = 6;
+  const gWords = () => gStore('words', []);
+  const gKnows = w => gWords().includes(w);
+  const gKnownN = () => gWords().length;
+  const gShapes = p => [...p].map(k => GSHAPE[k]).join('');
+  const gDots = (p, cls = '') => `<span class="gdots ${cls}" role="img" aria-label="glow: ${[...p].map(k => GCNAME[k]).join(', ')}">${[...p].map(k => `<i class="gd ${k}">${GSHAPE[k]}</i>`).join('')}</span>`;
+  const gTokens = line => [...line.matchAll(/\{(\w+)\}/g)].map(m => m[1]).filter(w => WORDS[w]);
+  function gLearnAll(ws) {
+    const L = gWords(), before = L.length, got = [];
+    ws.forEach(w => { if (WORDS[w] && !L.includes(w)) { L.push(w); got.push(w); } });
+    if (!got.length) return [];
+    gSet('words', L); sfx.chime && sfx.chime();
+    const thaw = before < GROTTO_WORDS && L.length >= GROTTO_WORDS;
+    showToast(`📖 New glow word${got.length > 1 ? 's' : ''}: ${got.map(w => `“${WORDS[w][1]}” ${gShapes(WORDS[w][0])}`).join(', ')}${thaw ? ' · You hear ice cracking on the Elders’ Ledge…' : ''}`, 3000);
+    return got;
+  }
+  const gLearn = w => gLearnAll([w]).length > 0;
+  function gHear(ws) { const h = gStore('heard', {}); ws.forEach(w => { if (!gKnows(w)) h[w] = (h[w] || 0) + 1; }); gSet('heard', h); }
+  // a jelly's line: Zib turns it into a sentence; without him you see the glow words, in English where you know them
+  function gLineHTML(line, zib) {
+    if (zib) return esc(line).replace(/\{(\w+)\}/g, (m, w, off, all) => { if (!WORDS[w]) return m; let t = WORDS[w][1]; if (/(^|[.!?]\s+)$/.test(all.slice(0, off))) t = t[0].toUpperCase() + t.slice(1); return `<b class="gw">${esc(t)}</b>`; });
+    return gTokens(line).map(w => gKnows(w) ? `<b class="gw">${esc(WORDS[w][1])}</b>` : gDots(WORDS[w][0])).join(' <span class="gsep">·</span> ');
+  }
+  const gPlain = line => line.replace(/\{(\w+)\}/g, (m, w) => WORDS[w] ? WORDS[w][1] : m);
+  function gSayHTML(who, html) {
+    const box = $('shipSay'); if (!box) return;
+    box.innerHTML = radioQuote([who, '']).replace(/^<div class="radio quote">|<\/div>$/g, '').replace('<p></p>', `<p>${html}</p>`);
+    paintFaces(box); if (deck) { deck.talking = who; deck.talkT = performance.now(); } sfx.radio();
+  }
+  // talking to the jellyfolk: Zib translates (and you learn the words); alone, you see the glow
+  function gTalk(name, lines, seed, opt = {}) {
+    sfx.click();
+    const line = lines[Math.floor(Math.random() * lines.length)], toks = gTokens(line), zib = shoreParty.includes('Z') && !opt.noZib;
+    if (!toks.length) {
+      if (zib) shipSay('Z', `${name} says: “${line}” Zib is translating! Mostly correctly!`);
+      else shipSay('P', `${name} glows at you: ${gGlowWords(seed + Math.floor(Math.random() * 5))}. You don’t speak glow. Zib would know what it means.`);
+      return;
+    }
+    if (zib) { gSayHTML('Z', `${esc(name)} says: “${gLineHTML(line, true)}” <span class="zt">Zib is translating!</span>`); gLearnAll(toks); return; }
+    gHear(toks);
+    const all = toks.every(gKnows), some = toks.some(gKnows);
+    gSayHTML(opt.who || 'P', `${esc(name)} glows: ${gLineHTML(line, false)}${all ? ` <span class="zt">You understood that! “${esc(gPlain(line))}”</span>` : some ? ' <span class="zt">You caught some of that.</span>' : ' <span class="zt">The Glow Book keeps track of words you hear.</span>'}`);
+  }
+
+  // ---- the glow pad: tap colours to glow a word back ----
+  let gpad = null;
+  function glowPad(o) {
+    const el = $('glowPanel'); if (!el) return;
+    gpad = { got: '', miss: 0, t0: performance.now(), mistakes: 0, ...o };
+    el.hidden = false; el.classList.add('glowpanel');
+    el.innerHTML = `<span class="eyebrow">${o.eyebrow}</span>${o.title ? `<b class="gpt">${o.title}</b>` : ''}
+      ${o.show ? `<div class="gshow">${gDots(o.show, 'big')}${o.mean ? `<span class="gmean">“${esc(o.mean)}”</span>` : ''}</div>` : ''}
+      <div class="gslots" id="gpadSlots"></div>
+      ${o.timer ? '<div class="gtimer" aria-hidden="true"><i id="gpadBar"></i></div>' : ''}
+      <div class="gpad">${GK.map((k, i) => `<button class="gk ${k}" data-k="${k}" aria-label="${GCNAME[k]} (key ${i + 1})">${GSHAPE[k]}</button>`).join('')}</div>
+      <p class="zhave" id="gpadHint">${o.hint || ''}</p>
+      <div class="btns"><button class="btn ghost" id="gpadX">${o.cancel || 'Stop'}</button></div>`;
+    el.querySelectorAll('.gk').forEach(b => b.addEventListener('click', () => gpadKey(b.dataset.k)));
+    $('gpadX').addEventListener('click', () => { sfx.click(); gpadEnd(false, 'cancel'); });
+    gpadSlots();
+  }
+  function gpadSlots() { const s = $('gpadSlots'); if (!s || !gpad) return; s.innerHTML = Array.from({ length: gpad.need }, (_, i) => gpad.got[i] ? `<i class="gd big ${gpad.got[i]}">${GSHAPE[gpad.got[i]]}</i>` : '<i class="gslot"></i>').join(''); }
+  function gpadKey(k) {
+    const p = gpad; if (!p) return;
+    if (sfx.glow) sfx.glow(GK.indexOf(k)); if (p.onKey) p.onKey(k);
+    if (p.check === 'end') {
+      p.got += k; gpadSlots();
+      if (p.got.length >= p.need) { if (p.got === p.answer) gpadEnd(true); else { const s = $('gpadSlots'); if (s) { s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); } p.got = ''; setTimeout(gpadSlots, 350); if (p.onWrong) p.onWrong(); } }
+      return;
+    }
+    if (k === p.answer[p.got.length]) { p.got += k; gpadSlots(); if (p.got.length >= p.need) gpadEnd(true); return; }
+    p.miss++; const s = $('gpadSlots'); if (s) { s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
+    if (p.miss > p.mistakes) gpadEnd(false, 'miss');
+    else { const h = $('gpadHint'); if (h) h.textContent = 'Oops, wrong colour. One more slip and it’s gone!'; }
+  }
+  function gpadTick() {
+    const p = gpad; if (!p || !p.timer) return;
+    const left = 1 - (performance.now() - p.t0) / (p.timer * 1000), bar = $('gpadBar');
+    if (bar) { bar.style.width = `${Math.max(0, left * 100)}%`; bar.style.background = left < 0.3 ? '#ff6b5e' : '#c8a2ff'; }
+    if (left <= 0) gpadEnd(false, 'time');
+  }
+  function gpadEnd(ok, why) {
+    const p = gpad; gpad = null;
+    const el = $('glowPanel'); if (el) { el.hidden = true; el.innerHTML = ''; }
+    if (p && p.onDone) p.onDone(ok, why);
+  }
+
+  // ---- the Glow Book: every word you've learned or heard ----
+  function openGlowBook() {
+    let el = $('ganyBook');
+    if (!el) { el = document.createElement('div'); el.id = 'ganyBook'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Glow Book'); document.body.appendChild(el); }
+    const known = gWords(), heard = gStore('heard', {}), ids = Object.keys(WORDS);
+    const seenIds = ids.filter(w => !known.includes(w) && heard[w]);
+    const rows = known.map(w => `<div class="grow"><span>${gDots(WORDS[w][0])}</span><b>${esc(WORDS[w][1])}</b></div>`).join('')
+      + seenIds.map(w => `<div class="grow q"><span>${gDots(WORDS[w][0])}</span><b>? ? ?</b>${heard[w] >= 2 ? `<button class="btn ghost" data-guess="${w}">Guess</button>` : '<small>heard once · listen for it again</small>'}</div>`).join('');
+    el.innerHTML = `<div class="qnew-card gbook"><span class="eyebrow">Ganymede · the glow language</span><b>Glow Book</b>
+      <div class="gprog"><i style="width:${Math.round(known.length / WORD_N * 100)}%"></i></div>
+      <p class="zhave">${known.length} of ${WORD_N} words learned · ${seenIds.length} more heard${known.length < GROTTO_WORDS ? ` · the Crystal Grotto thaws at ${GROTTO_WORDS}` : ''}</p>
+      <div class="gbrows">${rows || '<p class="zhave">No words yet. Talk to the jellyfolk with Zib along and he’ll translate. Without him, words you hear twice can be guessed here.</p>'}</div>
+      <div class="gguess" id="gbGuess" hidden></div>
+      <p class="zhave">Zib translates and you learn the words. Hear a word twice without him and you can guess it. Fish teach you their word when you catch them.</p>
+      <div class="btns"><button class="btn ghost" id="gbBye">Close</button></div></div>`;
+    el.hidden = false;
+    $('gbBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    el.querySelectorAll('[data-guess]').forEach(b => b.addEventListener('click', () => {
+      sfx.click(); const w = b.dataset.guess, r = mulberry32(hashStr(w + shipDay)), others = ids.filter(x => x !== w), opts = [w];
+      while (opts.length < 3) { const o = others.splice(Math.floor(r() * others.length), 1)[0]; opts.push(o); }
+      opts.sort(() => r() - 0.5);
+      const g = $('gbGuess'); g.hidden = false;
+      g.innerHTML = `<p>What does ${gDots(WORDS[w][0])} mean?</p>${opts.map(o => `<button class="ztrade" data-pick="${o}">“${esc(WORDS[o][1])}”</button>`).join('')}`;
+      g.querySelectorAll('[data-pick]').forEach(pb => pb.addEventListener('click', () => {
+        if (pb.dataset.pick === w) { gLearn(w); openGlowBook(); }
+        else { sfx.thud && sfx.thud(); pb.disabled = true; pb.textContent += ' · not that one'; }
+      }));
+      g.scrollIntoView({ block: 'nearest' });
+    }));
+    setTimeout(() => $('gbBye').focus({ preventScroll: true }), 50);
+  }
+
+  // ======== THE CRYSTAL GROTTO: a winter landscape under the ice ========
+  const GR_W = 320, GR_H = 200;
+  const grState = () => gStore('grotto', { song: false, door: false });
+  const grSet = v => gSet('grotto', { ...grState(), ...v });
+  const grottoOpen = () => gKnownN() >= GROTTO_WORDS;
+  const GR_CRYS = [[70, 156, 'g'], [110, 166, 'b'], [160, 158, 'v'], [208, 166, 'p'], [236, 154, 'm']];
+  const gShade = (hex, f) => { const n = parseInt(hex.slice(1), 16); return `rgb(${Math.min(255, Math.round((n >> 16) * f))},${Math.min(255, Math.round(((n >> 8) & 255) * f))},${Math.min(255, Math.round((n & 255) * f))})`; };
+  function gPrism(c, x, y, w, h, col, lean = 0, down = false, blur = 10) {
+    const s = down ? -1 : 1, tx = x + lean, ty = y - s * h, sh = s * Math.min(h * 0.22, w * 0.9);
+    gGlow(c, col, blur, () => {
+      c.fillStyle = gShade(col, 0.5); c.beginPath(); c.moveTo(x - w, y); c.lineTo(tx - w, ty + sh); c.lineTo(tx, ty); c.lineTo(x, y); c.fill();
+      c.fillStyle = gShade(col, 0.98); c.beginPath(); c.moveTo(x, y); c.lineTo(tx, ty); c.lineTo(tx + w, ty + sh); c.lineTo(x + w, y); c.fill(); });
+    c.fillStyle = 'rgba(255,255,255,0.55)'; c.beginPath(); c.moveTo(x + w * 0.35, y - s * 2); c.lineTo(tx + w * 0.35, ty + sh * 1.1); c.lineTo(tx + w * 0.5, ty + sh * 1.1); c.lineTo(x + w * 0.5, y - s * 2); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.8)'; c.beginPath(); c.moveTo(tx - w, ty + sh); c.lineTo(tx, ty); c.lineTo(tx + w, ty + sh); c.stroke();
+  }
+  function gCluster(c, x, y, col, sc = 1) { [[-7, 0.55, 3, -3], [6, 0.65, 3.4, 3], [0, 1, 4.2, 0.5], [-3, 0.4, 2.4, -5], [10, 0.38, 2.2, 6]].forEach(([dx, hf, w, ln]) => gPrism(c, x + dx * sc, y, w * sc, 30 * hf * sc, col, ln * sc, false, 8)); }
+  let grottoBgCache = null;
+  function grottoBackground() {
+    if (grottoBgCache) return grottoBgCache;
+    const cv = document.createElement('canvas'); cv.width = GR_W * 2; cv.height = GR_H * 2; const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.setTransform(2, 0, 0, 2, 0, 0);
+    const W = GR_W, H = GR_H, rnd = mulberry32(11);
+    let g = c.createLinearGradient(0, 0, 0, 130); g.addColorStop(0, '#0c1a3a'); g.addColorStop(0.55, '#2a4a7a'); g.addColorStop(1, '#a8c8e4'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (const [y0, col] of [[30, 'rgba(159,224,184,0.10)'], [44, 'rgba(200,162,255,0.08)']]) { c.strokeStyle = col; c.lineWidth = 10; c.beginPath(); for (let x = -10; x <= W + 10; x += 10) { const y = y0 + Math.sin(x / 40 + y0) * 8; x < 0 ? c.moveTo(x, y) : c.lineTo(x, y); } c.stroke(); }
+    c.restore(); c.lineWidth = 1;
+    for (let i = 0; i < 60; i++) px(c, Math.round(rnd() * W), Math.round(rnd() * 70), 1, 1, i % 5 ? '#bfe6ff88' : '#ffffff');
+    gGlow(c, '#e8f4ff', 24, () => { c.fillStyle = 'rgba(232,244,255,0.85)'; c.beginPath(); c.arc(250, 34, 10, 0, 7); c.fill(); });
+    const hills = (base, amp, f, col, ph) => { c.fillStyle = col; c.beginPath(); c.moveTo(0, H); for (let x = 0; x <= W; x += 4) c.lineTo(x, base - Math.abs(Math.sin(x / f + ph)) * amp - Math.sin(x / (f * 0.37) + ph) * amp * 0.25); c.lineTo(W, H); c.fill(); };
+    hills(112, 26, 60, '#9ab4d4', 0.4); hills(124, 18, 44, '#bcd2ea', 2.1);
+    const pine = (x, y, h, col) => { px(c, x - 1, y - 3, 3, 4, '#6a7a94');
+      for (let k = 0; k < 4; k++) { const w = (h * 0.42) * (1 - k * 0.2), ty = y - 3 - k * h * 0.2;
+        gGlow(c, col, 5, () => { c.fillStyle = col; c.beginPath(); c.moveTo(x - w, ty); c.lineTo(x + 0.5, ty - h * 0.34); c.lineTo(x + w + 1, ty); c.fill(); });
+        c.fillStyle = 'rgba(255,255,255,0.4)'; c.beginPath(); c.moveTo(x + 0.5, ty - h * 0.34); c.lineTo(x + w + 1, ty); c.lineTo(x + 1, ty); c.fill();
+        c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(x - w * 0.55, ty - h * 0.14); c.lineTo(x + 0.5, ty - h * 0.34); c.lineTo(x + w * 0.6, ty - h * 0.12); c.quadraticCurveTo(x, ty - h * 0.1, x - w * 0.55, ty - h * 0.14); c.fill(); } };
+    [[22, 138, 40, '#8ad8f0'], [44, 132, 28, '#a8c8f0'], [290, 136, 44, '#8ad8f0'], [270, 130, 26, '#b8b0f0'], [96, 126, 20, '#a8c8f0'], [232, 124, 18, '#8ad8f0'], [308, 128, 22, '#b8b0f0']].forEach(([x, y, h, col]) => pine(x, y, h, col));
+    // the Deep Door's snow mound (the doorway itself is drawn live)
+    c.fillStyle = '#dceaf6'; c.beginPath(); c.moveTo(110, 136); c.quadraticCurveTo(160, 62, 210, 136); c.fill();
+    c.fillStyle = '#b4cce4'; c.beginPath(); c.moveTo(160, 74); c.quadraticCurveTo(200, 90, 210, 136); c.lineTo(180, 136); c.fill();
+    gPrism(c, 140, 134, 4, 26, '#bfe6ff', -6, false, 8); gPrism(c, 134, 134, 2.6, 14, '#c8a2ff', -8, false, 8); gPrism(c, 180, 134, 4, 28, '#bfe6ff', 6, false, 8); gPrism(c, 186, 134, 2.6, 16, '#7fe8ff', 8, false, 8);
+    // frozen waterfall and pond
+    c.fillStyle = '#7a94b8'; c.beginPath(); c.moveTo(244, 60); c.lineTo(276, 56); c.lineTo(280, 140); c.lineTo(240, 140); c.fill();
+    c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(242, 62); c.quadraticCurveTo(260, 52, 278, 58); c.lineTo(276, 62); c.quadraticCurveTo(260, 58, 244, 66); c.fill();
+    g = c.createLinearGradient(250, 0, 270, 0); g.addColorStop(0, '#bfe6ff'); g.addColorStop(0.5, '#ffffff'); g.addColorStop(1, '#9ad4f0'); c.fillStyle = g;
+    gGlow(c, '#bff4ff', 8, () => { c.beginPath(); c.moveTo(250, 62); c.lineTo(268, 60); c.quadraticCurveTo(272, 100, 274, 142); c.lineTo(246, 142); c.quadraticCurveTo(250, 100, 250, 62); c.fill(); });
+    for (let k = 0; k < 6; k++) px(c, 252 + k * 3, 70 + (k % 3) * 8, 1, 30 + (k % 2) * 20, 'rgba(255,255,255,0.6)');
+    // snow
+    g = c.createLinearGradient(0, 132, 0, H); g.addColorStop(0, '#f4f9ff'); g.addColorStop(1, '#c8dcf0'); c.fillStyle = g;
+    c.beginPath(); c.moveTo(0, 140); for (let x = 0; x <= W; x += 8) c.lineTo(x, 136 + Math.sin(x / 30) * 3 + Math.sin(x / 11)); c.lineTo(W, H); c.lineTo(0, H); c.fill();
+    c.fillStyle = '#9ad0ec'; c.beginPath(); c.ellipse(262, 150, 30, 5, 0, 0, 7); c.fill(); px(c, 244, 149, 14, 1, '#ffffff'); px(c, 266, 152, 10, 1, '#ffffff');
+    for (const [x, y, rx] of [[40, 182, 40], [150, 194, 60], [262, 186, 44], [100, 170, 24]]) { c.fillStyle = 'rgba(120,150,200,0.2)'; c.beginPath(); c.ellipse(x + 4, y + 3, rx, 5, 0, 0, 7); c.fill(); c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(x, y, rx, 5, 0, 0, 7); c.fill(); }
+    // the singing crystals, snow-capped
+    GR_CRYS.forEach(([x, y, k]) => { gCluster(c, x, y, GCOL[k], 0.62); c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(x, y, 10, 3, 0, 0, 7); c.fill(); });
+    // a way out, back to the Elders' Ledge
+    g = c.createLinearGradient(0, 0, 18, 0); g.addColorStop(0, 'rgba(20,30,60,0.75)'); g.addColorStop(1, 'rgba(20,30,60,0)'); c.fillStyle = g; c.fillRect(0, 120, 18, 80);
+    return (grottoBgCache = cv);
+  }
+  function grottoThings(L) {
+    const st = grState(), T = (id, rect, go, act) => L.push({ id, rect, go: () => go, at: () => ({ x: rect[0] + rect[2] / 2, y: rect[1] + rect[3] / 2 }), act });
+    T('exit', [0, 116, 18, 84], [18, 172], () => { walkEnter = 'ggrotto'; setMode('gany'); });
+    GR_CRYS.forEach(([x, y, k]) => T('crys-' + k, [x - 12, y - 28, 24, 32], [x, Math.max(152, y + 12)], () => grottoCrystal(k)));
+    T('echo', [204, 100, 42, 44], [200, 176], () => echoTalk());
+    if (st.door && !gStore('pearls', []).includes(10)) T('doorpearl', [148, 104, 24, 30], [160, 152], () => { gPearl({ id: 10 }); shipSay('P', 'Just inside the door, half buried in sparkling snow: a glow-pearl. Behind it, stairs of ice go down into the deep. They’re still too slippery to climb. One day.'); });
+    T('door', [140, 88, 40, 40], [160, 152], () => grottoDoor());
+    T('pine', [28, 92, 32, 46], [44, 156], () => { if (!gStore('pearls', []).includes(9)) { gPearl({ id: 9 }); shipSay('P', 'You give the crystal pine a gentle shake. Snow slides off with a hiss, and a glow-pearl drops out of the branches into your hand.'); } else shipSay('P', 'The crystal pine tinkles when the wind moves it. There is no wind down here. It tinkles anyway.'); });
+    T('pond', [236, 56, 50, 100], [250, 164], () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'The frozen waterfall! Zib and his cousins used to lick it. It tastes like Jupiter. Zib does not know what Jupiter tastes like. But it is that.' : 'A waterfall frozen mid-pour, glowing faintly from inside. The pond below is ice so clear you can see bubbles trapped in it, a long way down.'));
+  }
+  function grottoCrystal(k) {
+    const st = grState();
+    deck.ring = { k, t0: performance.now() }; if (sfx.glow) sfx.glow(GK.indexOf(k));
+    if (st.song || gpad || (deck.song && deck.song.playing)) return;
+    grottoSong(0);
+  }
+  function grottoSong(round) {
+    const len = 3 + round, r = mulberry32(hashStr('song' + shipDay + round + Math.floor(performance.now() / 1000))), order = ['g', 'b', 'v', 'p', 'm'];
+    let seq = ''; while (seq.length < len) { const k = order[Math.floor(r() * 5)]; if (k !== seq[seq.length - 1]) seq += k; }
+    deck.song = { seq, round, i: 0, t: 0.5, playing: true };
+    if (round === 0) shipSay('P', 'The crystals start to answer each other, one after another. A tune. Echo stirs in her sleep. Sing it back to them!');
+  }
+  function grottoStep(dt) {
+    gpadTick();
+    const s = deck.song; if (!s || !s.playing) return;
+    s.t -= dt; if (s.t > 0) return;
+    if (s.i < s.seq.length) { const k = s.seq[s.i++]; deck.ring = { k, t0: performance.now() }; if (sfx.glow) sfx.glow(GK.indexOf(k)); s.t = reduceMotion ? 0.45 : 0.6; return; }
+    s.playing = false;
+    glowPad({ eyebrow: `The crystal song · verse ${s.round + 1} of 3`, title: 'Sing it back', show: s.seq, answer: s.seq, need: s.seq.length, mistakes: 1, cancel: 'Stop singing',
+      hint: 'Tap the colours in the same order. Tap a crystal on the screen or the pads here, either works.',
+      onKey: k => { deck.ring = { k, t0: performance.now() }; },
+      onDone: (ok, why) => {
+        if (ok && s.round < 2) { sfx.coin(); setTimeout(() => { if (deck && deck.kind === 'ggrotto') grottoSong(s.round + 1); }, 600); return; }
+        if (ok) { grSet({ song: true }); deck.song = null; sfx.cheer && sfx.cheer(); setTimeout(() => { if (deck && deck.kind === 'ggrotto') echoTalk(true); }, 500); return; }
+        deck.song = null;
+        if (why !== 'cancel') shipSay('P', 'The tune breaks off and the crystals go quiet. Echo sighs in her sleep. Tap a crystal to start again.');
+      } });
+  }
+  const ECHO_RIDDLE = '{hello}! {thanks}. Who can {wake} the {deep}? Only a {friend}.';
+  function echoTalk(justWoke) {
+    const st = grState();
+    if (!st.song) return gTalk('Echo, asleep', ['{sleep}… {sleep}… {song}…', '{hello}… {small} {warm} one… {song}… then I {wake}…'], 20, { noZib: true });
+    if (!st.door) { if (justWoke) showToast('✨ Echo is awake. Two rings on the Deep Door are glowing.', 2600); return gTalk('Echo, the crystal elder', [ECHO_RIDDLE], 21, { noZib: true }); }
+    gTalk('Echo, the crystal elder', ['{thanks}, {friend}. Come back for the {tide}.', 'The {deep} is {old}. Older than {ice}. Older than me.', 'Zib is {small} and loud. I like him. {yes}.'], 22, { noZib: true });
+  }
+  function grottoDoor() {
+    const st = grState();
+    if (st.door) return shipSay('P', 'The Deep Door stands open. Stairs of ice spiral down into blue light, too slippery to climb yet. From far below, something big is humming.');
+    if (!st.song) return shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'Three empty rings around the door. Zib thinks the crystals have to sing first! And Echo has to wake up! Echo is a very heavy sleeper.' : 'A round door of ice with three dark rings set into it. It doesn’t move. Echo is asleep beside the pond, and the crystals are silent.');
+    if (gpad) return;
+    glowPad({ eyebrow: 'The Deep Door glows a question', title: `${gLineHTML('{wake} {deep}', false)} ?`, answer: WORDS.friend[0], need: 2, check: 'end', cancel: 'Step back',
+      hint: `Echo said: ${gLineHTML(ECHO_RIDDLE, false)}`,
+      onWrong: () => { sfx.thud && sfx.thud(); shipSay('P', ['The door giggles. That wasn’t it.', 'The ice ripples like it’s laughing. Not that word.', 'A tiny snowfall from the top of the door. It thinks you’re funny. Try again.'][Math.floor(Math.random() * 3)]); },
+      onDone: ok => { if (!ok) return; grSet({ door: true }); gLearn('friend'); gGive('singcrystal'); sfx.cheer && sfx.cheer();
+        setTimeout(() => celebrate('The Deep Door', 'It opens', 'A singing crystal for your Pad, and a glow-pearl inside the door', null, null, { n: 50 }), 400);
+        shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? '“FRIEND”! You glowed FRIEND! The door likes you! Zib likes you! Zib has always liked you! Look, a pearl!' : 'You glow “friend”. The rings blaze gold and mint, the ice door sighs open, and warm blue light spills across the snow.'); } });
+  }
+  function grottoDraw(t) {
+    const c = deck.c, me = deck.me, tt = reduceMotion ? 0 : t, st = grState();
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    c.drawImage(grottoBackground(), 0, 0, GR_W, GR_H);
+    // the doorway: dark until it opens
+    c.save(); c.beginPath(); c.moveTo(146, 134); c.lineTo(146, 108); c.quadraticCurveTo(160, 90, 174, 108); c.lineTo(174, 134); c.closePath();
+    if (st.door) { const g = c.createLinearGradient(0, 92, 0, 134); g.addColorStop(0, '#e8fbff'); g.addColorStop(1, '#7fe8ff'); c.fillStyle = g; c.fill(); c.clip(); for (let k = 0; k < 5; k++) px(c, 150 + k, 112 + k * 4, 20 - k * 2, 2, 'rgba(90,140,200,0.5)'); }
+    else { c.fillStyle = '#1a2a4a'; c.fill(); const g = c.createLinearGradient(0, 96, 0, 134); g.addColorStop(0, 'rgba(200,162,255,0.4)'); g.addColorStop(1, 'rgba(127,232,255,0.1)'); c.fillStyle = g; c.fill(); }
+    c.restore();
+    gGlow(c, '#bff4ff', 8, () => { c.strokeStyle = st.door ? '#ffffff' : '#e8fbff'; c.lineWidth = 2; c.beginPath(); c.moveTo(144, 134); c.lineTo(144, 108); c.quadraticCurveTo(160, 88, 176, 108); c.lineTo(176, 134); c.stroke(); c.lineWidth = 1; });
+    if (!st.door) [['g', st.song], ['m', st.song], ['p', false]].forEach(([k, lit], i) => { const x = 152 + i * 8, y = 112;
+      if (lit) gGlow(c, GCOL[k], 10, () => { c.fillStyle = GCOL[k]; c.beginPath(); c.arc(x, y, 2.4, 0, 7); c.fill(); });
+      else { c.strokeStyle = '#e6d4ff'; c.setLineDash([1.5, 1.5]); c.beginPath(); c.arc(x, y, 2.4, 0, 7); c.stroke(); c.setLineDash([]); } });
+    else if (!reduceMotion) for (let k = 0; k < 6; k++) { const ph = (tt / 1400 + k / 6) % 1; c.fillStyle = `rgba(232,251,255,${0.8 * (1 - ph)})`; c.fillRect(150 + (k * 7) % 20, 132 - ph * 40, 1, 1); }
+    // a crystal ringing
+    if (deck.ring) { const k = (t - deck.ring.t0) / 700, cr = GR_CRYS.find(x => x[2] === deck.ring.k);
+      if (k < 1 && cr) { const [x, y, ck] = cr; c.fillStyle = GCOL[ck] + '55'; c.beginPath(); c.ellipse(x, y - 10, 14, 18, 0, 0, 7); c.fill();
+        for (let r = 0; r < 3; r++) { c.strokeStyle = `rgba(255,255,255,${(1 - k) * (0.8 - r * 0.2)})`; c.beginPath(); c.ellipse(x, y - 12, 10 + r * 7 + k * 10, 8 + r * 5 + k * 6, 0, Math.PI * 1.08, Math.PI * 1.92); c.stroke(); }
+        c.font = '700 9px monospace'; c.fillStyle = GCOL[ck]; c.fillText('♪', x + 8, y - 30 - k * 10); }
+      else if (k >= 1) deck.ring = null; }
+    // glow-pearl caught in the pine
+    if (!gStore('pearls', []).includes(9)) { const y = 112 + (reduceMotion ? 0 : Math.sin(tt / 400) * 1); c.fillStyle = 'rgba(255,255,255,0.3)'; c.beginPath(); c.arc(44, y, 5, 0, 7); c.fill(); c.fillStyle = '#f4f8ff'; c.beginPath(); c.arc(44, y, 2.4, 0, 7); c.fill(); }
+    if (st.door && !gStore('pearls', []).includes(10)) { c.fillStyle = 'rgba(255,255,255,0.5)'; c.beginPath(); c.arc(160, 126, 5, 0, 7); c.fill(); c.fillStyle = '#ffffff'; c.beginPath(); c.arc(160, 126, 2.6, 0, 7); c.fill(); }
+    // little crystal jellies drifting
+    const dx = reduceMotion ? 0 : Math.sin(tt / 3000) * 10, dy = reduceMotion ? 0 : Math.cos(tt / 2600) * 4;
+    gFolk(c, 186 + dx, 56 + dy, { pal: 'blue', s: 0.55, float: true, smile: true, glowing: true, k: 1 }, t); gFolk(c, 120 - dx, 72 - dy, { pal: 'pink', s: 0.45, float: true, glowing: true, k: 4, dir: 2 }, t);
+    // everyone, back to front
+    const things = [[170, () => gFolk(c, 214, 132, { pal: 'elder', s: 1.6, acc: 'crown', sleepy: !st.song, smile: st.song, glowing: true, k: 2 }, t)]];
+    for (const n of deck.npcs) things.push([n.y, () => drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.push([me.y + 0.5, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    // gentle snowfall
+    for (let i = 0; i < 50; i++) { const sp = 6 + (i % 5) * 3, x = ((i * 67) + (reduceMotion ? 0 : Math.sin(tt / 1500 + i) * 6)) % GR_W, y = ((i * 41) + (reduceMotion ? 0 : tt / 1000 * sp)) % GR_H; px(c, Math.round(x), Math.round(y), i % 7 ? 1 : 2, i % 7 ? 1 : 2, 'rgba(255,255,255,0.8)'); }
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  // ======== THE GLOW POOL: fishing, seen from above ========
+  const PL_W = 256, PL_H = 300, PCX = 128, PCY = 140, PRX = 112, PRY = 118, JX = 112, JW = 32, JY = 108;
+  const poolR = a => 1 + Math.sin(a * 3 + 1) * 0.07 + Math.sin(a * 5) * 0.05;
+  const poolN = (x, y) => Math.hypot((x - PCX) / PRX, (y - PCY) / PRY);
+  const inPool = (x, y) => { const a = Math.atan2((y - PCY) / PRY, (x - PCX) / PRX); return poolN(x, y) < poolR(a) * 0.95; };
+  const onJetty = (x, y) => x >= JX - 2 && x <= JX + JW + 2 && y >= JY - 4;
+  const FISH = [
+    { id: 'minnow', name: 'Fizz minnows', w: 'small', zones: 'shallow', wt: 5, col: '#7fe8ff', blurb: 'A whole school that bites at once. They fizz when they glow.' },
+    { id: 'sprat', name: 'Snow sprat', w: 'ice', zones: 'shallow', wt: 4, col: '#e8fbff', blurb: 'Almost see-through. Cold to the touch even in warm water.' },
+    { id: 'puffer', name: 'Prickle puff', w: 'no', zones: 'shallow mid', wt: 3, col: '#ffd27a', blurb: 'Says “no” to everything. Then bites anyway.' },
+    { id: 'koi', name: 'Lantern koi', w: 'thanks', zones: 'mid', wt: 3, col: '#ff9ad5', blurb: 'Very polite. Thanks you for catching it. Thanks you for letting it go.' },
+    { id: 'eel', name: 'Ribbon eel', w: 'tide', zones: 'mid', wt: 2, col: '#6ae8dc', fast: true, blurb: 'Quick. Flashes its word fast and wriggles off if you’re slow.' },
+    { id: 'manta', name: 'Three-eyed manta', w: 'song', zones: 'mid deep', wt: 2, col: '#c8a2ff', blurb: 'Hums while it swims. Each eye blinks on a different beat.' },
+    { id: 'angler', name: 'Lantern angler', w: 'jupiter', zones: 'deep', wt: 3, col: '#9fe0b8', blurb: 'Thinks the light on its head is Jupiter. Nobody has the heart to tell it.' },
+    { id: 'moon', name: 'Moonwhisker', w: 'forever', zones: 'deep', wt: 1, col: '#e6d4ff', rare: true, blurb: 'Old, slow and enormous, with whiskers like moonbeams. Only rises on days the pool hums.' }
+  ];
+  const poolHums = () => shipDay % 3 === 0;
+  const fishLog = () => gStore('fishlog', {});
+  const fishBag = () => gStore('fishbag', 0);
+  const baitLeft = () => { const b = gStore('bait', {}); return b.day === shipDay ? b.left : 6; };
+  const useBait = () => gSet('bait', { day: shipDay, left: Math.max(0, baitLeft() - 1) });
+  const poolZone = (x, y) => { const n = poolN(x, y); return n < 0.42 ? 'deep' : n < 0.72 ? 'mid' : 'shallow'; };
+  function pickFish(zone) {
+    const pool = FISH.filter(f => f.zones.includes(zone) && (!f.rare || poolHums())), tot = pool.reduce((s, f) => s + (f.rare ? 1.2 : f.wt), 0);
+    let r = Math.random() * tot; for (const f of pool) { r -= f.rare ? 1.2 : f.wt; if (r <= 0) return f; } return pool[0];
+  }
+  let poolBgCache = null;
+  function poolBlob(c, grow = 0) { c.beginPath(); for (let k = 0; k <= 48; k++) { const a = k / 48 * Math.PI * 2, r = poolR(a) * (1 + grow); const x = PCX + Math.cos(a) * PRX * r, y = PCY + Math.sin(a) * PRY * r; k ? c.lineTo(x, y) : c.moveTo(x, y); } c.closePath(); }
+  function poolBackground() {
+    if (poolBgCache) return poolBgCache;
+    const cv = document.createElement('canvas'); cv.width = PL_W * 2; cv.height = PL_H * 2; const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.setTransform(2, 0, 0, 2, 0, 0);
+    const W = PL_W, H = PL_H, rnd = mulberry32(5);
+    let g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#e8f2fa'); g.addColorStop(1, '#c4d8ec'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    for (let i = 0; i < 26; i++) { const x = rnd() * W, y = rnd() * H, rx = 14 + rnd() * 22, ry = 5 + rnd() * 6; c.fillStyle = 'rgba(120,150,190,0.16)'; c.beginPath(); c.ellipse(x + 2, y + 3, rx, ry, 0, 0, 7); c.fill(); c.fillStyle = 'rgba(255,255,255,0.7)'; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, 7); c.fill(); }
+    for (let i = 0; i < 500; i++) px(c, Math.floor(rnd() * W), Math.floor(rnd() * H), 1, 1, ['#ffffff', '#b8cce4', '#d8e6f4'][i % 3]);
+    for (const [x, y, r] of [[30, 20, 7], [220, 16, 5], [10, 190, 6], [244, 196, 8], [70, 286, 5], [200, 280, 6]]) { c.fillStyle = '#5a6a80'; c.beginPath(); c.ellipse(x, y, r, r * 0.7, 0, 0, 7); c.fill(); c.fillStyle = '#ffffff'; c.beginPath(); c.ellipse(x - 1, y - r * 0.4, r * 0.8, r * 0.35, 0, 0, 7); c.fill(); }
+    for (let k = 0; k < 9; k++) { c.fillStyle = 'rgba(110,140,180,0.45)'; c.beginPath(); c.ellipse(98 + (k % 2) * 6, 296 - k * 10, 1.6, 2.6, 0, 0, 7); c.fill(); }
+    c.fillStyle = 'rgba(90,120,160,0.25)'; poolBlob(c, 0.075); c.fill(); c.fillStyle = '#bfe6f8'; poolBlob(c, 0.05); c.fill(); c.fillStyle = '#8ec4e0'; poolBlob(c, 0.025); c.fill();
+    g = c.createRadialGradient(PCX, 150, 10, PCX, PCY, 130); g.addColorStop(0, '#020812'); g.addColorStop(0.45, '#062038'); g.addColorStop(0.85, '#0e4a62'); g.addColorStop(1, '#2a8aa0'); c.fillStyle = g; poolBlob(c); c.fill();
+    c.save(); poolBlob(c); c.clip();
+    [[40, 140, '#9fe0b8'], [52, 160, '#7fe8ff'], [214, 160, '#ff9ad5'], [100, 250, '#9fe0b8'], [226, 110, '#ffd27a'], [34, 116, '#c8a2ff']].forEach(([x, y, col], i) => { c.fillStyle = gShade(col, 0.4); c.beginPath(); c.arc(x, y, 6 + (i % 2) * 2, 0.4, Math.PI * 2); c.lineTo(x, y); c.fill(); gGlow(c, col, 8, () => { c.fillStyle = col; c.beginPath(); c.arc(x + 1, y - 1, 1.6, 0, 7); c.fill(); }); });
+    c.restore();
+    c.strokeStyle = 'rgba(232,251,255,0.9)'; poolBlob(c, 0.06); c.stroke();
+    [[16, 40, '#7fe8ff'], [238, 46, '#c8a2ff'], [246, 230, '#ff9ad5'], [12, 250, '#9fe0b8']].forEach(([x, y, col]) => gCrystals(c, x, y, col, 4, 12));
+    for (const [x, y, col] of [[24, 70, '#ffc46a'], [236, 80, '#ff9ad5'], [230, 268, '#7fe8ff']]) { g = c.createRadialGradient(x, y + 8, 1, x, y + 8, 26); g.addColorStop(0, col + '55'); g.addColorStop(1, col + '00'); c.fillStyle = g; c.fillRect(x - 26, y - 18, 52, 52); px(c, x, y - 4, 2, 12, '#5a4636'); gLantern(c, x, y - 8, col, 2.6); }
+    c.fillStyle = 'rgba(40,60,90,0.25)'; c.fillRect(JX + 3, JY + 3, JW, H - JY);
+    for (let y = JY; y < H; y += 6) { px(c, JX, y, JW, 5, (y / 6) % 2 ? '#9a7a54' : '#8a6a46'); px(c, JX, y + 5, JW, 1, '#5a3c24'); px(c, JX + 4 + ((y * 7) % 20), y + 2, 3, 1, '#6a4a30'); }
+    for (const [x, y] of [[JX - 2, JY - 2], [JX + JW - 2, JY - 2], [JX - 2, JY + 60], [JX + JW - 2, JY + 60]]) { px(c, x, y, 5, 5, '#5a3c24'); px(c, x + 1, y + 1, 3, 1, '#8a6a46'); }
+    px(c, JX + 22, JY + 52, 8, 8, '#6a7a8a'); px(c, JX + 23, JY + 53, 6, 3, '#1a3a5a');
+    return (poolBgCache = cv);
+  }
+  // a fish, as a shadow under the water (or in full colour once it's caught)
+  function fishShape(c, f, x, y, ang, t, lit) {
+    const S = lit ? f.col : 'rgba(2,6,14,0.78)', eye = (ex, ey, col, r = 1) => gGlow(c, col, 6, () => { c.fillStyle = col; c.beginPath(); c.arc(ex, ey, r, 0, 7); c.fill(); });
+    c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = S; c.strokeStyle = S;
+    const wig = reduceMotion ? 0 : Math.sin(t / 160) * 0.25;
+    if (f.id === 'minnow') { for (let k = 0; k < 5; k++) { const ox = (k % 3) * 4 - 4, oy = (k - 2) * 2.4; c.beginPath(); c.ellipse(ox, oy, 2.6, 1.2, 0, 0, 7); c.fill(); px(c, Math.round(ox + 1.5), Math.round(oy - 0.5), 1, 1, lit ? '#0a1a2a' : '#7fe8ff'); } }
+    else if (f.id === 'sprat') { c.beginPath(); c.ellipse(0, 0, 6, 1.8, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(-5, 0); c.lineTo(-9, -2.5 + wig * 4); c.lineTo(-9, 2.5 + wig * 4); c.fill(); eye(4, -0.5, lit ? '#0a1a2a' : '#e8fbff', 0.6); }
+    else if (f.id === 'puffer') { c.beginPath(); c.arc(0, 0, 6, 0, 7); c.fill(); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; c.beginPath(); c.moveTo(Math.cos(a) * 5, Math.sin(a) * 5); c.lineTo(Math.cos(a + 0.12) * 9, Math.sin(a + 0.12) * 9); c.lineTo(Math.cos(a + 0.26) * 5, Math.sin(a + 0.26) * 5); c.fill(); } eye(2, -2, lit ? '#2a1a40' : '#ffe58a', 0.8); eye(2, 2, lit ? '#2a1a40' : '#ffe58a', 0.8); }
+    else if (f.id === 'koi') { c.beginPath(); c.ellipse(0, 0, 8, 3.4, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(-7, 0); c.lineTo(-13, -4 + wig * 6); c.lineTo(-11, 0); c.lineTo(-13, 4 + wig * 6); c.fill(); c.beginPath(); c.ellipse(0, -4, 3, 1.4, -0.5, 0, 7); c.ellipse(0, 4, 3, 1.4, 0.5, 0, 7); c.fill(); if (lit) { px(c, -2, -1, 4, 2, '#ffd27a'); } eye(5, -1, lit ? '#2a1a40' : '#ff9ad5', 0.8); }
+    else if (f.id === 'eel') { c.lineWidth = 3.4; c.lineCap = 'round'; c.beginPath(); c.moveTo(10, 0); for (let k = 1; k <= 8; k++) c.lineTo(10 - k * 3.2, Math.sin(k * 0.9 + (reduceMotion ? 0 : t / 150)) * 3); c.stroke(); c.lineWidth = 1; c.lineCap = 'butt'; eye(10, -0.8, lit ? '#2a1a40' : '#7fe8ff', 0.7); }
+    else if (f.id === 'manta') { c.beginPath(); c.moveTo(6, 0); c.quadraticCurveTo(0, -12 - wig * 6, -6, -10); c.quadraticCurveTo(-3, 0, -6, 10); c.quadraticCurveTo(0, 12 + wig * 6, 6, 0); c.fill(); c.lineWidth = 1; c.beginPath(); c.moveTo(-4, 0); c.lineTo(-16, 0); c.stroke(); [-2.5, 0, 2.5].forEach(o => eye(3, o, lit ? '#2a1a40' : '#c8a2ff', 0.7)); }
+    else if (f.id === 'angler') { c.beginPath(); c.ellipse(0, 0, 8, 5.5, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(-7, 0); c.lineTo(-13, -4); c.lineTo(-12, 4); c.fill(); for (let k = 0; k < 4; k++) px(c, 4 + k * 1.5, 3 + (k % 2), 1, 2, 'rgba(220,240,255,0.7)'); c.lineWidth = 1; c.beginPath(); c.moveTo(3, -5); c.quadraticCurveTo(9, -14, 13, -8); c.stroke(); eye(13, -7.5, '#9fe0b8', 1.6); eye(4, -1.5, lit ? '#2a1a40' : '#ffe58a', 0.8); }
+    else if (f.id === 'moon') { c.beginPath(); c.ellipse(0, 0, 13, 6, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(-12, 0); c.lineTo(-20, -6 + wig * 6); c.lineTo(-18, 0); c.lineTo(-20, 6 + wig * 6); c.fill(); c.strokeStyle = lit ? '#ffffff' : 'rgba(220,230,255,0.45)'; c.beginPath(); c.moveTo(12, -2); c.quadraticCurveTo(22, -10, 30, -6); c.moveTo(12, 2); c.quadraticCurveTo(22, 10, 30, 6); c.stroke(); eye(8, -2, lit ? '#2a1a40' : '#ffffff', 1); }
+    c.restore();
+  }
+  // shadows that wander the pool when nothing is biting
+  const POOL_DRIFT = [['minnow', 60, 210, 24, 9], ['sprat', 210, 90, 18, 11], ['puffer', 196, 200, 12, 13], ['koi', 70, 120, 20, 15], ['eel', 190, 110, 16, 17], ['manta', 84, 200, 18, 19], ['angler', 104, 150, 14, 21]];
+  function poolStep(dt) {
+    gpadTick();
+    const me = deck.me, F = deck.fsh, now = performance.now(), SPEED = 50;
+    me.moving = false;
+    if (me.goal && F.state === 'idle') { const dy = me.goal[1] - me.y; if (Math.abs(dy) < 1) me.goal = null; else { me.y += Math.sign(dy) * Math.min(Math.abs(dy), SPEED * dt); me.dir = dy < 0 ? 3 : 0; me.moving = true; } }
+    if (F.state === 'idle') { const ky = (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0); if (ky) { me.y = Math.max(114, Math.min(286, me.y + ky * SPEED * dt)); me.dir = ky < 0 ? 3 : 0; me.moving = true; } }
+    footstep(me, me.moving, dt, 'wood');
+    deck.npcs.forEach((n, i) => { n.goal = null; n.pause = 99; n.follow = false; n.x = i ? 120 : 138; n.y = me.y + (i ? 22 : 12); n.dir = 3; n.moving = me.moving; });
+    if (F.state === 'cast') { F.t += dt; if (F.t >= 0.5) { F.state = 'wait'; F.t = 0; F.biteAt = 2.2 + Math.random() * 3; F.nib = [F.biteAt * (0.35 + Math.random() * 0.2), F.biteAt * (0.7 + Math.random() * 0.15)]; F.fish = pickFish(poolZone(F.bx, F.by)); const a = Math.random() * Math.PI * 2; F.from = [F.bx + Math.cos(a) * 46, F.by + Math.sin(a) * 40]; } }
+    else if (F.state === 'wait') {
+      F.t += dt;
+      F.twitch = F.nib.some(n => F.t > n && F.t < n + 0.45);
+      if (F.t >= F.biteAt) { F.state = 'bite'; F.t = 0; useBait(); sfx.pop && sfx.pop(); poolBite(); }
+    }
+    else if (F.state === 'caught' || F.state === 'gone') { F.t += dt; if (F.t > (F.state === 'caught' ? 2.2 : 1.1)) { F.state = 'idle'; F.fish = null; poolIdle(); } }
+  }
+  function poolBite() {
+    const F = deck.fsh, f = F.fish, w = WORDS[f.w], known = gKnows(f.w), len = w[0].length;
+    const secs = (2.2 + 0.9 * len) * (f.fast ? 0.7 : 1) + (known ? 1.5 : 0);
+    F.timer = secs; F.t0 = performance.now();
+    glowPad({ eyebrow: 'Bite! It’s glowing at the bait', title: f.fast ? 'Quick, it’s a fast one!' : 'Glow it back', show: w[0], mean: known ? w[1] : null, answer: w[0], need: len, timer: secs, mistakes: len <= 2 ? 1 : 0, cancel: 'Let it go',
+      hint: known ? 'You know this word, so you get a little longer.' : 'Tap the same colours, in order, before it swims away.',
+      onDone: (ok, why) => {
+        if (!deck || deck.kind !== 'gpool') return;
+        if (ok) return poolCatch(f);
+        F.state = 'gone'; F.t = 0;
+        shipSay('P', why === 'time' ? 'Too slow! The shadow flicks its tail and vanishes into the dark. The bait went with it.' : why === 'miss' ? 'Wrong glow! The fish looks offended and swims off with your bait.' : 'You let it go. It swims off with the bait, glowing smugly.');
+      } });
+  }
+  function poolCatch(f) {
+    const F = deck.fsh, log = fishLog(), first = !log[f.id];
+    log[f.id] = (log[f.id] || 0) + 1; gSet('fishlog', log); gSet('fishbag', fishBag() + 1);
+    F.state = 'caught'; F.t = 0; sfx.coin();
+    gLearn(f.w);
+    const n = FISH.filter(x => log[x.id]).length;
+    if (first && f.rare && !gStore('pearls', []).includes(11)) setTimeout(() => gPearl({ id: 11 }), 900);
+    if (first && n === FISH.length && !gOwn('fishtank')) { gGive('fishtank'); setTimeout(() => celebrate('Fish log complete', 'All 8', 'A glowing fish tank for your Pad', null, null, { n: 60 }), 1200); }
+    const z = shoreParty.includes('Z');
+    shipSay(z ? 'Z' : 'P', first ? (z ? `A ${f.name.toUpperCase()}! Zib has only seen one of those in a book! Zib cannot read! It was a picture book!` : `You caught a ${f.name}! ${f.blurb}`) + ` (Fish log ${n} of ${FISH.length}.)` : `Another ${f.name}. It goes in the bucket with the others. ${fishBag() } glowfish in the bucket for trading.`);
+  }
+  function poolIdle() {
+    const el = $('glowPanel'); if (!el || gpad) return;
+    const log = fishLog(), n = FISH.filter(x => log[x.id]).length, b = baitLeft();
+    el.hidden = false; el.classList.add('glowpanel');
+    el.innerHTML = `<span class="eyebrow">The Glow Pool · fishing</span>
+      <div class="gstats"><div><b>${b} of 6</b><span>Bait today</span></div><div><b>${n} of ${FISH.length}</b><span>Fish log</span></div></div>
+      <p class="zhave">${b ? 'Tap the water to cast. Small fish swim near the edges; the big strange ones live in the dark middle. Wait for the real bite, not the nibbles!' : 'Out of bait. Finn hands out six more tomorrow.'}${poolHums() ? ' <b>The pool is humming today.</b> Something old might rise in the deep.' : ''}</p>
+      <div class="btns"><button class="btn ghost" id="fishLogBtn">🐟 Fish log</button><button class="btn ghost" id="fishBookBtn">📖 Glow Book</button></div>`;
+    $('fishLogBtn').addEventListener('click', () => { sfx.click(); openFishLog(); });
+    $('fishBookBtn').addEventListener('click', () => { sfx.click(); openGlowBook(); });
+  }
+  function poolTap(x, y) {
+    const me = deck.me, F = deck.fsh;
+    deck.tap = { x, y, t: performance.now() };
+    if (F.state === 'wait') { const spooked = F.twitch; F.state = 'idle'; F.fish = null; sfx.click(); shipSay('P', spooked ? 'Too soon! That was only a nibble, and the shadow darts away. Wait for the bobber to really dip.' : 'You reel the line back in. Nothing yet.'); poolIdle(); return; }
+    if (F.state !== 'idle' || gpad) return;
+    if (onJetty(x, y) || !inPool(x, y)) { me.goal = [128, Math.max(114, Math.min(286, y))]; return; }
+    if (!baitLeft()) { shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'No more bait! Zib offered the fish a bolt. The fish said no. Finn gives more tomorrow!' : 'The bait tin is empty. Finn hands out six more tomorrow.'); return; }
+    const rx = me.x, ry = me.y - 14, d = Math.hypot(x - rx, y - ry), max = 150;
+    let bx = x, by = y; if (d > max) { bx = rx + (x - rx) / d * max; by = ry + (y - ry) / d * max; }
+    if (!inPool(bx, by) || onJetty(bx, by)) { shipSay('P', 'That’s too far to cast from here. Try somewhere closer, or walk along the jetty.'); return; }
+    F.state = 'cast'; F.t = 0; F.bx = bx; F.by = by; F.sx = rx; F.sy = ry; me.dir = Math.abs(bx - rx) > Math.abs(by - ry) ? (bx < rx ? 1 : 2) : (by < ry ? 3 : 0);
+    sfx.click(); const el = $('glowPanel'); if (el && !gpad) el.hidden = true;
+    if (!store.get('ds-gany-castTip', '')) { store.set('ds-gany-castTip', '1'); shipSay('P', 'Plop. The bobber floats on the dark water. Shadows start to circle… Nibbles make it twitch. When it really dips, the fish glows its word at you.'); }
+  }
+  function openFishLog() {
+    let el = $('ganyFishLog');
+    if (!el) { el = document.createElement('div'); el.id = 'ganyFishLog'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Fish log'); document.body.appendChild(el); }
+    const log = fishLog(), n = FISH.filter(x => log[x.id]).length;
+    el.innerHTML = `<div class="qnew-card gbook"><span class="eyebrow">Ganymede · the Glow Pool</span><b>Fish log</b>
+      <div class="gprog"><i style="width:${Math.round(n / FISH.length * 100)}%"></i></div><p class="zhave">${n} of ${FISH.length} caught · ${fishBag()} glowfish in the bucket to trade at the stalls${gOwn('fishtank') ? ' · fish tank won!' : ' · catch them all for a fish tank'}</p>
+      <div class="gbrows">${FISH.map(f => log[f.id] ? `<div class="grow"><span>${gDots(WORDS[f.w][0])}</span><b>${esc(f.name)}<small>${esc(f.blurb)} Caught ${log[f.id]}.</small></b></div>`
+        : `<div class="grow q"><span class="gshadow">?</span><b>? ? ?<small>A shadow ${f.zones.includes('deep') ? 'in the dark middle' : f.zones.includes('shallow') ? 'near the edges' : 'out in the open water'}${f.rare ? ', only on days the pool hums' : ''}${f.fast ? '. Fast' : ''}.</small></b></div>`).join('')}</div>
+      <div class="btns"><button class="btn ghost" id="flBye">Close</button></div></div>`;
+    el.hidden = false; $('flBye').addEventListener('click', () => { sfx.click(); el.hidden = true; }); setTimeout(() => $('flBye').focus({ preventScroll: true }), 50);
+  }
+  function poolDraw(t) {
+    const c = deck.c, me = deck.me, F = deck.fsh, tt = reduceMotion ? 0 : t;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    c.drawImage(poolBackground(), 0, 0, PL_W, PL_H);
+    c.save(); poolBlob(c); c.clip();
+    // the huge thing in the deep: watches, can't be caught
+    { const a = tt / 9000, x = PCX + 40 + Math.cos(a) * 14, y = PCY + 24 + Math.sin(a) * 10; c.fillStyle = 'rgba(0,2,8,0.6)'; c.beginPath(); c.ellipse(x, y, 38, 22, -0.2, 0, 7); c.fill();
+      for (let k = 0; k < 7; k++) { c.strokeStyle = 'rgba(0,2,8,0.5)'; c.lineWidth = 3 - k * 0.3; const b = 0.8 + k * 0.32 + Math.sin(tt / 1200 + k) * 0.05; c.beginPath(); c.moveTo(x + Math.cos(b) * 24, y + Math.sin(b) * 14); c.quadraticCurveTo(x + Math.cos(b) * 46, y + Math.sin(b) * 40 + 10, x + Math.cos(b + 0.4) * 60, y + Math.sin(b + 0.4) * 52); c.stroke(); } c.lineWidth = 1;
+      if (Math.floor(tt / 2300) % 5 !== 0) for (const [ex, ey, r] of [[-10, -8, 1.8], [0, -13, 1.3], [10, -9, 1.8]]) gGlow(c, '#ff9ad5', 6, () => { c.fillStyle = '#ff9ad5'; c.beginPath(); c.arc(x + ex, y + ey, r, 0, 7); c.fill(); }); }
+    // wandering shadows
+    for (const [id, x0, y0, r, k] of POOL_DRIFT) { const f = FISH.find(x => x.id === id), a = (reduceMotion ? 0 : tt / (2600 + k * 90)) + k; fishShape(c, f, x0 + Math.cos(a) * r, y0 + Math.sin(a) * r * 0.6, a + Math.PI / 2, t, false); }
+    // the one coming for your bait
+    if (F.fish && (F.state === 'wait' || F.state === 'bite' || F.state === 'gone')) {
+      let x, y, ang;
+      if (F.state === 'wait') { const s = Math.min(1, F.t / F.biteAt), e = s * s * (3 - 2 * s); x = F.from[0] + (F.bx - 8 - F.from[0]) * e; y = F.from[1] + (F.by + 6 - F.from[1]) * e; ang = Math.atan2(F.by - F.from[1], F.bx - F.from[0]); }
+      else if (F.state === 'bite') { x = F.bx - 6 + Math.sin(tt / 90) * 1.2; y = F.by + 6; ang = Math.atan2(F.by - F.from[1], F.bx - F.from[0]); }
+      else { const s = F.t / 1.1; ang = Math.atan2(F.from[1] - F.by, F.from[0] - F.bx); x = F.bx + Math.cos(ang) * s * 70; y = F.by + Math.sin(ang) * s * 70; }
+      fishShape(c, F.fish, x, y, ang, t, false);
+    }
+    // light dancing on the surface
+    c.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 22; k++) { const x = (k * 53 + (reduceMotion ? 0 : tt / 90)) % (PL_W + 20) - 10, y = (k * 37) % PL_H; c.strokeStyle = 'rgba(127,232,255,0.12)'; c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + 6, y - 4, x + 12, y + 1); c.quadraticCurveTo(x + 16, y + 4, x + 20, y); c.stroke(); }
+    c.globalCompositeOperation = 'source-over';
+    c.restore();
+    // the bobber, the line, the rod
+    const hx = me.x + 4, hy = me.y - 14;
+    let bob = null;
+    if (F.state === 'cast') { const s = Math.min(1, F.t / 0.5); bob = [F.sx + (F.bx - F.sx) * s, F.sy + (F.by - F.sy) * s - Math.sin(s * Math.PI) * 26]; }
+    else if (F.state !== 'idle' && F.bx != null && F.state !== 'caught') bob = [F.bx, F.by];
+    const tipDir = bob ? Math.atan2(bob[1] - hy, bob[0] - hx) : -Math.PI / 2, tip = [hx + Math.cos(tipDir) * 20, hy + Math.sin(tipDir) * 20];
+    if (bob) {
+      const dip = F.state === 'bite' ? 2 : F.twitch ? Math.sin(tt / 40) * 1.2 : 0;
+      c.strokeStyle = 'rgba(232,251,255,0.75)'; c.beginPath(); c.moveTo(tip[0], tip[1]); c.quadraticCurveTo((tip[0] + bob[0]) / 2, Math.max(tip[1], bob[1]) + 8, bob[0], bob[1] + dip); c.stroke();
+      if (F.state !== 'cast') for (let r = 1; r <= 3; r++) { const k = ((tt / 900) + r / 3) % 1; c.strokeStyle = `rgba(191,244,255,${(F.state === 'bite' ? 0.8 : 0.45) * (1 - k)})`; c.beginPath(); c.ellipse(bob[0], bob[1] + 2, 3 + k * (F.state === 'bite' ? 18 : 10), 1.5 + k * 6, 0, 0, 7); c.stroke(); }
+      px(c, Math.round(bob[0]) - 2, Math.round(bob[1] + dip) - 2, 4, 2, '#ff6b5e'); px(c, Math.round(bob[0]) - 2, Math.round(bob[1] + dip), 4, 2, '#f4f1e8');
+      // its word, glowing up through the water, with a timer ring
+      if (F.state === 'bite' && F.fish) { const p = WORDS[F.fish.w][0]; [...p].forEach((k, i) => gGlow(c, GCOL[k], 10, () => { const x = bob[0] - (p.length - 1) * 6 + i * 12, y = bob[1] - 16; c.fillStyle = GCOL[k]; c.beginPath(); c.arc(x, y, 4, 0, 7); c.fill(); c.fillStyle = '#0a0e1c'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(GSHAPE[k], x, y + 0.5); c.textAlign = 'left'; c.textBaseline = 'alphabetic'; }));
+        if (gpad && gpad.timer) { const left = Math.max(0, 1 - (performance.now() - gpad.t0) / (gpad.timer * 1000)); c.strokeStyle = left < 0.3 ? '#ff6b5e' : '#c8a2ff'; c.lineWidth = 2; c.beginPath(); c.arc(bob[0], bob[1], 12, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2); c.stroke(); c.lineWidth = 1; } }
+    }
+    // a catch, held up in full colour
+    if (F.state === 'caught' && F.fish) { const s = Math.min(1, F.t / 0.5), x = me.x + 2, y = me.y - 34 - s * 8;
+      c.fillStyle = 'rgba(255,255,255,0.25)'; c.beginPath(); c.arc(x, y, 18, 0, 7); c.fill(); fishShape(c, F.fish, x, y, 0, t, true);
+      if (!reduceMotion) for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2 + tt / 400; px(c, Math.round(x + Math.cos(a) * 20), Math.round(y + Math.sin(a) * 14), 1, 1, '#ffffff'); }
+      c.font = '700 6px monospace'; c.textAlign = 'center'; const w = c.measureText(F.fish.name).width + 8; c.fillStyle = 'rgba(5,10,24,0.8)'; c.fillRect(x - w / 2, y - 30, w, 10); c.fillStyle = F.fish.col; c.fillText(F.fish.name, x, y - 23); c.textAlign = 'left'; }
+    // everyone on the jetty
+    const things = [];
+    for (const n of deck.npcs) things.push([n.y, () => drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, 0, t)]);
+    things.push([me.y + 0.5, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    c.strokeStyle = '#c8a070'; c.beginPath(); c.moveTo(hx, hy + 4); c.lineTo(tip[0], tip[1]); c.stroke();
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // the grotto, seen from the Elders' Ledge once it has thawed
+  function ganyGrottoOpenDraw(c, t) {
+    if (!grottoOpen()) return;
+    c.save(); c.beginPath(); c.ellipse(544, 318, 42, 36, 0, 0, 7); c.clip();
+    const g = c.createLinearGradient(0, 282, 0, 354); g.addColorStop(0, '#2a4a7a'); g.addColorStop(1, '#e8f2fa'); c.fillStyle = g; c.fillRect(500, 280, 90, 80);
+    c.fillStyle = '#f4f9ff'; c.fillRect(500, 340, 90, 20);
+    gCrystals(c, 520, 344, '#ffd27a', 3, 18); gCrystals(c, 546, 346, '#7fe8ff', 4, 26); gCrystals(c, 572, 344, '#ff9ad5', 3, 18);
+    for (let i = 0; i < 14; i++) { const x = 504 + (i * 13) % 82, y = 284 + ((i * 29) + (reduceMotion ? 0 : t / 60)) % 70; px(c, Math.round(x), Math.round(y), 1, 1, '#ffffff'); }
+    c.restore();
+  }
   function shoreHello(kind) {
     if (deck.scene) return;
+    if (kind === 'ggrotto') {
+      const first = store.get('ds-gany-grottoHello', '') !== '1', z = shoreParty.includes('Z'); store.set('ds-gany-grottoHello', '1');
+      if (first) shipSay(z ? 'Z' : 'P', z ? 'SNOW! Real snow! Zib has not seen snow since Zib was a baby! Oh. Oh no. Grand-Bloom’s rule: in the Grotto, Zib is not allowed to translate. You have to listen with your own eyes!' : 'You squeeze through the melted ice wall into… winter. Snow, crystal trees, a frozen waterfall. Five crystals poke out of the snow, humming. An old jelly sleeps by the pond.');
+      else shipSay(z ? 'Z' : 'P', z ? 'Zib is making a snow-Zib. It is just snow. Zib is very proud.' : 'Snow falls softly in the Grotto. The crystals hum.');
+      return;
+    }
+    if (kind === 'gpool') {
+      const first = store.get('ds-gany-poolHello', '') !== '1', z = shoreParty.includes('Z'); store.set('ds-gany-poolHello', '1');
+      if (first) shipSay(z ? 'Z' : 'P', z ? 'FISHING! The fish talk in glow too! When one bites it glows a word at you. Glow the same word back, quick, and it’s yours! Zib will hold the bucket. Zib will not eat the fish. Probably.' : 'Finn has left you a rod and a tin of bait: six a day. Tap the water to cast. When a fish really bites, it glows a word. Glow it back to catch it.');
+      else shipSay(z ? 'Z' : 'P', z ? 'Shh! Zib is being quiet for the fish. Zib is VERY quiet.' : 'The pool is dark and still. Shadows move under the water.');
+      poolIdle(); return;
+    }
     if (kind === 'gany') {
+      if (deck.from === 'ggrotto' || deck.from === 'gpool') return;
       const first = store.get('ds-gany-hello', '') !== '1'; store.set('ds-gany-hello', '1');
       if (shoreParty.includes('Z')) shipSay('Z', first ? 'ZIB IS HOME! Okay. Rules. Credits are no good here. Zib’s cousins use them as coasters. Here we TRADE. And everyone talks in glow. Zib will translate! Mostly correctly!' : ['Home again! Zib can smell the soup!', 'The cousins have new shinies today! Zib can tell! Zib can always tell!'][Math.floor(Math.random() * 2)]);
       else shipSay('P', first ? 'The lift from the landing pad drops you into a huge cavern under the ice. Jupiter hangs in a crack overhead. Everywhere: glowing jellies with big eyes, exactly like Zib. They glow at you. You have no idea what they’re saying. Next time, bring Zib.' : 'The Drift Market hums and glows. A jelly kid waves at you with three tentacles.');
@@ -22411,7 +22969,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (mode === 'shipmenu') { if (e.code === 'Escape') setMode(lastRoom); return; }
     if (mode === 'flights') { if (e.code === 'Escape') { if (flightsFrom === 'office') { walkEnter = 'office'; setMode('hall'); } else if (flightsFrom === 'bridge') { walkEnter = 'missions'; setMode('bridge'); } else setMode(lastRoom); } return; }
     if (mode === 'hall' || mode === 'bridge' || mode === 'garden' || mode === 'quarters' || mode === 'bedroom' || mode === 'dome' || mode === 'galley' || mode === 'engine' || mode === 'lift') { if (e.code === 'Escape') setMode('shipmenu'); return; }
-    if (SHORE_KINDS.includes(mode)) { if (e.code === 'Escape') shoreLeave(); return; }
+    if (SHORE_KINDS.includes(mode)) { if (gpad && /^Digit[1-5]$/.test(e.code)) { gpadKey(GK[+e.code.slice(5) - 1]); return; } if (e.code === 'Escape') { if (mode === 'ggrotto' || mode === 'gpool') { gpad = null; walkEnter = mode; setMode('gany'); } else shoreLeave(); } return; }
     if (mode === 'sysmap') { if (e.code === 'Escape') { walkEnter = 'missions'; setMode('bridge'); } return; }
     if (mode === 'encounter') return;
     if (mode === 'vending') { if (e.code === 'Escape') { vend = null; walkEnter = 'vending'; setMode('quarters'); } return; }
