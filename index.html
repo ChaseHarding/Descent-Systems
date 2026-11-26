@@ -414,6 +414,13 @@ kbd {
 .qnew-card canvas.face { width: 56px; height: 56px; }
 .qnew-card b { font-family: var(--f-display); font-size: 20px; letter-spacing: .05em; text-transform: uppercase; color: #ffcf3a; }
 .zstall .zsay { min-height: 3em; }
+.gmap svg { width: 100%; border-radius: 12px; border: 1px solid #2a4a6a; background: linear-gradient(#14244a, #060a18); }
+.gmap text { font-family: var(--f-mono); }
+.gstats { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.gstats div { border: 1px solid #2a4a6a; border-radius: 10px; padding: 6px 10px; display: flex; flex-direction: column; text-align: left; }
+.qnew-card .gstats b { font: 800 15px var(--f-display); color: #f4f8ff; text-transform: none; letter-spacing: 0; }
+.gstats span { font-size: 10px; color: var(--regolith-dim); letter-spacing: .08em; text-transform: uppercase; }
+.zstall.gany { border-color: #7fe8ff; } .zstall.gany .ztrade { border-color: #7fe8ff; }
 .maglev .mlview { width: 100%; height: 54px; border-radius: 8px; border: 1px solid var(--space-2); background: linear-gradient(#5a2a3a, #b8583a 45%, #f0a060 64%, #4a3a44 64%); position: relative; overflow: hidden; box-shadow: inset 0 -2px 0 #7fd6ff; }
 .maglev .mlview i { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 46px, #2a1d28 46px 52px); animation: mlrun .5s linear infinite; }
 @keyframes mlrun { to { background-position: 52px 0; } }
@@ -1472,6 +1479,8 @@ details.act > .limits { margin: 0 0 8px; }
       fill: '#a8222a', stroke: '#f4e6cc', legs: '#f4e6cc', detail: '#f4e6cc', swatch: 'linear-gradient(90deg, #a8222a, #f4e6cc)' },
     { id: 'vector', name: 'Vector Red', price: 0, unlock: 'ship:apex', blurb: 'Apex Aerospace racing red with gold trim. Comes with the Apex Vector.',
       fill: '#c0392b', stroke: '#ffd27a', legs: '#ffd27a', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #c0392b, #ffd27a)' },
+    { id: 'aurora', name: 'Aurora', price: 0, unlock: 'gany:aurora', blurb: 'Ganymede’s auroras, sealed in ice by Zib’s cousins and painted on. Green and violet ripples over midnight blue.',
+      fill: '#141a3a', stroke: '#9fe0b8', legs: '#c8a2ff', detail: '#7fe8ff', swatch: 'linear-gradient(90deg, #141a3a, #9fe0b8, #c8a2ff)' },
     { id: 'speedway', name: 'Speedway Chequer', price: 0, unlock: 'race:race-gp', blurb: 'Black and white chequers with a red racing stripe. For the pilot who beat Apex’s champion.',
       fill: '#15151f', stroke: '#f4f1e8', legs: '#f4f1e8', detail: '#ff3b4e', swatch: 'repeating-linear-gradient(90deg, #15151f 0 6px, #f4f1e8 6px 12px)' },
     { id: 'neptune', name: 'Neptune Blue', price: 0, unlock: 'ship:neptune', blurb: 'Wren’s colours from her Neptune runs: deep blue and brass. Comes with the Neptune Runner.',
@@ -6271,11 +6280,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -9446,6 +9455,16 @@ details.act > .limits { margin: 0 0 8px; }
   // crew quest rewards
   DEN_ITEMS.wallR.push({ id: 'bisphoto', name: 'Biscuit’s photo', price: 0, quest: 'q-gus', blurb: 'The faded factory photo from Gus’s wallet, framed: Biscuit in cherry red, brand new, with Gus aged nineteen grinning next to her.',
     draw(c, x, y) { px(c, x + 2, y + 1, 26, 18, '#c9a06a'); px(c, x + 4, y + 3, 22, 14, '#e8dcc0'); px(c, x + 4, y + 12, 22, 5, '#b8a888'); px(c, x + 10, y + 7, 9, 5, '#a8222a'); px(c, x + 10, y + 9, 9, 1, '#f4e6cc'); px(c, x + 11, y + 12, 1, 2, '#6a5a48'); px(c, x + 17, y + 12, 1, 2, '#6a5a48'); px(c, x + 21, y + 8, 3, 3, '#e8b48a'); px(c, x + 21, y + 11, 3, 4, '#3d6b63'); px(c, x + 21, y + 7, 3, 1, '#c46a2c'); } });
+  DEN_ITEMS.wallL.push({ id: 'ganylantern', gany: 'lantern', name: 'Ganymede paper lantern', price: 0, blurb: 'Ice-paper and a little warm light, from Lumen’s stall on Ganymede. One day it should go up to Jupiter. Not yet.',
+    lines: ['It glows a soft orange. If you look closely, there’s a tiny jelly face drawn on it.', 'Zib says it means “welcome home”. Zib may have made that up.'],
+    draw(c, x, y, t) { px(c, x + 13, y, 1, 6, '#6a5040'); const b = reduceMotion ? 0 : Math.round(Math.sin((t || 0) / 700)); c.fillStyle = 'rgba(255,196,106,0.25)'; c.beginPath(); c.arc(x + 13, y + 14 + b, 10, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#ffc46a'; c.beginPath(); c.ellipse(x + 13.5, y + 14 + b, 6, 8, 0, 0, Math.PI * 2); c.fill(); for (let k = -1; k <= 1; k++) px(c, x + 13 + k * 3, y + 7 + b, 1, 14, '#e8a040'); px(c, x + 11, y + 13 + b, 1, 1, '#2a1a40'); px(c, x + 15, y + 13 + b, 1, 1, '#2a1a40'); px(c, x + 10, y + 22 + b, 7, 2, '#8a5a2a'); } });
+  DEN_ITEMS.shelf.push({ id: 'jellyglass', gany: 'jellyglass', name: 'Jelly-glass ornament', price: 0, blurb: 'A tiny glass jelly spun by Zib’s cousins while you watched. It has Zib’s face. They all do.',
+    lines: ['It catches the light and glows violet for a second.', 'Zib insists it’s a portrait of him. The cousins insist it isn’t.'],
+    draw(c, x, y) { c.fillStyle = 'rgba(200,162,255,0.7)'; c.beginPath(); c.ellipse(x + 8, y + 6, 5, 4, 0, Math.PI, 0); c.fill(); px(c, x + 3, y + 6, 10, 2, 'rgba(200,162,255,0.8)'); for (let k = 0; k < 4; k++) px(c, x + 4 + k * 2, y + 8, 1, 3, k % 2 ? '#ff9ad5' : '#c8a2ff'); px(c, x + 6, y + 4, 1, 1, '#2a1a40'); px(c, x + 9, y + 4, 1, 1, '#2a1a40'); px(c, x + 5, y + 2, 2, 1, '#ffffff'); px(c, x + 3, y + 11, 10, 1, '#5a4636'); } });
+  DEN_ITEMS.wallR.push({ id: 'pearlstring', gany: 'pearlstring', name: 'String of glow-pearls', price: 0, blurb: 'Grand-Bloom’s thanks for bringing back the lost pearls. They glow softly in the dark, one for each memory.',
+    lines: ['The pearls glow brighter when you’re sad. Gus has tested this. Gus was not sad. Gus was acting.', 'Every pearl is a memory, Grand-Bloom says. You’re not sure whose.'],
+    draw(c, x, y, t) { c.strokeStyle = '#8a6a4a'; c.beginPath(); c.moveTo(x + 2, y + 4); c.quadraticCurveTo(x + 15, y + 20, x + 28, y + 4); c.stroke(); for (let k = 0; k < 7; k++) { const s = k / 6, px2 = x + 2 + 26 * s, py = y + 4 + 16 * 2 * s * (1 - s) * 2 * 0.5 * 2, gl = reduceMotion ? 0.5 : (Math.sin((t || 0) / 500 + k) + 1) / 2; c.fillStyle = `rgba(220,240,255,${0.3 + gl * 0.4})`; c.beginPath(); c.arc(px2, py, 3, 0, Math.PI * 2); c.fill(); c.fillStyle = '#f4f8ff'; c.beginPath(); c.arc(px2, py, 1.6, 0, Math.PI * 2); c.fill(); } } });
   DEN_ITEMS.floor.push({ id: 'racecup', name: 'Grand Prix cup', price: 0, raceWon: 'race-gp', blurb: 'The Apex Grand Prix cup. Apex engraved it before the race, expecting Vanta. Gus filed off “APEX” and engraved “DESCENT SYSTEMS” over the scratch.',
     lines: ['The cup catches the light. Somewhere on floor 99, someone is very annoyed.', 'Rex polishes it every time he visits. He talks to it. Quietly.'],
     draw(c, x, y) { px(c, x + 7, y + 24, 10, 4, '#5a4636'); px(c, x + 5, y + 27, 14, 2, '#7a5c44'); px(c, x + 10, y + 18, 4, 6, '#e0b060'); c.fillStyle = '#ffd27a'; c.beginPath(); c.moveTo(x + 4, y + 4); c.lineTo(x + 20, y + 4); c.lineTo(x + 17, y + 16); c.lineTo(x + 7, y + 16); c.closePath(); c.fill();
@@ -9544,7 +9563,7 @@ details.act > .limits { margin: 0 0 8px; }
   const denPool = spot => DEN_ITEMS[denSpot(spot).pool];
   const denItem = (spot, id) => denPool(spot).find(it => it.id === id) || denPool(spot)[0];
   const denKey = (pool, id) => `den:${pool}:${id}`;
-  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.raceWon) return (missionStars[it.raceWon] || 0) > 0; if (it.shore) return store.get('ds-pimCard', '') === '1'; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
+  const denOwns = (pool, id) => { const it = DEN_ITEMS[pool].find(x => x.id === id); if (!it) return false; if (it.gany) { try { return JSON.parse(store.get('ds-gany-own', '[]') || '[]').includes(it.gany); } catch (e) { return false; } } if (it.raceWon) return (missionStars[it.raceWon] || 0) > 0; if (it.shore) return store.get('ds-pimCard', '') === '1'; if (it.world) return !!(stats && stats.worlds.includes(it.world)); if (it.trip) return (missionStars[it.trip] || 0) > 0; if (it.romance) return bond.partners.some(w => bond.seen.includes(w + '8')); if (it.ev) return !!evDoneMap()[it.ev]; if (it.quest) return questDone(it.quest); return it.price === 0 || owned.has(denKey(pool, id)); };
   const souvenirOf = wid => DEN_ITEMS.shelf.find(x => x.world === wid);
   const worldName = wid => (WORLDS.find(w => w.id === wid) || { name: wid }).name;
   let denLook = (() => {
@@ -10050,12 +10069,13 @@ details.act > .limits { margin: 0 0 8px; }
     const newIn = new Set(denNew());
     const spotNew = sp => { const sd = denSpot(sp); return [...newIn].some(k => k.startsWith(sd.pool + ':')); };
     const tripName = id => (SIDES.find(d => d.id === id) || {}).name;
-    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest || x.shore || x.raceWon ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
+    const status = x => denLook[spot] === x.id ? 'Placed' : denOwns(pool, x.id) ? (x.world || x.trip || x.ev || x.quest || x.shore || x.raceWon || x.gany ? 'Collected' : x.price ? 'Owned' : 'Free') : x.quest ? 'Crew quest' : x.world ? `Land on ${worldName(x.world)}` : x.trip ? `Finish ${tripName(x.trip)}` : x.ev ? EVENTS.find(e => e.id === x.ev).name : x.romance ? 'Go on a date' : `${fmt(x.price)} cr`;
     let action;
     if (placed) action = `<p class="ok-note">${denUI.note || 'In its spot.'}</p>`;
     else if (own) action = `<button class="btn" id="denPlace">Put it here</button>`;
     else if (it.world) action = `<button class="btn" disabled>Land on ${worldName(it.world)} to collect it</button>`;
     else if (it.trip) action = `<button class="btn" disabled>Finish ${tripName(it.trip)} and Crumb brings it home</button>`;
+    else if (it.gany) action = `<button class="btn" disabled>${it.gany === 'pearlstring' ? 'Bring Grand-Bloom 4 glow-pearls on Ganymede' : 'Trade for it in Ganymede’s Drift Market'}</button>`;
     else if (it.raceWon) action = '<button class="btn" disabled>Win the Apex Grand Prix at the Mars Speedway</button>';
     else if (it.shore) action = '<button class="btn" disabled>Go ashore at Moonbase Pim (from the bridge) and take one from the rack</button>';
     else if (it.quest) action = `<button class="btn" disabled>Finish ${questName(it.quest)} to get it</button>`;
@@ -11039,6 +11059,7 @@ details.act > .limits { margin: 0 0 8px; }
       mdock: ['Mars · The Dock', 'Mars City, the Dock: under a glass lattice roof with the red sky and city towers beyond. From left: your ship’s docking ring, Juno’s dock office, stacked cargo pods, a glowing job board, the crane cab and the maglev platform. Drones fly overhead and dock workers walk by. Tap to walk; walk up to things to use them.'],
       mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
+      gany: ['The Drift Market', 'Ganymede, the Drift Market: a tall cavern under the ice with Jupiter through a crack in the ceiling. Three levels of ice ledges joined by rope bridges, with stairs, a lift, a rope climb, a kelp vine and an ice slide between them. Zib’s people, glowing jellies, live and trade here. Tap anywhere to walk there, even on another level. The Cavern map button shows what you’ve found.'],
       mrace: ['Mars Speedway', 'The Mars Speedway: a huge window onto Red Canyon, where race landers zoom through glowing gates. From left: the maglev, Race Control (where you pick a race), the packed stands with an empty gold box at the top, the announcer’s booth, the leaderboard, and Apex Racing’s garage with three racers. Your trophy case is by Race Control. Tap to walk; walk up to things to use them.'],
       mapex: ['Apex Row', 'Mars City, Apex Row: white polished tiles and gold trim. From left: the maglev, the mirrored Apex Landings tower with a giant red A and revolving doors guarded by two drones, a showroom with a lander turning under spotlights, a thirty-foot holo billboard of Rex that flips to another face every few seconds, Marta’s old paint shop stamped ACQUIRED BY APEX, and a paper notice board. Security drones sweep the street with red scanning lights.'],
       mlobby: ['Apex Lobby', 'The Apex Landings lobby: white marble, a giant red A behind a black reception desk with a floating concierge robot, a trophy wall, portraits of Apex’s leaders, a Moon boulder on a plinth, a gold executive lift to floor 99, and a flickering hologram by the lift. The door at the bottom goes back to the street.'],
@@ -11055,12 +11076,14 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="btns">
         ${kind === 'bridge' ? '<button class="btn" id="shipMissions">Flight deck</button>' : ''}
         ${kind === 'bridge' ? '<button class="btn ghost" id="shipMap">🗺️ System map</button>' : ''}
+        ${kind === 'gany' ? '<button class="btn ghost" id="ganyMapBtn">🗺️ Cavern map</button>' : ''}
         ${kind === 'bridge' && mapShore(shipAt()) ? `<button class="btn ghost" id="shipAshore">${SHORE_PLACES[mapShore(shipAt())].icon} Go ashore</button>` : ''}
         <button class="btn ghost" id="back">${SHORE_KINDS.includes(kind) ? '🚀 Back to the ship' : '☰ Menu'}</button>
       </div>
     </div>`;
     $('back').addEventListener('click', () => SHORE_KINDS.includes(kind) ? shoreLeave() : setMode('shipmenu'));
     { const sa = $('shipAshore'); if (sa) sa.addEventListener('click', () => { sfx.click(); openShore(mapShore(shipAt())); }); }
+    { const gm = $('ganyMapBtn'); if (gm) gm.addEventListener('click', () => { sfx.click(); openGanyMap(); }); }
     { const sm = $('shipMap'); if (sm) sm.addEventListener('click', () => { sfx.click(); mapSel = null; setMode('sysmap'); }); }
     const smb = $('shipMissions'); if (smb) smb.addEventListener('click', () => { sfx.click(); flightsFrom = 'bridge'; setMode('flights'); });
     const cv = $('shipCv'), from = walkEnter; walkEnter = null;
@@ -11073,21 +11096,24 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (qtr) {
       const i = QUARTERS.indexOf(bedroomOwner);
       start = from === 'vending' ? { x: 828, y: 74, dir: 0 } : from === 'bedroom' && i >= 0 ? { x: qDoorX(i), y: 72, dir: 0 } : { x: 26, y: 72, dir: 0 };
+    } else if (kind === 'gany') {
+      start = { x: 52, y: 199, dir: 0, floor: 't1' };
     } else if (MARS_KINDS.includes(kind)) {
       start = kind === 'mrace' ? { x: 40, y: 80, dir: 0 } : kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
-    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : kind === 'gany' ? GANY_W : 256;
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'gany' ? [0, 0, GANY_W, GANY_H] : kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
-      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
+      crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || kind === 'gany' || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
     { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
     { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
     deck.cat = hall && !catHiding() && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
-    deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H);
+    if (kind === 'gany') { deck.view = { ...GANY_VIEW, cx: 0, cy: 0 }; fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y - 30, GANY_W, GANY_H); gArrive('t1'); }
+    else { deck.view = roomView(deck.W, SHIP_H); fitRoomCanvas(cv, deck.view); camAim(deck.view, deck.me.x, deck.me.y, deck.W, SHIP_H); }
     const toWorld = e => { const b = cv.getBoundingClientRect(), v = deck.view; return [(e.clientX - b.left) * v.vw / b.width + v.cx, (e.clientY - b.top) * v.vh / b.height + v.cy]; };
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
@@ -11102,7 +11128,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { gany: ganyDraw, pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -11167,6 +11193,7 @@ details.act > .limits { margin: 0 0 8px; }
     const L = [];
     npcThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
+    if (deck.kind === 'gany') { ganyThings(L); return L; }
     if (deck.kind === 'pim') { pimThings(L); return L; }
     if (deck.kind === 'mdock') { mdockThings(L); return L; }
     if (deck.kind === 'mmain') { mmainThings(L); return L; }
@@ -11245,6 +11272,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function shipStep(dt) {
     npcStep(dt);
+    if (deck.kind === 'gany') { gStep(dt); return; }
     const me = deck.me, B = deck.B, SPEED = 56;
     const lock = !!deck.scene, kx = lock ? 0 : (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = lock ? 0 : (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
     if (lock) { me.goal = null; const sp = deck.npcs.find(n => n.who === deck.scene.speaker); if (sp) me.dir = faceToward(me, sp); }
@@ -11789,6 +11817,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (SHORE_KINDS.includes(kind)) {
       const mx = deck ? deck.me.x : 128, street = kind === 'pim' || kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace';
       shoreParty.forEach((w, i) => add(w, Math.max(16, mx - 20 - i * 14), street ? 92 + i * 6 : 140, { follow: true, fo: i * 14, pause: 0.4 }));
+      if (kind === 'gany') { L.forEach(n => { n.follow = false; n.y = 199; }); return L; }
       if (kind === 'mdiner') { add('RB', 196, 104, { baseDir: 0, local: true }); return L; }
       if (kind === 'mlobby') { add('AX', 132, 70, { baseDir: 0, local: true }); return L; }
       if (MARS_KINDS.includes(kind)) return L;
@@ -18144,7 +18173,7 @@ details.act > .limits { margin: 0 0 8px; }
   const APEX_PRE = () => ({ F: sableKnown() ? ['Sable is somewhere in that tower. Doing maths about us.', 'Walk quickly. Don’t make eye contact with the drones. Or the billboard.'] : ['Everything here is very clean. Too clean. Like nobody’s allowed to make a mistake.', 'Walk quickly. Don’t make eye contact with the drones.'],
     Q: ['Sable is on floor ninety-nine right now. I can feel her looking down.', 'Same drones. Same smell of new carpet. I hate it here. I’m glad I came. Both of those.'],
     J: sableKnown() ? ['She bought my dockhands’ jobs and Dottie’s loans with the same pen. I’d like to see that pen snap.', 'Every shiny window on this street was paid for by someone like my dockhands.'] : ['Every shiny window on this street was paid for by someone like my dockhands.', 'Apex moved in, the dock went quiet. That’s how it works here.'] });
-  function shoreLine(w) { const L = (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && !apexOpen() && APEX_PRE()[w]) || (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
+  function shoreLine(w) { const L = (deck && deck.kind === 'gany' && GANY_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && !apexOpen() && APEX_PRE()[w]) || (deck && deck.kind === 'mrace' && RACE_SAYS[w]) || (deck && (deck.kind === 'mapex' || deck.kind === 'mlobby') && APEX_SAYS[w]) || (deck && MARS_KINDS.includes(deck.kind) ? MARS_SAYS : SHORE_SAYS)[w]; if (L) return L[Math.floor(Math.random() * L.length)]; return SHORE_ANY[Math.floor(Math.random() * SHORE_ANY.length)](SIGN[w]).replace(/^[^:]+: /, ''); }
   // the first time you walk off the ramp
   ROOM_SCENES.push({ id: 'rs-pim-first', room: 'pim', after: true, need: ['M'],
     cast: [['M', 140, 104, 70], ['I', 124, 74], ['L', 366, 104], ['K', 20, 132], ['G', 60, 124], ['C', 70, 128], ['W', 60, 124], ['R', 64, 126], ['F', 60, 124], ['H', 66, 126]],
@@ -19258,8 +19287,464 @@ details.act > .limits { margin: 0 0 8px; }
     F: ['Racing is not in our insurance. I checked. I’m choosing to look the other way. Win.', 'I’ve calculated the odds. Don’t ask me the odds.'],
     W: ['I raced here once, thirty years ago. There were no stands. Just dust and a man with a stopwatch.', 'Fly it clean. Fast is what happens when you fly clean.']
   };
+  // ---- Ganymede: the Drift Market, a tall cavern under the ice, built by Zib's people ----
+  const GANY_W = 640, GANY_H = 600, GANY_VIEW = { vw: 256, vh: 300 };
+  const ganyOk = () => !inBase() && storyDone('market-day');
+  const gStore = (k, d) => { try { return JSON.parse(store.get('ds-gany-' + k, '')) ?? d; } catch (e) { return d; } };
+  const gSet = (k, v) => store.set('ds-gany-' + k, JSON.stringify(v));
+  const gGlow = (c, col, blur, fn) => { c.save(); c.shadowColor = col; c.shadowBlur = blur; fn(); c.restore(); };
+  // ---- the floors you can stand on, and the ways between them ----
+  const GF = {
+    loft: { y: 92, x0: 444, x1: 532, name: 'The Lantern Loft' },
+    t1: { y: 199, x0: 16, x1: 626, name: 'The Landing Ledge' },
+    wf: { y: 290, x0: 228, x1: 284, name: 'Behind the Waterfall' },
+    t2: { y: 338, x0: 46, x1: 494, name: 'The Elders’ Ledge' },
+    t3: { y: 519, x0: 16, x1: 626, name: 'The Glow Pool' }
+  };
+  const gFloorY = (f, x) => {
+    if (f === 't1' && x > 248 && x < 302) return 199 + Math.sin((x - 248) / 54 * Math.PI) * 9;
+    if (f === 't2') { if (x > 298 && x < 342) return 340 - (x - 298) / 44 * 6 + Math.sin((x - 298) / 44 * Math.PI) * 6; return x <= 298 ? 340 : 334; }
+    return GF[f].y;
+  };
+  // each way between floors: which floors, where on each, how long, and the path you follow
+  const GC = [
+    { id: 'stairs', a: 't1', ax: 52, b: 't2', bx: 74, secs: 2.2, path: s => [52 + 22 * s, 199 + 139 * s] },
+    { id: 'vine', a: 't3', ax: 30, b: 't2', bx: 52, secs: 2.6, path: s => [30 + 22 * s + Math.sin(s * 9) * 2, 519 - 181 * s] },
+    { id: 'rope', a: 't1', ax: 528, b: 'loft', bx: 520, secs: 2.4, path: s => [528 - 8 * s, 199 - 107 * s] },
+    { id: 'lift', a: 't1', ax: 607, b: 't3', bx: 607, secs: 2.8, path: s => [607, 199 + 320 * s] },
+    { id: 'slide', a: 't2', ax: 296, b: 't3', bx: 342, secs: 1.5, oneway: true, path: s => { const u = 1 - s; return [u * u * u * 296 + 3 * u * u * s * 360 + 3 * u * s * s * 260 + s * s * s * 342, u * u * u * 342 + 3 * u * u * s * 386 + 3 * u * s * s * 426 + s * s * s * 519]; } },
+    { id: 'water', a: 't1', ax: 256, b: 'wf', bx: 252, secs: 1.6, secret: true, path: s => [256 - 4 * s, 199 + 91 * s] }
+  ];
+  const gWfFound = () => gStore('wf', false);
+  const gConns = () => GC.filter(c => !c.secret || gWfFound());
+  // plan a route over floors: walk to a way down or up, ride it, repeat
+  function gPlan(from, fx, to, tx) {
+    if (from === to) return [{ walk: tx }];
+    const best = {}, prev = {}; best[from] = 0; const q = [from], pos = { [from]: fx };
+    while (q.length) { q.sort((a, b) => best[a] - best[b]); const f = q.shift();
+      for (const c of gConns()) for (const [a, ax, b, bx, fwd] of [[c.a, c.ax, c.b, c.bx, true], [c.b, c.bx, c.a, c.ax, false]]) {
+        if (a !== f || (c.oneway && !fwd)) continue;
+        const cost = best[f] + Math.abs(pos[f] - ax) + c.secs * 40;
+        if (best[b] == null || cost < best[b]) { best[b] = cost; prev[b] = { f, c, fwd, ax, bx }; pos[b] = bx; q.push(b); } } }
+    if (best[to] == null) return null;
+    const steps = []; let f = to;
+    while (f !== from) { const p = prev[f]; steps.unshift({ walk: p.ax }, { ride: p.c, fwd: p.fwd }); f = p.f; }
+    steps.push({ walk: tx });
+    return steps;
+  }
+  // which floor a tap belongs to
+  function gFloorAt(x, y) {
+    let best = null, bd = 1e9;
+    for (const [k, f] of Object.entries(GF)) { if (k === 'wf' && !gWfFound()) continue; if (x < f.x0 - 10 || x > f.x1 + 10) continue; const d = Math.abs(gFloorY(k, x) - y) + (y > gFloorY(k, x) + 30 ? 40 : 0); if (d < bd) { bd = d; best = k; } }
+    return best;
+  }
+  function gStep(dt) {
+    const me = deck.me, SPEED = 58, lock = !!deck.scene;
+    me.moving = false;
+    if (!me.floor) me.floor = 't1';
+    // a tap or a key gave us somewhere to go: plan the route there
+    if (me.goal && !lock) {
+      const th = deck.target, fl = th && th.fl ? th.fl : gFloorAt(me.goal[0], me.goal[1]);
+      if (fl) { const tx = Math.max(GF[fl].x0, Math.min(GF[fl].x1, me.goal[0])); deck.route = gPlan(me.floor, me.x, fl, tx); if (!deck.route) { deck.target = null; shipSay('Z', 'Zib does not know the way there yet! Zib is looking!'); } }
+      else deck.target = null;
+      me.goal = null;
+    }
+    const kx = lock ? 0 : (deck.keys.ArrowRight ? 1 : 0) - (deck.keys.ArrowLeft ? 1 : 0), ky = lock ? 0 : (deck.keys.ArrowDown ? 1 : 0) - (deck.keys.ArrowUp ? 1 : 0);
+    if (!deck.ride && (kx || ky)) {
+      deck.route = null; deck.target = null;
+      if (kx) { me.x = Math.max(GF[me.floor].x0, Math.min(GF[me.floor].x1, me.x + kx * SPEED * dt)); me.dir = kx < 0 ? 1 : 2; me.moving = true; }
+      if (ky) { const c = gConns().find(c => (c.a === me.floor && Math.abs(me.x - c.ax) < 10 && (GF[c.b].y < GF[c.a].y) === (ky < 0)) || (!c.oneway && c.b === me.floor && Math.abs(me.x - c.bx) < 10 && (GF[c.a].y < GF[c.b].y) === (ky < 0)));
+        if (c) deck.ride = { c, fwd: c.a === me.floor, s: 0 }; }
+    }
+    if (deck.ride) {
+      const r = deck.ride; r.s = Math.min(1, r.s + dt / (r.c.secs * (reduceMotion ? 0.4 : 1)));
+      const s = r.fwd ? r.s : 1 - r.s, [x, y] = r.c.path(s);
+      if (!r.started) { r.started = true; gRideStart(r.c); }
+      me.dir = r.c.id === 'lift' || r.c.id === 'rope' || r.c.id === 'vine' ? 3 : x < me.x ? 1 : x > me.x ? 2 : me.dir; me.x = x; me.y = y; me.moving = r.c.id !== 'lift';
+      if (r.s >= 1) { me.floor = r.fwd ? r.c.b : r.c.a; me.y = gFloorY(me.floor, me.x); deck.ride = null; gArrive(me.floor); if (deck.route) deck.route.shift(); }
+    } else if (deck.route && deck.route.length && !lock) {
+      const st = deck.route[0];
+      if (st.walk != null) {
+        const d = st.walk - me.x;
+        if (Math.abs(d) < 1.2) { deck.route.shift(); if (!deck.route.length) { deck.route = null; shipArrive(); } }
+        else { me.x += Math.sign(d) * Math.min(Math.abs(d), SPEED * dt); me.dir = d < 0 ? 1 : 2; me.moving = true; }
+      } else if (st.ride) deck.ride = { c: st.ride, fwd: st.fwd, s: 0 };
+    }
+    if (!deck.ride) me.y = gFloorY(me.floor, me.x);
+    // the crew you brought stay beside you, on your floor
+    deck.npcs.forEach((n, i) => { if (!shoreParty.includes(n.who) || n.script) return; const side = me.dir === 1 ? 1 : -1, tx = me.x + side * (18 + i * 14), lim = deck.ride ? [0, GANY_W] : [GF[me.floor].x0, GF[me.floor].x1];
+      const gx = Math.max(lim[0], Math.min(lim[1], tx)); n.moving = Math.abs(gx - n.x) > 1; n.x += (gx - n.x) * Math.min(1, dt * 5); n.y = deck.ride ? me.y + 2 : gFloorY(me.floor, n.x); n.dir = n.moving ? (gx < n.x ? 1 : 2) : 0; n.goal = null; n.follow = false; });
+    // glow-pearls: walk past one to pick it up
+    if (!deck.ride) for (const p of GANY_PEARLS) if (p.fl === me.floor && Math.abs(p.x - me.x) < 9 && !gStore('pearls', []).includes(p.id)) gPearl(p);
+    footstep(me, me.moving, dt, 'tile');
+    camAim(deck.view, me.x, me.y - 30, GANY_W, GANY_H, dt);
+  }
+  function gRideStart(c) {
+    sfx.click();
+    if (c.id === 'slide') { sfx.pop && sfx.pop(); if (shoreParty.includes('Z')) shipSay('Z', ['WHEEEEE! Zib has been waiting his whole life for this! Again! Again!', 'Zib slides on his face! It is faster!'][Math.floor(Math.random() * 2)]); }
+    if (c.id === 'water' && !gWfFound()) { gSet('wf', true); setTimeout(() => shipSay('P', 'You walk straight into the frozen waterfall… and through it. There’s a hidden ledge behind the water. Someone is sitting there, glowing softly.'), 900); }
+  }
+  function gArrive(f) { const seen = gStore('seen', []); if (!seen.includes(f)) { seen.push(f); gSet('seen', seen); if (f !== 't1') showToast(`🗺️ New place: ${GF[f].name}`, 2200); } }
+  // ---- glow-pearls: 8 here now; 4 more wait in places that open later ----
+  const GANY_PEARLS = [{ id: 1, fl: 'loft', x: 448 }, { id: 2, fl: 't1', x: 590 }, { id: 3, fl: 'wf', x: 278 }, { id: 4, fl: 't2', x: 60 }, { id: 5, fl: 't2', x: 482 }, { id: 6, fl: 't3', x: 36 }, { id: 7, fl: 't3', x: 470 }, { id: 8, fl: 't3', x: 366 }];
+  const PEARL_TOTAL = 12;
+  function gPearl(p) {
+    const have = gStore('pearls', []); have.push(p.id); gSet('pearls', have); sfx.coin();
+    showToast(`✨ Glow-pearl ${have.length} of ${PEARL_TOTAL}. Grand-Bloom collects them.`, 2400);
+  }
+  // ---- things to give and get: two stalls that trade, never sell ----
+  const GANY_OWN = () => gStore('own', []);
+  const gOwn = k => GANY_OWN().includes(k);
+  const gGive = k => { const o = GANY_OWN(); if (!o.includes(k)) { o.push(k); gSet('own', o); } };
+  const auroraChips = () => +store.get('ds-auroraChips', '0');
+  function auroraChip() { const n = auroraChips() + 1; store.set('ds-auroraChips', String(n)); if (n >= 3 && !owned.has('hull:aurora')) { owned.add('hull:aurora'); saveCosmetics(); setTimeout(() => celebrate('New paint', 'Aurora', 'Three aurora chips: a new hull paint in the hangar', null, null, { n: 60 }), 600); } return n; }
+  const have = id => garden.basket[id] || 0;
+  const take = (id, n) => { garden.basket[id] = have(id) - n; };
+  const put = (id, n) => { garden.basket[id] = have(id) + n; };
+  const GANY_TRADES = {
+    lantern: [
+      { id: 'l-flower', give: [['flowers', 2]], get: () => gOwn('lantern') ? ['🍵 1 tea', () => put('tea', 1)] : ['🏮 A Ganymede paper lantern for your Pad', () => gGive('lantern')], say: 'The lantern-keeper wraps it in thin ice paper and glows a happy orange.' },
+      { id: 'l-pastry', give: [['pastry', 1]], get: () => ['💎 1 gem', () => put('gem', 1)], say: 'Lumen holds the pastry up to the light for a long time. Then eats it in one go.' },
+      { id: 'l-tea', give: [['tea', 1]], get: () => ['🌸 3 flowers', () => put('flowers', 3)], say: 'Tea! Down here it freezes in the cup. They love it anyway.' },
+      { id: 'l-coffee', give: [['coffee', 1]], get: () => ['🍫 2 chocolate', () => put('choc', 2)], say: 'The keeper sniffs the coffee and glows so bright the whole stall lights up.' }],
+    shiny: [
+      { id: 's-parts', give: [['parts', 2]], get: () => ['💎 1 gem', () => put('gem', 1)], say: 'BOLTS! The cousins pass them round and glow very fast. Zib says that means “we are rich now”.' },
+      { id: 's-choc', give: [['choc', 1]], get: () => [`🌌 An aurora paint chip (${Math.min(3, auroraChips() + 1)} of 3)`, () => auroraChip()], say: 'The cousin with the spoon eats the chocolate with the spoon. Then gives you a chip of aurora, sealed in ice.' },
+      { id: 's-pastry', give: [['pastry', 1]], get: () => gOwn('jellyglass') ? ['🍫 2 chocolate', () => put('choc', 2)] : ['🫧 A jelly-glass ornament for your Pad', () => gGive('jellyglass')], say: 'They spin a tiny jelly out of warm glass while you watch. It has Zib’s face. All of them do.' },
+      { id: 's-gem', give: [['gem', 1]], get: () => ['🔩 3 Crumb parts', () => store.set('ds-crumbParts', String(crumbParts() + 3))], say: 'A gem! The cousins hold it up to Jupiter’s light. Then hand over three bolts like it’s a fair trade. It is, apparently.' }]
+  };
+  const gHas = ([id, n]) => id === 'parts' ? crumbParts() >= n : have(id) >= n;
+  const gTake = ([id, n]) => id === 'parts' ? store.set('ds-crumbParts', String(crumbParts() - n)) : take(id, n);
+  const gItemText = ([id, n]) => id === 'parts' ? `🔩 ${n} Crumb parts` : `${giftIcon(id)} ${n} ${giftName(id)}`;
+  // three offers a day per stall, each once a day
+  function gOffers(stall) { const L = GANY_TRADES[stall], r = mulberry32(hashStr(stall + shipDay)), pool = L.slice(), out = []; while (out.length < 3 && pool.length) out.push(pool.splice(Math.floor(r() * pool.length), 1)[0]); return out; }
+  const gDone = () => { const v = gStore('trades', {}); return v.day === shipDay ? v : { day: shipDay, ids: [] }; };
+  function openGanyStall(stall, msg) {
+    let el = $('ganyStall');
+    if (!el) { el = document.createElement('div'); el.id = 'ganyStall'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); document.body.appendChild(el); }
+    const d = gDone(), name = stall === 'lantern' ? 'Lanterns · Lumen' : 'Shiny · Zib’s cousins', zib = shoreParty.includes('Z');
+    el.setAttribute('aria-label', name);
+    const basket = ['pastry', 'flowers', 'tea', 'coffee', 'choc', 'gem'].filter(k => have(k)).map(k => `${giftIcon(k)} ${have(k)}`).concat(crumbParts() ? [`🔩 ${crumbParts()}`] : []).join(' · ') || 'empty';
+    el.innerHTML = `<div class="qnew-card zstall gany"><span class="eyebrow">${name} · today’s wants</span><b>Trade, don’t pay</b>
+      <p class="zsay" aria-live="polite">${esc(msg || (zib ? 'Zib: “Credits are no good here. Zib’s cousins use them as coasters. Pick a trade!”' : 'The stall-keeper glows at you in patterns. You don’t speak glow, but the goods on the counter are pointing at things in your basket.'))}</p>
+      <div class="ztrades">${gOffers(stall).map(o => { const [what] = o.get(), done = d.ids.includes(o.id), ok = !done && o.give.every(gHas);
+        return `<button class="ztrade" data-gt="${o.id}"${ok ? '' : ' disabled'}><span>${o.give.map(gItemText).join(' + ')}${done ? '<br><small>Traded today</small>' : !o.give.every(gHas) ? '<br><small>You don’t have enough</small>' : ''}</span><i aria-hidden="true">→</i><b>${esc(what)}</b></button>`; }).join('')}</div>
+      <p class="zhave">Your basket: ${basket}</p>
+      <div class="btns"><button class="btn ghost" id="gsBye">Done</button></div></div>`;
+    el.hidden = false;
+    el.querySelectorAll('[data-gt]').forEach(b => b.addEventListener('click', () => {
+      const o = GANY_TRADES[stall].find(x => x.id === b.dataset.gt), dd = gDone(); if (!o || dd.ids.includes(o.id) || !o.give.every(gHas)) return;
+      const [what, fn] = o.get(); o.give.forEach(gTake); fn(); dd.ids.push(o.id); gSet('trades', dd); saveGarden(); saveCosmetics(); sfx.coin(); if (zib) addHearts('Z', 3);
+      openGanyStall(stall, `${o.say} You got: ${what}.`);
+    }));
+    $('gsBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+    setTimeout(() => { const b = el.querySelector('.ztrade:not(:disabled)') || $('gsBye'); if (b) b.focus({ preventScroll: true }); }, 50);
+  }
+  // ---- the jellyfolk: everyone has Zib's face; Zib translates if he's with you ----
+  const GLOW = ['🟡', '🔵', '🟣', '🩷', '🟢'];
+  const gGlowWords = n => { let s = ''; for (let i = 0; i < 4; i++) s += GLOW[(n * 7 + i * 3) % GLOW.length]; return s; };
+  function gTalk(name, lines, seed) {
+    sfx.click();
+    const line = lines[Math.floor(Math.random() * lines.length)];
+    if (shoreParty.includes('Z')) shipSay('Z', `${name} says: “${line}” Zib is translating! Mostly correctly!`);
+    else shipSay('P', `${name} glows at you: ${gGlowWords(seed + Math.floor(Math.random() * 5))}. You don’t speak glow. Zib would know what it means.`);
+  }
+  function grandBloom() {
+    sfx.click();
+    const n = gStore('pearls', []).length, given = gStore('given', 0), zib = shoreParty.includes('Z');
+    if (n > given) {
+      gSet('given', n);
+      const got = [];
+      if (n >= 4 && given < 4) { gGive('pearlstring'); got.push('a string of glow-pearls for your Pad'); }
+      if (n >= 8 && given < 8) { const k = auroraChip(); got.push(`an aurora paint chip (${Math.min(3, k)} of 3)`); }
+      shipSay(zib ? 'Z' : 'P', zib ? `Grand-Bloom takes the pearls very slowly and glows like a sunrise. She says: “${n} of ${PEARL_TOTAL}. The cavern remembers you now, small warm one.”${got.length ? ` She gives you ${got.join(' and ')}!` : ''}` : `Grand-Bloom takes your pearls very slowly and glows like a sunrise. ${n} of ${PEARL_TOTAL}.${got.length ? ` She gives you ${got.join(' and ')}.` : ''}`);
+      sfx.coin(); return;
+    }
+    gTalk('Grand-Bloom', ['When I was small, this cavern was one room and one lantern. Now look.', 'Bring me the lost pearls, small warm one. Each one is a memory that rolled away.', 'Your Zib was the loudest baby jelly in the history of Ganymede. He still is.', 'The ice is thick this year. Some doors are still frozen. They will thaw.'], 1);
+  }
+  // ---- things in the cavern ----
+  function ganyThings(L) {
+    const T = (id, fl, x0, w, y0, h, gx, act) => L.push({ id, fl, rect: [x0, y0, w, h], go: () => [gx, gFloorY(fl, gx)], at: () => ({ x: x0 + w / 2, y: y0 + h / 2 }), act });
+    T('ship', 't1', 26, 46, 132, 66, 50, () => shoreLeave());
+    T('lanternstall', 't1', 94, 52, 160, 40, 120, () => { sfx.click(); openGanyStall('lantern'); });
+    T('lumen', 't1', 138, 18, 170, 26, 120, () => gTalk('Lumen the lantern-keeper', ['Every lantern I make goes up to Jupiter one day. That is where the old lanterns go.', 'Bring me flowers. Up here nothing grows. Well. Except me.', 'Your little ship is very loud. We like loud.'], 2));
+    T('tea', 't1', 168, 50, 160, 40, 192, () => gTalk('Steep, the tea-keeper', ['Tea freezes in the cup down here. We eat it like a sweet.', 'Sit. Drink. Nobody hurries on Ganymede. Except Zib.'], 3));
+    T('waterfall', 't1', 236, 36, 206, 70, 256, () => { deck.route = [{ ride: GC.find(c => c.id === 'water'), fwd: true }]; });
+    T('waterBack', 'wf', 244, 18, 262, 28, 252, () => { deck.route = [{ ride: GC.find(c => c.id === 'water'), fwd: false }]; });
+    T('ropeLoft', 'loft', 510, 22, 66, 28, 520, () => { deck.route = [{ ride: GC.find(c => c.id === 'rope'), fwd: false }]; });
+    T('fish', 't1', 338, 54, 156, 40, 364, () => gTalk('Finn the fishmonger', ['Glowfish! Fresh from the pool! The pool is frozen! They are very fresh!', 'Soon you can catch your own. When the jetty thaws. Grand-Bloom says soon.'], 4));
+    T('family', 't1', 424, 34, 168, 30, 436, () => gTalk('a jelly with a basket', ['Is that a human? Look, little one. A human. Don’t poke it.', 'We are going to the Glow Pool. You should come. Everyone comes.'], 5));
+    T('rope', 't1', 516, 24, 96, 100, 528, () => { deck.route = [{ ride: GC.find(c => c.id === 'rope'), fwd: true }]; });
+    T('liftT1', 't1', 594, 26, 170, 30, 607, () => { deck.route = [{ ride: GC.find(c => c.id === 'lift'), fwd: true }]; });
+    T('loftkeeper', 'loft', 480, 24, 66, 26, 486, () => gTalk('the lamp-lighter', ['Up here you can almost touch Jupiter. Almost. I have tried.', 'I light the lanterns. Then I watch them. That is the whole job. It is the best job.'], 6));
+    T('jupiter', 'loft', 300, 120, 0, 80, 470, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'Jupiter! Zib’s big orange friend! When Zib was small, Zib thought Jupiter was a lantern. Zib still thinks that a little.' : 'Jupiter fills the crack in the ice, huge and striped and silent, with the auroras rippling across its face. It’s the best view in the game.'));
+    T('secret', 'wf', 226, 22, 266, 24, 240, () => gTalk('Hush, who sits behind the water', ['You found me. Nobody finds me. Here, look: the ice down there is thinning. Soon you can go deeper.', 'I like it behind the water. Everything sounds like rain. Do you have rain? Tell me about rain.'], 7));
+    T('bloom', 't2', 116, 70, 270, 70, 150, () => grandBloom());
+    T('drum', 't2', 66, 24, 312, 26, 92, () => gTalk('Thump the drummer', ['We play for Grand-Bloom every day. She falls asleep. That means it is working.', 'One day you can play with us. Practise your humming.'], 8));
+    T('chimes', 't2', 198, 26, 312, 26, 196, () => gTalk('Tink the chime-player', ['Every chime is a different glow word. Listen: that one means “soup”.', 'Bring us a tune from up there. We collect tunes.'], 9));
+    T('shinystall', 't2', 358, 64, 298, 38, 390, () => { sfx.click(); openGanyStall('shiny'); });
+    T('cousins', 't2', 418, 22, 300, 30, 420, () => gTalk('Zib’s cousin with the spoon', ['Zib owes us a spoon. Tell Zib. No, do not tell Zib. He will bring us a worse spoon.', 'Zib left home to see the stars. Then he sent us a postcard of a spoon.'], 10));
+    T('grotto', 't2', 486, 20, 290, 48, 490, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'The Crystal Grotto! It is frozen shut! Grand-Bloom says it thaws soon! Zib can hear the crystals singing through the ice!' : 'A side cave sealed behind a wall of fresh blue ice. Through it you can just see giant crystals, and hear them chiming. It hasn’t thawed yet.'));
+    T('slide', 't2', 286, 18, 316, 22, 296, () => { deck.route = [{ ride: GC.find(c => c.id === 'slide'), fwd: true }]; });
+    T('vineT2', 't2', 46, 16, 300, 38, 52, () => { deck.route = [{ ride: GC.find(c => c.id === 'vine'), fwd: false }]; });
+    T('tree', 't3', 80, 64, 410, 108, 112, () => gTalk('a little lantern-hanger', ['I hung that one! The pink one! It is the best one!', 'On Tide days we take the lanterns down and send them up to Jupiter. You should see it.'], 11));
+    T('pool', 't3', 270, 70, 476, 44, 304, () => gTalk('Drift, who lives in the pool', ['The water is warm down here. Jupiter heats it from below. Squeeze, squeeze, squeeze.', 'The glowfish are shy. They like quiet people.'], 12));
+    T('jetty', 't3', 210, 40, 494, 26, 232, () => shipSay('P', 'A little fishing jetty with a rod left leaning on it. The line is frozen into the pool. Fishing will open when it thaws.'));
+    T('ladder', 't3', 192, 20, 520, 30, 202, () => shipSay(shoreParty.includes('Z') ? 'Z' : 'P', shoreParty.includes('Z') ? 'That goes down to the Old Ice. Nobody goes there. Zib went there once. Zib does not talk about it. It is VERY cold.' : 'A ladder goes down through a hole in the pool’s edge, into the dark. The ice below is still too thick to go any further.'));
+    T('hut', 't3', 488, 66, 492, 28, 500, () => { if (deck.npcs.some(n => n.who === 'X')) shipSay('X', 'That’s them. The Blooms. They fed me for a week when Apex left me here. I never paid them back. They won’t take credits. Obviously.'); else gTalk('Mother Bloom', ['A human! The last one we met was very hungry. We fed him for a week. He was sweet. He cried a lot.', 'Come in, come in. Mind the little ones, they bite. Gently.'], 13); });
+    T('liftT3', 't3', 594, 26, 490, 30, 607, () => { deck.route = [{ ride: GC.find(c => c.id === 'lift'), fwd: false }]; });
+    T('vineT3', 't3', 20, 22, 470, 48, 30, () => { deck.route = [{ ride: GC.find(c => c.id === 'vine'), fwd: true }]; });
+  }
+  // ---- drawing: Zib's people ----
+  const GPAL = {
+    violet: ['#e6d4ff', '#d8bfff', '#c8a2ff', '#a884e8', '#ff9ad5', '#c8a2ff'], teal: ['#d4fff6', '#a8f4e4', '#6ae8dc', '#3ab8b0', '#7fe8ff', '#6ae8dc'],
+    gold: ['#fff4cc', '#ffe8a0', '#ffd27a', '#d8a848', '#ffb547', '#ffd27a'], pink: ['#ffe0f0', '#ffc4e4', '#ff9ad5', '#d870b0', '#c8a2ff', '#ff9ad5'],
+    blue: ['#d8ecff', '#b0d4ff', '#7fb4ff', '#5a8ae0', '#7fe8ff', '#7fb4ff'], mint: ['#e8fff0', '#c4f8d8', '#9fe0b8', '#6ab88a', '#ffe58a', '#9fe0b8'],
+    coral: ['#ffe4dc', '#ffc8b8', '#ff9a7a', '#d86a50', '#ffd27a', '#ff9a7a'], elder: ['#f0e4ff', '#e0ccff', '#c8a8f0', '#9a7ac8', '#ffe58a', '#c8a8f0']
+  };
+  function gFolk(c, x, y, o, t) {
+    const p = GPAL[o.pal || 'violet'], s = o.s || 1, tt = reduceMotion ? 0 : t + (o.k || 0) * 700, dir = o.dir == null ? 0 : o.dir;
+    c.save(); c.translate(Math.round(x), Math.round(y)); c.scale(s, s);
+    const bob = Math.round(Math.sin(tt / 400) * 1.5);
+    if (!o.float) { c.fillStyle = 'rgba(0,0,0,0.22)'; c.beginPath(); c.ellipse(8, 24, 5, 1.5, 0, 0, 7); c.fill(); }
+    c.translate(0, bob);
+    if (o.glowing) { c.fillStyle = p[2] + '44'; c.beginPath(); c.ellipse(8, 7, 9, 8, 0, 0, 7); c.fill(); }
+    for (let i = 0; i < 4; i++) { const sway = Math.round(Math.sin(tt / 300 + i) * 1); px(c, 4 + i * 3 + sway, 12, 1, o.kid ? 4 : 7, i % 2 ? p[4] : p[5]); }
+    px(c, 4, 2, 8, 1, p[0]); px(c, 3, 3, 10, 2, p[1]); px(c, 2, 5, 12, 6, p[2]); px(c, 2, 11, 12, 1, p[3]); px(c, 4, 3, 2, 1, '#ffffff');
+    if (dir !== 3) { const off = dir === 1 ? -1 : dir === 2 ? 1 : 0, blink = !reduceMotion && Math.floor(tt / 120) % 37 === 0;
+      if (o.sleepy || blink) { px(c, 5 + off, 7, 2, 1, '#2a1a40'); px(c, 9 + off, 7, 2, 1, '#2a1a40'); }
+      else { px(c, 5 + off, 6, 2, 2, '#2a1a40'); px(c, 9 + off, 6, 2, 2, '#2a1a40'); px(c, 5 + off, 6, 1, 1, '#ffffff'); px(c, 9 + off, 6, 1, 1, '#ffffff'); }
+      if (o.smile) px(c, 7 + off, 9, 2, 1, '#2a1a40');
+      if (o.blush) { px(c, 3 + off, 8, 2, 1, '#ff9ad588'); px(c, 11 + off, 8, 2, 1, '#ff9ad588'); } }
+    const a = o.acc;
+    if (a === 'hat') { px(c, 3, 1, 10, 1, '#5a4636'); px(c, 5, -2, 6, 3, '#7a5c44'); px(c, 5, 0, 6, 1, '#ffb547'); }
+    if (a === 'crown') { for (let k = 0; k < 4; k++) px(c, 3 + k * 3, -1 - (k % 2), 2, 3, '#ffe58a'); px(c, 3, 1, 10, 1, '#d8a848'); }
+    if (a === 'spoon') { px(c, 7, -6, 1, 7, '#c9cfdc'); px(c, 6, -8, 3, 3, '#e8ecf4'); }
+    if (a === 'scarf') { px(c, 2, 11, 12, 2, '#ff6b5e'); px(c, 11, 12, 2, 4, '#ff6b5e'); }
+    if (a === 'goggles') { px(c, 3, 4, 10, 1, '#5a4636'); px(c, 4, 5, 3, 2, '#7fe8ff'); px(c, 9, 5, 3, 2, '#7fe8ff'); }
+    if (a === 'bow') { px(c, 10, 1, 2, 2, '#ff6b9a'); px(c, 13, 1, 2, 2, '#ff6b9a'); px(c, 12, 2, 1, 1, '#ff9ad5'); }
+    if (a === 'basket') { px(c, 12, 12, 6, 4, '#a07a4c'); px(c, 13, 11, 4, 1, '#c8a070'); px(c, 13, 10, 2, 2, '#9fe0b8'); px(c, 15, 10, 2, 2, '#ff9a7a'); }
+    if (a === 'drum') { px(c, -2, 12, 6, 6, '#a8523a'); px(c, -2, 12, 6, 1, '#f4f1e8'); }
+    if (a === 'chimes') { for (let k = 0; k < 3; k++) px(c, 14 + k * 2, 8, 1, 5 + k, '#bff4ff'); px(c, 13, 7, 7, 1, '#8a6a4a'); }
+    if (a === 'lantern') { px(c, 15, 6, 1, 5, '#5a4636'); c.fillStyle = '#ffc46a'; c.beginPath(); c.ellipse(15.5, 13, 2.5, 3, 0, 0, 7); c.fill(); }
+    if (a === 'fish') { px(c, 13, 12, 6, 3, '#7fe8ff'); px(c, 19, 11, 2, 5, '#7fe8ff'); px(c, 14, 12, 1, 1, '#2a1a40'); }
+    c.restore();
+  }
+  // who's where (the jellies that live here)
+  const GANY_FOLK = [
+    [466, 66, { pal: 'gold', k: 30, sleepy: true, smile: true, acc: 'lantern' }],
+    [142, 176, { pal: 'gold', acc: 'hat', k: 1, smile: true, dir: 1 }], [216, 176, { pal: 'mint', k: 2, smile: true, dir: 1 }], [392, 172, { pal: 'teal', acc: 'fish', k: 3, dir: 1 }],
+    [430, 176, { pal: 'blue', k: 4, dir: 1, acc: 'basket' }], [446, 182, { pal: 'blue', s: 0.6, kid: true, k: 5, dir: 1, smile: true }], [12, 184, { pal: 'mint', s: 0.6, kid: true, k: 6, dir: 2, smile: true, acc: 'bow' }],
+    [596, 166, { pal: 'coral', acc: 'goggles', k: 7, s: 0.9 }],
+    [234, 268, { pal: 'blue', s: 0.8, k: 31, sleepy: true, glowing: true }],
+    [126, 278, { pal: 'elder', s: 3, acc: 'crown', sleepy: true, glowing: true, k: 0, smile: true }],
+    [78, 316, { pal: 'mint', acc: 'drum', k: 8, dir: 2, smile: true }], [208, 316, { pal: 'blue', acc: 'chimes', k: 9, dir: 1, smile: true }],
+    [424, 310, { pal: 'violet', acc: 'spoon', k: 10, smile: true, dir: 1 }], [346, 312, { pal: 'violet', k: 11, dir: 2, blush: true }],
+    [84, 496, { pal: 'gold', s: 0.7, kid: true, k: 22, dir: 2, smile: true, acc: 'lantern' }],
+    [220, 494, { pal: 'blue', k: 21, dir: 2, acc: 'scarf' }],
+    [476, 496, { pal: 'coral', k: 16, dir: 1, acc: 'scarf', smile: true }], [462, 504, { pal: 'coral', s: 0.6, kid: true, k: 17, dir: 1, smile: true, blush: true }]
+  ];
+  // jellies drifting in the open air, on slow loops
+  const GANY_DRIFT = [[300, 484, 'teal', 1.6, 14, 0], [60, 380, 'blue', 0.8, 19, 12], [420, 400, 'mint', 0.7, 20, 16], [88, 72, 'pink', 0.6, 3, 6], [310, 380, 'gold', 0.7, 18, 0]];
+  // ---- drawing: the still parts, once, into a picture ----
+  let ganyBg = null;
+  function ganyBackground() {
+    if (ganyBg) return ganyBg;
+    const cv = document.createElement('canvas'); cv.width = GANY_W * 2; cv.height = GANY_H * 2; const c = cv.getContext('2d'); c.setTransform(2, 0, 0, 2, 0, 0); c.imageSmoothingEnabled = false;
+    const g = c.createLinearGradient(0, 0, 0, GANY_H); g.addColorStop(0, '#1e3058'); g.addColorStop(0.5, '#122046'); g.addColorStop(1, '#050914'); c.fillStyle = g; c.fillRect(0, 0, GANY_W, GANY_H);
+    for (const [cx, cy, cols, rows] of [[230, 150, 3, 2], [380, 140, 4, 2], [560, 230, 3, 3], [96, 250, 3, 2], [300, 270, 2, 2], [400, 400, 4, 2], [160, 420, 3, 2], [520, 410, 2, 2]]) {
+      c.fillStyle = '#16284a'; c.beginPath(); c.roundRect(cx - 4, cy - 6, cols * 9 + 6, rows * 11 + 8, 6); c.fill();
+      for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) { const x = cx + k * 9, y = cy + r * 11, col = ['#ffc46a', '#7fe8ff', '#ff9ad5', '#9fe0b8'][(k + r + cx) % 4];
+        c.fillStyle = '#0a1226'; c.beginPath(); c.roundRect(x, y, 5, 7, [3, 3, 0, 0]); c.fill(); if ((k + r * 3 + cx) % 4) gGlow(c, col, 5, () => { c.fillStyle = col + 'bb'; c.fillRect(x + 1, y + 2, 3, 5); }); } }
+    for (const [x, w] of [[8, 16], [208, 14], [432, 14], [622, 16]]) { const pg = c.createLinearGradient(x, 0, x + w, 0); pg.addColorStop(0, '#24426e'); pg.addColorStop(0.5, '#44689a'); pg.addColorStop(1, '#24426e'); c.fillStyle = pg; c.fillRect(x, 40, w, GANY_H - 40); }
+    for (let x = 0; x < GANY_W; x += 9) { if (x > 210 && x < 430) continue; const h = 8 + ((x * 17) % 26); c.fillStyle = '#5a82b0'; c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 7, 0); c.lineTo(x + 3, h); c.fill(); }
+    // the crack, Jupiter, Io and the auroras
+    const CR = [[210, 0], [228, 14], [222, 26], [250, 38], [266, 56], [296, 64], [320, 78], [348, 70], [372, 58], [390, 50], [404, 30], [428, 18], [440, 0]];
+    c.save(); c.beginPath(); c.moveTo(...CR[0]); CR.forEach(p => c.lineTo(...p)); c.closePath(); c.clip();
+    c.fillStyle = '#05050f'; c.fillRect(200, 0, 250, 80); for (let i = 0; i < 40; i++) px(c, 214 + (i * 37) % 220, (i * 11) % 70, 1, 1, '#c9cfdc');
+    c.save(); c.beginPath(); c.arc(322, 44, 40, 0, 7); c.clip(); const bands = ['#e8c8a0', '#c89870', '#f0dcc0', '#b07850', '#e8d0b0', '#a86a48', '#f4e4cc'];
+    for (let k = 0; k < 14; k++) { c.fillStyle = bands[k % 7]; c.fillRect(272, 2 + k * 6.5, 100, 7); } c.fillStyle = '#c0604a'; c.beginPath(); c.ellipse(336, 56, 8, 4, 0, 0, 7); c.fill();
+    const sh2 = c.createRadialGradient(302, 30, 10, 322, 44, 42); sh2.addColorStop(0, 'rgba(255,255,255,0.12)'); sh2.addColorStop(1, 'rgba(0,0,20,0.45)'); c.fillStyle = sh2; c.fillRect(272, 0, 100, 90); c.restore();
+    c.fillStyle = '#e8d050'; c.beginPath(); c.arc(380, 30, 3, 0, 7); c.fill();
+    for (const [col, off] of [['rgba(120,255,180,0.5)', 0], ['rgba(190,130,255,0.45)', 8]]) gGlow(c, col, 12, () => { c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(210, 14 + off); for (let x = 210; x < 442; x += 10) c.lineTo(x, 14 + off + Math.sin(x / 18 + off) * 6); c.stroke(); });
+    c.restore(); c.lineWidth = 1; gGlow(c, '#bff4ff', 8, () => { c.strokeStyle = '#d8f4ff'; c.beginPath(); c.moveTo(...CR[0]); CR.forEach(p => c.lineTo(...p)); c.stroke(); });
+    const sh = c.createLinearGradient(0, 70, 0, 560); sh.addColorStop(0, 'rgba(255,220,180,0.16)'); sh.addColorStop(1, 'rgba(255,220,180,0)'); c.fillStyle = sh; c.beginPath(); c.moveTo(280, 70); c.lineTo(364, 70); c.lineTo(440, 560); c.lineTo(200, 560); c.fill();
+    // ledges, bridges, stalls, the tree… everything that doesn't move
+    gStatic(c);
+    ganyBg = cv; return cv;
+  }
+  const gQy = (y1, y2, sag, s) => (1 - s) * (1 - s) * y1 + 2 * (1 - s) * s * (Math.max(y1, y2) + sag) + s * s * y2;
+  function gLantern(c, x, y, col = '#ffc46a', r = 2.5) { px(c, x, y - 3, 1, 3, '#5a4636'); gGlow(c, col, 8, () => { c.fillStyle = col; c.beginPath(); c.ellipse(x + 0.5, y + 2, r, r * 1.2, 0, 0, 7); c.fill(); }); px(c, x - 1, y + 2 + r * 1.2, 3, 1, '#8a5a2a'); }
+  function gRope(c, x1, y1, x2, y2, sag, n) { c.strokeStyle = '#6a5040'; c.lineWidth = 1; c.beginPath(); c.moveTo(x1, y1); c.quadraticCurveTo((x1 + x2) / 2, Math.max(y1, y2) + sag, x2, y2); c.stroke();
+    for (let k = 1; k <= (n || 0); k++) { const s = k / (n + 1); gLantern(c, Math.round(x1 + (x2 - x1) * s), Math.round(gQy(y1, y2, sag, s)) + 2, ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8'][k % 4]); } }
+  function gBridge(c, x1, y1, x2, y2, sag) { const n = Math.round((x2 - x1) / 5); gRope(c, x1, y1 - 8, x2, y2 - 8, sag, 0);
+    for (let k = 0; k <= n; k++) { const s = k / n, x = x1 + (x2 - x1) * s, y = gQy(y1, y2, sag, s); px(c, Math.round(x) - 2, Math.round(y), 4, 2, k % 2 ? '#9a7a54' : '#7a5a3c'); if (k % 3 === 0) px(c, Math.round(x), Math.round(y) - 8, 1, 8, '#6a5040'); }
+    gRope(c, x1, y1, x2, y2, sag, 0); }
+  function gLedge(c, x, y, w, th = 10) { const g = c.createLinearGradient(0, y, 0, y + th + 12); g.addColorStop(0, '#d8f2ff'); g.addColorStop(0.3, '#8ab8d8'); g.addColorStop(1, '#2a4a70'); c.fillStyle = g;
+    c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w - 4, y + th); for (let k = x + w - 8; k > x + 4; k -= 7) { c.lineTo(k, y + th + 4 + ((k * 13) % 11)); c.lineTo(k - 3, y + th); } c.lineTo(x + 4, y + th); c.closePath(); c.fill();
+    gGlow(c, '#bff4ff', 6, () => px(c, x, y, w, 1, '#f0fcff')); for (let k = x + 6; k < x + w - 4; k += 11) px(c, k, y + 2, 4, 1, 'rgba(255,255,255,0.45)'); }
+  function gCrystals(c, x, y, col, n = 4, h = 14) { for (let i = 0; i < n; i++) { const cx = x + i * 4 - n * 2, ch = h * (0.5 + ((i * 7) % 5) / 8), lean = (i - n / 2) * 0.12;
+    gGlow(c, col, 8, () => { c.fillStyle = col + 'cc'; c.beginPath(); c.moveTo(cx - 2, y); c.lineTo(cx - 2 + lean * ch, y - ch + 3); c.lineTo(cx + lean * ch, y - ch); c.lineTo(cx + 2 + lean * ch, y - ch + 3); c.lineTo(cx + 2, y); c.fill(); });
+    px(c, Math.round(cx - 1 + lean * ch * 0.6), Math.round(y - ch * 0.7), 1, Math.round(ch * 0.4), '#ffffffaa'); } }
+  function gKelp(c, x, y, col, h = 18) { for (let i = 0; i < 3; i++) { const sx = x + i * 3 - 3, lean = (i - 1) * 3, tx = sx + lean, ty = y - h + (i % 2) * 3;
+    c.strokeStyle = col + 'cc'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(sx, y); c.quadraticCurveTo(sx - lean, y - h * 0.5, tx, ty); c.stroke();
+    for (let k = 1; k < 4; k++) { const s = k / 4, lx = sx + (tx - sx) * s - lean * (1 - s) * 0.5, ly = y + (ty - y) * s; c.fillStyle = col + '88'; c.beginPath(); c.ellipse(lx + (k % 2 ? 2 : -2), ly, 2, 1, (k % 2 ? -0.6 : 0.6), 0, 7); c.fill(); }
+    gGlow(c, col, 6, () => { c.fillStyle = col; c.beginPath(); c.arc(tx, ty - 1, 1.6, 0, 7); c.fill(); }); } c.lineWidth = 1; }
+  function gGlyphs(c, x, y, col) { for (let k = 0; k < 4; k++) { px(c, x + k * 4, y + (k % 2) * 2, 2, 2, col); if (k % 2) px(c, x + k * 4 + 1, y + 3, 1, 1, col); } }
+  function gStall(c, x, y, w, name, awn, goods) {
+    px(c, x, y - 24, 2, 24, '#6a5040'); px(c, x + w - 2, y - 24, 2, 24, '#6a5040');
+    for (let k = 0; k < w; k += 6) { px(c, x + k, y - 28, Math.min(6, w - k), 5, k / 6 % 2 ? '#f4f1e8' : awn); px(c, x + k + 1, y - 23, 4, 2, k / 6 % 2 ? '#f4f1e8' : awn); }
+    px(c, x + 1, y - 10, w - 2, 10, '#4a3a5a'); px(c, x + 1, y - 10, w - 2, 1, '#8a7aa0'); for (let k = x + 4; k < x + w - 3; k += 8) px(c, k, y - 8, 1, 7, '#3a2a4a');
+    goods.forEach((g, i) => gGlow(c, g, 5, () => { c.fillStyle = g; c.beginPath(); c.arc(x + 6 + i * 6, y - 13, 2.2, 0, 7); c.fill(); }));
+    for (let k = 0; k < 3; k++) gLantern(c, x + 6 + k * Math.floor((w - 12) / 2), y - 21, [awn, '#ffc46a', '#7fe8ff'][k], 1.6);
+    gGlow(c, awn, 8, () => { c.font = '700 5px monospace'; c.fillStyle = awn; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(name, x + w / 2, y - 34); });
+    gGlow(c, awn, 4, () => gGlyphs(c, x + w / 2 - 8, y - 42, awn));
+  }
+  function gPod(c, x, y, r, col, win) { px(c, x, y - r - 30, 1, 30, '#6a5040'); const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 1, x, y, r); g.addColorStop(0, '#e8f8ff'); g.addColorStop(0.6, '#9ac8e4'); g.addColorStop(1, '#4a7aa0'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill();
+    gGlow(c, win, 8, () => { c.fillStyle = win; c.beginPath(); c.arc(x + r * 0.2, y + r * 0.1, r * 0.35, 0, 7); c.fill(); }); px(c, x - 1, y + r, 3, 2, col); }
+  function gStatic(c) {
+    // the Lantern Loft
+    gLedge(c, 430, 92, 110, 8); for (let k = 0; k < 4; k++) gLantern(c, 446 + k * 26, 78, ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8'][k], 3);
+    c.strokeStyle = '#8a6a4a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(520, 92); c.lineTo(530, 196); c.stroke(); for (let y = 100; y < 196; y += 7) px(c, 521 + (y - 92) / 10, y, 4, 1, '#a88a5a'); c.lineWidth = 1;
+    gPod(c, 470, 136, 9, '#ff9ad5', '#ffc46a'); gPod(c, 576, 130, 7, '#7fe8ff', '#9fe0b8'); gPod(c, 96, 74, 9, '#ff9ad5', '#ffc46a');
+    // tier 1
+    gLedge(c, 0, 200, 250); gLedge(c, 300, 196, 340); gBridge(c, 248, 200, 302, 196, 14);
+    px(c, 30, 136, 40, 64, '#2a3a5a'); px(c, 34, 140, 32, 60, '#0a1020'); gGlow(c, '#7fe8ff', 8, () => { c.strokeStyle = '#7fe8ff'; c.strokeRect(34.5, 140.5, 31, 59); }); for (let y = 148; y < 198; y += 8) px(c, 38, y, 24, 1, '#3a5a80');
+    gGlow(c, '#7fe8ff', 6, () => { c.font = '700 5px monospace'; c.fillStyle = '#7fe8ff'; c.textAlign = 'center'; c.fillText('▲ YOUR SHIP', 50, 130); });
+    gStall(c, 96, 200, 44, 'LANTERNS', '#ffc46a', ['#ffc46a', '#ff9ad5', '#7fe8ff', '#ffc46a', '#c8a2ff', '#9fe0b8']);
+    gStall(c, 170, 200, 44, 'TEA', '#9fe0b8', ['#9fe0b8', '#ffe58a', '#9fe0b8', '#ff9a7a', '#9fe0b8', '#ffe58a']);
+    gStall(c, 340, 196, 50, 'FISH', '#7fe8ff', ['#9fe0b8', '#7fe8ff', '#ff9a7a', '#9fe0b8', '#7fe8ff', '#ffe58a', '#ff9a7a']);
+    gCrystals(c, 240, 200, '#7fe8ff', 3, 12); gKelp(c, 80, 200, '#9fe0b8', 14); gKelp(c, 584, 196, '#ff9ad5', 14); gCrystals(c, 630, 196, '#c8a2ff', 3, 16);
+    gRope(c, 0, 158, 640, 150, 28, 14);
+    // the frozen waterfall and the secret ledge behind it
+    const wf = c.createLinearGradient(236, 0, 270, 0); wf.addColorStop(0, 'rgba(160,220,255,0.12)'); wf.addColorStop(0.5, 'rgba(210,244,255,0.55)'); wf.addColorStop(1, 'rgba(160,220,255,0.12)'); c.fillStyle = wf; c.fillRect(238, 206, 32, 124);
+    gGlow(c, '#bff4ff', 6, () => px(c, 254, 206, 1, 124, '#bff4ff'));
+    c.save(); c.globalAlpha = 0.85; gLedge(c, 222, 290, 66, 8); c.restore();
+    // the lift shaft
+    px(c, 598, 196, 3, 330, '#4a5a7a'); px(c, 614, 196, 3, 330, '#4a5a7a'); for (let y = 210; y < 526; y += 14) px(c, 598, y, 19, 1, 'rgba(160,210,255,0.3)');
+    gGlow(c, '#ff9a7a', 6, () => { c.font = '700 5px monospace'; c.fillStyle = '#ff9a7a'; c.textAlign = 'center'; c.fillText('LIFT', 608, 186); });
+    for (let k = 0; k < 11; k++) { px(c, 46 + k * 2, 206 + k * 12, 14, 3, '#8ab8d8'); px(c, 46 + k * 2, 206 + k * 12, 14, 1, '#e8fbff'); }
+    // tier 2
+    gLedge(c, 40, 340, 260); gLedge(c, 340, 334, 160); gBridge(c, 298, 340, 342, 334, 10);
+    c.strokeStyle = '#8ab8d8'; c.lineWidth = 5; c.beginPath(); c.arc(150, 340, 50, Math.PI, 0); c.stroke(); c.lineWidth = 1; gGlow(c, '#bff4ff', 6, () => { c.strokeStyle = '#e8fbff'; c.beginPath(); c.arc(150, 340, 52, Math.PI, 0); c.stroke(); });
+    for (const [bx, col] of [[114, '#c8a2ff'], [134, '#ff9ad5'], [166, '#7fe8ff'], [186, '#ffe58a']]) { gGlow(c, col, 6, () => { c.fillStyle = col + '99'; c.beginPath(); c.moveTo(bx, 294); c.lineTo(bx + 6, 294); c.lineTo(bx + 6, 310); c.lineTo(bx + 3, 306); c.lineTo(bx, 310); c.fill(); }); }
+    c.fillStyle = '#e8c8d8'; c.beginPath(); c.ellipse(150, 340, 28, 13, 0, Math.PI, 0); c.fill(); for (let k = -3; k <= 3; k++) { c.strokeStyle = '#c8a0b8'; c.beginPath(); c.moveTo(150, 340); c.lineTo(150 + k * 9, 328); c.stroke(); }
+    gStall(c, 360, 334, 60, 'SHINY', '#ffe58a', ['#ffe58a', '#c9cfdc', '#7fe8ff', '#ffe58a', '#ff9ad5', '#c9cfdc', '#ffe58a', '#c9cfdc']);
+    gCrystals(c, 300, 340, '#ff9ad5', 3, 12); gKelp(c, 248, 340, '#7fe8ff', 16);
+    gRope(c, 40, 286, 500, 280, 20, 10);
+    // the sealed Crystal Grotto
+    c.fillStyle = '#0a1430'; c.beginPath(); c.ellipse(544, 318, 44, 38, 0, 0, 7); c.fill(); c.strokeStyle = '#5a82b0'; c.lineWidth = 2; c.beginPath(); c.ellipse(544, 318, 44, 38, 0, 0, 7); c.stroke(); c.lineWidth = 1;
+    c.save(); c.beginPath(); c.ellipse(544, 318, 42, 36, 0, 0, 7); c.clip(); gCrystals(c, 520, 350, '#c8a2ff', 4, 30); gCrystals(c, 546, 352, '#7fe8ff', 5, 44); gCrystals(c, 572, 350, '#ff9ad5', 3, 28);
+    c.fillStyle = 'rgba(180,220,255,0.45)'; c.fillRect(500, 280, 90, 80); for (let k = 0; k < 6; k++) { c.strokeStyle = 'rgba(255,255,255,0.4)'; c.beginPath(); c.moveTo(506 + k * 14, 284); c.lineTo(520 + k * 10, 356); c.stroke(); } c.restore();
+    // the ice slide and the kelp vine
+    c.strokeStyle = '#a8d4ec'; c.lineWidth = 6; c.beginPath(); c.moveTo(296, 346); c.bezierCurveTo(360, 390, 260, 430, 342, 516); c.stroke(); c.strokeStyle = '#e8fbff'; c.lineWidth = 1; c.beginPath(); c.moveTo(296, 343); c.bezierCurveTo(360, 387, 260, 427, 342, 513); c.stroke();
+    c.strokeStyle = '#6ab88a'; c.lineWidth = 2; c.beginPath(); c.moveTo(30, 519); for (let k = 0; k <= 20; k++) c.lineTo(30 + 22 * k / 20 + Math.sin(k * 0.9) * 2, 519 - 181 * k / 20); c.stroke(); c.lineWidth = 1;
+    for (let k = 1; k < 20; k += 2) { const x = 30 + 22 * k / 20 + Math.sin(k * 0.9) * 2, y = 519 - 181 * k / 20; c.fillStyle = '#9fe0b8aa'; c.beginPath(); c.ellipse(x + (k % 4 ? 3 : -3), y, 3, 1.2, k % 4 ? -0.5 : 0.5, 0, 7); c.fill(); }
+    gPod(c, 250, 440, 8, '#9fe0b8', '#7fe8ff'); gPod(c, 470, 440, 7, '#ffc46a', '#ff9ad5');
+    // tier 3
+    gLedge(c, 0, 520, 640, 12);
+    gGlow(c, '#6ae8dc', 16, () => { c.fillStyle = 'rgba(80,220,210,0.55)'; c.beginPath(); c.ellipse(320, 521, 96, 6, 0, 0, 7); c.fill(); });
+    px(c, 214, 516, 30, 3, '#8a6a4a'); px(c, 218, 519, 2, 6, '#6a5040'); px(c, 238, 519, 2, 6, '#6a5040'); c.strokeStyle = '#c9cfdc'; c.beginPath(); c.moveTo(240, 498); c.lineTo(254, 490); c.lineTo(256, 520); c.stroke();
+    // the lantern tree
+    { const tx = 112, base = 520; const tr = c.createLinearGradient(tx - 8, 0, tx + 8, 0); tr.addColorStop(0, '#4a78a8'); tr.addColorStop(0.5, '#b8e0f8'); tr.addColorStop(1, '#4a78a8');
+      c.fillStyle = tr; c.beginPath(); c.moveTo(tx - 9, base); c.quadraticCurveTo(tx - 4, base - 20, tx - 5, base - 40); c.quadraticCurveTo(tx - 7, base - 52, tx - 2, base - 62); c.lineTo(tx + 3, base - 62); c.quadraticCurveTo(tx + 6, base - 48, tx + 4, base - 36); c.quadraticCurveTo(tx + 3, base - 18, tx + 10, base); c.fill();
+      px(c, tx - 1, base - 58, 1, 50, 'rgba(255,255,255,0.5)');
+      const tips = []; c.lineWidth = 2.5; c.strokeStyle = '#8ac0e4';
+      for (const [side, h, len, up] of [[-1, 50, 34, 30], [1, 44, 30, 28], [-1, 30, 26, 18], [1, 24, 24, 16], [-1, 60, 22, 40], [1, 58, 20, 44], [0, 62, 4, 54]]) { const ex = tx + side * len, ey = base - up - 18; c.beginPath(); c.moveTo(tx, base - h); c.quadraticCurveTo(tx + side * len * 0.5, base - h - 14, ex, ey); c.stroke(); tips.push([ex, ey]); }
+      c.lineWidth = 1;
+      for (let i = 0; i < 38; i++) { const a = i * 2.4, r = 10 + (i * 7) % 26, lx = tx + Math.cos(a) * r * 1.3, ly = base - 66 + Math.sin(a) * r * 0.6, col = ['#bff4ff', '#9fe0b8', '#d8c8ff'][i % 3]; gGlow(c, col, 4, () => { c.fillStyle = col + 'aa'; c.beginPath(); c.ellipse(lx, ly, 2.2, 1.2, a, 0, 7); c.fill(); }); }
+      tips.forEach(([x, y], i) => { px(c, Math.round(x), Math.round(y), 1, 5, '#6a5040'); gLantern(c, Math.round(x), Math.round(y) + 7, ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8', '#ffc46a', '#c8a2ff', '#ffe58a'][i], 2.8); });
+      px(c, tx + 12, base - 6, 10, 6, '#5a4a6a'); px(c, tx + 12, base - 6, 10, 1, '#8a7aa0'); gGlow(c, '#ffc46a', 6, () => { px(c, tx + 14, base - 9, 2, 3, '#ffc46a'); px(c, tx + 19, base - 9, 2, 3, '#ff9ad5'); }); }
+    gCrystals(c, 40, 520, '#7fe8ff', 5, 22); for (let k = 0; k < 5; k++) gKelp(c, 160 + k * 6, 520, ['#ff9ad5', '#c8a2ff', '#ff9ad5', '#7fe8ff', '#ff9ad5'][k], 10 + (k % 3) * 4);
+    // the Bloom family's hut
+    c.fillStyle = '#b8dcf0'; c.beginPath(); c.ellipse(520, 520, 36, 26, 0, Math.PI, 0); c.fill(); for (let k = 0; k < 5; k++) px(c, 488 + k * 13, 500 + (k % 2) * 5, 10, 1, 'rgba(255,255,255,0.45)');
+    c.fillStyle = '#0e1830'; c.beginPath(); c.ellipse(520, 520, 8, 12, 0, Math.PI, 0); c.fill(); gGlow(c, '#ffc46a', 10, () => { c.fillStyle = '#ffc46a'; c.beginPath(); c.ellipse(520, 520, 6, 9, 0, Math.PI, 0); c.fill(); });
+    // the ladder down to the Old Ice, and the dark below
+    const og = c.createLinearGradient(0, 534, 0, GANY_H); og.addColorStop(0, '#0a1430'); og.addColorStop(1, '#03060e'); c.fillStyle = og; c.fillRect(0, 534, GANY_W, GANY_H - 534);
+    c.fillStyle = '#060c1c'; c.beginPath(); c.moveTo(80, 600); c.quadraticCurveTo(80, 560, 320, 560); c.quadraticCurveTo(560, 560, 560, 600); c.fill();
+    px(c, 196, 522, 2, 60, '#6a5040'); px(c, 206, 522, 2, 60, '#6a5040'); for (let y = 526; y < 582; y += 6) px(c, 196, y, 12, 1, '#8a6a4a');
+    c.fillStyle = 'rgba(160,210,255,0.12)'; c.beginPath(); c.ellipse(300, 600, 60, 30, 0, 0, 7); c.fill();
+  }
+  // ---- drawing: every frame ----
+  function ganyDraw(t) {
+    const c = deck.c, me = deck.me, tt = reduceMotion ? 0 : t;
+    camT(c, deck.view); c.imageSmoothingEnabled = false;
+    c.drawImage(ganyBackground(), 0, 0, GANY_W, GANY_H);
+    // lanterns floating up the shaft of light toward Jupiter
+    for (let i = 0; i < 7; i++) { const ph = ((tt / 1000) * (6 + i) + i * 61) % 420, x = 240 + ((i * 53) % 160) + Math.sin(ph / 40 + i) * 4, y = 500 - ph, col = ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8'][i % 4];
+      if (y > 70) { c.globalAlpha = Math.min(1, (y - 70) / 60); c.fillStyle = col + '44'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); c.fillStyle = col; c.beginPath(); c.ellipse(x, y, 2.2, 2.8, 0, 0, 7); c.fill(); px(c, x - 1, y + 3, 2, 1, '#8a5a2a'); c.globalAlpha = 1; } }
+    // the pool shimmers, glowfish dart about
+    for (let i = 0; i < 4; i++) { const fx = 240 + ((tt / 1000 * (14 + i * 5) + i * 40) % 150), col = ['#ffe58a', '#ff9a7a', '#7fe8ff', '#ff9ad5'][i]; c.fillStyle = col; c.fillRect(Math.round(fx), 518, 4, 2); c.fillRect(Math.round(fx) - 1, 517, 1, 4); }
+    // glow-pearls you haven't found
+    const got = gStore('pearls', []);
+    for (const p of GANY_PEARLS) { if (got.includes(p.id) || (p.fl === 'wf' && !gWfFound())) continue; const y = gFloorY(p.fl, p.x) - 6 + (reduceMotion ? 0 : Math.sin(tt / 400 + p.id) * 1.5);
+      c.fillStyle = 'rgba(255,255,255,0.25)'; c.beginPath(); c.arc(p.x, y, 5, 0, 7); c.fill(); c.fillStyle = '#f4f8ff'; c.beginPath(); c.arc(p.x, y, 2.4, 0, 7); c.fill(); c.fillStyle = '#c8e8ff'; c.fillRect(p.x - 1, y - 1, 1, 1);
+      if (Math.floor(tt / 300 + p.id) % 4 === 0) { px(c, p.x + 4, y - 4, 1, 1, '#ffffff'); px(c, p.x - 5, y + 3, 1, 1, '#ffffff'); } }
+    // the lift platform: where it's parked, or carrying you
+    const liftY = deck.ride && deck.ride.c.id === 'lift' ? me.y : (deck.liftAt === 't3' ? 519 : 199);
+    if (!(deck.ride && deck.ride.c.id === 'lift')) deck.liftAt = me.floor === 't3' && Math.abs(me.x - 607) < 40 ? 't3' : deck.liftAt || 't1';
+    px(c, 596, liftY, 23, 4, '#8a6a4a'); px(c, 607, 150, 1, liftY - 150, '#6a5040');
+    // everyone, back to front
+    const things = [];
+    for (const [x, y, o] of GANY_FOLK) things.push([y + 24 * (o.s || 1), () => gFolk(c, x, y, o, t)]);
+    for (const [x, y, pal, s, k, r] of GANY_DRIFT) { const dx = reduceMotion ? 0 : Math.sin(tt / 3000 + k) * r, dy = reduceMotion ? 0 : Math.cos(tt / 2600 + k) * r * 0.5; things.push([y + 30, () => gFolk(c, x + dx, y + dy, { pal, s, k, float: true, smile: true, glowing: s > 1 }, t)]); }
+    for (const n of deck.npcs) things.push([n.y, () => drawPerson(c, n.who, n.x - 8, n.y - 24, n.dir, n.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.push([me.y + 0.5, () => drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t)]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    // the waterfall's spray stays in front of whoever is behind it
+    if (me.floor === 'wf' || (deck.ride && deck.ride.c.id === 'water')) { c.fillStyle = 'rgba(200,240,255,0.25)'; c.fillRect(238, 206, 32, 124); }
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  // ---- the cavern map ----
+  function openGanyMap() {
+    let el = $('ganyMap');
+    if (!el) { el = document.createElement('div'); el.id = 'ganyMap'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Cavern map'); document.body.appendChild(el); }
+    const seen = gStore('seen', []), pearls = gStore('pearls', []).length, here = deck && deck.kind === 'gany' ? deck.me.floor : null;
+    const A = [['loft', 214, 24, 136, 20], ['t1', 6, 70, 348, 24], ['wf', 112, 116, 134, 22], ['t2', 22, 168, 184, 24], ['grotto', 260, 160, 76, 40], ['t3', 6, 276, 348, 24], ['oldice', 70, 322, 220, 36]];
+    const known = k => k === 't1' || seen.includes(k), names = { grotto: 'Crystal Grotto', oldice: 'The Old Ice' };
+    const svg = A.map(([k, x, y, w, h]) => { const lit = GF[k] && known(k), col = { loft: '#ffc46a', t1: '#7fe8ff', wf: '#bff4ff', t2: '#c8a2ff', t3: '#6ae8dc' }[k] || '#3a5a80';
+      return lit ? `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${col}22" stroke="${col}"/><text x="${x + 8}" y="${y + h / 2 + 3}" fill="#e8fbff" font-size="9" font-weight="700">${esc(GF[k].name.toUpperCase())}</text>${here === k ? `<circle cx="${x + w - 12}" cy="${y + h / 2}" r="4" fill="#58e0a0"/>` : ''}`
+        : `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#0b1226" stroke="#2a3a5a" stroke-dasharray="3 2"/><text x="${x + w / 2}" y="${y + h / 2 + 4}" fill="#3a5a80" font-size="11" font-weight="700" text-anchor="middle">${names[k] && seen.includes('t2') ? (k === 'grotto' ? 'FROZEN' : '?') : '?'}</text>`; }).join('');
+    const placesTotal = 7, placesFound = 1 + ['loft', 'wf', 't2', 't3'].filter(k => seen.includes(k)).length;
+    el.innerHTML = `<div class="qnew-card gmap"><span class="eyebrow">Ganymede · the Drift Market</span><b>Cavern map</b>
+      <svg viewBox="0 0 360 370" role="img" aria-label="Map of the cavern. You have found ${placesFound} of ${placesTotal} places."><path d="M130 0 L150 14 L180 22 L210 14 L230 0" fill="#05050f" stroke="#bff4ff"/>${svg}</svg>
+      <div class="gstats"><div><b>${placesFound} of ${placesTotal}</b><span>Places found</span></div><div><b>${pearls} of ${PEARL_TOTAL}</b><span>Glow-pearls</span></div><div><b>${Math.min(3, auroraChips())} of 3</b><span>Aurora chips</span></div><div><b>${GANY_OWN().length} of 3</b><span>Keepsakes</span></div></div>
+      <p class="zhave">${!gWfFound() && seen.includes('t2') ? 'Hush’s glow is on the wind: “the water hides a door.”' : 'Tap anywhere in the cavern to walk there. Stairs, the lift, the rope, the vine and the slide take you between levels.'}</p>
+      <div class="btns"><button class="btn ghost" id="gmBye">Close</button></div></div>`;
+    el.hidden = false; $('gmBye').addEventListener('click', () => { sfx.click(); el.hidden = true; }); setTimeout(() => $('gmBye').focus({ preventScroll: true }), 50);
+  }
+  const GANY_SAYS = {
+    Z: ['ZIB IS HOME! Smell that? That is ice and lanterns and Zib’s cousin’s soup!', 'Everyone here has Zib’s face! No. Zib has THEIR face. Zib is not sure which.', 'Zib used to slide down the ice slide every day. Zib got stuck once. For a week. It was the best week.'],
+    F: ['It’s so quiet down here. And everyone glows. I don’t know where to look first.', 'I’m going to need a chart for this cavern. I’m making a chart. Mentally.'],
+    G: ['The lift runs on a rope and a jelly. That’s the best engineering I’ve ever seen.', 'Look at Jupiter through the crack! I need a bigger telescope. I need a bigger cavern.'],
+    W: ['Thirty years flying and I never knew this was here. Under the ice. A whole town.', 'The little ones keep poking me. I think they think I’m furniture.'],
+    R: ['A whole civilisation of tiny glowing fans. Nobody knows who I am. It’s wonderful.', 'I tried to sign an autograph. The jelly ate the pen.'],
+    X: ['I know this place. I know these ledges. I just never saw it lit up like this. I was too sad to look up.', 'The Blooms are at the bottom. I should go say hi. I should go say a lot of things.'],
+    C: ['THEY ALL LOOK LIKE ZIB. This is the best day of my life. Again.', 'Can we come back for the lantern thing? Grand-Bloom said lanterns go up to Jupiter!'],
+    J: ['Smart traders. No credits, no debt. Just swapping. I could learn something here.', 'The cousins tried to trade me a spoon for my wrench. I said no. They respected that.'],
+    H: ['They put frozen tea in a cone. Frozen tea. In a cone. I’m stealing this.', 'Everything down here smells like the sea. If the sea were a lantern.'],
+    O: ['This place is all light, little pilot. My moths would weep.', 'They glow when they’re happy. I think I would like to learn that.']
+  };
+  function drawGanyPic(c) {
+    c.imageSmoothingEnabled = false;
+    const g = c.createLinearGradient(0, 0, 0, 90); g.addColorStop(0, '#1e3058'); g.addColorStop(1, '#070c1e'); c.fillStyle = g; c.fillRect(0, 0, 240, 90);
+    c.fillStyle = '#05050f'; c.beginPath(); c.moveTo(80, 0); c.lineTo(100, 14); c.lineTo(120, 22); c.lineTo(140, 14); c.lineTo(160, 0); c.fill();
+    c.save(); c.beginPath(); c.moveTo(80, 0); c.lineTo(100, 14); c.lineTo(120, 22); c.lineTo(140, 14); c.lineTo(160, 0); c.clip(); c.fillStyle = '#e8c8a0'; c.beginPath(); c.arc(120, 6, 16, 0, 7); c.fill(); c.fillStyle = '#b07850'; c.fillRect(104, 4, 32, 3); c.restore();
+    for (const [y, x0, w] of [[40, 10, 90], [40, 130, 100], [62, 30, 120], [84, 0, 240]]) { c.fillStyle = '#8ab8d8'; c.fillRect(x0, y, w, 3); c.fillStyle = '#e8fbff'; c.fillRect(x0, y, w, 1); }
+    for (let i = 0; i < 18; i++) { const col = ['#ffc46a', '#ff9ad5', '#7fe8ff', '#9fe0b8'][i % 4]; c.fillStyle = col; c.fillRect(8 + (i * 47) % 224, 28 + (i * 23) % 52, 2, 2); }
+    for (const [x, y, col] of [[60, 32, '#c8a2ff'], [150, 32, '#6ae8dc'], [96, 54, '#ffd27a'], [180, 76, '#ff9a7a']]) { c.fillStyle = col; c.fillRect(x, y, 6, 4); c.fillRect(x + 1, y + 4, 1, 3); c.fillRect(x + 4, y + 4, 1, 3); c.fillStyle = '#2a1a40'; c.fillRect(x + 1, y + 1, 1, 1); c.fillRect(x + 4, y + 1, 1, 1); }
+  }
+  SHORE_PLACES.gany = { name: 'Ganymede · the Drift Market', world: 'ganymede', start: 'gany', icon: '🪼', open: () => ganyOk(),
+    blurb: 'A whole town under Ganymede’s ice, built by Zib’s people. Ledges and rope bridges down a huge cavern, Jupiter through a crack in the ceiling, and nobody takes credits. Bring Zib to translate.', pic: c => drawGanyPic(c) };
   function shoreHello(kind) {
     if (deck.scene) return;
+    if (kind === 'gany') {
+      const first = store.get('ds-gany-hello', '') !== '1'; store.set('ds-gany-hello', '1');
+      if (shoreParty.includes('Z')) shipSay('Z', first ? 'ZIB IS HOME! Okay. Rules. Credits are no good here. Zib’s cousins use them as coasters. Here we TRADE. And everyone talks in glow. Zib will translate! Mostly correctly!' : ['Home again! Zib can smell the soup!', 'The cousins have new shinies today! Zib can tell! Zib can always tell!'][Math.floor(Math.random() * 2)]);
+      else shipSay('P', first ? 'The lift from the landing pad drops you into a huge cavern under the ice. Jupiter hangs in a crack overhead. Everywhere: glowing jellies with big eyes, exactly like Zib. They glow at you. You have no idea what they’re saying. Next time, bring Zib.' : 'The Drift Market hums and glows. A jelly kid waves at you with three tentacles.');
+      return;
+    }
     if (MARS_KINDS.includes(kind)) {
       const p = shoreParty.length ? shoreParty[Math.floor(Math.random() * shoreParty.length)] : null, first = k => { const f = store.get('ds-marsSeen-' + k, '') !== '1'; store.set('ds-marsSeen-' + k, '1'); return f; };
       if (kind === 'mlobby') {
@@ -20262,7 +20747,7 @@ details.act > .limits { margin: 0 0 8px; }
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
-      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : x.unlock.startsWith('race:') ? 'Locked · Speedway' : 'Locked · badge') : `${fmt(x.price)} cr`;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : x.unlock.startsWith('race:') ? 'Locked · Speedway' : x.unlock.startsWith('gany:') ? 'Locked · 3 aurora chips from Ganymede' : 'Locked · badge') : `${fmt(x.price)} cr`;
       return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
         <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
     };
