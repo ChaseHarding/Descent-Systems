@@ -429,6 +429,14 @@ kbd {
 .ppbtn:active { transform: translate(-50%, -50%) rotate(-4deg) scale(.94); }
 .roomshake { animation: roomshake .35s; } @keyframes roomshake { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
 @media (prefers-reduced-motion: reduce) { .roomshake { animation: none; } }
+.zstall.paint { border-color: #ff8fd8; } .zstall.paint .ztrade { border-color: #ff8fd8; background: rgba(255,143,216,0.06); } .zstall.paint b { color: #ff8fd8; }
+.zstall.tailor { border-color: #c8a2ff; } .zstall.tailor .ztrade { border-color: #c8a2ff; } .zstall.tailor b { color: #e6d4ff; }
+.ztrade .psw { display: block; width: 100%; height: 7px; border-radius: 3px; margin-top: 5px; } .ztrade.on { outline: 2px solid #fff; outline-offset: 1px; }
+.mixcv { width: 100%; max-width: 320px; aspect-ratio: 2 / 1; height: auto; image-rendering: pixelated; border-radius: 10px; border: 1px solid #3a2a4a; }
+.mixrow { width: 100%; display: grid; grid-template-columns: 54px 1fr; gap: 6px; align-items: center; text-align: left; font: 11px var(--f-mono); color: var(--regolith); }
+.mixrow div { display: flex; flex-wrap: wrap; gap: 4px; } .mixsw { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.4); padding: 0; cursor: pointer; } .mixsw[aria-pressed="true"] { outline: 2px solid #fff; outline-offset: 1px; }
+.mixname { width: 100%; box-sizing: border-box; font: 13px var(--f-mono); padding: 8px 10px; border-radius: 8px; border: 1px dashed #ff8fd8; background: transparent; color: var(--regolith); }
+.mirrorcv { width: 150px; height: 180px; image-rendering: pixelated; border: 5px solid #d8a848; border-radius: 70px 70px 6px 6px; box-shadow: 0 0 24px rgba(216,168,72,0.35); }
 .zstall.sprocket { border-color: #58e0a0; } .zstall.sprocket .ztrade { border-color: #58e0a0; }
 .stylecard { width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid #ffb547; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; text-align: left; margin: 4px auto; }
 .stylecard .eyebrow { color: #ffb547; }
@@ -1616,6 +1624,25 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'racing', name: 'Rex’s Racing Flag', price: 0, unlock: 'beatrex', blurb: 'Rex handed it over himself. Through gritted teeth.', style: 'checker',
       colors: ['#1a1a22', '#ffd27a'], swatch: 'repeating-conic-gradient(#1a1a22 0 25%, #ffd27a 0 50%) 0 0 / 10px 10px' }
   ];
+  // ---- Mars-only paint, sold at Marta's Paint on Main Street (bought there, worn in the hangar) ----
+  HULLS.push(
+    { id: 'olympus', name: 'Olympus Red', price: 1200, unlock: 'shop:paint', blurb: 'Marta’s red, the colour of the tallest volcano in the solar system. Her words: “Apex red is a lie. This is red.”',
+      fill: '#8a1e14', stroke: '#ff8a5a', legs: '#f4d0b0', detail: '#ffd27a', swatch: 'linear-gradient(90deg, #8a1e14, #ff8a5a, #ffd27a)' },
+    { id: 'dustdevil', name: 'Dust Devil', price: 1400, unlock: 'shop:paint', blurb: 'Sand, rust and cream, like a storm caught mid-spin. Marta mixed it by holding a can out of the window during one.',
+      fill: '#a8784a', stroke: '#f0d8b0', legs: '#6a4428', detail: '#e8c8a0', swatch: 'linear-gradient(90deg, #a8784a, #f0d8b0, #6a4428)' },
+    { id: 'twomoons', name: 'Two Moons', price: 1600, unlock: 'shop:paint', blurb: 'Phobos grey and Deimos silver. Marta says it looks best at night. Everything does, she says.',
+      fill: '#3a3e58', stroke: '#c9cfdc', legs: '#8a93ab', detail: '#f4f4f8', swatch: 'linear-gradient(90deg, #3a3e58, #8a93ab, #f4f4f8)' },
+    { id: 'marta', name: 'Marta Original', price: 0, unlock: 'shop:mix', blurb: 'Your own paint job, mixed by Marta. There is exactly one of these in the universe.',
+      fill: '#3a6ab8', stroke: '#ffd27a', legs: '#ff6b5e', detail: '#58e0a0', swatch: 'linear-gradient(90deg, #3a6ab8, #ffd27a, #ff6b5e)' });
+  FLAMES.push({ id: 'rustflame', name: 'Rust Flame', price: 900, unlock: 'shop:paint', blurb: 'Burns like old Mars: amber at the core, the colour of dried rust at the tail. Marta’s recipe. Contains actual rust.',
+    core: '#ffd08a', tail: '#a8523a', swatch: 'linear-gradient(90deg, #ffd08a, #ffb547, #a8523a)' });
+  // the custom paint, as last mixed
+  function martaMixApply() {
+    let m = null; try { m = JSON.parse(store.get('ds-martaMix', 'null')); } catch (e) {}
+    const h = HULLS.find(x => x.id === 'marta'); if (!h || !m) return;
+    Object.assign(h, { fill: m.fill, stroke: m.stroke, legs: m.legs, detail: m.detail, name: m.name || 'Marta Original', swatch: `linear-gradient(90deg, ${m.fill}, ${m.stroke}, ${m.legs}, ${m.detail})` });
+  }
+  martaMixApply();
   const itemsOf = kind => kind === 'hull' ? HULLS : kind === 'flame' ? FLAMES : FLAGS;
   const findItem = (kind, id) => itemsOf(kind).find(i => i.id === id) || itemsOf(kind)[0];
 
@@ -2476,6 +2503,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'SK') { drawSprocketFace(c, open, blink, bare); return; }
     if (who === 'CH') { drawChairFace(c, open, blink, bare); return; }
     if (who === 'AX') { drawConciergeFace(c, open, blink, bare); return; }
+    if (who === 'MA') { drawMartaFace(c, open, blink, bare); return; }
+    if (who === 'TB') { drawThimbleFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
     f.back(c);
     f.body(c);
@@ -6388,11 +6417,11 @@ details.act > .limits { margin: 0 0 8px; }
 
   // ---- Screens ----
   const roomBack = { den: 'hall', garage: 'hall' };   // where the Pad's and hangar's doors lead: back the way you came
-  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool', 'gice', 'malley'];
+  const SHORE_KINDS = ['pim', 'pimbake', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool', 'gice', 'malley', 'mpaint', 'mtailor'];
   const SHIP_ROOMS = ['den', 'lounge', 'hall', 'bridge', 'garden', 'garage', 'quarters', 'bedroom', 'dome', 'galley', 'engine', 'lift'];
   let menuTab = 'crew', menuReturn = false, shipNudged = false, lastRoom = 'den', flightsFrom = null, friendsFrom = 'lounge', setupFrom = null;   // the ship is home now: 'title' takes you back to the room you were last in
   let missionsFrom = null;   // 'bridge' when the mission list was opened from the nav console
-  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool', 'gice', 'malley'];
+  const MENU_MODES = ['title', 'setup', 'settings', 'hangar', 'badges', 'missions', 'brief', 'story', 'lounge', 'board', 'album', 'log', 'den', 'arcade', 'license', 'raceInvite', 'intro', 'requests', 'friends', 'garage', 'hall', 'bridge', 'garden', 'shipmenu', 'flights', 'quarters', 'bedroom', 'dome', 'projects', 'wardrobe', 'datescene', 'galley', 'mining', 'eva', 'coffee', 'encounter', 'vending', 'engine', 'lift', 'pim', 'pimbake', 'sysmap', 'mdock', 'mmain', 'mdiner', 'moffice', 'mapex', 'mlobby', 'mrace', 'gany', 'ggrotto', 'gpool', 'gice', 'malley', 'mpaint', 'mtailor'];
   const AFTER_FLIGHT = ['raceEnd', 'runPerk', 'runSpare', 'runEnd', 'landed', 'crashed', 'over', 'turn', 'roundEnd', 'matchEnd', 'dailyEnd', 'missionEnd', 'tutDone', 'tutFail'];
   function setMode(m) {
     if (MENU_MODES.includes(m)) { try { questTick(); } catch (e) {} }
@@ -11191,10 +11220,12 @@ details.act > .limits { margin: 0 0 8px; }
       dome: ['The Dome', 'The observation dome: a glass dome full of stars over a round platform, with a telescope, a curved bench and two potted plants. Tap to walk; tap the telescope, the bench or the sky. With a keyboard, arrow keys walk and Enter uses whatever is nearest.', ''],
       pim: ['Moonbase Pim', 'Moonbase Pim: a street under a glass dome, with Earth in the sky. From left: the airlock back to the ship, Ines’ bakery, a postcard rack, Gus’s telescope, the school, the supply rover depot with Uncle Lalo’s rover, and Pim’s round yellow house. Tap to walk; walk up to things to use them. With a keyboard, arrow keys walk and Enter uses whatever is closest.'],
       mdock: ['Mars · The Dock', 'Mars City, the Dock: under a glass lattice roof with the red sky and city towers beyond. From left: your ship’s docking ring, Juno’s dock office, stacked cargo pods, a glowing job board, the crane cab and the maglev platform. Drones fly overhead and dock workers walk by. Tap to walk; walk up to things to use them.'],
-      mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, and a tailor and a paint shop that open soon. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
+      mmain: ['Main Street', 'Mars City, Main Street: from left, the maglev platform, the chrome Red Planet Diner with pink neon, the Rust Market’s three stalls, Descent Systems’ old office, a turning hologram of the first lander, a tailor, Thread & Thruster, and Marta’s Paint. Crowds and drones go by. Tap to walk; walk up to things to use them.'],
       mdiner: ['Red Planet Diner', 'The Red Planet Diner: chrome walls, pink neon, a round window onto the street, a jukebox, a pink booth and a counter with stools, run by Rusty the robot. Walk up to the counter to order. The door at the bottom goes back to the street.'],
       gany: ['The Drift Market', 'Ganymede, the Drift Market: a tall cavern under the ice with Jupiter through a crack in the ceiling. Three levels of ice ledges joined by rope bridges, with stairs, a lift, a rope climb, a kelp vine and an ice slide between them. Zib’s people, glowing jellies, live and trade here. Tap anywhere to walk there, even on another level. The Cavern map button shows what you’ve found.'],
       ggrotto: ['The Crystal Grotto', 'The Crystal Grotto: a snowy winter landscape under the ice, with crystal pine trees, a frozen waterfall and pond, and Jupiter glowing like a moon through the ice. Five singing crystals stick out of the snow: gold, ice blue, violet, pink and mint. Echo, the old crystal elder, sleeps by the pond. A round ice door, the Deep Door, is set into a snow mound in the middle. The way out is on the left.'],
+      mpaint: ['Marta’s Paint', 'Marta’s Paint: a converted garage at dusk. Paint cans to the ceiling on the left, a colour-mixing machine, a spray booth in the middle with your lander turning on a lit turntable, and a window onto Mars with the Apex tower crossed out in red. Marta, a tall grey four-armed Martian, stands behind the counter on the right. Walk up to her to shop. The door at the bottom goes back to the street.'],
+      mtailor: ['Thread & Thruster', 'Thread & Thruster, the tailor: plum velvet and gold, a chandelier, a wall of thread, a rack of jackets, a gold mirror that shows you, The Very Large Hat in a lit glass case, a fitting curtain and a mannequin called Gerald. Thimble, a tall tailor robot with tape-measure arms, stands on the red carpet. Walk up to Thimble or the mirror to try things on. The door at the bottom goes back to the street.'],
       malley: ['The back alley', 'A narrow back alley behind the Rust Market: dark brick, steaming pipes, string lights and a buzzing green PSST sign. Sprocket, a scruffy dealer in goggles, sells things that “fell off a drone” from a stack of crates. A crate beside him honks. The door back to Main Street is on the left.'],
       gice: ['The Old Ice', 'The Old Ice: a dark cave of ancient blue ice below the Glow Pool, with icicles overhead and lanterns from old Tides frozen into the walls. The ladder up is on the left. On the right is the frozen channel: behind clear ice, a huge shape with three pink eyes. A striped Apex drill punches down through the ceiling beside it, with a control box and a big red STOP DRILL button. Walk up to things and tap them, or press Enter or E.'],
       gpool: ['The Glow Pool', 'The Glow Pool from above: a dark, round pool ringed with ice and snow, with a wooden jetty running out into it from the bottom. Shadowy fish swim under the water. Tap the water to cast; when a fish bites it glows a word, and you tap the same colours back with the colour pads below. Up and down arrows walk along the jetty, and keys 1 to 5 glow colours.'],
@@ -11247,12 +11278,12 @@ details.act > .limits { margin: 0 0 8px; }
     } else if (kind === 'gpool') {
       start = { x: 128, y: 118, dir: 3 };
     } else if (MARS_KINDS.includes(kind)) {
-      start = kind === 'mrace' ? { x: 40, y: 80, dir: 0 } : kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'malley' ? { x: 350, y: 80, dir: 0 } : from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
+      start = kind === 'mrace' ? { x: 40, y: 80, dir: 0 } : kind === 'mapex' ? (from === 'mlobby' ? { x: 210, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : kind === 'mdock' ? (from === 'maglev' ? { x: 580, y: 80, dir: 0 } : { x: 36, y: 82, dir: 0 }) : kind === 'mmain' ? (from === 'malley' ? { x: 350, y: 80, dir: 0 } : from === 'mdiner' ? { x: 178, y: 76, dir: 0 } : from === 'moffice' ? { x: 408, y: 76, dir: 0 } : from === 'mtailor' ? { x: 536, y: 76, dir: 0 } : from === 'mpaint' ? { x: 606, y: 76, dir: 0 } : { x: 40, y: 80, dir: 0 }) : { x: 128, y: 146, dir: 3 };
     } else if (kind === 'pim') {
       start = from === 'pimbake' ? { x: 125, y: 74, dir: 0 } : { x: 34, y: 80, dir: 0 };
     } else start = from === 'missions' ? { x: 128, y: 100, dir: 3 } : { x: 128, y: 146, dir: 3 };
     const W = hall ? HALL_W : qtr ? QUARTERS_W : kind === 'pim' ? PIM_W : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? MARS_W : kind === 'gany' ? GANY_W : kind === 'ggrotto' || kind === 'gice' ? GR_W : 256;
-    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'gany' ? [0, 0, GANY_W, GANY_H] : kind === 'ggrotto' ? [14, 150, 306, 192] : kind === 'gice' ? [32, 166, 306, 192] : kind === 'gpool' ? [118, 114, 138, 286] : kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' || kind === 'malley' ? [12, 100, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
+    deck = { kind, cv, c: cv.getContext('2d'), W, B: kind === 'gany' ? [0, 0, GANY_W, GANY_H] : kind === 'ggrotto' ? [14, 150, 306, 192] : kind === 'gice' ? [32, 166, 306, 192] : kind === 'gpool' ? [118, 114, 138, 286] : kind === 'pim' ? [12, 70, PIM_W - 12, 152] : kind === 'mdock' || kind === 'mmain' || kind === 'mapex' || kind === 'mrace' ? [12, 72, MARS_W - 12, 152] : kind === 'mdiner' || kind === 'moffice' || kind === 'mlobby' || kind === 'malley' ? [12, 100, 244, 152] : kind === 'mpaint' || kind === 'mtailor' ? [12, 104, 244, 152] : kind === 'pimbake' ? [12, 96, 244, 152] : hall || qtr ? [10, 66, W - 10, 152] : gdn ? [10, 72, 246, 152] : bed ? [14, 76, 242, 152] : dome ? [14, 84, 242, 152] : gal ? [10, 78, 246, 152] : eng ? [10, 92, 246, 152] : lift ? [64, 96, 192, 146] : [14, 98, 242, 152],
       me: Object.assign(start, { goal: null, moving: false, sit: false }), target: null, keys: {}, last: performance.now(), tap: null,
       crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || GANY_KINDS.includes(kind) || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
@@ -11285,7 +11316,7 @@ details.act > .limits { margin: 0 0 8px; }
       if (!hit) deck.tap = { x: me.goal[0], y: me.goal[1], t: performance.now() };
       if (hit && Math.hypot(me.x - me.goal[0], me.y - me.goal[1]) < 6) { me.goal = null; shipArrive(); }
     });
-    const draw = { malley: malleyDraw, gany: ganyDraw, gice: giceDraw, ggrotto: grottoDraw, gpool: poolDraw, pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
+    const draw = { mpaint: mpaintDraw, mtailor: mtailorDraw, malley: malleyDraw, gany: ganyDraw, gice: giceDraw, ggrotto: grottoDraw, gpool: poolDraw, pim: pimDraw, pimbake: pimBakeDraw, mdock: mdockDraw, mmain: mmainDraw, mdiner: mdinerDraw, moffice: mofficeDraw, mapex: mapexDraw, mlobby: mlobbyDraw, mrace: mraceDraw, hall: hallDraw, garden: gardenDraw, bridge: bridgeDraw, quarters: quartersDraw, bedroom: bedroomDraw, dome: domeDraw, galley: galleyDraw, engine: engineDraw, lift: liftDraw }[kind];
     const loop = () => {
       if (!deck || deck.cv !== cv || mode !== kind || !document.body.contains(cv)) { if (deck && deck.cv === cv) deck = null; return; }
       const t = performance.now(), dt = Math.min(0.05, (t - deck.last) / 1000);
@@ -11359,6 +11390,8 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.kind === 'mmain') { mmainThings(L); crimeThings(L); return L; }
     if (deck.kind === 'mdiner') { mdinerThings(L); dinerThings(L); return L; }
     if (deck.kind === 'malley') { malleyThings(L); return L; }
+    if (deck.kind === 'mpaint') { mpaintThings(L); return L; }
+    if (deck.kind === 'mtailor') { mtailorThings(L); return L; }
     if (deck.kind === 'moffice') { mofficeThings(L); return L; }
     if (deck.kind === 'mapex') { mapexThings(L); crimeThings(L); return L; }
     if (deck.kind === 'mrace') { mraceThings(L); return L; }
@@ -15642,6 +15675,16 @@ details.act > .limits { margin: 0 0 8px; }
     { id: 'shades', name: 'Star shades', price: 1000, blurb: 'Rex has the same pair. Rex says yours are knockoffs.' },
     { id: 'crown', name: 'Tiny crown', price: 5000, blurb: 'For the pilot who has everything. Now you have a crown too.' }
   ];
+  // ---- Mars-only clothes, sold at Thread & Thruster on Main Street ----
+  OUTFITS.push(
+    { id: 'marsjacket', shop: 'tailor', name: 'Mars flight jacket', price: 1400, top: '#b8322a', pants: '#2a3045', shoes: '#2a1a12', trim: '#ffd27a', scarf: '#e8dcb8', blurb: 'Red leather, a sheepskin collar and a patch from every world you’ve landed on. Thimble sews new ones on as you go.' },
+    { id: 'duster', shop: 'tailor', name: 'Dust-runner duster', price: 1600, top: '#8a6a46', pants: '#4a3a2a', shoes: '#2a1a12', trim: '#5a4030', scarf: '#c8a878', blurb: 'A long coat for long walks in the wind. It flaps dramatically, even indoors. Nobody knows how.' },
+    { id: 'racesuit', shop: 'tailor', needRace: true, name: 'Speedway racing suit', price: 1800, top: '#ffb547', pants: '#1a1a22', shoes: '#15151f', trim: '#ff3b3b', dots: '#f4f4f8', blurb: 'Fireproof, chequered and extremely orange. Thimble only sells it to pilots who have won a race. It checks.' },
+    { id: 'whitesuit', shop: 'tailor', name: '“Definitely not Apex” suit', price: 2200, top: '#f4f4f8', pants: '#f4f4f8', shoes: '#c9cfdc', trim: '#d8202a', blurb: 'White, sharp and very corporate. Agent Pell mistakes you for a colleague and salutes instead of fining you, once a day.' });
+  HATS.push(
+    { id: 'cowboy', shop: 'tailor', name: 'Dust cowboy hat', price: 700, blurb: 'Wide brim, for the sun and the dust and the drama.' },
+    { id: 'racehelm', shop: 'tailor', name: 'Racing helmet', price: 900, blurb: 'Red with a white stripe. Visor up, so people can see your face. Thimble insisted.' },
+    { id: 'bighat', shop: 'tailor', name: 'The Very Large Hat', price: 5000, blurb: 'It is very large. It does not fit through some doors. The crew will comment. Forever.' });
   let wardOwned = (() => { try { return new Set(JSON.parse(store.get('ds-wardrobe', '[]'))); } catch (e) { return new Set(); } })();
   const saveWard = () => store.set('ds-wardrobe', JSON.stringify([...wardOwned]));
   const outfitOf = L => OUTFITS.find(o => o.id === L.outfit) || null;
@@ -15656,6 +15699,9 @@ details.act > .limits { margin: 0 0 8px; }
     else if (hat === 'bow') { H(4, -1, 3, 3, '#ff6b9a'); H(9, -1, 3, 3, '#ff6b9a'); H(7, 0, 2, 2, '#c9406a'); }
     else if (hat === 'party') { H(6, -1, 4, 2, '#7fd6ff'); H(7, -3, 2, 2, '#ffe58a'); H(7, -5, 2, 2, '#ff6b5e'); H(7, -6, 2, 1, '#f4f1e8'); }
     else if (hat === 'crown') { H(5, -1, 6, 2, '#ffd36a'); H(5, -3, 1, 2, '#ffd36a'); H(7, -3, 2, 2, '#ffd36a'); H(10, -3, 1, 2, '#ffd36a'); if (dir === 0) P(7, -1, 2, 1, '#ff6b5e'); }
+    else if (hat === 'cowboy') { H(0, 2, 16, 1, '#7a4a2c'); H(4, -2, 8, 4, '#8a5a34'); H(4, 1, 8, 1, '#3a2a1a'); H(5, -3, 6, 1, '#8a5a34'); }
+    else if (hat === 'racehelm') { H(3, -1, 10, 5, '#d8202a'); H(3, 3, 2, 5, '#d8202a'); H(11, 3, 2, 5, '#d8202a'); H(7, -1, 2, 5, '#f4f4f8'); if (dir === 0) P(4, 3, 8, 1, '#7fe8ff'); }
+    else if (hat === 'bighat') { H(-6, 2, 28, 2, '#6a2a4a'); H(-4, 3, 24, 1, '#4a1a34'); H(2, -10, 12, 13, '#6a2a4a'); H(3, -11, 10, 1, '#6a2a4a'); H(2, -1, 12, 2, '#ffd27a'); H(7, -1, 2, 2, '#ff5e7a'); H(13, -16, 2, 9, '#ff8fd8'); H(15, -18, 1, 5, '#ffd0ec'); }
     else if (hat === 'shades' && dir !== 3) { if (side) H(3, 7, 3, 1, '#15151f'); else { P(4, 6, 8, 2, '#15151f'); P(5, 6, 1, 1, '#ffd36a'); P(9, 6, 1, 1, '#ffd36a'); } }
   }
   // ...and on the big license portrait (32 x 32)
@@ -15667,6 +15713,9 @@ details.act > .limits { margin: 0 0 8px; }
     else if (hat === 'bow') { P(10, 4, 5, 5, '#ff6b9a'); P(17, 4, 5, 5, '#ff6b9a'); P(15, 5, 2, 3, '#c9406a'); }
     else if (hat === 'party') { P(13, 4, 6, 3, '#7fd6ff'); P(14, 1, 4, 3, '#ffe58a'); P(15, -1, 2, 2, '#ff6b5e'); P(15, 7, 2, 1, '#ff6b5e'); }
     else if (hat === 'crown') { P(11, 4, 10, 3, '#ffd36a'); P(11, 2, 2, 2, '#ffd36a'); P(15, 1, 2, 3, '#ffd36a'); P(19, 2, 2, 2, '#ffd36a'); P(15, 5, 2, 1, '#ff6b5e'); }
+    else if (hat === 'cowboy') { P(3, 8, 26, 2, '#7a4a2c'); P(9, 2, 14, 7, '#8a5a34'); P(9, 7, 14, 1, '#3a2a1a'); P(11, 1, 10, 1, '#8a5a34'); P(15, 2, 2, 2, '#6a3a1c'); }
+    else if (hat === 'racehelm') { P(8, 4, 16, 6, '#d8202a'); P(7, 7, 3, 12, '#d8202a'); P(22, 7, 3, 12, '#d8202a'); P(15, 3, 2, 7, '#f4f4f8'); P(9, 9, 14, 2, '#7fe8ff'); }
+    else if (hat === 'bighat') { P(-4, 8, 40, 3, '#6a2a4a'); P(-2, 10, 36, 1, '#4a1a34'); P(8, -4, 16, 13, '#6a2a4a'); P(8, 5, 16, 3, '#ffd27a'); P(15, 5, 3, 3, '#ff5e7a'); P(23, -2, 3, 10, '#ff8fd8'); }
     else if (hat === 'shades') { P(11, 13, 10, 4, '#15151f'); P(12, 14, 2, 1, '#ffd36a'); P(18, 14, 2, 1, '#ffd36a'); }
   }
   let wardUI = { tab: 'outfit', trying: null }, wardFrom = 'title';
@@ -15686,7 +15735,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="wstage"><canvas id="wardBig" width="96" height="120" aria-label="Your pilot, turning around"></canvas><canvas id="wardFace" width="64" height="64" aria-hidden="true"></canvas>
         <div class="wnote">${tryIt ? `<b>Trying on: ${tryIt.name}</b><p>${tryIt.blurb}</p><div class="btns"><button class="btn" id="wardBuy"${credits < tryIt.price ? ' disabled' : ''}>${credits < tryIt.price ? `Need ${fmt(tryIt.price - credits)} more cr` : `Buy · ${fmt(tryIt.price)} cr`}</button><button class="btn ghost" id="wardPut">Put it back</button></div>` : `<b>${isOut ? (outfitOf(lic) ? outfitOf(lic).name : 'Your license suit') : (HATS.find(h => h.id === lic.hat) || { name: 'No hat' }).name}</b><p>Tap anything to try it on. Things you own switch instantly.</p>`}</div></div>
       <div class="mtabs wtabs" role="tablist"><button role="tab" class="mtab${isOut ? ' on' : ''}" data-wtab="outfit" aria-selected="${isOut}"><b>Outfits</b></button><button role="tab" class="mtab${isOut ? '' : ' on'}" data-wtab="hat" aria-selected="${!isOut}"><b>Hats</b></button></div>
-      <div class="witems">${isOut ? tile(null, 'License suit', 'Free · your colour', !cur, true) : tile(null, 'No hat', 'Free', !cur, true)}${list.filter(i => !i.quest || wardOwned.has(i.id)).map(i => { const own = wardOwned.has(i.id); return tile(i.id, i.name, cur === i.id ? 'Wearing' : own ? 'Owned' : `${fmt(i.price)} cr`, cur === i.id || wardUI.trying === i.id, own); }).join('')}</div>
+      <div class="witems">${isOut ? tile(null, 'License suit', 'Free · your colour', !cur, true) : tile(null, 'No hat', 'Free', !cur, true)}${list.filter(i => (!i.quest && !i.shop) || wardOwned.has(i.id)).map(i => { const own = wardOwned.has(i.id); return tile(i.id, i.name, cur === i.id ? 'Wearing' : own ? 'Owned' : `${fmt(i.price)} cr`, cur === i.id || wardUI.trying === i.id, own); }).join('')}</div>
       <div class="btns"><button class="btn ghost" id="back">${wardFrom === 'license' ? 'Back to your license' : wardFrom === 'den' ? 'Back to the Pad' : menuReturn ? 'Back to the menu' : 'Back to the ship'}</button></div>
     </div>`;
     // little previews on each tile
@@ -18890,8 +18939,8 @@ details.act > .limits { margin: 0 0 8px; }
     L.push({ id: 'market', rect: [206, 24, 144, 40], go: () => [272, 78], at: () => ({ x: 272, y: 44 }), act: () => { sfx.click(); openMarsMarket(); } });
     L.push({ id: 'officedoor', rect: [394, 26, 28, 38], go: () => [408, 74], at: () => ({ x: 408, y: 44 }), act: () => { sfx.click(); walkEnter = 'mmain'; setMode('moffice'); } });
     L.push({ id: 'statue', rect: [444, 28, 52, 58], go: () => [470, 94], at: () => ({ x: 470, y: 50 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'F') ? ['F', 'The first landing. Our first landing. They made a hologram of it. It’s slightly wrong. The real one bounced twice. I’m not telling them.'] : ['P', 'A hologram of the very first Descent Systems lander, turning slowly over a plinth. The plaque says: “FIRST LANDING. Nobody was hurt. One cup of coffee was spilled.”'])) });
-    L.push({ id: 'tailor', rect: [504, 10, 64, 54], go: () => [536, 76], at: () => ({ x: 536, y: 40 }), act: () => shipSay('P', 'The tailor’s shutters are down. A holo note: “Opening soon! Flight jackets, Mars boots and one very large hat.”') });
-    L.push({ id: 'paint', rect: [574, 10, 66, 54], go: () => [606, 76], at: () => ({ x: 606, y: 40 }), act: () => shipSay(...(deck.npcs.some(n => n.who === 'G') ? ['G', 'A paint shop! For landers! Opening soon! I’m going to buy one of every colour. Biscuit deserves a rainbow.'] : ['P', 'A paint shop for landers, shutters down. Through a gap: swatches in colours you didn’t know existed. “Opening soon.”'])) });
+    L.push({ id: 'tailor', rect: [504, 10, 64, 54], go: () => [536, 76], at: () => ({ x: 536, y: 40 }), act: () => { sfx.click(); walkEnter = 'mmain'; setMode('mtailor'); } });
+    L.push({ id: 'paint', rect: [574, 10, 66, 54], go: () => [606, 76], at: () => ({ x: 606, y: 40 }), act: () => { sfx.click(); walkEnter = 'mmain'; setMode('mpaint'); } });
   }
   function mmainDraw(t) {
     const c = deck.c, W = MARS_W;
@@ -18919,9 +18968,15 @@ details.act > .limits { margin: 0 0 8px; }
     mBlock(c, 356, 16, 74, 46, '#3a2a34', '#ffb547', false); px(c, 362, 26, 26, 18, '#0e1428'); mGlow(c, '#ffb547', 4, () => px(c, 365, 29, 6, 6, '#ffb547')); px(c, 374, 37, 10, 6, '#5a4636');
     mDoor(c, 398, 30, 20, 32, '#ffb547');
     mHolo(c, 356, 4, 74, 'DESCENT SYSTEMS', '#ffb547', 5, t);
-    // the tailor and paint shop, opening soon
-    mBlock(c, 506, 16, 60, 46, '#2a2238', '#c8a2ff', true); px(c, 510, 24, 52, 32, '#3a3450'); for (let y = 24; y < 56; y += 3) px(c, 510, y, 52, 1, '#2a2440'); mHolo(c, 510, 4, 52, 'TAILOR', '#c8a2ff', 6, t); mHolo(c, 518, 36, 36, 'SOON', '#ffe58a', 5, t);
-    mBlock(c, 576, 16, 64, 46, '#1e3430', '#9fe0b8', true); px(c, 580, 24, 56, 32, '#2a4440'); for (let y = 24; y < 56; y += 3) px(c, 580, y, 56, 1, '#1e3430'); mHolo(c, 580, 4, 56, 'PAINT', '#9fe0b8', 6, t); mHolo(c, 590, 36, 36, 'SOON', '#ffe58a', 5, t);
+    // Thread & Thruster and Marta's Paint, open
+    mBlock(c, 506, 16, 60, 46, '#2a1838', '#d8a848', true); px(c, 510, 24, 30, 30, '#120a1e'); { const g = c.createLinearGradient(0, 24, 0, 54); g.addColorStop(0, '#4a2a60'); g.addColorStop(1, '#2a1838'); c.fillStyle = g; c.fillRect(511, 25, 28, 28); }
+    c.fillStyle = 'rgba(255,229,138,0.25)'; c.beginPath(); c.moveTo(525, 25); c.lineTo(514, 50); c.lineTo(536, 50); c.fill(); c.fillStyle = '#6a2a4a'; c.beginPath(); c.ellipse(525, 46, 10, 2, 0, 0, Math.PI * 2); c.fill(); c.beginPath(); c.roundRect(520, 36, 10, 10, [4, 4, 0, 0]); c.fill(); px(c, 520, 43, 10, 1, '#ffd27a');
+    mDoor(c, 544, 30, 18, 32, '#d8a848'); mHolo(c, 506, 4, 60, 'THREAD&THRUSTER', '#e6d4ff', 4, t);
+    mBlock(c, 576, 16, 64, 46, '#1a2430', '#ff8fd8', true); px(c, 580, 24, 34, 30, '#05060c');
+    { const g = c.createLinearGradient(580, 0, 614, 0); g.addColorStop(0, '#ff5e7a'); g.addColorStop(0.5, '#c084fc'); g.addColorStop(1, '#4fd1ff'); mGlow(c, '#c084fc', 6, () => { c.strokeStyle = g; c.lineWidth = 1; c.strokeRect(580.5, 24.5, 33, 29); }); c.fillStyle = 'rgba(192,132,252,0.25)'; c.fillRect(581, 25, 32, 28); }
+    for (let k = 0; k < 5; k++) { px(c, 584 + k * 6, 44, 4, 8, '#c9cfdc'); px(c, 584 + k * 6, 46, 4, 3, ['#ff5e7a', '#ffb547', '#58e0a0', '#4fd1ff', '#c084fc'][k]); }
+    for (const [x, l, col] of [[580, 6, '#ff5e7a'], [590, 10, '#ffb547'], [604, 5, '#58e0a0'], [626, 8, '#4fd1ff'], [636, 4, '#c084fc']]) px(c, x, 16, 2, l, col);
+    mDoor(c, 618, 30, 18, 32, '#ff8fd8'); mHolo(c, 578, 4, 60, 'MARTA’S PAINT', '#ff8fd8', 5, t);
     mFloor(c, W, 62, '#4a3a44', '#ff8a5a', t);
     const things = shipFloorThings(c, t), me = deck.me;
     // the plaza hologram of the first lander, turning
@@ -20947,7 +21002,7 @@ details.act > .limits { margin: 0 0 8px; }
   addEventListener('keydown', e => { if (mode === 'flying' && apoOn() && (e.code === 'ArrowDown' || e.code === 'KeyS')) { e.preventDefault(); apoShoo(); } }, true);
   // ======== Mars after dark: pickpockets, heat, Apex drones, Sprocket's alley, and a busier diner ========
   const MARS_STREETS = ['mdock', 'mmain', 'mapex', 'malley'];
-  MARS_KINDS.push('malley');
+  MARS_KINDS.push('malley', 'mpaint', 'mtailor');
   // ---- heat: 0 to 3, cools by one every ship-day ----
   function marsHeat() { try { const h = JSON.parse(store.get('ds-marsHeat', '{}') || '{}'); return h.v ? Math.max(0, h.v - Math.max(0, shipDay - h.day)) : 0; } catch (e) { return 0; } }
   function setHeat(v) { store.set('ds-marsHeat', JSON.stringify({ v: Math.max(0, Math.min(3, v)), day: shipDay })); }
@@ -21278,6 +21333,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (d > 10) { const v = 44 * dt; a.x += dx / d * v; a.y += dy / d * v; a.moving = true; a.dir = dx < 0 ? 1 : 2; return; }
     // caught: a ticket
     a.pause = now + 7000; sfx.alarm && sfx.alarm(); addShakeRoom();
+    if (lic.outfit === 'whitesuit' && store.get('ds-pellSalute', '') !== shipDayKey()) { store.set('ds-pellSalute', shipDayKey()); a.pause = now + 9000; shipSay('P', 'Agent Pell sees the white suit, stiffens and salutes. “Sir. Madam. Colleague. Carry on.” He walks away, deeply unsure. You could get used to this. (The suit works once a day.)'); return; }
     const hot = hotItem();
     if (hot) { store.set('ds-hotItem', ''); shipSay('P', `A hand in a white glove lands on your shoulder. “Agent Pell, Apex Security. I’ll take the ${hot}, thank you.” He writes you a ticket for “attitude” and smiles without his eyes.`); }
     else { const fine = Math.min(credits, 100); credits -= fine; saveCosmetics(); shipSay('P', `A hand in a white glove lands on your shoulder. “Agent Pell, Apex Security. Fine: ${fine} cr. Have a profitable day.” He doesn’t blink. You check. He doesn’t.`); }
@@ -21339,8 +21395,410 @@ details.act > .limits { margin: 0 0 8px; }
     } catch (e) {}
   }
   function raceGhostFor(d) { try { const g = JSON.parse(store.get('ds-raceGhost-' + d.id, 'null')); return g ? { frames: g.frames, result: 'landed', label: `Your best · ${g.t.toFixed(1)} s`, tint: '#7fe8ff' } : null; } catch (e) { return null; } }
+  // ==== Main Street shops: Marta's Paint (a Martian, 140 years on this street) and Thread & Thruster (Thimble, the tailor bot) ====
+  Object.assign(SPEAKERS, { MA: { name: 'Marta · Marta’s Paint', color: '#ff8fd8' }, TB: { name: 'Thimble · Tailor bot', color: '#c8a2ff' } });
+  const SH_PAL = ['#ff5e7a', '#ffb547', '#ffe066', '#58e0a0', '#4fd1ff', '#6a7cff', '#c084fc', '#ff8fd8'];
+  const shL = (c, x, y, r, col, a = 1) => { c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = a; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); c.restore(); };
+  const shCone = (c, x, y, x1, x2, y2, col) => { c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createLinearGradient(0, y, 0, y2); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(x - 2, y); c.lineTo(x + 2, y); c.lineTo(x2, y2); c.lineTo(x1, y2); c.fill(); c.restore(); };
+  const shVig = (c, W, H, a = 0.55) => { const g = c.createRadialGradient(W / 2, H * 0.55, H * 0.35, W / 2, H * 0.55, W * 0.72); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(4,4,12,${a})`); c.fillStyle = g; c.fillRect(0, 0, W, H); };
+  const shShadow = (c, x, y, w) => { c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(x, y, w, w * 0.3, 0, 0, Math.PI * 2); c.fill(); };
+  const shDrip = (c, x, y, len, w, col) => { px(c, x, y, w, len, col); c.fillStyle = col; c.beginPath(); c.arc(x + w / 2, y + len, w * 0.75, 0, Math.PI * 2); c.fill(); };
+  const shopRaceWon = () => Object.keys(missionStars).some(k => k.startsWith('race-') && missionStars[k] > 0);
+
+  // Marta: a gaunt four-armed Martian. Long swept-back skull, black eyes, paint-stained hands, a cigarette.
+  function martaDraw(c, x, y, s = 1, t = 0, blink = false) {
+    c.save(); c.translate(x, y); c.scale(s, s); c.lineCap = 'round'; c.lineJoin = 'round';
+    const SK = '#8a8fa0', SD = '#4a4e5e', SL = '#b4b8c6', GLOW = '#58e0a0';
+    const limb = (pts, w, col) => { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.stroke(); };
+    const hand = (hx, hy, ang, stain) => { for (let f = -1; f <= 1; f++) { const a = ang + f * 0.35; limb([[hx, hy], [hx + Math.cos(a) * 3.2, hy + Math.sin(a) * 3.2]], 0.8, SD); c.fillStyle = stain; c.beginPath(); c.arc(hx + Math.cos(a) * 3.2, hy + Math.sin(a) * 3.2, 0.55, 0, Math.PI * 2); c.fill(); } };
+    const sway = reduceMotion ? 0 : Math.sin(t / 900) * 0.6;
+    limb([[-5, 20], [-11, 15], [-12, 7 + sway]], 1.6, SD); hand(-12, 7 + sway, -1.9, '#ff5e7a');
+    px(c, -15, 1 + sway, 6, 1.8, '#5a606c'); px(c, -11, 2.6 + sway, 1.2, 3, '#5a606c'); px(c, -17, 1.3 + sway, 2, 1, '#c9cfdc');
+    limb([[5, 20], [11, 24], [12, 31]], 1.6, SD); hand(12, 31, 1.6, '#4fd1ff');
+    c.fillStyle = '#1e2028'; c.beginPath(); c.moveTo(-6.5, 18); c.lineTo(6.5, 18); c.lineTo(4.5, 34); c.lineTo(-4.5, 34); c.fill();
+    c.fillStyle = '#3a2a22'; c.beginPath(); c.moveTo(-4, 21); c.lineTo(4, 21); c.lineTo(4.2, 34); c.lineTo(-4.2, 34); c.fill();
+    px(c, -3.5, 18, 0.6, 3, '#3a2a22'); px(c, 2.9, 18, 0.6, 3, '#3a2a22');
+    for (const [col, a, b, r] of [['#ff5e7a', -2, 25, 1.2], ['#58e0a0', 1.5, 28, 0.9], ['#ffb547', -1, 31, 0.7], ['#4fd1ff', 2.5, 23, 0.6]]) { c.fillStyle = col + 'aa'; c.beginPath(); c.ellipse(a, b, r * 1.3, r, 0.4, 0, Math.PI * 2); c.fill(); px(c, a, b, 0.4, r * 2.2, col + '88'); }
+    c.fillStyle = '#2a2e38'; c.beginPath(); c.ellipse(0, 20, 2.8, 1.8, 0, 0, Math.PI * 2); c.fill(); c.fillStyle = '#5a606c'; c.beginPath(); c.arc(-1.6, 20.3, 0.9, 0, Math.PI * 2); c.arc(1.6, 20.3, 0.9, 0, Math.PI * 2); c.fill();
+    limb([[-5.5, 25], [-8, 30], [2, 32.5]], 1.6, SD); hand(2, 32.5, 0, '#ffb547');
+    limb([[5.5, 25], [8, 30], [-2, 33.5]], 1.6, SK); hand(-2, 33.5, Math.PI, '#58e0a0');
+    px(c, -1.2, 12, 2.4, 7, SD); for (let k = 0; k < 3; k++) px(c, -1.2, 13.5 + k * 1.8, 2.4, 0.5, '#2e3240');
+    const g = c.createLinearGradient(-5, -6, 5, 14); g.addColorStop(0, SL); g.addColorStop(0.5, SK); g.addColorStop(1, SD); c.fillStyle = g;
+    c.beginPath(); c.moveTo(-1, 14); c.quadraticCurveTo(-5, 12, -5.2, 7); c.quadraticCurveTo(-5.5, -1, 1, -6); c.quadraticCurveTo(7, -9, 8, -5); c.quadraticCurveTo(8, 0, 5, 5); c.quadraticCurveTo(4.6, 11, 1, 14); c.fill();
+    c.strokeStyle = 'rgba(30,32,44,0.55)'; c.lineWidth = 0.4; for (let k = 0; k < 3; k++) { c.beginPath(); c.moveTo(-2 + k * 1.6, 3); c.quadraticCurveTo(1 + k * 1.4, -3, 5 + k, -6 + k * 0.6); c.stroke(); }
+    const pulse = reduceMotion ? 1 : 0.6 + 0.4 * Math.sin(t / 700);
+    c.save(); c.globalAlpha = pulse; c.shadowColor = GLOW; c.shadowBlur = 3; c.fillStyle = GLOW; for (let k = 0; k < 5; k++) { c.beginPath(); c.arc(-3.4 + k * 1.9, 3 - k * 2, 0.38, 0, Math.PI * 2); c.fill(); } c.restore();
+    if (blink) { px(c, -4.2, 7.6, 3.6, 0.4, '#05060a'); px(c, 0.4, 7.6, 3.6, 0.4, '#05060a'); }
+    else { c.fillStyle = '#05060a'; for (const [ex, rot] of [[-2.4, 0.45], [2.2, -0.45]]) { c.beginPath(); c.ellipse(ex, 7.6, 2, 0.95, rot, 0, Math.PI * 2); c.fill(); } c.fillStyle = '#ffb547aa'; c.fillRect(-3.2, 7, 0.6, 0.4); c.fillRect(1.6, 7, 0.6, 0.4); }
+    c.fillStyle = '#05060a'; c.beginPath(); c.arc(-1.4, 4.6, 0.45, 0, Math.PI * 2); c.arc(1.4, 4.6, 0.45, 0, Math.PI * 2); c.fill();
+    px(c, -0.6, 9.6, 0.3, 0.9, '#2e3240'); px(c, 0.4, 9.6, 0.3, 0.9, '#2e3240');
+    c.strokeStyle = '#2e3240'; c.lineWidth = 0.45; c.beginPath(); c.moveTo(-2, 11.8); c.lineTo(1.8, 11.5); c.stroke();
+    px(c, 1.6, 11.3, 3.4, 0.6, '#e8e0d0'); c.save(); c.shadowColor = '#ff6a2a'; c.shadowBlur = 3; px(c, 4.8, 11.3, 0.7, 0.6, reduceMotion || Math.sin(t / 400) > -0.3 ? '#ff6a2a' : '#c84a1a'); c.restore();
+    if (t) { const k = reduceMotion ? 0 : (t / 2400) % 1; c.strokeStyle = `rgba(200,205,220,${0.35 * (1 - k * 0.5)})`; c.lineWidth = 0.5; c.beginPath(); c.moveTo(5.2, 11); c.bezierCurveTo(7 + k * 2, 8, 4 - k, 6, 6.5 + k, 2); c.bezierCurveTo(8, -1 - k * 2, 6, -3, 8 + k, -6 - k * 3); c.stroke(); }
+    c.restore();
+  }
+  function drawMartaFace(c, open, blink, bare) {
+    if (!bare) { const g = c.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#22323e'); g.addColorStop(1, '#141c28'); c.fillStyle = g; c.fillRect(0, 0, 32, 32); }
+    martaDraw(c, 14, 9, 1.12, 0, blink);
+    if (open) px(c, 13, 21.6, 3, 0.8, '#05060a');
+  }
+  // Thimble: a tall tailor bot. Thimble-dome head, a visor that never blinks, tape-measure arms, a pincushion wrist.
+  function thimbleDraw(c, tx, ty, t) {
+    const sw = reduceMotion ? 0 : Math.sin(t / 700) * 2;
+    shShadow(c, tx, ty, 10);
+    px(c, tx - 6, ty - 4, 12, 4, '#5a606c'); px(c, tx - 3, ty - 34, 6, 30, '#c9cfdc'); px(c, tx - 3, ty - 34, 2, 30, '#f4f4f8');
+    const g = c.createLinearGradient(tx - 8, 0, tx + 8, 0); g.addColorStop(0, '#8a93ab'); g.addColorStop(0.4, '#f4f4f8'); g.addColorStop(1, '#6a7088'); c.fillStyle = g; c.beginPath(); c.roundRect(tx - 8, ty - 50, 16, 16, [8, 8, 2, 2]); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.18)'; for (let i = 0; i < 12; i++) { c.beginPath(); c.arc(tx - 5 + (i % 4) * 3.3, ty - 47 + Math.floor(i / 4) * 3, 0.6, 0, Math.PI * 2); c.fill(); }
+    mGlow(c, '#7fe8ff', 6, () => px(c, tx - 6, ty - 40, 12, 3, '#7fe8ff'));
+    const ex = reduceMotion ? 0 : Math.round(Math.sin(t / 1300) * 3.5); px(c, tx - 2 + ex, ty - 40, 3, 3, '#ffffff');
+    c.strokeStyle = '#ffd27a'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(tx + 3, ty - 30); c.quadraticCurveTo(tx + 22, ty - 40 + sw, tx + 30, ty - 22 + sw); c.stroke(); c.beginPath(); c.moveTo(tx - 3, ty - 30); c.quadraticCurveTo(tx - 18, ty - 20, tx - 14, ty - 8); c.stroke(); c.lineWidth = 1;
+    for (let k = 0; k < 7; k++) px(c, tx + 6 + k * 3.5, ty - 35 + sw * k / 7 + (k > 3 ? (k - 3) * 3 : 0), 0.6, 1.2, '#1a1424');
+    c.fillStyle = '#ff5e7a'; c.beginPath(); c.arc(tx - 14, ty - 8, 3, 0, Math.PI * 2); c.fill(); for (let k = 0; k < 4; k++) px(c, tx - 16 + k * 1.4, ty - 12, 0.6, 2, '#e8eaf0');
+  }
+  function drawThimbleFace(c, open, blink, bare) {
+    if (!bare) { const g = c.createLinearGradient(0, 0, 0, 32); g.addColorStop(0, '#2e1a40'); g.addColorStop(1, '#120a1e'); c.fillStyle = g; c.fillRect(0, 0, 32, 32); }
+    const g = c.createLinearGradient(6, 0, 26, 0); g.addColorStop(0, '#8a93ab'); g.addColorStop(0.4, '#f4f4f8'); g.addColorStop(1, '#6a7088'); c.fillStyle = g; c.beginPath(); c.roundRect(6, 3, 20, 21, [10, 10, 3, 3]); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.18)'; for (let i = 0; i < 15; i++) { c.beginPath(); c.arc(9 + (i % 5) * 3.5, 6 + Math.floor(i / 5) * 3.2, 0.8, 0, Math.PI * 2); c.fill(); }
+    px(c, 8, 15, 16, 4, '#0a1a24'); c.save(); c.shadowColor = '#7fe8ff'; c.shadowBlur = 4; px(c, 8, 15, 16, 4, '#7fe8ff'); c.restore(); px(c, 14, 15, 4, 4, '#ffffff');
+    px(c, 13, 21, 6, open ? 2 : 1, '#2a2e38'); px(c, 14, 24, 4, 4, '#c9cfdc'); px(c, 6, 28, 20, 4, '#d8a848'); px(c, 15, 27, 2, 5, '#ffd27a');
+  }
+
+  // ---- the rooms: a cached back layer, then live bits on top ----
+  const shopBg = {};
+  function shopCache(kind, build) {
+    if (shopBg[kind]) return shopBg[kind];
+    const cv = document.createElement('canvas'); cv.width = 768; cv.height = 480; const c = cv.getContext('2d'); c.imageSmoothingEnabled = false; c.setTransform(3, 0, 0, 3, 0, 0);
+    build(c); return (shopBg[kind] = cv);
+  }
+  function paintBack(c) {
+    const W = 256, H = 160;
+    let g = c.createLinearGradient(0, 0, 0, 82); g.addColorStop(0, '#141c28'); g.addColorStop(1, '#22323e'); c.fillStyle = g; c.fillRect(0, 0, W, 82);
+    for (let x = 0; x < W; x += 4) { px(c, x, 0, 1, 82, 'rgba(255,255,255,0.04)'); px(c, x + 2, 0, 1, 82, 'rgba(0,0,0,0.18)'); }
+    px(c, 0, 0, W, 5, '#0c1018'); for (let x = 6; x < W; x += 26) px(c, x, 0, 2, 5, '#2a3440');
+    for (let i = 0; i < 16; i++) { c.fillStyle = SH_PAL[i % 8] + '30'; c.beginPath(); c.moveTo(128, 46); c.arc(128, 46, 64, i * Math.PI / 8, (i + 1) * Math.PI / 8); c.fill(); }
+    // floor-to-ceiling paint cubbies, a rolling ladder
+    px(c, 2, 8, 58, 74, '#3a2a22'); for (let r = 0; r < 5; r++) { px(c, 2, 8 + r * 14, 58, 2, '#5a4030'); for (let k = 0; k < 6; k++) { const col = SH_PAL[(k * 3 + r * 5) % 8], h = 8 + ((k + r) % 3), x = 5 + k * 9, y = 22 + r * 14 - h; px(c, x, y, 7, h, '#c9cfdc'); px(c, x, y + 2, 7, h - 4, col); px(c, x + 1, y - 1, 5, 1, '#8a93ab'); px(c, x + 1, y + 2, 1, h - 4, 'rgba(255,255,255,0.35)'); if ((k + r) % 4 === 0) shDrip(c, x + 3, y + h, 2 + (k % 3), 1, col); } }
+    c.strokeStyle = '#b8862e'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(44, 6); c.lineTo(54, 82); c.moveTo(52, 6); c.lineTo(62, 82); c.stroke(); for (let r = 0; r < 9; r++) px(c, 45 + r * 1.2, 12 + r * 8, 9, 1.2, '#d8a848'); c.lineWidth = 1;
+    // the tinting machine
+    px(c, 64, 30, 22, 52, '#2c3440'); px(c, 64, 30, 22, 2, '#4a5462');
+    for (let k = 0; k < 6; k++) { px(c, 65 + k * 3.4, 18 + (k % 2) * 3, 3, 13 - (k % 2) * 3, SH_PAL[k]); px(c, 65 + k * 3.4, 18 + (k % 2) * 3, 3, 2, 'rgba(255,255,255,0.4)'); }
+    px(c, 66, 38, 18, 9, '#0c1018'); mGlow(c, '#58e0a0', 5, () => { c.font = '700 4px monospace'; c.fillStyle = '#58e0a0'; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillText('MIX', 69, 44.5); px(c, 78, 41, 4, 3, '#ffb547'); });
+    px(c, 74, 50, 2, 10, '#c084fc');
+    // the sign, dripping
+    px(c, 84, 7, 88, 21, '#0a0a12'); c.strokeStyle = '#ff8fd8'; c.strokeRect(84.5, 7.5, 87, 20);
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+    mGlow(c, '#ff5e7a', 9, () => { c.font = 'italic 800 10px Georgia,serif'; c.fillStyle = '#ffd0e0'; c.fillText('Marta’s', 112, 19); });
+    mGlow(c, '#ffb547', 8, () => { c.font = '900 10px system-ui,sans-serif'; c.fillStyle = '#ffe9b8'; c.fillText('PAINT', 148, 19); });
+    c.font = '700 3.6px monospace'; c.fillStyle = '#8a93ab'; c.fillText('EST. 2091 · REOPENED · NO APEX', 128, 25.5); c.textAlign = 'left';
+    for (const [x, l, col] of [[92, 9, '#ff5e7a'], [104, 16, '#ffb547'], [118, 6, '#58e0a0'], [139, 13, '#4fd1ff'], [151, 20, '#c084fc'], [164, 8, '#ffe066']]) shDrip(c, x, 28, l, 2, col);
+    // the spray booth
+    const bx = 96, by = 32, bw = 64;
+    c.fillStyle = '#05060c'; c.beginPath(); c.roundRect(bx, by, bw, 52, [26, 26, 0, 0]); c.fill();
+    g = c.createLinearGradient(bx, 0, bx + bw, 0); g.addColorStop(0, '#ff5e7a'); g.addColorStop(0.5, '#c084fc'); g.addColorStop(1, '#4fd1ff');
+    c.save(); c.shadowColor = '#c084fc'; c.shadowBlur = 10; c.strokeStyle = g; c.lineWidth = 2; c.beginPath(); c.roundRect(bx + 1, by + 1, bw - 2, 52, [25, 25, 0, 0]); c.stroke(); c.restore();
+    shL(c, 112, 52, 22, '#ff5e7a', 0.55); shL(c, 146, 48, 22, '#4fd1ff', 0.55); shL(c, 128, 40, 18, '#c084fc', 0.5);
+    c.fillStyle = '#1a1e28'; c.beginPath(); c.ellipse(128, 80, 24, 5, 0, 0, Math.PI * 2); c.fill();
+    px(c, 98, 34, 2, 18, '#5a606c'); px(c, 98, 50, 8, 3, '#8a93ab'); px(c, 156, 34, 2, 18, '#5a606c'); px(c, 150, 50, 8, 3, '#8a93ab');
+    // the window: Mars at dusk, and the Apex tower, crossed out
+    const wx = 176, wy = 10, ww = 74, wh = 40;
+    g = c.createLinearGradient(0, wy, 0, wy + wh); g.addColorStop(0, '#3a1a3a'); g.addColorStop(0.55, '#c8503a'); g.addColorStop(1, '#ffb070'); c.fillStyle = g; c.fillRect(wx, wy, ww, wh);
+    c.fillStyle = '#fff2d0'; c.beginPath(); c.arc(wx + 18, wy + 26, 4, 0, Math.PI * 2); c.fill(); shL(c, wx + 18, wy + 26, 14, '#ffb070', 0.6);
+    px(c, wx, wy + 32, ww, 8, '#6a2a22'); for (let k = 0; k < 7; k++) px(c, wx + 4 + k * 10, wy + 26 + (k % 3) * 2, 6, 14 - (k % 3) * 2, '#3a1a22');
+    px(c, wx + 48, wy + 4, 10, 36, '#14101a'); px(c, wx + 50, wy + 2, 6, 2, '#14101a'); for (let k = 0; k < 6; k++) px(c, wx + 50 + (k % 2) * 4, wy + 8 + k * 5, 2, 1, '#ff3b3b88');
+    c.strokeStyle = '#ff5e7a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(wx + 44, wy + 6); c.lineTo(wx + 62, wy + 24); c.moveTo(wx + 62, wy + 6); c.lineTo(wx + 44, wy + 24); c.stroke(); c.lineWidth = 1;
+    for (let k = 1; k < 3; k++) px(c, wx, wy + k * 13.3, ww, 1, '#2a3440'); px(c, wx + 36, wy, 1, wh, '#2a3440');
+    c.strokeStyle = '#4a5462'; c.lineWidth = 2; c.strokeRect(wx, wy, ww, wh); c.lineWidth = 1;
+    c.font = '700 4px monospace'; c.fillStyle = '#ffffffcc'; c.fillText('WE PAINT.', wx + 4, wy + 8); c.fillText('THEY PEEL.', wx + 4, wy + 13);
+    // glossy floor, decades of splatter
+    g = c.createLinearGradient(0, 82, 0, H); g.addColorStop(0, '#3a3640'); g.addColorStop(1, '#1e1c24'); c.fillStyle = g; c.fillRect(0, 82, W, H - 82); px(c, 0, 82, W, 2, '#0c1018');
+    shL(c, 128, 96, 50, '#c084fc', 0.35); shL(c, 112, 92, 26, '#ff5e7a', 0.3); shL(c, 146, 92, 26, '#4fd1ff', 0.3);
+    for (let i = 0; i < 26; i++) { const col = SH_PAL[i % 8], x = (i * 47 + 13) % W, y = 90 + (i * 29) % 64, r = 1.5 + (i % 5); c.fillStyle = col + 'cc'; c.beginPath(); c.ellipse(x, y, r * 1.4, r * 0.55, 0, 0, Math.PI * 2); c.fill(); for (let s = 0; s < 3; s++) { c.beginPath(); c.arc(x + (s - 1) * r * 1.6, y + ((s * 7) % 3) - 1, 0.6, 0, Math.PI * 2); c.fill(); } }
+    SH_PAL.forEach((col, i) => { c.fillStyle = col; c.beginPath(); c.ellipse(34 + i * 1.5, 112 - i * 0.6, 18 - i * 1.8, 6 - i * 0.6, -0.2, 0, Math.PI * 2); c.fill(); });
+    px(c, 40, 104, 8, 6, '#c9cfdc'); px(c, 40, 106, 8, 2, '#ff5e7a');
+    for (let k = 0; k < 6; k++) px(c, 60 + k * 9, 120 + (k % 2) * 4, 3, 2, ['#ff5e7a', '#ffb547', '#58e0a0'][k % 3] + 'aa');
+    for (const lx of [40, 214]) { px(c, lx, 0, 1, 10, '#0c1018'); c.fillStyle = '#2a3440'; c.beginPath(); c.moveTo(lx - 5, 14); c.lineTo(lx + 6, 14); c.lineTo(lx + 3, 9); c.lineTo(lx - 2, 9); c.fill(); px(c, lx - 2, 14, 5, 1, '#fff4cc'); shCone(c, lx, 15, lx - 22, lx + 23, 100, 'rgba(255,230,170,0.22)'); }
+    px(c, 104, 152, 48, 8, '#2a3440'); doorPlate(c, 128, 150, 'STREET', true);
+  }
+  function mpaintDraw(t) {
+    const c = deck.c, W = 256, H = 160, me = deck.me;
+    camT(c, deck.view);
+    c.imageSmoothingEnabled = true; c.drawImage(shopCache('mpaint', paintBack), 0, 0, W, H); c.imageSmoothingEnabled = false;
+    // the booth, alive: drifting mist, a spinning lander (yours, in your paint), puffs from the guns
+    for (let k = 0; k < 40; k++) { const dy = reduceMotion ? 0 : ((t / 60 + k * 7) % 36); c.fillStyle = SH_PAL[k % 8] + '88'; c.fillRect(102 + (k * 23) % 52, 76 - dy, 1, 1); }
+    const sq = reduceMotion ? 1 : Math.cos(t / 1400);
+    c.save(); c.shadowColor = '#4fd1ff'; c.shadowBlur = 8; c.strokeStyle = '#7fe8ff'; c.lineWidth = 1; c.beginPath(); c.ellipse(128, 79, 22, 4, 0, 0, Math.PI * 2); c.stroke(); c.restore();
+    try { c.save(); c.translate(128, 62); c.scale(4.4 * (Math.abs(sq) * 0.75 + 0.25) * (sq < 0 ? -1 : 1), 4.4); paintLander(c, { firing: false, model: ship().id }, { hull: findItem('hull', equip.hull), flame: findItem('flame', equip.flame), flag: findItem('flag', equip.flag) }, t, 0.3); c.restore(); } catch (e) { c.restore(); }
+    const puff = reduceMotion ? 0.6 : (Math.sin(t / 500) + 1) / 2; shL(c, 110, 52, 9, '#ffb547', 0.4 + puff * 0.6); shL(c, 146, 52, 9, '#58e0a0', 1 - puff * 0.6);
+    // the mixer can (it shakes when you use it), the Apex light blinking
+    const shake = deck.mixShake && t < deck.mixShake ? Math.round(Math.sin(t / 25) * 1.5) : 0;
+    px(c, 69 + shake, 60, 12, 12, '#c9cfdc'); px(c, 69 + shake, 62, 12, 3, '#c084fc'); shL(c, 75, 56, 14, '#c084fc', shake ? 0.8 : 0.4);
+    if (Math.floor(t / 700) % 2) mGlow(c, '#ff3b3b', 6, () => px(c, 228, 11, 2, 2, '#ff3b3b'));
+    // neon flicker
+    if (!reduceMotion && Math.sin(t / 97) > 0.985) { c.fillStyle = 'rgba(10,10,18,0.55)'; c.fillRect(86, 9, 52, 13); }
+    // Marta, behind her counter
+    martaDraw(c, 213, 49, 1.15, t, (t % 4200) < 140); shL(c, 213, 58, 16, '#58e0a0', 0.18);
+    const g = c.createLinearGradient(0, 80, 0, 100); g.addColorStop(0, '#6a4a32'); g.addColorStop(1, '#3a2618'); c.fillStyle = g; c.fillRect(180, 82, 70, 18); px(c, 180, 80, 70, 3, '#ff8fd8');
+    for (let k = 0; k < 7; k++) shDrip(c, 184 + k * 10, 83, 2 + (k * 3) % 6, 1.5, SH_PAL[k]);
+    px(c, 232, 72, 12, 8, '#2a3440'); px(c, 234, 73, 8, 3, '#58e0a0');
+    for (let k = 0; k < 6; k++) { c.save(); c.translate(190, 80); c.rotate(-0.9 + k * 0.22); px(c, 0, -12, 3, 12, SH_PAL[k]); c.restore(); }
+    px(c, 196, 89, 46, 9, '#fff8d8'); c.font = '700 3px monospace'; c.fillStyle = '#2a2238'; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillText('NOT AFFILIATED WITH APEX.', 198, 93); c.fillText('OBVIOUSLY.', 198, 96.5); px(c, 217, 88, 4, 2, '#ffe06688');
+    const things = shipFloorThings(c, t);
+    things.push([me.y, () => { shShadow(c, me.x, me.y + 1, 6); drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t); }]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shVig(c, W, H, 0.5);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  function tailorBack(c) {
+    const W = 256, H = 160;
+    let g = c.createLinearGradient(0, 0, 0, 84); g.addColorStop(0, '#120a1e'); g.addColorStop(1, '#2e1a40'); c.fillStyle = g; c.fillRect(0, 0, W, 84);
+    c.strokeStyle = 'rgba(216,168,72,0.16)'; c.lineWidth = 0.6; for (let y = 14; y < 84; y += 10) for (let x = (y / 10 % 2) * 8; x < W; x += 16) for (let r = 2; r <= 8; r += 3) { c.beginPath(); c.arc(x, y, r, Math.PI, 0); c.stroke(); } c.lineWidth = 1;
+    px(c, 0, 0, W, 6, '#0a0612'); px(c, 0, 6, W, 2, '#d8a848'); px(c, 0, 9, W, 1, '#8a6a2a'); px(c, 0, 80, W, 4, '#d8a848'); px(c, 0, 79, W, 1, '#8a6a2a');
+    px(c, 127, 0, 2, 12, '#d8a848'); c.fillStyle = '#d8a848'; c.beginPath(); c.ellipse(128, 14, 16, 3, 0, 0, Math.PI * 2); c.fill();
+    for (let k = 0; k < 7; k++) px(c, 116 + k * 4, 15, 1, 4 + (k % 3) * 2, '#e8f4ff');
+    shL(c, 128, 16, 60, '#ffd88a', 0.35);
+    px(c, 84, 21, 88, 15, '#0a0612'); c.strokeStyle = '#d8a848'; c.strokeRect(84.5, 21.5, 87, 14);
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic'; mGlow(c, '#d8a848', 5, () => { c.font = 'italic 700 8px Georgia,serif'; c.fillStyle = '#ffe2a0'; c.fillText('Thread & Thruster', 128, 31.5); }); c.textAlign = 'left';
+    // a wall of thread
+    px(c, 4, 14, 40, 64, '#1a0e26'); c.strokeStyle = '#d8a848'; c.strokeRect(4.5, 14.5, 39, 63);
+    for (let r = 0; r < 7; r++) for (let k = 0; k < 6; k++) { const hue = (k * 50 + r * 18) % 360, x = 7 + k * 6, y = 17 + r * 8.8; px(c, x, y, 5, 1, '#c8a070'); px(c, x + 0.5, y + 1, 4, 5, `hsl(${hue} 80% 60%)`); px(c, x + 0.5, y + 1, 1, 5, 'rgba(255,255,255,0.35)'); px(c, x, y + 6, 5, 1, '#c8a070'); }
+    // the jacket rack
+    shCone(c, 72, 10, 50, 96, 80, 'rgba(255,220,150,0.18)');
+    px(c, 50, 38, 44, 2, '#d8a848'); px(c, 51, 40, 2, 40, '#8a6a2a'); px(c, 91, 40, 2, 40, '#8a6a2a'); px(c, 48, 78, 48, 2, '#8a6a2a');
+    [['#b8322a', '#ffd27a'], ['#8a6a46', '#c8a878'], ['#f4f4f8', '#d8202a'], ['#1a1a22', '#ff3b3b'], ['#3a6ab8', '#ffd27a'], ['#ffb547', '#1a1a22'], ['#58e0a0', '#0a3a2a']].forEach(([col, tr], k) => {
+      const x = 53 + k * 5.6; px(c, x + 2, 38, 1, 3, '#c9cfdc'); px(c, x, 41, 5, 22 + (k % 2) * 4, col); px(c, x + 2, 41, 1, 10, tr); px(c, x, 41, 5, 1, 'rgba(255,255,255,0.3)'); px(c, x + 4, 41, 1, 22, 'rgba(0,0,0,0.25)'); });
+    // the mirror frame
+    c.fillStyle = '#8a6a2a'; c.beginPath(); c.roundRect(101, 38, 38, 44, [19, 19, 2, 2]); c.fill(); c.fillStyle = '#d8a848'; c.beginPath(); c.roundRect(102, 39, 36, 42, [18, 18, 1, 1]); c.fill();
+    // THE VERY LARGE HAT, too big for its case
+    shCone(c, 172, 8, 150, 196, 80, 'rgba(255,229,138,0.35)');
+    px(c, 154, 44, 38, 30, 'rgba(191,230,255,0.10)'); c.strokeStyle = 'rgba(220,240,255,0.7)'; c.strokeRect(154.5, 44.5, 37, 29); px(c, 155, 45, 3, 28, 'rgba(255,255,255,0.18)');
+    px(c, 150, 74, 46, 8, '#1a0e26'); px(c, 150, 74, 46, 1, '#d8a848');
+    c.font = '700 3.4px monospace'; c.fillStyle = '#ffd27a'; c.textAlign = 'center'; c.fillText('THE VERY LARGE HAT', 173, 79); c.textAlign = 'left';
+    for (const x of [148, 198]) { px(c, x, 86, 2, 12, '#d8a848'); c.fillStyle = '#ffe2a0'; c.beginPath(); c.arc(x + 1, 86, 1.6, 0, Math.PI * 2); c.fill(); }
+    c.strokeStyle = '#b8222a'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(149, 88); c.quadraticCurveTo(173, 98, 199, 88); c.stroke(); c.lineWidth = 1;
+    // the fitting curtain, the mannequin in the racing suit
+    px(c, 222, 10, 32, 3, '#d8a848'); for (let k = 0; k < 8; k++) { g = c.createLinearGradient(222 + k * 4, 0, 226 + k * 4, 0); g.addColorStop(0, '#5a1438'); g.addColorStop(0.5, '#9a2a5a'); g.addColorStop(1, '#4a1030'); c.fillStyle = g; c.fillRect(222 + k * 4, 13, 4, 68); }
+    px(c, 222, 46, 32, 2, '#d8a848'); c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(224, 50, 2, 0, Math.PI * 2); c.fill();
+    mGlow(c, '#c084fc', 5, () => { c.font = '700 4px monospace'; c.fillStyle = '#e6d4ff'; c.fillText('FITTING', 226, 20); });
+    shShadow(c, 206, 80, 6); drawSprite(c, { skin: '#c9cfdc', hair: '#c9cfdc', style: 'buzz', top: '#ffb547', pants: '#1a1a22', shoes: '#15151f', trim: '#ff3b3b', dots: '#f4f4f8' }, 198, 56, 0, 0, false); px(c, 201, 62, 10, 2, '#fff'); px(c, 203, 62, 2, 2, '#1a1a22'); px(c, 207, 62, 2, 2, '#1a1a22');
+    // marble checks and a long red runner
+    for (let y = 84, r = 0; y < H; y += 8, r++) for (let x = -8 + (r % 2) * 8; x < W; x += 16) { px(c, x, y, 8, 8, '#e8e0f0'); px(c, x + 8, y, 8, 8, '#1a1424'); }
+    c.fillStyle = 'rgba(30,10,40,0.45)'; c.fillRect(0, 84, W, H - 84);
+    g = c.createLinearGradient(0, 84, 0, 110); g.addColorStop(0, 'rgba(255,210,140,0.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 84, W, 26);
+    px(c, 30, 98, 196, 44, '#7a1424'); px(c, 30, 98, 196, 2, '#d8a848'); px(c, 30, 140, 196, 2, '#d8a848'); for (let x = 36; x < 222; x += 12) { c.fillStyle = 'rgba(216,168,72,0.25)'; c.beginPath(); c.moveTo(x, 120); c.lineTo(x + 6, 114); c.lineTo(x + 12, 120); c.lineTo(x + 6, 126); c.fill(); }
+    shL(c, 72, 92, 30, '#ffdca0', 0.25); shL(c, 173, 92, 34, '#ffe58a', 0.3);
+    px(c, 104, 152, 48, 8, '#1a0e26'); doorPlate(c, 128, 150, 'STREET', true);
+  }
+  function bigHatDraw(c, t) {
+    const bob = reduceMotion ? 0 : Math.sin(t / 900) * 1.2;
+    c.save(); c.translate(0, bob);
+    c.fillStyle = '#6a2a4a'; c.beginPath(); c.ellipse(173, 60, 30, 5, -0.05, 0, Math.PI * 2); c.fill(); c.fillStyle = '#4a1a34'; c.beginPath(); c.ellipse(173, 61, 30, 4, -0.05, 0, Math.PI); c.fill();
+    c.fillStyle = '#6a2a4a'; c.beginPath(); c.moveTo(160, 59); c.quadraticCurveTo(158, 28, 173, 24); c.quadraticCurveTo(188, 28, 186, 59); c.fill(); px(c, 160, 52, 26, 4, '#ffd27a'); px(c, 170, 51, 6, 6, '#ff5e7a');
+    c.fillStyle = '#ff8fd8'; c.beginPath(); c.ellipse(186, 30, 3, 13, 0.5, 0, Math.PI * 2); c.fill(); c.strokeStyle = '#ffd0ec'; c.lineWidth = 1; c.beginPath(); c.moveTo(181, 40); c.quadraticCurveTo(188, 30, 192, 19); c.stroke();
+    c.restore();
+    [[148, 40], [198, 46], [176, 18], [152, 66], [194, 64], [164, 34]].forEach(([x, y], i) => { const a = reduceMotion ? 1 : (Math.sin(t / 300 + i * 1.7) + 1) / 2; if (a < 0.3) return; c.save(); c.globalAlpha = a; mGlow(c, '#fff4cc', 5, () => { px(c, x, y - 1.5, 1, 4, '#fff4cc'); px(c, x - 1.5, y, 4, 1, '#fff4cc'); }); c.restore(); });
+  }
+  function mtailorDraw(t) {
+    const c = deck.c, W = 256, H = 160, me = deck.me;
+    camT(c, deck.view);
+    c.imageSmoothingEnabled = true; c.drawImage(shopCache('mtailor', tailorBack), 0, 0, W, H); c.imageSmoothingEnabled = false;
+    // the chandelier's candles
+    for (let k = 0; k < 7; k++) { const a = reduceMotion ? 1 : 0.7 + 0.3 * Math.sin(t / 180 + k * 2.1); c.save(); c.globalAlpha = a; mGlow(c, '#fff4cc', 6, () => px(c, 115.5 + k * 4, 11, 2, 3, '#fff4cc')); c.restore(); }
+    // the mirror shows you, in whatever you're wearing
+    const g = c.createLinearGradient(104, 41, 136, 80); g.addColorStop(0, '#c8dcf0'); g.addColorStop(1, '#6a88a8'); c.fillStyle = g; c.beginPath(); c.roundRect(105, 42, 30, 38, [15, 15, 1, 1]); c.fill();
+    c.save(); c.beginPath(); c.roundRect(105, 42, 30, 38, [15, 15, 1, 1]); c.clip();
+    const near = Math.abs(me.x - 120) < 40, mdir = near ? (me.dir === 3 ? 0 : me.dir === 0 ? 3 : me.dir) : 0;
+    drawSprite(c, pilotLook(), 112, 54, mdir, me.moving && near ? Math.floor(t / 130) % 4 : 0, false);
+    c.fillStyle = 'rgba(255,255,255,0.3)'; c.beginPath(); c.moveTo(108, 80); c.lineTo(114, 42); c.lineTo(118, 42); c.lineTo(112, 80); c.fill(); c.restore();
+    bigHatDraw(c, t);
+    const things = shipFloorThings(c, t);
+    things.push([120, () => thimbleDraw(c, 76, 120, t)]);
+    things.push([me.y, () => { shShadow(c, me.x, me.y + 1, 6); drawPerson(c, 'P', me.x - 8, me.y - 24, me.dir, me.moving ? Math.floor(t / 130) % 4 : 0, t); }]);
+    things.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());
+    shVig(c, W, H, 0.5);
+    shipTapRing(c, t);
+    c.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  // ---- things to walk up to ----
+  const martaSay = text => shipSay('MA', text);
+  function mpaintThings(L) {
+    L.push({ id: 'marta', rect: [180, 36, 70, 64], go: () => [214, 104], at: () => ({ x: 214, y: 40 }), act: () => { sfx.click(); openPaint(); } });
+    L.push({ id: 'booth', rect: [96, 32, 64, 52], go: () => [128, 104], at: () => ({ x: 128, y: 34 }), act: () => { sfx.click(); openPaint('mix'); } });
+    L.push({ id: 'mixer', rect: [62, 16, 24, 66], go: () => [74, 104], at: () => ({ x: 74, y: 20 }), act: () => { sfx.click(); deck.mixShake = performance.now() + 1400; martaSay(['Don’t touch the mixer. You touched the mixer. Now it has to finish. Twelve minutes. Stand there and think about it.', 'That machine is older than your planet’s oldest building. Treat it like a grandmother. A loud one.', 'It shakes because it’s happy. I don’t shake. I am never happy.'][Math.floor(Math.random() * 3)]); } });
+    L.push({ id: 'shelves', rect: [2, 8, 58, 74], go: () => [32, 104], at: () => ({ x: 30, y: 12 }), act: () => martaSay(['Three thousand colours. I have named every one. That one is “Tuesday”. That one is “Rex’s Ego”. It is the biggest can.', 'Top shelf is pigment from the old mines. Before Apex. You cannot buy it anywhere else. You cannot buy it here either. It is mine.'][Math.floor(Math.random() * 2)]) });
+    L.push({ id: 'window', rect: [176, 8, 74, 26], go: () => [214, 104], at: () => ({ x: 214, y: 12 }), act: () => martaSay('That tower used to be a field. My mother grew moss on it. Apex bought the field, then the street, then my name. I painted the X on the glass myself. Twice. They keep cleaning it.') });
+    L.push({ id: 'puddle', rect: [12, 104, 46, 16], go: () => [36, 124], at: () => ({ x: 36, y: 104 }), act: () => shipSay(withMe('G') ? 'G' : 'P', withMe('G') ? 'Somebody knocked over a whole shelf and she just… left it? It’s beautiful. It’s ART. Can I lie in it? I’m going to lie in it.' : 'A rainbow puddle, years old and perfectly dry. Marta says it’s “load-bearing”. You don’t ask.') });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'mpaint'; setMode('mmain'); } });
+  }
+  function mtailorThings(L) {
+    L.push({ id: 'thimble', rect: [60, 64, 32, 58], go: () => [98, 124], at: () => ({ x: 76, y: 66 }), act: () => { sfx.click(); openTailor(); } });
+    L.push({ id: 'mirror', rect: [100, 38, 40, 44], go: () => [120, 104], at: () => ({ x: 120, y: 40 }), act: () => { sfx.click(); openTailor(); } });
+    L.push({ id: 'bighat', rect: [146, 16, 54, 66], go: () => [173, 104], at: () => ({ x: 173, y: 20 }), act: () => { sfx.click(); tailorUI.sel = 'bighat'; openTailor(lic.hat === 'bighat' ? 'You are wearing it. It is also still in the case. Do not ask how. The Hat has a twin. The Hat has many twins.' : 'You have noticed The Hat. Everyone notices The Hat. In the mirror now: you, in The Hat. Breathe.'); } });
+    L.push({ id: 'rack', rect: [48, 34, 48, 30], go: () => [72, 104], at: () => ({ x: 72, y: 36 }), act: () => { sfx.click(); openTailor(); } });
+    L.push({ id: 'spools', rect: [4, 14, 40, 64], go: () => [24, 104], at: () => ({ x: 24, y: 18 }), act: () => shipSay('TB', 'Four hundred and twelve colours of thread. I have measured each one. They are all the same length. I checked again this morning. Still the same length. A relief.') });
+    L.push({ id: 'curtain', rect: [222, 10, 32, 72], go: () => [236, 104], at: () => ({ x: 236, y: 14 }), act: () => shipSay('TB', ['The fitting room is occupied. By me. I like it in there. It is quiet. Please do not look behind the curtain.', 'Do not open the curtain. Not because of anything. There is nothing in there. Except my other arms.'][Math.floor(Math.random() * 2)]) });
+    L.push({ id: 'mannequin', rect: [196, 46, 22, 36], go: () => [206, 104], at: () => ({ x: 206, y: 48 }), act: () => shipSay('TB', shopRaceWon() ? 'Gerald is wearing the Speedway suit. You have won a race. You may take it off him. Gently. He has been through a lot.' : 'That is Gerald. He is wearing the Speedway suit. I only sell it to pilots who have won a race at the Speedway. Gerald has not won a race. Gerald does not have a pilot’s licence. Gerald has a lot of opinions.') });
+    L.push({ id: 'out', rect: [104, 140, 48, 20], go: () => [128, 150], at: () => ({ x: 128, y: 160 }), act: () => { sfx.click(); walkEnter = 'mtailor'; setMode('mmain'); } });
+  }
+
+  // ---- what the crew say about your new things ----
+  const SHOP_REACT = {
+    G: ['I’m not crying. You’re crying. It’s the fumes. It’s ALWAYS the fumes.', 'That’s my favourite thing you’ve ever bought. I said that last time. I meant it both times.'],
+    R: ['Darling. Yes. YES. I have never been more jealous of anyone in my life.', 'Finally, someone on this crew with taste. Besides me. Mostly me.'],
+    F: ['Very nice. It’s coming out of the fuel budget, isn’t it. Of course it is.', 'You look like a pilot. A rich one. Who is not paying for my coffee.'],
+    W: ['Looks good, kid. Wear it into a storm. That’s how you break it in.', 'I had one like that. Lost it on Neptune. Long story. Shorter than it sounds.'],
+    J: ['Marta’s the real thing. Mars was built by people like her. Apex just bought the receipts.', 'Good. Spend your money on this street, not on Apex Row.'],
+    Z: ['Zib loves it! Zib wants one! Zib has no credits, only spoons! Zib offers a spoon!', 'Shiny! Zib glows a little in approval. See? Zib is glowing.'],
+    O: ['It suits you, little pilot. The moths would follow you anywhere in that.', 'Beautiful. Like a lantern in the right window.'],
+    X: ['Nice. Very legit. You paid full price? Who pays full price.', 'Looks hot. Not stolen-hot. The other kind.'],
+    V: ['Most diplomatic. I shall request one for the embassy. Lyra will refuse.', 'Lyra says it is “a lot”. That is a compliment from Lyra.'] };
+  const shopReact = () => { const w = shoreParty.find(x => SHOP_REACT[x] && withMe(x)); return w ? [w, SHOP_REACT[w][Math.floor(Math.random() * SHOP_REACT[w].length)]] : null; };
+  const BIGHAT_LINES = {
+    G: 'Is that… The Hat? You BOUGHT The Hat? I can’t see you. Are you in there?', R: 'Darling, I love it. I hate it. I love it. Please stand somewhere else in photos.', F: 'Take that off before you walk into the Bridge. It won’t fit through the door. I measured.', W: 'That’s a sail, not a hat. Don’t stand near an airlock.',
+    J: 'There’s a dust storm warning and you’re wearing a parachute.', Z: 'Zib can see the hat from orbit! Zib checked!', O: 'My moths are nesting in your hat, little pilot. They seem happy.', X: 'Want to sell it? I know a guy. The guy is me.', V: 'An envoy’s hat. Lyra says it is “a statement”. She did not say which statement.' };
+
+  // ---- Marta's counter ----
+  const PAINT_STOCK = [['hull', 'olympus'], ['hull', 'dustdevil'], ['hull', 'twomoons'], ['flame', 'rustflame']];
+  const MIX_COLS = ['#8a1e14', '#c0392b', '#ff6b5e', '#ff8fb8', '#ffb547', '#ffe58a', '#d8a848', '#58e0a0', '#3d6b63', '#7fd6ff', '#3a6ab8', '#26355e', '#c8a2ff', '#6a3a8a', '#f4f4f8', '#8a93ab', '#2a2a33', '#5a3a24'];
+  const MIX_PARTS = [['fill', 'Body'], ['stroke', 'Trim'], ['legs', 'Legs'], ['detail', 'Details']];
+  let paintUI = { mix: null };
+  const paintDisc = () => marsHeat() >= 2;
+  const paintPrice = p => paintDisc() ? Math.round(p * 0.8 / 10) * 10 : p;
+  function openPaint(view, msg) {
+    let el = $('paintCard');
+    if (!el) { el = document.createElement('div'); el.id = 'paintCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Marta’s Paint'); document.body.appendChild(el); }
+    if (view === 'mix') return openMix(el, msg);
+    const disc = paintDisc();
+    el.innerHTML = `<div class="qnew-card zstall paint">${faceTag('MA', '')}<span class="eyebrow">Marta’s Paint · Main Street</span><b>Marta</b>
+      <p class="zsay" aria-live="polite">${esc(msg || ['Mars paint. Real Mars paint. Not the Apex stuff that peels off in the first dust storm. Pick something. I am not getting younger. I am a hundred and forty.', 'You again. Good. Biscuit looks tired. Let me fix that.', 'Everything here is mixed by hand. These hands. All four.'][Math.floor(Math.random() * 3)])}</p>
+      ${disc ? '<p class="zhave" style="color:#ff8fd8">Apex is after you. Twenty percent off. Anyone they hate is a friend.</p>' : ''}
+      <div class="ztrades">${PAINT_STOCK.map(([k, id]) => { const it = findItem(k, id), own = owned.has(k + ':' + id), on = equip[k] === id, p = paintPrice(it.price);
+        return `<button class="ztrade" data-pt="${k}:${id}"${on || (!own && credits < p) ? ' disabled' : ''}><span>${esc(it.name)}${k === 'flame' ? ' · engine flame' : ''}<br><small>${on ? 'On your lander now' : own ? 'Owned · tap to put it on' : esc(it.blurb.split('.')[0])}</small><i class="psw" style="background:${it.swatch}"></i></span><i aria-hidden="true">·</i><b>${on ? '✓' : own ? 'Wear' : `${fmt(p)} cr`}</b></button>`; }).join('')}
+        <button class="ztrade mixgo" data-pt="mix"><span>Mix your own<br><small>Pick every colour. Name it. One of a kind.</small><i class="psw" style="background:linear-gradient(90deg,#ff5e7a,#ffb547,#ffe066,#58e0a0,#4fd1ff,#c084fc)"></i></span><i aria-hidden="true">·</i><b>${owned.has('hull:marta') ? `${fmt(paintPrice(200))} cr` : `${fmt(paintPrice(1500))} cr`}</b></button></div>
+      <p class="zhave">You have ${fmt(credits)} cr · bought paint is in your hangar</p>
+      <div class="btns"><button class="btn ghost" id="ptBye">Thanks, Marta</button></div></div>`;
+    paintFaces(el); el.hidden = false;
+    el.querySelectorAll('[data-pt]').forEach(b => b.addEventListener('click', () => {
+      const v = b.dataset.pt; if (v === 'mix') { sfx.click(); openMix(el); return; }
+      const [k, id] = v.split(':'), it = findItem(k, id), key = k + ':' + id;
+      if (owned.has(key)) { equip[k] = id; saveCosmetics(); sfx.click(); openPaint(null, `There. ${it.name}. ${k === 'flame' ? 'Burns right now.' : 'Better.'}`); return; }
+      const p = paintPrice(it.price); if (credits < p) return;
+      credits -= p; owned.add(key); equip[k] = id; saveCosmetics(); sfx.coin(); confetti(40);
+      if (deck) deck.mixShake = performance.now() + 1600;
+      const r = shopReact();
+      openPaint(null, ({ olympus: 'Olympus Red. The only real red. Apex will see you coming from orbit. Good. Let them look.', dustdevil: 'Dust Devil. I mixed it in a storm with the window open. Do not ask about my lungs. I have six.', twomoons: 'Two Moons. Phobos and Deimos. My mother named me after neither. She was a practical woman.', rustflame: 'Rust Flame. There is real rust in it. Real Mars. Your engine will cough twice and then love it.' }[id]) + (r ? ` · ${SIGN[r[0]]}: “${r[1]}”` : ''));
+    }));
+    $('ptBye').addEventListener('click', () => { sfx.click(); el.hidden = true; });
+  }
+  function openMix(el, msg) {
+    if (!paintUI.mix) { let m = null; try { m = JSON.parse(store.get('ds-martaMix', 'null')); } catch (e) {} const h = findItem('hull', equip.hull); paintUI.mix = m || { fill: h.fill, stroke: h.stroke, legs: h.legs, detail: h.detail, name: 'Marta Original' }; }
+    const m = paintUI.mix, again = owned.has('hull:marta'), cost = paintPrice(again ? 200 : 1500), nm = (ship() || {}).name || 'Biscuit';
+    el.innerHTML = `<div class="qnew-card zstall paint"><span class="eyebrow">Marta’s mixer · a one-of-a-kind paint job</span><b>Mix your own</b>
+      <canvas id="mixCv" class="mixcv" width="480" height="240" aria-label="Your lander on Marta’s turntable, in the colours you pick"></canvas>
+      ${MIX_PARTS.map(([p, label]) => `<div class="mixrow"><span>${label}</span><div>${MIX_COLS.map(col => `<button class="mixsw" data-mix="${p}" data-col="${col}" style="background:${col}" aria-label="${label} ${col}" aria-pressed="${m[p] === col}"></button>`).join('')}</div></div>`).join('')}
+      <input class="mixname" id="mixName" maxlength="20" value="${esc(m.name || 'Marta Original')}" aria-label="Name your paint job">
+      <p class="zsay" aria-live="polite">${esc(msg || (again ? 'Back for a remix. Two hundred. Mixing is cheap. Opinions cost extra.' : 'Pick. Body, trim, legs, the little bits. I will tell you if it is ugly. I will not lie. I have never lied. I have been rude.'))}</p>
+      <div class="btns"><button class="btn" id="mixGo"${credits < cost ? ' disabled' : ''}>${credits < cost ? `Need ${fmt(cost - credits)} more cr` : `Paint ${esc(nm)} · ${fmt(cost)} cr`}</button><button class="btn ghost" id="mixRand">Surprise me</button></div>
+      <div class="btns"><button class="btn ghost" id="mixBack">Back to the counter</button></div></div>`;
+    el.hidden = false;
+    const cv = $('mixCv'), loop = () => {
+      if (el.hidden || !document.body.contains(cv)) return;
+      const c = cv.getContext('2d'), t = performance.now(); c.setTransform(4, 0, 0, 4, 0, 0); c.imageSmoothingEnabled = false;
+      const g = c.createLinearGradient(0, 0, 0, 60); g.addColorStop(0, '#22232e'); g.addColorStop(1, '#0e0f16'); c.fillStyle = g; c.fillRect(0, 0, 120, 60);
+      shL(c, 60, 30, 46, '#c084fc', 0.3); shL(c, 28, 34, 28, '#ff5e7a', 0.3); shL(c, 92, 26, 28, '#4fd1ff', 0.3);
+      for (let k = 0; k < 40; k++) { const dy = reduceMotion ? 0 : ((t / 70 + k * 9) % 50); c.fillStyle = SH_PAL[k % 8] + '88'; c.fillRect((k * 37) % 120, 52 - dy, 0.7, 0.7); }
+      c.fillStyle = '#3a3e48'; c.beginPath(); c.ellipse(60, 52, 30, 5, 0, 0, Math.PI * 2); c.fill();
+      c.save(); c.shadowColor = '#4fd1ff'; c.shadowBlur = 8; c.strokeStyle = '#7fe8ff'; c.lineWidth = 0.6; c.beginPath(); c.ellipse(60, 51, 28, 4, 0, 0, Math.PI * 2); c.stroke(); c.restore();
+      const sq = reduceMotion ? 1 : Math.cos(t / 1300), hull = { ...findItem('hull', 'marta'), fill: m.fill, stroke: m.stroke, legs: m.legs, detail: m.detail };
+      try { c.save(); c.translate(60, 30); c.scale(6 * (Math.abs(sq) * 0.75 + 0.25) * (sq < 0 ? -1 : 1), 6); paintLander(c, { firing: Math.floor(t / 1800) % 3 === 0, model: ship().id }, { hull, flame: findItem('flame', equip.flame), flag: findItem('flag', equip.flag) }, t, 0.3); c.restore(); } catch (e) { c.restore(); }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    const keepName = () => { const n = $('mixName'); if (n) m.name = n.value.trim().slice(0, 20) || 'Marta Original'; };
+    el.querySelectorAll('[data-mix]').forEach(b => b.addEventListener('click', () => { keepName(); m[b.dataset.mix] = b.dataset.col; sfx.click(); openMix(el, ['Hm.', 'Bold.', 'I have seen worse. On Apex landers.', 'Yes. That one.', 'Brave.', 'Fine. Fine. It is fine.'][Math.floor(Math.random() * 6)]); }));
+    $('mixRand').addEventListener('click', () => { keepName(); for (const [p] of MIX_PARTS) m[p] = MIX_COLS[Math.floor(Math.random() * MIX_COLS.length)]; sfx.click(); openMix(el, ['The machine chose. Do not blame me. Blame the machine.', 'Random. Like life on Mars. Like the drones.', 'Ugh. I love it. Do not tell anyone.'][Math.floor(Math.random() * 3)]); });
+    $('mixBack').addEventListener('click', () => { keepName(); sfx.click(); openPaint(); });
+    $('mixGo').addEventListener('click', () => {
+      keepName(); const first = !owned.has('hull:marta'), c2 = paintPrice(first ? 1500 : 200); if (credits < c2) return;
+      credits -= c2; store.set('ds-martaMix', JSON.stringify(m)); martaMixApply(); owned.add('hull:marta'); equip.hull = 'marta'; saveCosmetics(); sfx.coin();
+      if (deck) deck.mixShake = performance.now() + 2400;
+      const r = shopReact();
+      if (first) { el.hidden = true; celebrate('Marta Original', m.name, 'Your own paint job. It’s in the hangar, and on your lander now.', 'MA', 'There is exactly one of these in the universe. Try not to crash it. If you crash it, crash it beautifully.', { n: 120 }); }
+      else { confetti(50); openMix(el, `${m.name}. Done. Still wet. Do not touch it for nine seconds.` + (r ? ` · ${SIGN[r[0]]}: “${r[1]}”` : '')); }
+    });
+  }
+
+  // ---- Thimble's mirror ----
+  let tailorUI = { sel: null };
+  const TAILOR_IDS = [['outfit', 'marsjacket'], ['outfit', 'duster'], ['outfit', 'racesuit'], ['outfit', 'whitesuit'], ['hat', 'cowboy'], ['hat', 'racehelm'], ['hat', 'bighat']];
+  const tailorItem = id => OUTFITS.find(o => o.id === id) || HATS.find(h => h.id === id);
+  const tailorKind = id => OUTFITS.some(o => o.id === id) ? 'outfit' : 'hat';
+  function openTailor(msg) {
+    let el = $('tailorCard');
+    if (!el) { el = document.createElement('div'); el.id = 'tailorCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Thread & Thruster'); document.body.appendChild(el); }
+    const sel = tailorUI.sel, it = sel && tailorItem(sel), kind = sel && tailorKind(sel), own = sel && wardOwned.has(sel), wearing = sel && (kind === 'outfit' ? lic.outfit === sel : lic.hat === sel), locked = it && it.needRace && !shopRaceWon() && !own;
+    let btn = '';
+    if (!it) btn = '';
+    else if (wearing) btn = `<button class="btn ghost" id="tlOff">Take it off</button>`;
+    else if (own) btn = `<button class="btn" id="tlWear">Wear it</button>`;
+    else if (locked) btn = `<button class="btn" disabled>Win a Speedway race first</button>`;
+    else btn = `<button class="btn" id="tlBuy"${credits < it.price ? ' disabled' : ''}>${credits < it.price ? `Need ${fmt(it.price - credits)} more cr` : `Buy · ${fmt(it.price)} cr`}</button>`;
+    el.innerHTML = `<div class="qnew-card zstall tailor">${faceTag('TB', '')}<span class="eyebrow">Thread &amp; Thruster · Main Street</span><b>Thimble</b>
+      <p class="zsay" aria-live="polite">${esc(msg || (it ? it.blurb : ['Welcome. I have measured you. I measured you from the street. You are a size “pilot”. Try on anything. The mirror does not judge. I judge.', 'Back again. You have grown one millimetre. I noticed. I notice everything.', 'Tap a thing to try it on. The mirror is very honest. It was made by Apex. It hates them too.'][Math.floor(Math.random() * 3)]))}</p>
+      <canvas id="tlMirror" class="mirrorcv" width="120" height="144" aria-label="The mirror: you${it ? ', in ' + esc(it.name) : ''}"></canvas>
+      ${it ? `<div class="btns">${btn}<button class="btn ghost" id="tlPut">Put it back</button></div>` : ''}
+      <div class="ztrades">${TAILOR_IDS.map(([k, id]) => { const x = tailorItem(id), o = wardOwned.has(id), w = k === 'outfit' ? lic.outfit === id : lic.hat === id, lk = x.needRace && !shopRaceWon() && !o;
+        return `<button class="ztrade${sel === id ? ' on' : ''}" data-tl="${id}" aria-pressed="${sel === id}"><span>${esc(x.name)}<br><small>${w ? 'Wearing' : o ? 'Owned' : lk ? 'Win a Speedway race first' : k === 'hat' ? 'Hat' : 'Outfit'}</small></span><i aria-hidden="true">·</i><b>${w ? '✓' : o ? 'Yours' : `${fmt(x.price)} cr`}</b></button>`; }).join('')}</div>
+      <p class="zhave">You have ${fmt(credits)} cr · everything you buy is in your wardrobe too</p>
+      <div class="btns"><button class="btn ghost" id="tlBye">Thank you, Thimble</button></div></div>`;
+    paintFaces(el); el.hidden = false;
+    const cv = $('tlMirror'), loop = () => {
+      if (el.hidden || !document.body.contains(cv)) return;
+      const c = cv.getContext('2d'), t = performance.now(); c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false;
+      const g = c.createLinearGradient(0, 0, 120, 144); g.addColorStop(0, '#d8e8f8'); g.addColorStop(1, '#5a7898'); c.fillStyle = g; c.fillRect(0, 0, 120, 144);
+      c.fillStyle = '#7a1424'; c.fillRect(0, 116, 120, 28); c.fillStyle = '#d8a848'; c.fillRect(0, 116, 120, 2);
+      c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(60, 120, 22, 5, 0, 0, Math.PI * 2); c.fill();
+      const L = { ...lic }; if (it) { if (kind === 'outfit') L.outfit = sel; else L.hat = sel; }
+      const big = L.hat === 'bighat', k = big ? 3 : 4; c.setTransform(k, 0, 0, k, 0, 0); const dir = reduceMotion ? 0 : [0, 2, 3, 1][Math.floor(t / 1400) % 4];
+      drawSprite(c, lookFor(L), 120 / k / 2 - 8, big ? 19 : 6, dir, 0, false);
+      c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(255,255,255,0.22)'; c.beginPath(); c.moveTo(10, 144); c.lineTo(34, 0); c.lineTo(48, 0); c.lineTo(24, 144); c.fill();
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    el.querySelectorAll('[data-tl]').forEach(b => b.addEventListener('click', () => { const id = b.dataset.tl; tailorUI.sel = tailorUI.sel === id ? null : id; sfx.click(); openTailor(); const again = el.querySelector(`[data-tl="${id}"]`); if (again) again.focus({ preventScroll: true }); }));
+    const put = $('tlPut'); if (put) put.addEventListener('click', () => { tailorUI.sel = null; sfx.click(); openTailor('Back on the rack. Folded. Perfectly. I folded it while you were looking away.'); });
+    const wear = $('tlWear'); if (wear) wear.addEventListener('click', () => { if (kind === 'outfit') lic.outfit = sel; else lic.hat = sel; saveLic(); sfx.click(); openTailor('Correct. Very correct.'); });
+    const off = $('tlOff'); if (off) off.addEventListener('click', () => { if (kind === 'outfit') lic.outfit = null; else lic.hat = 'none'; saveLic(); sfx.click(); openTailor('Removed. It will miss you. It told me.'); });
+    const buy = $('tlBuy'); if (buy) buy.addEventListener('click', () => {
+      if (!it || credits < it.price || locked) return;
+      credits -= it.price; saveCosmetics(); wardOwned.add(sel); saveWard(); if (kind === 'outfit') lic.outfit = sel; else lic.hat = sel; saveLic(); sfx.coin(); confetti(sel === 'bighat' ? 120 : 40);
+      const r = sel === 'bighat' ? (shoreParty.find(w => BIGHAT_LINES[w] && withMe(w)) ? (w => [w, BIGHAT_LINES[w]])(shoreParty.find(w => BIGHAT_LINES[w] && withMe(w))) : null) : shopReact();
+      tailorUI.sel = null;
+      openTailor(({ marsjacket: 'The jacket. I have sewn on a patch for every world you have landed on. I will sew more. I am always sewing.', duster: 'It flaps. Even in here. There is no wind in here. I have stopped asking.', racesuit: 'Gerald will be cold now. Gerald will survive. Gerald always survives.', whitesuit: 'You look like Apex. You smell like Marta’s paint. Agent Pell will be very confused. Enjoy it.', cowboy: 'Yee. And also, haw.', racehelm: 'Visor up. Faces are important. I do not have one. I would know.', bighat: 'You have done it. The Hat has chosen. I am… I am proud. I did not know I could be proud. Please mind the door frame.' }[sel]) + (r ? ` · ${SIGN[r[0]]}: “${r[1]}”` : ''));
+      if (wardOwned.size === 1 || sel === 'bighat') try { if (sel === 'bighat') celebrate('Thread & Thruster', 'The Very Large Hat', 'It is very large. The crew will comment. Forever.', 'TB', 'The Hat chose you. Bend your knees in doorways.', { n: 140 }); } catch (e) {}
+    });
+    $('tlBye').addEventListener('click', () => { tailorUI.sel = null; sfx.click(); el.hidden = true; });
+  }
+
+  // ---- hellos, and the crew forever commenting on The Hat ----
+  function shopHello(kind) {
+    if (lic.hat === 'bighat' && SHORE_KINDS.includes(kind) && Math.random() < 0.35) { const w = shoreParty.find(x => BIGHAT_LINES[x] && withMe(x)); if (w) setTimeout(() => { if (deck && deck.kind === kind) shipSay(w, ['About the hat. ', 'Still the hat. ', ''][Math.floor(Math.random() * 3)] + BIGHAT_LINES[w]); }, 2600); }
+    if (kind !== 'mpaint' && kind !== 'mtailor') return false;
+    const first = store.get('ds-hello-' + kind, '') !== '1'; store.set('ds-hello-' + kind, '1');
+    if (kind === 'mpaint') {
+      martaSay(first ? 'Apex took my shop. Then my name. Put it on their paint! Their paint peels, by the way. I have mixed colour on this street since before your grandmother was born. They didn’t take my hands. All four of them. Come to the counter.' : ['Back. Good. Your lander looks sad. Come here.', 'You are dripping on my floor. No. You are not. I am joking. I do not joke. Come to the counter.', 'Close the door. The dust gets in the white.'][Math.floor(Math.random() * 3)]);
+      if (first && withMe('G')) setTimeout(() => { if (deck && deck.kind === 'mpaint') shipSay('G', 'She has FOUR ARMS and she paints with ALL OF THEM. I’m going to cry. I’m crying. Is that a colour wheel on the wall? I’m crying more.'); }, 5200);
+      else if (first && withMe('J')) setTimeout(() => { if (deck && deck.kind === 'mpaint') shipSay('J', 'Marta. She painted the first dome on this street. Apex sued her for her own name and won. She opened again the next morning.'); }, 5200);
+    } else {
+      shipSay('TB', first ? 'Welcome to Thread & Thruster. I have measured you. I measured you from the street. You are a size “pilot”. Please, try on everything. Except The Hat. The Hat chooses you.' : ['Welcome back. You are the same size. I checked from the door.', 'Ah. The pilot. I have made you nothing new. I have thought about it a lot.', 'Please do not touch Gerald. Gerald is resting.'][Math.floor(Math.random() * 3)]);
+      if (first && withMe('R')) setTimeout(() => { if (deck && deck.kind === 'mtailor') shipSay('R', 'Thimble! Darling! Thimble made my premiere suit. And the one after that. And the one I wore to the trial. We don’t talk about the trial.'); }, 5200);
+    }
+    return true;
+  }
   function shoreHello(kind) {
     if (deck.scene) return;
+    if (shopHello(kind)) return;
     if (kind === 'malley') { const first = store.get('ds-alleyHello', '') !== '1'; store.set('ds-alleyHello', '1');
       shipSay(withMe('X') ? 'X' : 'P', withMe('X') ? (first ? 'Sprocket’s alley. Every courier on Mars knows it. Nobody admits it. Don’t buy the fuel additive. Buy the fuel additive.' : 'Sprocket. Still here. Still “not a shop”.') : first ? 'The gap behind the market opens into a dark alley. A green sign buzzes: PSST. Someone in goggles waves you over from behind a stack of crates. One of the crates honks.' : 'The PSST sign buzzes. Sprocket pretends not to see you, then waves.');
       if (!withMe('X')) setTimeout(() => { if (deck && deck.kind === 'malley') shipSay('SK', first ? 'Psst. Over here. No, not there. HERE. Nice to meet you. We never met.' : ['Back again? I knew you had a criminal heart. A nice one. With a little moustache.', 'If a drone asks, I’m a lamp.'][Math.floor(Math.random() * 2)]); }, first ? 3800 : 1500);
@@ -22349,6 +22807,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (eq) action = `<button class="btn" disabled>Equipped</button>`;
     else if (own) action = `<button class="btn" id="act">Equip</button>`;
     else if (it.unlock && it.unlock.startsWith('ship:')) action = `<button class="btn" disabled>Comes with the ${landerById(it.unlock.slice(5)).name}</button>`;
+    else if (it.unlock && it.unlock.startsWith('shop:')) action = `<button class="btn" disabled>Sold at Marta’s Paint, Main Street, Mars</button>`;
     else if (it.unlock && it.unlock.startsWith('quest:')) action = `<button class="btn" disabled>Finish ${questName(it.unlock.slice(6))} (Gus’s quest)</button>`;
     else if (it.unlock) action = `<button class="btn" disabled>Earn the ${ACH.find(a => a.id === it.unlock).name} badge</button>`;
     else if (credits >= it.price) action = `<button class="btn" id="act">Buy for ${fmt(it.price)}</button>`;
@@ -22374,7 +22833,7 @@ details.act > .limits { margin: 0 0 8px; }
     const ownedCount = k => itemsOf(k).filter(x => owned.has(k + ':' + x.id)).length;
     const tile = (kind, x) => {
       const o = owned.has(kind + ':' + x.id), eq = equip[kind] === x.id, lk = !o && x.unlock;
-      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : x.unlock.startsWith('race:') ? 'Locked · Speedway' : x.unlock.startsWith('gany:') ? 'Locked · 3 aurora chips from Ganymede' : 'Locked · badge') : `${fmt(x.price)} cr`;
+      const status = eq ? 'Equipped' : o ? 'Owned' : lk ? (x.unlock.startsWith('ship:') ? 'Comes with a lander' : x.unlock.startsWith('quest:') ? 'Locked · quest' : x.unlock.startsWith('shop:') ? 'Sold at Marta’s Paint, Mars' : x.unlock.startsWith('race:') ? 'Locked · Speedway' : x.unlock.startsWith('gany:') ? 'Locked · 3 aurora chips from Ganymede' : 'Locked · badge') : `${fmt(x.price)} cr`;
       return `<button class="item${eq ? ' equipped' : o ? ' owned' : lk ? ' locked' : ''}" data-kind="${kind}" data-id="${x.id}" aria-pressed="${trying[kind] === x.id}">
         <i class="sw big" style="background:${x.swatch}"></i><b>${x.name}</b><span>${status}</span></button>`;
     };
@@ -22414,7 +22873,7 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="col">
           <div class="tabs four" role="tablist" aria-label="Hangar sections">${KINDS.map(([k, label]) =>
             `<button role="tab" data-tab="${k}" aria-selected="${tab === k}">${label} <small>${ownedCount(k)}/${itemsOf(k).length}</small></button>`).join('')}<button role="tab" data-tab="workshop" aria-selected="${tab === 'workshop'}">Workshop</button></div>
-          ${tab === 'workshop' ? workshopHtml() : `<div class="items" role="tabpanel">${itemsOf(tab).map(x => tile(tab, x)).join('')}</div>
+          ${tab === 'workshop' ? workshopHtml() : `<div class="items" role="tabpanel">${itemsOf(tab).filter(x => x.id !== 'marta' || owned.has('hull:marta')).map(x => tile(tab, x)).join('')}</div>
           <div class="detail">
             <b>${it.name}</b>
             <p>${it.blurb}</p>
@@ -22488,7 +22947,7 @@ details.act > .limits { margin: 0 0 8px; }
       trying[kind] = id;
       hangarSel = { kind, id };
       const x = findItem(kind, id);
-      hangarLine0 = !owned.has(kind + ':' + id) && x.unlock ? (x.unlock.startsWith('quest:') ? `The ${x.name}! That’s the paint from my old photo. Help me with Biscuit’s First Coat and it’s yours.` : `Ooh, the ${x.name}. That one’s a badge reward. Earn it and it’s yours, free.`) : gusOn(kind, x);
+      hangarLine0 = !owned.has(kind + ':' + id) && x.unlock ? (x.unlock.startsWith('shop:') ? `The ${x.name}! That’s Marta’s. You can only get it from her shop on Main Street, on Mars. She has four arms. Bring snacks.` : x.unlock.startsWith('quest:') ? `The ${x.name}! That’s the paint from my old photo. Help me with Biscuit’s First Coat and it’s yours.` : `Ooh, the ${x.name}. That one’s a badge reward. Earn it and it’s yours, free.`) : gusOn(kind, x);
       renderHangar(`.item[data-kind="${kind}"][data-id="${id}"]`);
     }));
     const act = $('act');
