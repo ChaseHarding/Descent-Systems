@@ -426,6 +426,7 @@ kbd {
 .shiproom { position: relative; }
 .ppbtn { position: absolute; left: 50%; transform: translate(-50%, -50%) rotate(-4deg); z-index: 5; font: 900 30px var(--f-display); letter-spacing: .06em; padding: 12px 28px; border-radius: 14px; border: 0; background: #ffe58a; color: #0a0e1c; box-shadow: 0 0 0 4px #0a0e1c, 0 0 24px #ffe58a; display: flex; flex-direction: column; align-items: center; cursor: pointer; touch-action: manipulation; }
 .ppbtn small { font: 700 10px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; }
+.ppbtn.jump { background: #7fe8ff; box-shadow: 0 0 0 4px #0a0e1c, 0 0 28px #7fe8ff; }
 .ppbtn:active { transform: translate(-50%, -50%) rotate(-4deg) scale(.94); }
 .roomshake { animation: roomshake .35s; } @keyframes roomshake { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
 @media (prefers-reduced-motion: reduce) { .roomshake { animation: none; } }
@@ -11305,7 +11306,7 @@ details.act > .limits { margin: 0 0 8px; }
       e.preventDefault();
       if (deck.scene) { if (deck.scene.ready) roomSceneNext(); return; }
       if (deck.cut) { if (performance.now() - deck.cut.t0 > 800) giCutEnd(); return; }
-      if (deck.pp && (deck.pp.phase === 'hey' || deck.pp.phase === 'chase')) { ppTap(); return; }
+      if (ppActive(deck.pp)) { ppTap(); return; }
       if (deck.sit) { dinerStand(); return; }
       if (deck.kind === 'gpool') { const [px2, py2] = toWorld(e); poolTap(px2, py2); return; }
       const [x, y] = toWorld(e), me = deck.me, B = deck.B;
@@ -21048,44 +21049,166 @@ details.act > .limits { margin: 0 0 8px; }
     let b = $('ppBtn'); const cv = deck && deck.cv; if (!cv) return;
     if (!label) { if (b) b.remove(); return; }
     if (!b) { b = document.createElement('button'); b.id = 'ppBtn'; b.className = 'ppbtn'; cv.parentElement.appendChild(b); b.addEventListener('pointerdown', e => { e.preventDefault(); ppTap(); }); }
-    b.innerHTML = `${label}${sub ? `<small>${sub}</small>` : ''}`; b.style.top = `${cv.offsetTop + cv.offsetHeight * (label === 'RUN!' ? 0.84 : 0.42)}px`;
+    const key = label + '|' + (sub || ''); if (b.dataset.k !== key) { b.dataset.k = key; b.innerHTML = `${label}${sub ? `<small>${sub}</small>` : ''}`; b.classList.toggle('jump', label === 'JUMP!'); } b.style.top = `${cv.offsetTop + cv.offsetHeight * 0.84}px`;
   }
+  const ppActive = p => p && (p.phase === 'grab' || p.phase === 'chase' || p.phase === 'pull');
+  // one tap does different things in each beat: time the grab, run (or jump), pull
   function ppTap() {
-    const p = deck && deck.pp; if (!p) return;
-    if (p.phase === 'hey') return ppCaught(true);
-    if (p.phase === 'chase') { p.v = Math.min(118, (p.v || 40) + 17); sfx.click(); }
+    const p = deck && deck.pp; if (!ppActive(p)) return;
+    const now = performance.now();
+    if (p.phase === 'grab') {
+      if (p.tapped) return; p.tapped = true;
+      const m = ppMarker(p, now);
+      if (Math.abs(m - ppZone(p, now)) <= p.zw / 2) return ppCaught('grab');
+      p.miss = now; sfx.thud && sfx.thud(); shipSay('P', 'You grab… a fistful of air. He twists away with your wallet. RUN!');
+      return ppChase(36);
+    }
+    if (p.phase === 'chase') {
+      const o = p.obs.find(o => o.prompt && !o.done);
+      if (o) { o.done = true; o.jumped = true; deck.me.hop = now; sfx.click(); return; }
+      if (now < (p.tripUntil || 0)) return;
+      p.v = Math.min(116, (p.v || 40) + 13); sfx.click(); return;
+    }
+    if (p.phase === 'pull') { p.tug = Math.min(1, p.tug + 0.08); p.pullFx = now; sfx.click(); if (p.tug >= 1) ppCaught('pull'); }
   }
-  function ppCaught(quick) {
-    const p = deck.pp; p.phase = 'caught'; p.t0 = performance.now(); ppButton(null); sfx.coin();
+  // the marker is quickest through the middle, and the sleeve wriggles: he's trying to get away
+  const ppMarker = (p, now) => { const k0 = ((now - p.t0) / 620) % 2, k = k0 < 1 ? k0 : 2 - k0; return 0.5 - 0.5 * Math.cos(Math.PI * k); };
+  const ppZone = (p, now) => Math.max(p.zw / 2, Math.min(1 - p.zw / 2, p.zone + Math.sin((now - p.t0) / 310 + p.ph) * 0.13 + Math.sin((now - p.t0) / 137) * 0.03));
+  function ppChase(v) {
+    const p = deck.pp, me = deck.me, now = performance.now();
+    p.phase = 'chase'; p.t0 = now; p.v = v; p.dir = me.x > MARS_W / 2 ? -1 : 1;   // he runs the long way, so you have a chance
+    p.x = me.x + p.dir * (p.second ? 60 : 50);
+    // things he throws behind him as he runs: you have to jump them
+    p.obs = [1000, 2900, 4900].map((at, k) => ({ at: now + at + Math.random() * 500, kind: ['melon', 'crate', 'cart'][(k + Math.floor(Math.random() * 3)) % 3], live: false }));
+    ppButton('RUN!', 'tap tap tap · JUMP when it says');
+  }
+  function ppCaught(how) {
+    const p = deck.pp; p.phase = 'caught'; p.t0 = performance.now(); ppButton(null); sfx.coin(); deck.ppSlow = 0;
     const wall = shameWall(), name = THIEF_NAMES[wall.length % THIEF_NAMES.length]; wall.push(name); store.set('ds-shameWall', JSON.stringify(wall));
-    if (quick) store.set('ds-dinerVoucher', '1');
-    shipSay('P', quick ? `You grab the thief’s sleeve before he’s gone a step. It’s ${name}. He hands your wallet back, plus a voucher for a free Rocket Shake at Rusty’s. “No hard feelings? Please don’t tell Rusty.” Rusty will be told.` : `You tackle ${name} in front of the market. Your wallet’s back. The crowd claps. A drone films it. ${name} goes on Rusty’s Wall of Shame.`);
+    const tip = 20 + Math.floor(Math.random() * 4) * 10; credits += tip; saveCosmetics();
+    if (how === 'grab') store.set('ds-dinerVoucher', '1');
+    shipSay('P', how === 'grab' ? `You catch his wrist mid-lift, your wallet still in his fingers. It’s ${name}. Caught red-handed. He’s got two other wallets on him; one owner tips you ${tip} cr, and ${name} throws in a Rocket Shake voucher to make it go away. It does not go away. Rusty will be told.`
+      : `You wrench your wallet free and ${name} lands on his backside in front of the whole market. Two other wallets fall out of his coat. One owner tips you ${tip} cr. A drone films it. ${name} goes on Rusty’s Wall of Shame.`);
+    const w = shoreParty.find(x => withMe(x));
+    const R = { R: 'Darling, that was CINEMATIC. I want it re-shot with better lighting.', G: 'You were so fast! I was still saying “hey”! I’m still saying it! Hey!', F: 'Well handled. Next time, maybe keep your wallet in a pocket that closes.', W: 'Ha! Back in my day we just hit them with a thermos. Same principle.', J: 'Nice. That one’s been working this street all month. Docks owe you a drink.', Z: 'Zib saw it all! Zib glowed in the angry colour! Zib is proud and a bit frightened!', X: 'You RAN. You actually ran. Okay. Race me later. For real.' };
+    if (w && R[w]) setTimeout(() => { if (deck && deck.kind === 'mmain') shipSay(w, R[w]); }, 5200);
+  }
+  function ppLost() {
+    const p = deck.pp; p.phase = 'gone'; ppButton(null); deck.ppSlow = 0;
+    const loss = Math.min(150, Math.max(10, Math.round(credits * 0.05))); credits = Math.max(0, credits - loss); saveCosmetics(); sfx.thud && sfx.thud();
+    shipSay(shoreParty.length ? shoreParty[0] : 'P', shoreParty.length ? `He’s gone. With ${loss} of our credits. I’d like to say I saw his face. I saw a hat.` : `He vanishes into the crowd with ${loss} credits. Somewhere, someone is buying a very nice lunch.`);
   }
   function ppStep(dt) {
     const p = deck.pp, me = deck.me, now = performance.now(); if (!p) return;
-    if (p.phase === 'wait') { if (now > p.at && !deck.scene) { p.phase = 'come'; p.dir = me.x > 300 ? -1 : 1; p.x = me.x - p.dir * 90; p.y = me.y; } return; }
-    if (p.phase === 'come') { p.x += p.dir * 70 * dt; p.y += (me.y - p.y) * Math.min(1, dt * 4); p.moving = true;
-      if (Math.abs(p.x - me.x) < 7) { p.phase = 'hey'; p.t0 = now; store.set('ds-ppDay', String(shipDay)); sfx.thud && sfx.thud(); deck.keys = {}; me.goal = null; ppButton('HEY!', 'tap fast!'); shipSay('P', 'Someone bumps into you, hard. Your wallet feels lighter…'); }
+    if (p.phase === 'wait') { if (now > p.at && !deck.scene && !deck.sit) { p.phase = 'come'; p.dir = me.x > 300 ? -1 : 1; p.x = me.x - p.dir * 110; p.y = me.y; p.t0 = now;
+        const w = shoreParty.find(x => withMe(x)); if (w && Math.random() < 0.5) shipSay(w, ['Pilot. Guy in the beanie. Don’t look. He’s looking at your pocket.', 'Heads up. Beanie. Coming your way. Hand on your wallet.'][Math.floor(Math.random() * 2)]); }
       return; }
-    if (p.phase === 'hey') { p.x += p.dir * 20 * dt; if (now - p.t0 > 1500) { p.phase = 'chase'; p.t0 = now; p.v = 50; p.dir = p.x < me.x ? -1 : 1; if (p.dir < 0 && p.x < 120) p.dir = 1; if (p.dir > 0 && p.x > MARS_W - 120) p.dir = -1; ppButton('RUN!', 'tap again and again'); shipSay('P', 'He’s got your wallet and he’s off! Tap RUN as fast as you can!'); } return; }
+    if (p.phase === 'come') { p.x += p.dir * 58 * dt; p.y += (me.y - p.y) * Math.min(1, dt * 4); p.moving = true;
+      if (Math.abs(p.x - me.x) < 8) {
+        // the bump: time slows right down, and you get one tap to catch his sleeve
+        p.phase = 'grab'; p.t0 = now; p.zone = 0.35 + Math.random() * 0.3; p.ph = Math.random() * 6.3; p.zw = marsHeat() >= 2 ? 0.075 : 0.095; p.tapped = false;
+        store.set('ds-ppDay', String(shipDay)); deck.keys = {}; me.goal = null; deck.ppSlow = now;
+        sfx.thud && sfx.thud(); sfx.alarm && sfx.alarm(); addShakeRoom();
+        ppButton('GRAB!', 'one tap · hit the gold');
+        shipSay('P', 'Someone slams into you. A hand is in your pocket. Time slows down…');
+      }
+      return; }
+    if (p.phase === 'grab') { deck.keys = {}; me.goal = null; me.moving = false; me.dir = p.x < me.x ? 1 : 2;
+      if (now - p.t0 > 1700) { shipSay('P', 'Too slow! He’s got your wallet and he’s off. RUN!'); ppChase(48); }
+      return; }
     if (p.phase === 'chase') {
-      deck.keys = {}; me.goal = null; p.v = Math.max(40, p.v - 38 * dt);
-      p.x += p.dir * 62 * dt; p.y = 90 + Math.sin(now / 240) * 14; p.moving = true;
-      if (!p.crash && p.x > 228 && p.x < 330) { p.crash = true; p.slowUntil = now + 1500; sfx.thud && sfx.thud(); deck.fruit = Array.from({ length: 10 }, (_, k) => ({ x: p.x + (k - 5) * 2, y: 70, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 20, col: ['#ff6b5e', '#ffd27a', '#9fe0b8', '#c8a2ff'][k % 4] })); shipSay('P', 'He shoves over a fruit stall! Mars melons everywhere! Watch your step!'); }
-      if (!p.bumped && now - p.t0 > 2200 + (p.seed || 0)) { p.bumped = true; p.bumpUntil = now + 450; }
+      deck.keys = {}; me.goal = null;
+      const run = now - p.t0, tripped = now < (p.tripUntil || 0);
+      p.v = Math.max(36, p.v - (p.v - 36) * 1.2 * dt);
+      p.x += p.dir * (p.second ? 60 : 56) * dt; p.y = 90 + Math.sin(now / 240) * 14; p.moving = true;
+      if (!p.crash && p.x > 228 && p.x < 330) { p.crash = true; p.slowUntil = now + 1300; sfx.thud && sfx.thud(); deck.fruit = Array.from({ length: 10 }, (_, k) => ({ x: p.x + (k - 5) * 2, y: 70, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 20, col: ['#ff6b5e', '#ffd27a', '#9fe0b8', '#c8a2ff'][k % 4] })); shipSay('P', 'He shoves over a fruit stall! Mars melons everywhere!'); }
+      if (!p.bumped && run > 2600 + (p.seed || 0) % 900) { p.bumped = true; p.bumpUntil = now + 420; }
+      // he throws things back at you: tap JUMP in time or trip
+      for (const o of p.obs) {
+        if (!o.live && now > o.at && Math.abs(p.x - me.x) > 30) { o.live = true; o.x = p.x - p.dir * 6; o.y = p.y; sfx.thud && sfx.thud(); }
+        if (!o.live || o.gone) continue;
+        o.x -= p.dir * 34 * dt; o.y += (me.y - o.y) * Math.min(1, dt * 3);
+        const ahead = (o.x - me.x) * p.dir;
+        o.prompt = ahead > 0 && ahead < 30 && !o.done;
+        if (ahead <= 3) { o.gone = true; if (!o.jumped) { p.tripUntil = now + 800; p.v = 30; sfx.thud && sfx.thud(); addShakeRoom(); shipSay('P', o.kind === 'melon' ? 'A melon. You step on a melon. You go down like a sack of melons.' : o.kind === 'crate' ? 'You trip over the crate. The crate wins.' : 'A hover-cart clips your shins. You lose a second and some dignity.'); } }
+      }
+      const prompt = p.obs.some(o => o.prompt);
+      ppButton(prompt ? 'JUMP!' : tripped ? 'OOF' : 'RUN!', prompt ? 'tap now!' : tripped ? 'get up…' : 'tap tap tap');
       footstep(me, true, dt, 'metal');
-      let vv = p.v; if (now < (p.slowUntil || 0)) vv *= 0.55; if (now < (p.bumpUntil || 0)) vv = 0;
-      const dx = p.x - me.x; me.x += Math.sign(dx) * Math.min(Math.abs(dx), vv * dt); me.y += (p.y - me.y) * Math.min(1, dt * 3); me.dir = dx < 0 ? 1 : 2; me.moving = true;
-      if (Math.abs(dx) < 9) return ppCaught(false);
-      if (p.x < 70 || p.x > MARS_W - 6 || now - p.t0 > 9000) {
-        if (p.x < 70) shipSay('P', 'He vaults the maglev barrier and slips onto a departing train. Gone.');
-        p.phase = 'gone'; ppButton(null); const loss = Math.min(150, Math.max(10, Math.round(credits * 0.05))); credits = Math.max(0, credits - loss); saveCosmetics(); sfx.thud && sfx.thud();
-        shipSay(shoreParty.length ? shoreParty[0] : 'P', shoreParty.length ? `He’s gone. With ${loss} of our credits. I’d like to say I saw his face. I saw a hat.` : `He vanishes into the crowd with ${loss} credits. Somewhere, someone is buying a very nice lunch.`); }
+      let vv = tripped ? 0 : p.v; if (now < (p.slowUntil || 0)) vv *= 0.75; if (now < (p.bumpUntil || 0)) vv = 0;
+      const dx = p.x - me.x; me.x += Math.sign(dx) * Math.min(Math.abs(dx), vv * dt); me.y += (p.y - me.y) * Math.min(1, dt * 3); me.dir = dx < 0 ? 1 : 2; me.moving = !tripped;
+      if (Math.abs(dx) < 10) { p.phase = 'pull'; p.t0 = now; p.tug = 0.5; p.x = me.x + p.dir * 10; ppButton('PULL!', 'mash it'); sfx.thud && sfx.thud(); shipSay('P', 'You grab the wallet. So does he. Neither of you lets go.'); return; }
+      if (p.x < 60 || p.x > MARS_W - 6 || run > (p.second ? 7000 : 10000)) { if (p.x < 60) shipSay('P', 'He vaults the maglev barrier and slips onto a departing train.'); ppLost(); }
+      return; }
+    if (p.phase === 'pull') { deck.keys = {}; me.goal = null; me.moving = false; me.dir = p.dir > 0 ? 2 : 1;
+      const t = (now - p.t0) / 1000; p.tug -= (0.18 + t * 0.04) * dt;
+      if (p.tug <= 0 || t > 4.5) {
+        if (!p.second) { p.second = true; shipSay('P', 'He yanks it free and bolts. One more chance!'); ppChase(40); }
+        else { shipSay('P', 'He rips the wallet out of your hands and is gone.'); ppLost(); }
+      }
       return; }
     if (deck.fruit) { deck.fruit.forEach(f => { f.vy += 120 * dt; f.x += f.vx * dt; f.y += f.vy * dt; if (f.y > 98) { f.y = 98; f.vy *= -0.3; f.vx *= 0.7; } }); }
     if (p.phase === 'caught') { if (now - p.t0 > 2600) { p.phase = 'leave'; p.dir = p.x < 320 ? -1 : 1; } return; }
     if (p.phase === 'leave') { p.x += p.dir * 40 * dt; p.moving = true; if (p.x < -20 || p.x > MARS_W + 20) deck.pp = null; }
   }
+  // the thief, the wallet, what he throws, and you hopping over it (world space)
+  function ppDraw(c, t) {
+    const p = deck.pp, me = deck.me; if (!p || p.phase === 'wait') return;
+    const now = performance.now();
+    const pull = p.phase === 'pull', tug = pull ? (Math.sin(now / 40) * (now - (p.pullFx || 0) < 120 ? 1.2 : 0.5)) : 0;
+    drawSprite(c, THIEF_LOOK, p.x - 8 + tug, p.y - 24, p.dir > 0 ? 2 : 1, p.moving ? Math.floor(t / 90) % 4 : 0, false); p.moving = false;
+    if (p.phase === 'come') { c.fillStyle = '#ffffff'; c.font = '700 6px sans-serif'; c.textAlign = 'center'; c.fillText('👀', p.x, p.y - 28); c.textAlign = 'left'; }
+    if (p.phase === 'grab') { const k = Math.min(1, (now - p.t0) / 600); px(c, me.x + (p.x - me.x) * 0.5 - 2, me.y - 12 - k * 2, 5, 3, '#ffd27a'); px(c, me.x + (p.x - me.x) * 0.5 - 2, me.y - 13 - k * 2, 5, 1, '#5a4636');
+      c.fillStyle = '#ff3b3b'; c.font = '900 7px system-ui, sans-serif'; c.textAlign = 'center'; c.fillText('!', me.x, me.y - 30 + Math.sin(now / 60)); c.textAlign = 'left'; }
+    if (p.phase === 'chase') { px(c, p.x + p.dir * 6, p.y - 13, 4, 3, '#ffd27a'); px(c, p.x + p.dir * 6 - 1, p.y - 14, 6, 1, '#5a4636'); }
+    if (pull) { const mid = (me.x + p.x) / 2 + (p.tug - 0.5) * -p.dir * 6; c.strokeStyle = '#5a4636'; c.lineWidth = 1; c.beginPath(); c.moveTo(me.x + p.dir * 4, me.y - 12); c.lineTo(p.x - p.dir * 4 + tug, p.y - 12); c.stroke(); px(c, mid - 2.5, me.y - 14, 5, 4, '#ffd27a');
+      for (let k = 0; k < 3; k++) { c.fillStyle = 'rgba(255,229,138,0.7)'; c.fillRect(mid + Math.sin(now / 50 + k * 2) * 6, me.y - 18 - k * 3, 1, 1); } }
+    if (p.phase === 'chase') for (const o of p.obs) { if (!o.live || o.gone) continue; const bob = Math.abs(Math.sin(now / 90)) * 2;
+      if (o.kind === 'melon') { c.fillStyle = '#58b060'; c.beginPath(); c.arc(o.x, o.y - 3 - bob, 3, 0, Math.PI * 2); c.fill(); c.fillStyle = '#ff6b5e'; c.fillRect(o.x - 1, o.y - 4 - bob, 2, 1); }
+      else if (o.kind === 'crate') { px(c, o.x - 4, o.y - 7 - bob, 8, 7, '#8a6a46'); px(c, o.x - 4, o.y - 4 - bob, 8, 1, '#5a4030'); }
+      else { px(c, o.x - 6, o.y - 6 - bob, 12, 4, '#8a93ab'); px(c, o.x - 5, o.y - 2 - bob, 2, 2, '#2a2a33'); px(c, o.x + 3, o.y - 2 - bob, 2, 2, '#2a2a33'); }
+      if (o.prompt) { c.strokeStyle = `rgba(255,229,138,${0.5 + Math.abs(Math.sin(now / 80)) * 0.5})`; c.beginPath(); c.arc(o.x, o.y - 4, 7, 0, Math.PI * 2); c.stroke(); } }
+    if (p.phase === 'chase' && now - (me.hop || 0) < 450) { c.fillStyle = '#7fe8ff'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('hop!', me.x, me.y - 28 - Math.sin((now - me.hop) / 450 * Math.PI) * 4); c.textAlign = 'left'; }
+    if (p.phase === 'chase' && now < (p.tripUntil || 0)) { c.fillStyle = '#ffe58a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('✶ ✦ ✶', me.x, me.y - 28); c.textAlign = 'left'; }
+    if (p.phase === 'chase' && now < (p.bumpUntil || 0)) { c.fillStyle = '#ffe58a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('excuse me!', me.x, me.y - 28); c.textAlign = 'left'; }
+    if (p.phase === 'caught') { c.fillStyle = '#ffffff'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('sorry!!', p.x, p.y - 28); c.textAlign = 'left'; }
+  }
+  // the big readable bits, in screen space: the grab meter and the tug-of-war bar
+  function ppHud(c) {
+    const p = deck && deck.pp; if (!p || deck.kind !== 'mmain' || (p.phase !== 'grab' && p.phase !== 'pull' && p.phase !== 'chase')) return;
+    const W2 = deck.cv.width, H2 = deck.cv.height, now = performance.now(), u = W2 / 360;
+    c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
+    const title = (txt, col) => { c.font = `900 ${22 * u}px system-ui, sans-serif`; c.lineWidth = 5 * u; c.strokeStyle = '#0a0e1c'; c.strokeText(txt, W2 / 2, H2 * 0.12); c.fillStyle = col; c.fillText(txt, W2 / 2, H2 * 0.12); };
+    if (p.phase === 'grab') {
+      const v = deck.view, sx = (deck.me.x - v.cx) * 2, sy = (deck.me.y - 14 - v.cy) * 2, g = c.createRadialGradient(sx, sy, 14 * u, sx, sy, 64 * u);
+      g.addColorStop(0, 'rgba(8,6,20,0)'); g.addColorStop(1, 'rgba(8,6,20,0.78)'); c.fillStyle = g; c.fillRect(0, 0, W2, H2);
+      title('PICKPOCKET!', '#ff6b5e');
+      const bw = W2 * 0.72, bx = (W2 - bw) / 2, by = H2 * 0.22, bh = 14 * u, m = ppMarker(p, now);
+      c.fillStyle = 'rgba(10,14,28,0.9)'; c.beginPath(); c.roundRect(bx - 4 * u, by - 4 * u, bw + 8 * u, bh + 8 * u, 8 * u); c.fill();
+      c.fillStyle = '#2a3348'; c.fillRect(bx, by, bw, bh);
+      const z = ppZone(p, now); c.fillStyle = '#ffd27a'; c.fillRect(bx + (z - p.zw / 2) * bw, by, p.zw * bw, bh);
+      c.fillStyle = '#ffd27a'; c.font = `800 ${7 * u}px system-ui, sans-serif`; c.fillText('SLEEVE', bx + z * bw, by - 9 * u);
+      const mx = bx + m * bw; c.fillStyle = p.miss ? '#ff3b3b' : '#ffffff'; c.fillRect(mx - 2 * u, by - 5 * u, 4 * u, bh + 10 * u);
+      const left = Math.max(0, 1 - (now - p.t0) / 1700); c.fillStyle = '#ff6b5e'; c.fillRect(bx, by + bh + 6 * u, bw * left, 3 * u);
+    }
+    if (p.phase === 'chase') {
+      const gap = Math.abs(p.x - deck.me.x), k = Math.max(0, Math.min(1, 1 - (gap - 10) / 90));
+      const bw = W2 * 0.6, bx = (W2 - bw) / 2, by = H2 * 0.06;
+      c.fillStyle = 'rgba(10,14,28,0.85)'; c.beginPath(); c.roundRect(bx - 4 * u, by - 4 * u, bw + 8 * u, 16 * u, 8 * u); c.fill();
+      c.fillStyle = '#2a3348'; c.fillRect(bx, by, bw, 8 * u); c.fillStyle = '#58e0a0'; c.fillRect(bx, by, bw * k, 8 * u);
+      c.font = `700 ${7 * u}px monospace`; c.fillStyle = '#c9cfdc'; c.fillText(k > 0.8 ? 'ALMOST!' : 'CLOSE THE GAP', W2 / 2, by + 18 * u);
+    }
+    if (p.phase === 'pull') {
+      title('PULL!', '#ffd27a');
+      const bw = W2 * 0.72, bx = (W2 - bw) / 2, by = H2 * 0.22, bh = 14 * u;
+      c.fillStyle = 'rgba(10,14,28,0.9)'; c.beginPath(); c.roundRect(bx - 4 * u, by - 4 * u, bw + 8 * u, bh + 8 * u, 8 * u); c.fill();
+      c.fillStyle = '#5a2a3a'; c.fillRect(bx, by, bw, bh); c.fillStyle = '#58e0a0'; c.fillRect(bx, by, bw * p.tug, bh);
+      c.fillStyle = '#ffd27a'; c.fillRect(bx + bw * p.tug - 3 * u, by - 4 * u, 6 * u, bh + 8 * u);
+      c.font = `800 ${8 * u}px system-ui, sans-serif`; c.fillStyle = '#0a0e1c'; c.fillText('YOU', bx + 18 * u, by + bh / 2); c.fillStyle = '#ffffff'; c.fillText('HIM', bx + bw - 18 * u, by + bh / 2);
+    }
+    c.restore();
+  }
+  addEventListener('keydown', e => { if (!deck || !ppActive(deck.pp) || mode !== 'mmain') return; if (e.code === 'Space' || e.code === 'KeyE' || e.code === 'Enter') { e.preventDefault(); e.stopPropagation(); if (!e.repeat || deck.pp.phase !== 'grab') ppTap(); } }, true);
   // ---- drones: follow, warn, scan ----
   function dronesStep(dt) {
     const me = deck.me, now = performance.now();
@@ -21124,12 +21247,7 @@ details.act > .limits { margin: 0 0 8px; }
       px(c, 344, 22, 12, 40, '#0a0c14'); px(c, 344, 22, 1, 40, '#2a3348'); px(c, 355, 22, 1, 40, '#2a3348');
       if (reduceMotion || Math.floor(t / 900) % 5) mGlow(c, '#58e0a0', 6, () => { c.font = '700 4px monospace'; c.fillStyle = '#58e0a0'; c.textAlign = 'center'; c.fillText('PSST', 350, 30); c.textAlign = 'left'; });
       for (let k = 0; k < 3; k++) px(c, 347 + k * 2, 52 - ((tt / 90 + k * 7) % 14), 1, 1, 'rgba(200,220,255,0.3)');
-      const p = deck.pp;
-      if (p && p.phase !== 'wait') { drawSprite(c, THIEF_LOOK, p.x - 8, p.y - 24, p.dir > 0 ? 2 : 1, p.moving ? Math.floor(t / 90) % 4 : 0, false); p.moving = false;
-        if (p.phase === 'hey' || p.phase === 'chase') { px(c, p.x + p.dir * 6, p.y - 13, 4, 3, '#ffd27a'); px(c, p.x + p.dir * 6 - 1, p.y - 14, 6, 1, '#5a4636'); }
-        if (p.phase === 'hey') for (const [dx, dy] of [[-4, -30], [4, -32], [0, -36]]) { c.fillStyle = '#ffe58a'; c.font = '700 6px sans-serif'; c.fillText('✦', me.x + dx, me.y + dy); }
-        if (p.phase === 'caught') { c.fillStyle = '#ffffff'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('sorry!!', p.x, p.y - 28); c.textAlign = 'left'; }
-        if (p.phase === 'chase' && performance.now() < (p.bumpUntil || 0)) { c.fillStyle = '#ffe58a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('excuse me!', me.x, me.y - 28); c.textAlign = 'left'; } }
+      ppDraw(c, t);
       if (deck.fruit) for (const f of deck.fruit) { c.fillStyle = f.col; c.beginPath(); c.arc(f.x, f.y, 1.6, 0, 7); c.fill(); }
     }
     if (deck.kind === 'mapex' && store.get('ds-prankDay', '') === String(shipDay)) {
@@ -21151,6 +21269,7 @@ details.act > .limits { margin: 0 0 8px; }
       apexDroneSprite(c, d.x, d.y + (reduceMotion ? 0 : Math.sin(t / 400 + d.off) * 1.5), t, d.phase === 'warn' && Math.floor(t / 120) % 2 ? '#ffffff' : '#ff3b3b');
     }
     c.setTransform(1, 0, 0, 1, 0, 0);
+    ppHud(c);
     // heat, top right
     const h = marsHeat();
     if (h && (MARS_STREETS.includes(deck.kind) || deck.kind === 'mdiner')) { const W2 = deck.cv.width, s = W2 / 256 * 0.5; c.fillStyle = 'rgba(10,14,28,0.85)'; c.strokeStyle = '#ff3b3b'; c.lineWidth = 2; c.beginPath(); c.roundRect(W2 - 74 * s * 2, 8, 70 * s * 2, 18 * s * 2, 9 * s * 2); c.fill(); c.stroke();
