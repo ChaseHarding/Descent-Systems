@@ -2471,6 +2471,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (who === 'O') { drawOlloFace(c, open, blink, bare); return; }
     if (who === 'B') { drawBlipFace(c, open, blink, bare); return; }
     if (who === 'RB') { drawRustyFace(c, open, blink, bare); return; }
+    if (who === 'SK') { drawSprocketFace(c, open, blink, bare); return; }
     if (who === 'CH') { drawChairFace(c, open, blink, bare); return; }
     if (who === 'AX') { drawConciergeFace(c, open, blink, bare); return; }
     if (!bare) px(c, 0, 0, 32, 32, f.bg);
@@ -5740,6 +5741,10 @@ details.act > .limits { margin: 0 0 8px; }
       liftGo() { tone(98, 'triangle', 0, 1.3, 0.07); tone(147, 'sine', 0.05, 1.2, 0.04); },
       drama() { tone(659, 'square', 0, 0.16, 0.05); tone(523, 'square', 0.16, 0.16, 0.05); tone(392, 'square', 0.32, 0.5, 0.06); tone(98, 'sawtooth', 0.32, 0.6, 0.05); },
       chime() { tone(784, 'sine', 0, 0.35, 0.08); tone(587, 'sine', 0.22, 0.5, 0.08); },
+      honk() { tone(330, 'sawtooth', 0, 0.16, 0.12, 290); tone(300, 'sawtooth', 0.19, 0.24, 0.12, 240); },
+      droneWarn() { tone(520, 'square', 0, 0.1, 0.035); tone(780, 'square', 0.12, 0.1, 0.035); tone(1040, 'square', 0.24, 0.14, 0.045); },
+      zap() { tone(1500, 'sawtooth', 0, 0.35, 0.05, 220); burst(0, 0.22, 0.12, 3000, 800); },
+      kaching() { tone(1568, 'triangle', 0, 0.12, 0.09); tone(2093, 'triangle', 0.1, 0.45, 0.09); burst(0.02, 0.15, 0.05, 6000, 4000); },
       windDown() { tone(180, 'sawtooth', 0, 2.2, 0.06, 30); tone(90, 'square', 0, 2.2, 0.03, 20); },
       glow(i) { const f = [523, 659, 784, 880, 1047][i] || 660; tone(f, 'sine', 0, 0.45, 0.07); tone(f * 2, 'triangle', 0, 0.2, 0.015); },
       ding() { tone(1318, 'sine', 0, 0.6, 0.13); tone(1046, 'sine', 0.2, 0.9, 0.13); },
@@ -6965,6 +6970,7 @@ details.act > .limits { margin: 0 0 8px; }
         <div class="settings">
           ${row('setZoom', 'Auto-zoom', 'The camera eases in for the final approach', autoZoom)}
           ${row('setSpin', 'Full 360° rotation', 'Spin all the way around. Off limits tilt to 90° each way', fullSpin)}
+          ${row('setChaos', 'Mars mischief', 'Pickpockets and Apex security drones on Mars', marsChaos())}
           ${row('setGhost', 'Ghosts', 'Race your last attempt, or your rival in hot-seat', showGhost)}
         </div>
         <h2 class="sect">Controls</h2>
@@ -7011,6 +7017,7 @@ details.act > .limits { margin: 0 0 8px; }
     card.querySelectorAll('[data-stab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.stab === setTab) return; setTab = b.dataset.stab; sfx.click(); renderSettings(); const t2 = card.querySelector('.stabs .mtab.on'); if (t2) t2.focus({ preventScroll: true }); }));
     $('setZoom').addEventListener('click', () => { autoZoom = !autoZoom; store.set('ds-zoom', autoZoom ? '1' : '0'); renderSettings('setZoom'); });
     $('setSpin').addEventListener('click', () => { fullSpin = !fullSpin; store.set('ds-spin', fullSpin ? '1' : '0'); renderSettings('setSpin'); });
+    $('setChaos').addEventListener('click', () => { store.set('ds-chaos', marsChaos() ? '0' : '1'); renderSettings('setChaos'); });
     $('setQTrack').addEventListener('click', () => { store.set('ds-qtrack', store.get('ds-qtrack', '1') === '1' ? '0' : '1'); renderSettings('setQTrack'); });
     $('setStory').addEventListener('click', () => { storyOn = !storyOn; store.set('ds-storyOn', storyOn ? '1' : '0'); renderSettings('setStory'); });
     $('setRomance').addEventListener('click', () => {
@@ -18651,6 +18658,17 @@ details.act > .limits { margin: 0 0 8px; }
   const MARS_KINDS = ['mdock', 'mmain', 'mdiner', 'moffice'];
   const placeOf = kind => MARS_KINDS.includes(kind) ? 'mars' : 'pim';
   // ---- Rusty, the Red Planet Diner's robot ----
+  function drawSprocketFace(c, open, blink, bare) {
+    if (!bare) px(c, 0, 0, 32, 32, '#1a1418');
+    for (const [x, h] of [[7, 5], [10, 7], [13, 6], [16, 8], [19, 6], [22, 7], [24, 4]]) px(c, x, 8 - h, 3, h + 2, '#ff6b5e');
+    px(c, 8, 7, 16, 16, '#9a5f43'); px(c, 7, 11, 1, 6, '#9a5f43'); px(c, 24, 11, 1, 6, '#9a5f43');
+    px(c, 6, 8, 20, 3, '#5a4636'); px(c, 9, 7, 6, 4, '#58e0a0'); px(c, 17, 7, 6, 4, '#58e0a0'); px(c, 10, 8, 2, 1, '#e8fff0'); px(c, 18, 8, 2, 1, '#e8fff0');
+    if (!blink) { px(c, 11, 13, 2, 2, '#1a1418'); px(c, 19, 13, 2, 2, '#1a1418'); px(c, 11, 13, 1, 1, '#ffffff'); px(c, 19, 13, 1, 1, '#ffffff'); } else { px(c, 10, 14, 4, 1, '#1a1418'); px(c, 18, 14, 4, 1, '#1a1418'); }
+    px(c, 10, 12, 4, 1, '#5a2a1a'); px(c, 18, 11, 4, 1, '#5a2a1a');
+    px(c, 12, 18, 9, open ? 3 : 2, '#3a1a14'); px(c, 13, 18, 2, 1, '#f4f1e8'); px(c, 17, 18, 2, 1, '#ffd27a');
+    for (const [x, y] of [[10, 20], [12, 21], [15, 21], [19, 21], [21, 20], [17, 22]]) px(c, x, y, 1, 1, '#6a3a24');
+    px(c, 4, 24, 24, 8, '#5a4a3a'); px(c, 13, 24, 6, 3, '#9a5f43'); px(c, 4, 24, 3, 8, '#58e0a0'); px(c, 25, 24, 3, 8, '#58e0a0'); px(c, 8, 27, 3, 2, '#3a3e48');
+  }
   function drawRustyFace(c, open, blink, bare) {
     if (!bare) px(c, 0, 0, 32, 32, '#2a1018');
     px(c, 15, 1, 2, 4, '#8a93ab'); px(c, 14, 0, 4, 2, blink ? '#7a3a5a' : '#ff6b9a');
@@ -18669,7 +18687,7 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, x + 2, y + 14 + bob, 2, 4, '#8a93ab'); px(c, x + 12, y + 14 + bob, 2, 4, '#8a93ab');
     px(c, x + 7, y + 20, 2, 1, '#3a4256'); c.fillStyle = '#2a2a33'; c.beginPath(); c.arc(x + 8, y + 22, 2.5, 0, Math.PI * 2); c.fill(); px(c, x + 7, y + 21, 2, 2, '#8a93ab');
   }
-  Object.assign(SPEAKERS, { RB: { name: 'Rusty · Diner bot', color: '#ff8fb8' } });
+  Object.assign(SPEAKERS, { RB: { name: 'Rusty · Diner bot', color: '#ff8fb8' }, SK: { name: 'Sprocket · Back alley', color: '#58e0a0' } });
   Object.assign(SIGN, { RB: 'Rusty' });
   Object.assign(DEFAULT_MOOD, { RB: 'happy' });
   SHORE_LOCALS.push('RB');
@@ -20820,7 +20838,8 @@ details.act > .limits { margin: 0 0 8px; }
     S.total += pts; S.log.push(...all); S.combos.push({ n: all.length, mult, pts });
     S.banner = { t0: performance.now(), big: td.includes('cat') ? 'cat' : td[0] || all[0], chips: all, line: `${all.length > 1 ? `×${all.length} COMBO · ` : ''}+${fmt(pts)} STYLE` };
     if (td.length || all.length >= 2) styleSlowUntil = performance.now() + 650;
-    sfx.coin(); setTimeout(() => sfx.chime && sfx.chime(), 250);
+    sfx.coin(); setTimeout(() => (pts >= 500 && sfx.kaching ? sfx.kaching() : sfx.chime && sfx.chime()), 250);
+    if (store.get('ds-hintStyle', '') !== '1') { store.set('ds-hintStyle', '1'); setTimeout(() => showToast('✨ Style! Flips, low skims, soft and dead-centre landings score style points. Bank them after the mission for new paints.', 4200), 2200); }
     styleCheer(all);
     return true;
   }
@@ -20912,6 +20931,7 @@ details.act > .limits { margin: 0 0 8px; }
   function addHeat(d, why) {
     const before = marsHeat(); setHeat(before + d); const now = marsHeat();
     if (now > before) { showToast(`🔴 Heat ${'●'.repeat(now)}${'○'.repeat(3 - now)} · ${why || 'Apex Security has noticed you.'}`, 2800);
+      if (store.get('ds-hintHeat', '') !== '1') { store.set('ds-hintHeat', '1'); setTimeout(() => showToast('🛸 Heat means Apex drones follow you around Mars. When a drone’s eye flashes, step out of its red beam. Lose them on the maglev or in Rusty’s booth. Heat drops every day.', 5200), 3200); }
       if (before === 0) setTimeout(() => { if (deck && SHORE_KINDS.includes(deck.kind)) shipSay('J', 'Pilot. Why is Apex Security texting ME about YOU. What did you do. Don’t tell me. Tell me later. If the drones follow you, go to Rusty’s.'); }, 1400); }
   }
   const hotItem = () => store.get('ds-hotItem', '') && +store.get('ds-hotDay', '-1') === shipDay ? store.get('ds-hotItem', '') : '';
@@ -20923,11 +20943,13 @@ details.act > .limits { margin: 0 0 8px; }
     c.fillStyle = eye || '#ff3b3b'; c.beginPath(); c.arc(x, y + 1, 2.2, 0, 7); c.fill(); px(c, x - 1, y, 1, 1, '#ffd0d0');
     c.font = '900 4px sans-serif'; c.fillStyle = '#d8202a'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText('A', x - 5, y + 2); c.textAlign = 'left';
   }
+  function marsChaos() { return store.get('ds-chaos', '1') === '1'; }
   function crimeRoomInit(kind) {
-    deck.adrones = []; deck.pp = null; deck.sit = null;
+    deck.adrones = []; deck.pp = null; deck.sit = null; deck.fruit = null;
+    if (!marsChaos()) return;
     const h = marsHeat();
     if (MARS_STREETS.includes(kind) && h && !deck.lost) for (let i = 0; i < h; i++) deck.adrones.push({ x: deck.me.x + (i - 1) * 40 + (i ? 0 : -60), y: 30 + i * 6, phase: 'follow', next: performance.now() + 4000 + i * 2500 + Math.random() * 2000, off: (i - 1) * 26 });
-    if (kind === 'mmain' && credits >= 100 && store.get('ds-ppDay', '') !== String(shipDay) && (store.get('ds-ppTest', '') === '1' || Math.random() < 0.3)) deck.pp = { phase: 'wait', at: performance.now() + 2500 + Math.random() * 3500 };
+    if (kind === 'mmain' && credits >= 100 && store.get('ds-ppDay', '') !== String(shipDay) && (store.get('ds-ppTest', '') === '1' || Math.random() < 0.3)) deck.pp = { phase: 'wait', at: performance.now() + 2500 + Math.random() * 3500, seed: Math.random() * 1500 };
   }
   // ---- the pickpocket ----
   const THIEF_LOOK = { skin: '#d9a07a', hair: '#141018', style: 'short', top: '#2a2a33', pants: '#1a2034', shoes: '#15151f', hat: 'beanie', trim: '#3a3a44' };
@@ -20937,7 +20959,7 @@ details.act > .limits { margin: 0 0 8px; }
     let b = $('ppBtn'); const cv = deck && deck.cv; if (!cv) return;
     if (!label) { if (b) b.remove(); return; }
     if (!b) { b = document.createElement('button'); b.id = 'ppBtn'; b.className = 'ppbtn'; cv.parentElement.appendChild(b); b.addEventListener('pointerdown', e => { e.preventDefault(); ppTap(); }); }
-    b.innerHTML = `${label}${sub ? `<small>${sub}</small>` : ''}`; b.style.top = `${cv.offsetTop + cv.offsetHeight * 0.42}px`;
+    b.innerHTML = `${label}${sub ? `<small>${sub}</small>` : ''}`; b.style.top = `${cv.offsetTop + cv.offsetHeight * (label === 'RUN!' ? 0.84 : 0.42)}px`;
   }
   function ppTap() {
     const p = deck && deck.pp; if (!p) return;
@@ -20959,13 +20981,19 @@ details.act > .limits { margin: 0 0 8px; }
     if (p.phase === 'hey') { p.x += p.dir * 20 * dt; if (now - p.t0 > 1500) { p.phase = 'chase'; p.t0 = now; p.v = 50; p.dir = p.x < me.x ? -1 : 1; if (p.dir < 0 && p.x < 120) p.dir = 1; if (p.dir > 0 && p.x > MARS_W - 120) p.dir = -1; ppButton('RUN!', 'tap again and again'); shipSay('P', 'He’s got your wallet and he’s off! Tap RUN as fast as you can!'); } return; }
     if (p.phase === 'chase') {
       deck.keys = {}; me.goal = null; p.v = Math.max(40, p.v - 38 * dt);
-      p.x += p.dir * 62 * dt; p.y = 88 + Math.sin(now / 260) * 8; p.moving = true;
-      const dx = p.x - me.x; me.x += Math.sign(dx) * Math.min(Math.abs(dx), p.v * dt); me.y += (p.y - me.y) * Math.min(1, dt * 3); me.dir = dx < 0 ? 1 : 2; me.moving = true;
+      p.x += p.dir * 62 * dt; p.y = 90 + Math.sin(now / 240) * 14; p.moving = true;
+      if (!p.crash && p.x > 228 && p.x < 330) { p.crash = true; p.slowUntil = now + 1500; sfx.thud && sfx.thud(); deck.fruit = Array.from({ length: 10 }, (_, k) => ({ x: p.x + (k - 5) * 2, y: 70, vx: (Math.random() - 0.5) * 40, vy: -20 - Math.random() * 20, col: ['#ff6b5e', '#ffd27a', '#9fe0b8', '#c8a2ff'][k % 4] })); shipSay('P', 'He shoves over a fruit stall! Mars melons everywhere! Watch your step!'); }
+      if (!p.bumped && now - p.t0 > 2200 + (p.seed || 0)) { p.bumped = true; p.bumpUntil = now + 450; }
+      footstep(me, true, dt, 'metal');
+      let vv = p.v; if (now < (p.slowUntil || 0)) vv *= 0.55; if (now < (p.bumpUntil || 0)) vv = 0;
+      const dx = p.x - me.x; me.x += Math.sign(dx) * Math.min(Math.abs(dx), vv * dt); me.y += (p.y - me.y) * Math.min(1, dt * 3); me.dir = dx < 0 ? 1 : 2; me.moving = true;
       if (Math.abs(dx) < 9) return ppCaught(false);
-      if (p.x < 6 || p.x > MARS_W - 6 || now - p.t0 > 9000) {
+      if (p.x < 70 || p.x > MARS_W - 6 || now - p.t0 > 9000) {
+        if (p.x < 70) shipSay('P', 'He vaults the maglev barrier and slips onto a departing train. Gone.');
         p.phase = 'gone'; ppButton(null); const loss = Math.min(150, Math.max(10, Math.round(credits * 0.05))); credits = Math.max(0, credits - loss); saveCosmetics(); sfx.thud && sfx.thud();
         shipSay(shoreParty.length ? shoreParty[0] : 'P', shoreParty.length ? `He’s gone. With ${loss} of our credits. I’d like to say I saw his face. I saw a hat.` : `He vanishes into the crowd with ${loss} credits. Somewhere, someone is buying a very nice lunch.`); }
       return; }
+    if (deck.fruit) { deck.fruit.forEach(f => { f.vy += 120 * dt; f.x += f.vx * dt; f.y += f.vy * dt; if (f.y > 98) { f.y = 98; f.vy *= -0.3; f.vx *= 0.7; } }); }
     if (p.phase === 'caught') { if (now - p.t0 > 2600) { p.phase = 'leave'; p.dir = p.x < 320 ? -1 : 1; } return; }
     if (p.phase === 'leave') { p.x += p.dir * 40 * dt; p.moving = true; if (p.x < -20 || p.x > MARS_W + 20) deck.pp = null; }
   }
@@ -20974,9 +21002,12 @@ details.act > .limits { margin: 0 0 8px; }
     const me = deck.me, now = performance.now();
     for (const d of deck.adrones) {
       if (d.phase === 'follow') { const tx = me.x + d.off, ty = 28 + (d.off > 0 ? 6 : 0); d.x += (tx - d.x) * Math.min(1, dt * 1.1); d.y += (ty - d.y) * Math.min(1, dt * 2);
-        if (now > d.next && !(deck.pp && deck.pp.phase !== 'wait') && !deck.sit && !deck.scene) { d.phase = 'warn'; d.t0 = now; d.bx = d.x; sfx.beep && sfx.beep(); } }
-      else if (d.phase === 'warn') { if (now - d.t0 > 1000) { d.phase = 'scan'; d.t0 = now; } }
+        if (now > d.next && !(deck.pp && deck.pp.phase !== 'wait') && !deck.sit && !deck.scene) { d.phase = 'warn'; d.t0 = now; d.bx = d.x; sfx.droneWarn && sfx.droneWarn();
+          // at full heat, a second drone covers the side you'd dodge to
+          if (marsHeat() >= 3) { const mate = deck.adrones.find(o => o !== d && o.phase === 'follow'); if (mate) { mate.phase = 'warn'; mate.t0 = now; mate.bx = me.x + (me.x >= d.bx ? 1 : -1) * 34; } } } }
+      else if (d.phase === 'warn') { if (now - d.t0 > 1000) { d.phase = 'scan'; d.t0 = now; sfx.zap && sfx.zap(); } }
       else if (d.phase === 'scan') {
+        d.bx += Math.sign(me.x - d.bx) * Math.min(Math.abs(me.x - d.bx), 18 * dt);   // the beam drifts after you
         if (Math.abs(me.x - d.bx) < 16 && !d.hit) { d.hit = true; apexCaught(); }
         if (now - d.t0 > 1500) { d.phase = 'follow'; d.hit = false; d.next = now + 6000 + Math.random() * 4000; }
       }
@@ -21007,7 +21038,9 @@ details.act > .limits { margin: 0 0 8px; }
       if (p && p.phase !== 'wait') { drawSprite(c, THIEF_LOOK, p.x - 8, p.y - 24, p.dir > 0 ? 2 : 1, p.moving ? Math.floor(t / 90) % 4 : 0, false); p.moving = false;
         if (p.phase === 'hey' || p.phase === 'chase') { px(c, p.x + p.dir * 6, p.y - 13, 4, 3, '#ffd27a'); px(c, p.x + p.dir * 6 - 1, p.y - 14, 6, 1, '#5a4636'); }
         if (p.phase === 'hey') for (const [dx, dy] of [[-4, -30], [4, -32], [0, -36]]) { c.fillStyle = '#ffe58a'; c.font = '700 6px sans-serif'; c.fillText('✦', me.x + dx, me.y + dy); }
-        if (p.phase === 'caught') { c.fillStyle = '#ffffff'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('sorry!!', p.x, p.y - 28); c.textAlign = 'left'; } }
+        if (p.phase === 'caught') { c.fillStyle = '#ffffff'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('sorry!!', p.x, p.y - 28); c.textAlign = 'left'; }
+        if (p.phase === 'chase' && performance.now() < (p.bumpUntil || 0)) { c.fillStyle = '#ffe58a'; c.font = '700 5px monospace'; c.textAlign = 'center'; c.fillText('excuse me!', me.x, me.y - 28); c.textAlign = 'left'; } }
+      if (deck.fruit) for (const f of deck.fruit) { c.fillStyle = f.col; c.beginPath(); c.arc(f.x, f.y, 1.6, 0, 7); c.fill(); }
     }
     if (deck.kind === 'mapex' && store.get('ds-prankDay', '') === String(shipDay)) {
       // a big curly moustache on the giant holo billboard
@@ -21083,7 +21116,7 @@ details.act > .limits { margin: 0 0 8px; }
     const torso = (fn, cut) => { c.save(); c.beginPath(); c.rect(0, 0, 256, cut); c.clip(); fn(); c.restore(); };
     // the Wall of Shame
     px(c, 64, 16, 24, 30, '#f4f1e8'); px(c, 64, 16, 24, 4, '#ff6b5e'); c.font = '700 3px monospace'; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.fillText('WALL OF SHAME', 76, 19.5);
-    const wall = shameWall(); for (let i = 0; i < Math.min(6, wall.length); i++) { px(c, 66 + (i % 3) * 7, 22 + Math.floor(i / 3) * 11, 6, 8, '#c9cfdc'); px(c, 68 + (i % 3) * 7, 23 + Math.floor(i / 3) * 11, 2, 2, '#d9a07a'); px(c, 67 + (i % 3) * 7, 25 + Math.floor(i / 3) * 11, 4, 3, '#2a2a33'); }
+    const wall = shameWall(); for (let i = 0; i < Math.min(6, wall.length); i++) { const x = 66 + (i % 3) * 7, y = 22 + Math.floor(i / 3) * 11, k = THIEF_NAMES.indexOf(wall[wall.length - 1 - i]) >>> 0; px(c, x, y, 6, 8, '#c9cfdc'); px(c, x + 1, y + 2, 4, 3, ['#d9a07a', '#9a5f43', '#f0c8a0', '#7a4a32'][k % 4]); px(c, x + 1, y + 1, 4, 1, ['#2a2a33', '#ff6b5e', '#58e0a0', '#ffd27a', '#7fd6ff'][k % 5]); px(c, x + 2, y + 3, 1, 1, '#1a1418'); px(c, x + 4, y + 3, 1, 1, '#1a1418'); px(c, x + 1, y + 5, 4, 3, ['#2a2a33', '#5a4a7a', '#3a5a3a'][k % 3]); }
     if (!wall.length) { c.fillStyle = '#8a93ab'; c.fillText('empty…', 76, 34); } c.textAlign = 'left';
     // regulars at the counter, the kid with the giant shake
     for (const f of DINER_FOLK) if (f.look) drawSprite(c, f.look, f.x - 8, f.y - 24, f.dir, 0, false);
@@ -21111,7 +21144,7 @@ details.act > .limits { margin: 0 0 8px; }
   function malleyThings(L) {
     L.push({ id: 'out', rect: [0, 40, 22, 120], go: () => [24, 120], at: () => ({ x: 10, y: 100 }), act: () => { sfx.click(); walkEnter = 'malley'; setMode('mmain'); } });
     L.push({ id: 'sprocket', rect: [150, 54, 60, 46], go: () => [170, 108], at: () => ({ x: 180, y: 80 }), act: () => openSprocket() });
-    L.push({ id: 'goose', rect: [216, 70, 30, 30], go: () => [222, 110], at: () => ({ x: 230, y: 84 }), act: () => { sfx.click(); shipSay('P', ['The crate says HONK. You did not ask the crate anything.', 'A crate with air holes. It honks. Sprocket says it’s “a very loud lamp”.', 'HONK. The crate shuffles a few centimetres toward you. Menacingly.'][Math.floor(Math.random() * 3)]); } });
+    L.push({ id: 'goose', rect: [216, 70, 30, 30], go: () => [222, 110], at: () => ({ x: 230, y: 84 }), act: () => { sfx.honk && sfx.honk(); shipSay('P', ['The crate says HONK. You did not ask the crate anything.', 'A crate with air holes. It honks. Sprocket says it’s “a very loud lamp”.', 'HONK. The crate shuffles a few centimetres toward you. Menacingly.'][Math.floor(Math.random() * 3)]); } });
     L.push({ id: 'dumpster', rect: [40, 62, 46, 34], go: () => [62, 108], at: () => ({ x: 62, y: 80 }), act: () => shipSay('P', 'An Apex-branded dumpster, full of Apex-branded things. Mostly brochures. One of them says “Ganymede: surveyed and empty.”') });
   }
   function malleyDraw(t) {
@@ -21154,7 +21187,7 @@ details.act > .limits { margin: 0 0 8px; }
     sfx.click();
     const bought = (() => { try { const v = JSON.parse(store.get('ds-sprocketDay', '{}')); return v.day === shipDay ? v.ids : []; } catch (e) { return []; } })();
     const jobs = ALL.map((d, i) => ({ d, i })).filter(({ d }) => d.smuggle);
-    el.innerHTML = `<div class="qnew-card zstall sprocket"><span class="eyebrow">The back alley · behind the Rust Market</span><b>Sprocket</b>
+    el.innerHTML = `<div class="qnew-card zstall sprocket">${faceTag('SK', '')}<span class="eyebrow">The back alley · behind the Rust Market</span><b>Sprocket</b>
       <p class="zsay" aria-live="polite">${esc(msg || ['Psst. You. Pilot. You look like someone who doesn’t ask questions. Good. I don’t give answers.', 'Everything here fell off a drone. Drones are very clumsy. It’s a whole thing.', 'Apex drones? Don’t worry about the drones. Worry about me. Kidding. Worry about the drones.'][Math.floor(Math.random() * 3)])}</p>
       <span class="eyebrow">Hot goods · raise your heat</span>
       <div class="ztrades">${SPROCKET_GOODS.map(g => `<button class="ztrade" data-sg="${g.id}" ${bought.includes(g.id) || credits < g.price ? 'disabled' : ''}><span>${esc(g.name)}<br><small>${esc(g.sub)}${bought.includes(g.id) ? ' · sold out today' : ''}</small></span><i aria-hidden="true">·</i><b>${g.price} cr</b></button>`).join('')}</div>
@@ -21162,7 +21195,7 @@ details.act > .limits { margin: 0 0 8px; }
       <div class="ztrades">${jobs.map(({ d, i }) => { const open = missionOpen(i), st = missionStars[d.id] || 0; return `<button class="ztrade" ${open ? `data-sj="${i}"` : 'disabled'}><span>${esc(d.name)}<br><small>${open ? esc(d.pitch) : 'Do the first job first. Sprocket doesn’t trust you yet.'}</small></span><i aria-hidden="true">${st ? '★'.repeat(st) : '→'}</i><b>${open ? `${fmt(d.credits)} cr` : '🔒'}</b></button>`; }).join('')}</div>
       <p class="zhave">Heat now: ${'●'.repeat(marsHeat())}${'○'.repeat(3 - marsHeat())} · You have ${fmt(credits)} cr${hotItem() ? ` · carrying: ${esc(hotItem())} (hot!)` : ''}</p>
       <div class="btns"><button class="btn ghost" id="spBye">Walk away casually</button></div></div>`;
-    el.hidden = false;
+    paintFaces(el); el.hidden = false;
     el.querySelectorAll('[data-sg]').forEach(b => b.addEventListener('click', () => {
       const g = SPROCKET_GOODS.find(x => x.id === b.dataset.sg); if (!g || credits < g.price) return;
       credits -= g.price; saveCosmetics(); g.give(); sfx.coin();
@@ -21187,6 +21220,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function scannerTick() {
     const L = lander, d = mission.def; if (mission.carrying !== 'cargo') return;
+    if (d.id === 'smuggle-goose' && flightT > (mission.honkAt || 0)) { mission.honkAt = flightT + 4 + Math.random() * 4; sfx.honk && sfx.honk(); popText('HONK', '#ffffff', L.x, L.y + 6); }
     d.scanners.forEach((s, i) => { const S = scannerState(s, i);
       if (S.on && L.y < S.y - 2 && Math.abs(L.x - S.x) < (S.y - L.y) * 0.18 + 1.5) {
         try { addHeat(1, 'An Apex scanner drone saw your cargo.'); } catch (e) {}
@@ -21204,6 +21238,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (deck.scene) return;
     if (kind === 'malley') { const first = store.get('ds-alleyHello', '') !== '1'; store.set('ds-alleyHello', '1');
       shipSay(withMe('X') ? 'X' : 'P', withMe('X') ? (first ? 'Sprocket’s alley. Every courier on Mars knows it. Nobody admits it. Don’t buy the fuel additive. Buy the fuel additive.' : 'Sprocket. Still here. Still “not a shop”.') : first ? 'The gap behind the market opens into a dark alley. A green sign buzzes: PSST. Someone in goggles waves you over from behind a stack of crates. One of the crates honks.' : 'The PSST sign buzzes. Sprocket pretends not to see you, then waves.');
+      if (!withMe('X')) setTimeout(() => { if (deck && deck.kind === 'malley') shipSay('SK', first ? 'Psst. Over here. No, not there. HERE. Nice to meet you. We never met.' : ['Back again? I knew you had a criminal heart. A nice one. With a little moustache.', 'If a drone asks, I’m a lamp.'][Math.floor(Math.random() * 2)]); }, first ? 3800 : 1500);
       return; }
     if (kind === 'ggrotto') {
       const first = store.get('ds-gany-grottoHello', '') !== '1', z = shoreParty.includes('Z'); store.set('ds-gany-grottoHello', '1');
