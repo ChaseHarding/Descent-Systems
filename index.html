@@ -19828,7 +19828,7 @@ details.act > .limits { margin: 0 0 8px; }
   // every glow word: its colours, and what it means
   const WORDS = {
     hello: ['gg', 'hello'], water: ['bb', 'water'], home: ['vb', 'home'], friend: ['pg', 'friend'], fish: ['mv', 'fish'], small: ['bp', 'small'],
-    big: ['vv', 'big'], thanks: ['gbp', 'thank you'], sleep: ['vm', 'sleep'], deep: ['bvb', 'the deep'], light: ['gp', 'light'], food: ['mg', 'food'],
+    big: ['vv', 'big'], thanks: ['gbp', 'thank you'], sleep: ['vm', 'sleep'], deep: ['bvb', 'deep'], light: ['gp', 'light'], food: ['mg', 'food'],
     old: ['vg', 'old'], song: ['pbm', 'song'], ice: ['bm', 'ice'], warm: ['pp', 'warm'], yes: ['mm', 'yes'], no: ['pv', 'no'],
     jupiter: ['gvg', 'Jupiter'], wake: ['gmg', 'wake'], tide: ['bbv', 'Tide'], secret: ['ppb', 'secret'], forever: ['vgpb', 'forever']
   };
@@ -19870,7 +19870,11 @@ details.act > .limits { margin: 0 0 8px; }
       else shipSay('P', `${name} glows at you: ${gGlowWords(seed + Math.floor(Math.random() * 5))}. You don’t speak glow. Zib would know what it means.`);
       return;
     }
-    if (zib) { gSayHTML('Z', `${esc(name)} says: “${gLineHTML(line, true)}” <span class="zt">Zib is translating!</span>`); gLearnAll(toks); return; }
+    if (zib) { const zd = gStore('zibDay', {}), taught = zd.day === shipDay ? zd.n : 0, full = taught >= 3;
+      const fresh = [...new Set(toks.filter(w => !gKnows(w)))], pick = fresh.length && !full ? fresh[Math.floor(Math.random() * fresh.length)] : null;
+      if (pick) gSet('zibDay', { day: shipDay, n: taught + 1 });
+      gSayHTML('Z', `${esc(name)} says: “${gLineHTML(line, true)}” <span class="zt">${pick ? `Zib teaches you one glow word: “${esc(WORDS[pick][1])}”.${taught + 1 >= 3 ? ' That is three today! Zib’s head is full. More tomorrow!' : ' One at a time, or your head will glow too much!'}` : fresh.length ? 'Zib is translating! But no more lessons today. Zib’s head is full of glow. Listen and remember!' : 'Zib is translating!'}</span>`);
+      if (pick) gLearn(pick); gHear(fresh.filter(w => w !== pick)); return; }
     gHear(toks);
     const all = toks.every(gKnows), some = toks.some(gKnows);
     gSayHTML(opt.who || 'P', `${esc(name)} glows: ${gLineHTML(line, false)}${all ? ` <span class="zt">You understood that! “${esc(gPlain(line))}”</span>` : some ? ' <span class="zt">You caught some of that.</span>' : ' <span class="zt">The Glow Book keeps track of words you hear.</span>'}`);
