@@ -429,6 +429,7 @@ kbd {
 .ppbtn:active { transform: translate(-50%, -50%) rotate(-4deg) scale(.94); }
 .roomshake { animation: roomshake .35s; } @keyframes roomshake { 20% { transform: translateX(-4px); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
 @media (prefers-reduced-motion: reduce) { .roomshake { animation: none; } }
+.zstall.night { border-color: #ffb547; background: linear-gradient(#120e18, #0a0e1c); } .zstall.night .ztrade { display: block; border-color: #ffb547; background: rgba(255,181,71,0.05); }
 .zstall.paint { border-color: #ff8fd8; } .zstall.paint .ztrade { border-color: #ff8fd8; background: rgba(255,143,216,0.06); } .zstall.paint b { color: #ff8fd8; }
 .zstall.tailor { border-color: #c8a2ff; } .zstall.tailor .ztrade { border-color: #c8a2ff; } .zstall.tailor b { color: #e6d4ff; }
 .ztrade .psw { display: block; width: 100%; height: 7px; border-radius: 3px; margin-top: 5px; } .ztrade.on { outline: 2px solid #fff; outline-offset: 1px; }
@@ -5345,7 +5346,7 @@ details.act > .limits { margin: 0 0 8px; }
     sailedFor = null;
     credits += pay + extra + local;
     const styleRes = styleBankMission();
-    if (d.smuggle) { try { addHeat(1, 'Sprocket’s cargo got through. Somewhere, an Apex drone got a notification.'); } catch (e) {} }
+    if (d.smuggle) { try { addHeat(1, 'Sprocket’s cargo got through. Somewhere, an Apex drone got a notification.'); crewOpinion(d.id === 'smuggle-vault' ? 'vault' : 'smuggle'); } catch (e) {} }
     if (d.id === 'smuggle-vault' && store.get('ds-floor99Key', '') !== '1') { store.set('ds-floor99Key', '1'); setTimeout(() => celebrate('Sprocket’s big job', 'An Apex keycard', 'The case was empty except for one white keycard stamped FLOOR 99. Sprocket says you never saw it. It’s on your Pad.', null, null, { n: 50 }), 600); }
     saveCosmetics();
     lastRun = { frames: recording, result: 'landed' };
@@ -11288,8 +11289,9 @@ details.act > .limits { margin: 0 0 8px; }
       crumb: kind === 'pim' ? (crumbHome() ? { x: 80, y: 130, dir: 1, pause: 1 } : null) : kind === 'pimbake' || GANY_KINDS.includes(kind) || MARS_KINDS.includes(kind) ? null : crumbAround() && (hall || ((gdn || kind === 'bridge') && Math.random() < 0.4)) ? { x: hall ? 60 + Math.random() * (HALL_W - 120) : 60, y: hall ? 140 : 132, dir: 1, pause: 1 } : null,
       comms: null, talking: null, talkT: 0 };
     deck.npcs = buildNpcs(kind);
-    { const rsc = roomSceneFor(kind) || ambientFor(kind); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
-    { const now = performance.now(); deck.npcs.forEach((n, i) => { n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
+    { const rsc = roomSceneFor(kind) || (NIGHT[kind] && nightScene(kind) ? null : ambientFor(kind)); if (rsc) setTimeout(() => { if (deck && deck.kind === kind && !deck.scene) startRoomScene(rsc); }, 700); }
+    deck.night = null; if (NIGHT[kind]) try { nightPlace(kind); } catch (e) {}
+    { const now = performance.now(); deck.npcs.forEach((n, i) => { if (n.night) return; n.emote = { k: 'wave', t0: now + 450 + i * 350, until: now + 2300 + i * 350 }; n.notice = now + 2300 + i * 350; }); }
     deck.cat = hall && !catHiding() && Math.random() < 0.25 ? { x: Math.max(30, Math.min(HALL_W - 30, deck.me.x + 36)), y: deck.me.y + 26, follow: 7, sleep: false, moving: false } : null;
     deck.from = from;
     if (MARS_STREETS.includes(kind) || kind === 'mdiner') { deck.lost = from === 'maglev'; crimeRoomInit(kind); }
@@ -11380,6 +11382,7 @@ details.act > .limits { margin: 0 0 8px; }
   function shipThings() {
     const L = [];
     npcThings(L);
+    nightThings(L);
     if (deck.crumb) { const k = deck.crumb; L.push({ id: 'crumb', rect: [k.x - 2, k.y - 6, 18, 16], go: () => [k.x + (deck.me.x < k.x ? -8 : 22), k.y + 8], at: () => ({ x: k.x + 7, y: k.y + 4 }), act: () => { k.pause = 2.5; const C = loungeLines('K').filter(x => !/table|Apogee is asleep on top|Gus’s mug/.test(x)); shipSay('K', C[Math.floor(Math.random() * C.length)]); } }); }
     if (deck.kind === 'gany') { ganyThings(L); return L; }
     if (deck.kind === 'ggrotto') { grottoThings(L); return L; }
@@ -16709,17 +16712,19 @@ details.act > .limits { margin: 0 0 8px; }
   ];
   let groupTyping = null, groupTimer = 0;
   const groupCan = w => w === 'sys' || ((w === 'F' || w === 'G' || textWho().includes(w)) && !isLost(w));
+  const grpDone = k => typeof GROUP_EV !== 'undefined' && GROUP_EV[k] ? GROUP_EV[k]() : storyDone(k);
   function groupCheck() {
     if (!bond.groupDone) {   // first look on an old save: only the most recent moment, so the chat doesn't flood
-      const done = GROUP_CHATS.filter(([k]) => storyDone(k)).map(([k]) => k);
+      const done = GROUP_CHATS.filter(([k]) => grpDone(k)).map(([k]) => k);
       bond.groupDone = done.slice(0, -1); bond.group = []; bond.groupQ = []; bond.groupAsk = null;
     }
     if (!Array.isArray(bond.group)) bond.group = [];
     if (!Array.isArray(bond.groupQ)) bond.groupQ = [];
     let added = 0;
     for (const [k, lines, asks] of GROUP_CHATS) {
-      if (bond.groupDone.includes(k) || !storyDone(k)) continue;
+      if (bond.groupDone.includes(k) || !grpDone(k)) continue;
       bond.groupDone.push(k);
+      if (k === 'ev-gp') try { crewOpinion('gpwin'); } catch (e) {}
       for (const [w, t] of lines) if (groupCan(w)) { bond.groupQ.push({ from: w, text: t }); added++; }
       bond.groupQ.push({ ask: k });
     }
@@ -17258,7 +17263,8 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function textFrom(w) {
     if (pendingText(w) || isEx(w)) return false;
-    const bank = TEXTS[w]; if (!bank) return false;
+    const gt = GROWN_TEXTS[w] && GROWN_TEXTS[w].filter(([t]) => !thread(w).some(m => m.text === t));
+    const bank = gt && gt.length && Math.random() < 0.6 ? gt : TEXTS[w]; if (!bank) return false;
     const seen = thread(w).map(m => m.text), fresh = bank.filter(([t]) => !seen.includes(t)), pool = fresh.length ? fresh : bank;
     const [t, base] = pool[Math.floor(Math.random() * pool.length)];
     sendText(w, t, textChoices(w, base));
@@ -17266,6 +17272,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   function replyText(w, i) {
     const m = pendingText(w); if (!m) return;
+    if (m.deep) { deepReply(w, m, i); return; }
     const [r, tone, back] = m.choices[i]; m.picked = i;
     thread(w).push({ from: 'P', text: r, day: shipDay });
     const pts = { warm: 15, fun: 10, flirt: isPartner(w) ? 20 : 12, cold: -25 }[tone] || 0;
@@ -17278,6 +17285,7 @@ details.act > .limits { margin: 0 0 8px; }
   }
   // overnight: one or two people text you, and partners say goodnight
   function textsOvernight() {
+    try { deepOvernight(); } catch (e) {}
     const who = textWho().filter(w => !isEx(w) && !pendingText(w));
     for (const p of bond.partners) if (who.includes(p) && GOODNIGHT[p]) { sendText(p, GOODNIGHT[p], GN_REPLY.slice().sort(() => Math.random() - 0.5).sort((a, b) => (a[1] === 'warm' ? 0 : 1) - (b[1] === 'warm' ? 0 : 1)).filter((x, i, a) => a.findIndex(y => y[1] === x[1]) === i), true); }
     const others = who.filter(w => !bond.partners.includes(w)).sort(() => Math.random() - 0.5).sort((a, b) => heartsOf(b) - heartsOf(a)).slice(0, 4);
@@ -18103,6 +18111,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (messyOn && isPartner(who) && !bond.open && (bond.sus[who] || 0) >= 40 && Math.random() < 0.5) return dramaLine(who, 'jealous');
     if (romanceOn && coupleOf(who) && Math.random() < 0.35) { const C = COUPLES[pairOf(who)]; return C.a === who ? C.a2 : C.b2; }
     if (isPartner(who)) L = L.concat(ROM[who].date, ROM[who].date);
+    if (GROWN_CHAT[who] && Math.random() < 0.55) return GROWN_CHAT[who][Math.floor(Math.random() * GROWN_CHAT[who].length)];
     return L[Math.floor(Math.random() * L.length)];
   }
   const statusOf = who => isPartner(who) ? (bond.partners.length > 1 && !bond.open ? 'Dating ♥ (secretly)' : 'Dating ♥') : isEx(who) ? 'Ex · awkward' : coupleOf(who) ? `With ${SIGN[coupleOf(who)]} ♥` : heartsOf(who) >= 6 ? 'Close friend' : heartsOf(who) >= 3 ? 'Good friend' : 'Friend';
@@ -21008,6 +21017,7 @@ details.act > .limits { margin: 0 0 8px; }
   function setHeat(v) { store.set('ds-marsHeat', JSON.stringify({ v: Math.max(0, Math.min(3, v)), day: shipDay })); }
   function addHeat(d, why) {
     const before = marsHeat(); setHeat(before + d); const now = marsHeat();
+    if (now >= 3 && store.get('ds-wantedSeen', '') !== '1') { store.set('ds-wantedSeen', '1'); try { crewOpinion('wanted'); } catch (e) {} }
     if (now > before) { showToast(`🔴 Heat ${'●'.repeat(now)}${'○'.repeat(3 - now)} · ${why || 'Apex Security has noticed you.'}`, 2800);
       if (store.get('ds-hintHeat', '') !== '1') { store.set('ds-hintHeat', '1'); setTimeout(() => showToast('🛸 Heat means Apex drones follow you around Mars. When a drone’s eye flashes, step out of its red beam. Lose them on the maglev or in Rusty’s booth. Heat drops every day.', 5200), 3200); }
       if (before === 0) setTimeout(() => { if (deck && SHORE_KINDS.includes(deck.kind)) shipSay('J', 'Pilot. Why is Apex Security texting ME about YOU. What did you do. Don’t tell me. Tell me later. If the drones follow you, go to Rusty’s.'); }, 1400); }
@@ -21721,6 +21731,7 @@ details.act > .limits { margin: 0 0 8px; }
     $('mixBack').addEventListener('click', () => { keepName(); sfx.click(); openPaint(); });
     $('mixGo').addEventListener('click', () => {
       keepName(); const first = !owned.has('hull:marta'), c2 = paintPrice(first ? 1500 : 200); if (credits < c2) return;
+      if (first) try { crewOpinion('marta'); } catch (e) {}
       credits -= c2; store.set('ds-martaMix', JSON.stringify(m)); martaMixApply(); owned.add('hull:marta'); equip.hull = 'marta'; saveCosmetics(); sfx.coin();
       if (deck) deck.mixShake = performance.now() + 2400;
       const r = shopReact();
@@ -21772,7 +21783,7 @@ details.act > .limits { margin: 0 0 8px; }
     const off = $('tlOff'); if (off) off.addEventListener('click', () => { if (kind === 'outfit') lic.outfit = null; else lic.hat = 'none'; saveLic(); sfx.click(); openTailor('Removed. It will miss you. It told me.'); });
     const buy = $('tlBuy'); if (buy) buy.addEventListener('click', () => {
       if (!it || credits < it.price || locked) return;
-      credits -= it.price; saveCosmetics(); wardOwned.add(sel); saveWard(); if (kind === 'outfit') lic.outfit = sel; else lic.hat = sel; saveLic(); sfx.coin(); confetti(sel === 'bighat' ? 120 : 40);
+      credits -= it.price; saveCosmetics(); wardOwned.add(sel); saveWard(); if (sel === 'bighat' || sel === 'whitesuit') try { crewOpinion(sel); } catch (e) {} if (kind === 'outfit') lic.outfit = sel; else lic.hat = sel; saveLic(); sfx.coin(); confetti(sel === 'bighat' ? 120 : 40);
       const r = sel === 'bighat' ? (shoreParty.find(w => BIGHAT_LINES[w] && withMe(w)) ? (w => [w, BIGHAT_LINES[w]])(shoreParty.find(w => BIGHAT_LINES[w] && withMe(w))) : null) : shopReact();
       tailorUI.sel = null;
       openTailor(({ marsjacket: 'The jacket. I have sewn on a patch for every world you have landed on. I will sew more. I am always sewing.', duster: 'It flaps. Even in here. There is no wind in here. I have stopped asking.', racesuit: 'Gerald will be cold now. Gerald will survive. Gerald always survives.', whitesuit: 'You look like Apex. You smell like Marta’s paint. Agent Pell will be very confused. Enjoy it.', cowboy: 'Yee. And also, haw.', racehelm: 'Visor up. Faces are important. I do not have one. I would know.', bighat: 'You have done it. The Hat has chosen. I am… I am proud. I did not know I could be proud. Please mind the door frame.' }[sel]) + (r ? ` · ${SIGN[r[0]]}: “${r[1]}”` : ''));
@@ -21796,6 +21807,282 @@ details.act > .limits { margin: 0 0 8px; }
     }
     return true;
   }
+  // ==== A more grown-up ship: real worries, dry humour, things that are remembered ====
+  // 1) everyday chat and texts get a deeper pool, mixed in with the old lines
+  const GROWN_CHAT = {
+    F: ['Fuel went up nine percent when Apex bought the Phobos depot. I’ve rerun the numbers four times. They don’t improve with practice.',
+      'I used to think running a company meant flying. It means invoices. Flying is the thing you do between invoices.',
+      'Don’t tell Gus, but I check his engine work after he goes to bed. Not because he’s bad. Because if he’s wrong once, I lose all of you.',
+      'Wren calls me “the kid”. I’m fifty-three. I’ve decided to take it as a compliment. It is not one.',
+      'The coffee is terrible because the good coffee costs eleven credits a bag. I know the exact number. I know all the numbers.',
+      'I was married, once. To a pilot. It turns out you can’t file a marriage under “ongoing maintenance”. I tried.'],
+    G: ['My dad fixed maglevs on Ceres for thirty years. He used to say an engine never lies to you. People, though. Hell of a lot of opinions, people.',
+      'I don’t sleep much. The engine makes a noise at 3am. It’s fine. It’s been fine for six months. I still go and listen to it.',
+      'Biscuit’s older than you think. I replaced so many parts I’m not sure how much of the original is left. Same with me, honestly.',
+      'If Dottie ever asks if I’ve sold something to make payroll, the answer is no. And if she asks about my good wrench set, also no.',
+      'I tried therapy once, on Mars. The guy asked me how I felt and I described a gearbox for forty minutes. He said it was a breakthrough.',
+      'Apex offered me a job last year. Triple pay. A badge with my name spelled right. I think about it more than I should.'],
+    W: ['I’ve buried more pilots than I’ve trained, dear. That’s the arithmetic of a long career. Don’t let it be yours.',
+      'My knees sound like the landing gear on the old Kepler. Both of them have filed complaints.',
+      'People think the hard part of flying is the landing. It’s the coming home. Nobody trains you for the quiet afterwards.',
+      'I drink a little more than I used to. Marisol has noticed. She leaves the water glass next to the whiskey. Subtle girl.',
+      'I had a wife. Theresa. She hated space and loved me, which is a terrible combination for both people. Thirty-one good years anyway.',
+      'You remind me of someone I flew with. She was reckless too. Damn good pilot. Bad at getting old. Didn’t get the chance.'],
+    R: ['Being famous is like being very, very lonely in a room full of people who think they know you. I recommend it. The hotels are lovely.',
+      'Apex paid me for nine years to smile in their adverts. I smiled so much my face got a sponsor. I’m only half joking.',
+      'I read my reviews. All of them. At 3am. It’s the only thing I do that nobody photographs.',
+      'My mother watches every film I make. She sends one text after each one. It says “You looked thin.” Every time. For twenty years.',
+      'People keep asking me what I’m running from. Darling, I’m not running. I’m on tour. There’s a difference. The difference is lighting.',
+      'Off-camera I’m actually quite boring. I go to bed early. I do crosswords. Don’t you dare tell anyone.'],
+    J: ['Two of my dockhands lost their contracts this week. Apex calls it “restructuring”. I call it Tuesday.',
+      'People say the docks are rough. The docks are honest. You want rough, try a shareholder meeting.',
+      'My mother was a dockhand. Her mother too. Apex owns the dock now and they still can’t pronounce our names.',
+      'I don’t hate Apex. Hate takes energy. I just make sure they pay every fee, every time, to the cent. Slowly.',
+      'Somebody left flowers on the crane where Delgado fell. Every year. I know who. I let them think I don’t.'],
+    Z: ['Zib’s cousin went up the drill shaft to see the sky. He did not come back down. Zib is practising not being sad. Zib is not good at practising.',
+      'On Ganymede, when someone glows too bright for too long, we say they are “burning their lantern”. Zib thinks Dottie is burning her lantern.',
+      'Zib was told humans cry from the eyes. Zib cries from the whole body. It is very inconvenient at the market.',
+      'Apex says the drill is “progress”. Zib looked up the word. It does not mean what they think.'],
+    O: ['My moths live four days. I knew every one by name. You get used to goodbyes, little pilot, or you stop naming things. I never stopped naming things.',
+      'Light is just something that left a star a long time ago and has not stopped travelling. That is a sad thought or a brave one. I choose every morning.'],
+    V: ['Diplomacy is mostly sitting very still while someone insults your planet, then thanking them for the soup.',
+      'Lyra and I lost our parents in the same treaty war we now negotiate about. We do not talk about it at dinner. We talk about it at every other time.'],
+    Y: ['Off the record: the treaty is going badly. On the record: the soup was excellent.',
+      'Kael thinks I don’t sleep because of work. It’s because of the dreams. Don’t tell him. He’d try to fix it. He’d make it worse.'],
+    X: ['I race because standing still feels like drowning. My counsellor says that’s “worth unpacking”. I say it’s worth a trophy.',
+      'My brother raced for Apex. He crashed at the Needle. He’s fine. He just doesn’t fly any more. Or talk to me much. Same thing, nearly.'],
+    D: ['Wren skipped her check-up again. I’m not allowed to tell you why I’m worried. I’m telling you I’m worried.',
+      'Medic rule number one: everyone lies about how much they drink. Rule two: Gus lies about how much he sleeps. Rule three: I know.'],
+    H: ['Galley budget got cut to oatmeal. I buy the real food with my own money. Don’t tell Dottie. Dottie knows. Dottie pretends not to. It’s a system.',
+      'My grandmother cooked for forty people on a mining station. Every Sunday. Even the week the air failed. You feed people. That’s the whole job.'],
+    T: ['Plants are honest. They die if you neglect them, and they don’t pretend otherwise. I like that. I wish people came with the same warning.',
+      'I left a research post on Earth to come out here and grow tomatoes for six people and a cat. Best decision I’ve made. Second best was leaving my ex.'],
+    C: ['My family thinks I’m on a “prestigious cadet programme”. I am. It’s just… this ship. Please don’t correct them.',
+      'Dottie said I did a good job today. I wrote it down. I have a notebook of every time she’s said it. There are four entries.'],
+    N: ['On Europa, the dark is home. Up here, it is just dark. I am learning the difference. Slowly.',
+      'I miss the whales. Not the sound. The weight of them, moving under you. Like the ocean breathing.'],
+    S: ['…I am… very old. Older… than your oldest… city. It is… lonely… in a slow way.',
+      '…Pebble… is not… really a pet. He is… from home. The only… piece of it… left.'],
+    E: ['Juno hired me after Apex fired me. No questions. I’d run through a wall for her. Don’t tell her. She’d make me run through a wall.',
+      'Some nights I still check the Apex job board. Old habits. Bad habits. Both.'],
+    Q: ['Apex raised me. Not literally. Well. Literally a bit. Flight school at nine, contracts at sixteen. I didn’t know you could just… leave.',
+      'I owe you one. I don’t like owing people. I’m working on it.']
+  };
+  const GROWN_TEXTS = {
+    F: [['Fuel’s up nine percent. I’ve rerun the numbers four times. They don’t improve at 2am. Go to bed. One of us should.', [['You go to bed too, Dottie.', 'warm', 'Can’t. The numbers will notice.'], ['What can I do to help?', 'warm', 'Fly well. Crash less. That’s genuinely the budget plan.']]],
+      ['Gus asked if we were okay. I said yes. I’m a very good liar after midnight.', [['Are we okay?', 'warm', 'We’re… flying. That counts. Ask me again in a month.'], ['You’re a terrible liar, actually.', 'fun', 'Rude. Accurate. Rude.']]],
+      ['Found my old pilot licence in a drawer. The photo looks like someone who still believes in things.', [['You still believe in things.', 'warm', 'I believe in this crew. And spreadsheets. That’s two things.'], ['Send the photo.', 'fun', '📷 a young woman in a flight suit, grinning, with a very bad haircut']]]],
+    G: [['Can’t sleep. Engine’s making the 3am noise. It’s fine. I’m sitting next to it anyway.', [['Want company?', 'warm', 'Bring the bad biscuits. The good ones are Dottie’s.'], ['You know it’s been fine for six months.', 'fun', 'And it’ll stay fine because I listen to it. That’s the deal we made.']]],
+      ['Apex sent me another job offer. Triple pay. I didn’t reply. I also didn’t delete it.', [['Stay. We need you.', 'warm', 'Yeah. I know. That’s the problem. I mean, that’s the good part.'], ['Triple is a lot of money, Gus.', 'fun', 'I KNOW. I’ve calculated it in wrenches. It’s so many wrenches.']]]],
+    W: [['Three of the five people in that Kepler photo are dead. I’m not being dramatic. I’m counting. You get to an age where you count.', [['Tell me about them sometime?', 'warm', 'Sometime. With whiskey. They’d have liked you. They liked trouble.'], ['You’re not going anywhere.', 'warm', 'Everyone’s going somewhere, dear. I’d just like the scenic route.']]],
+      ['Marisol says I should drink less. I said I’d drink less when the universe gets less. She wasn’t charmed.', [['She’s right, Wren.', 'warm', '…I know she is. That’s what’s so bloody annoying.'], ['The universe IS a lot.', 'fun', 'Exactly. I’m pacing myself against it.']]]],
+    R: [['Don’t read my reviews. I did. “Valor brings the same expression to grief as he does to lunch.” He’s not wrong. That’s the part that stings.', [['You’re better than they say.', 'warm', 'I’m exactly as good as they say. I could be better. That’s… a new thought.'], ['Lunch is very emotional for you.', 'fun', 'It IS. Soup can be devastating. Nobody writes about that.']]],
+      ['My agent called. Apex wants me back for one advert. One. I can hear the money breathing.', [['Don’t you dare.', 'warm', 'I knew you’d say that. I needed someone to say it.'], ['What would it pay?', 'fun', 'Enough to buy a moon. A small one. A disappointing one.']]]],
+    J: [['Apex “restructured” two of my dockhands today. One has a kid starting school on Monday. I bought the shoes. Don’t make it a thing.', [['That was kind, Juno.', 'warm', 'It was shoes. It’s not kind. It’s just… the minimum. It shouldn’t be this hard to manage the minimum.'], ['Not making it a thing. 👟', 'fun', 'Good. …Size 3. Red. Light up when you stomp. She stomped. I watched.']]],
+      ['Someone’s been leaving flowers on the crane where Delgado fell. Eleven years. I know who it is. I let him think I don’t.', [['Who was Delgado?', 'warm', 'My first crew chief. Best I ever had. Apex said it was “operator error”. It was a cable they didn’t replace.'], ['That’s a good kind of secret.', 'warm', 'Most secrets on the docks are. People here grieve quietly. It’s cheaper.']]]],
+    Z: [['Zib’s cousin went up the drill shaft to see the sky. He did not come back down. Zib is not sad. Zib is practising not being sad. It is going badly.', [['It’s okay to be sad, Zib.', 'warm', 'Is it? On Ganymede we glow it out. Zib has been glowing for three days. The neighbours have complained.'], ['Want to talk about him?', 'warm', 'His name was Plip. He sold the worst jelly in the market. Everyone bought it anyway. Zib misses the worst jelly.']]]],
+    X: [['Raced the Needle alone tonight. My brother’s line. I clipped the same rock he did. I didn’t crash. I wanted to tell someone.', [['I’m glad you told me.', 'warm', '…Yeah. Me too. Don’t make it weird.'], ['Next time, take someone with you.', 'warm', 'Was that an offer? Because I’m taking it as an offer.']]]],
+    D: [['Medical, unofficial: Wren skipped her check-up again. I can’t make her come. You could. She listens to you. Don’t tell her I asked.', [['I’ll talk to her.', 'warm', 'Thank you. Gently. She bites.'], ['Is it serious?', 'warm', 'I don’t know. That’s what the check-up is for. That’s the whole point of a check-up. Please.']]]],
+    H: [['Galley budget’s down to oatmeal. I’ve been buying the real food myself. Don’t tell Dottie. She knows. She pretends not to. It’s a system.', [['Let me chip in.', 'warm', 'No. Yes. A bit. …Thank you. I’ll make you dumplings. Proper ones.'], ['Oatmeal builds character.', 'fun', 'Oatmeal builds resentment. I’ve seen it happen.']]]],
+    T: [['The tomatoes died. All of them. Blight. Eight weeks of work. I’m fine. I’m sitting in the garden eating the one survivor. It tastes like spite.', [['I’m sorry, Tamsin.', 'warm', 'Thanks. They’re just plants. They were my plants, though.'], ['Spite is a great seasoning.', 'fun', 'Best seasoning there is. Pair it with a grudge.']]]],
+    C: [['My mum asked if I’m happy. I said yes. I think I meant it? It’s hard to tell at 1am with Gus singing in the vents.', [['I think you meant it.', 'warm', 'Yeah. Okay. Yeah. …Gus is still singing. It’s Fly Me To Phobos. Again.'], ['Gus sings in the vents?', 'fun', 'Every night. Badly. With feeling. You get used to it. You don’t.']]]],
+    Q: [['I quit Apex a month ago. Today they cancelled my health cover. Retroactively. Is that legal? Don’t answer. It’s Apex. It’s legal on paper.', [['Marisol will patch you up for free.', 'warm', 'She already offered. I didn’t know what to say. Nobody’s ever offered me anything without a contract.'], ['We’ll make them regret it.', 'fun', 'I like that “we”. Okay. We.']]]]
+  };
+
+  // 2) late texts with weight: what you answer changes things, and they come back to it days later
+  const DEEP = [
+    { id: 'f-payroll', w: 'F', need: 3, pre: ['Payroll’s short. Again. I can cover Gus and Wren this month if I skip mine.'], text: 'Don’t tell Gus. He’ll try to sell his tools. He tried in March. I bought them back.',
+      ch: [{ r: 'Take my cut this month instead.', tone: 'warm', back: ['No.', '…Thank you. Still no. Go to bed.'], pts: 20, later: [3, 'F', 'You offered your cut. I didn’t take it. I wanted you to know I didn’t forget.'] },
+        { r: 'Sprocket’s jobs pay well. Just saying.', tone: 'cold', back: ['I didn’t build this company to run boxes for a man who calls himself Sprocket.', 'Goodnight.'], pts: -15, others: { J: -10, X: 8 }, later: [2, 'F', 'I thought about what you said about Sprocket. The answer is still no. But I thought about it. That’s what scares me.'] },
+        { r: 'The crew should know. They’d want to help.', tone: 'warm', back: ['Maybe. Not yet. I need one more week of pretending I’m in control.'], pts: 10, later: [2, 'G', 'Dottie told us about payroll. I’m not selling my tools. I’m selling Rex’s hair dryer. He has four.'] },
+        { r: 'Go to sleep, Dottie. We’ll figure it out.', tone: 'warm', back: ['“We”. Okay. I’ll allow “we”. Goodnight, pilot.'], pts: 12 }] },
+    { id: 'g-dad', w: 'G', need: 3, pre: ['My dad called. First time in six years.'], text: 'Wanted to know if Apex is hiring. Not how I am. If Apex is hiring.',
+      ch: [{ r: 'Call him back. Tell him how you are.', tone: 'warm', back: ['I don’t know how I am. That’s the problem.', '…Okay. Tomorrow. Maybe.'], pts: 15, later: [3, 'G', 'Called him. Eleven minutes. Nine were about the weather on Ceres. Two were okay. Two is more than six years of zero.'] },
+        { r: 'He doesn’t deserve you, Gus.', tone: 'warm', back: ['Yeah. Maybe. He taught me to solder, though. Hard to hate a man who taught you to solder.'], pts: 12 },
+        { r: 'Well… IS Apex hiring?', tone: 'cold', back: ['Ha. Funny. Yeah.', 'Night.'], pts: -15, later: [2, 'G', 'That thing you said about Apex. I know it was a joke. It just landed weird. We’re good. Just… it landed weird.'] },
+        { r: 'Galley. Ten minutes. I’ll bring the bad biscuits.', tone: 'fun', back: ['The bad biscuits are the best biscuits. On my way.'], pts: 15 }] },
+    { id: 'w-count', w: 'W', need: 4, pre: ['Twenty years today since we lost Ellis on the Kepler run.'], text: 'Nobody remembers him but me now. That’s the bit that gets you. Not the dying. The being forgotten.',
+      ch: [{ r: 'Tell me about him. I’ll remember him too.', tone: 'warm', back: ['He sang while he flew. Badly. Every landing, the same song.', 'Now you know. Now there’s two of us. Thank you, dear.'], pts: 22, flag: 'ds-ellis' },
+        { r: 'Want company? I’m awake.', tone: 'warm', back: ['Galley. I’ve got the terrible whiskey out. Bring a glass and no advice.'], pts: 15 },
+        { r: 'You should get some sleep, Wren.', tone: 'fun', back: ['You sound like Marisol. Fine. Fine. Goodnight.'], pts: 4 }] },
+    { id: 'r-apex', w: 'R', need: 4, pre: ['The Chair called me. Personally. Offered my old contract back. Double.'], text: 'I said I’d think about it. I’m thinking about it now. At you. Help.',
+      ch: [{ r: 'Take it. You’d be set for life.', tone: 'fun', back: ['…Right. Yes. Sensible.'], pts: -8, later: [3, 'R', 'I didn’t take it. Thought you should know you were wrong. Also that I’m glad you were honest. Mostly the first thing.'] },
+        { r: 'Tell him where to stick it.', tone: 'warm', back: ['DARLING. I’m going to say it in exactly those words. On speaker. In the lobby.'], pts: 15, others: { J: 8 } },
+        { r: 'What do you actually want, Rex?', tone: 'warm', back: ['…', 'Nobody’s asked me that since I was nineteen. Give me a day.'], pts: 20, later: [2, 'R', 'I want to make one film I’m not embarrassed by. And I want to stay on this ship. In that order. Or the other order. Both.'] }] },
+    { id: 'j-crate', w: 'J', need: 2, when: () => (missionStars['smuggle-crate'] || 0) > 0, pre: ['Heard you’ve been running crates for Sprocket.'], text: 'Apex scanned my whole dock afterwards. Six crews lost a day’s pay waiting. Just so you know what it costs.',
+      ch: [{ r: 'I didn’t know. I’m sorry, Juno.', tone: 'warm', back: ['I know you didn’t. That’s why I told you.'], pts: 12 },
+        { r: 'I’ll pay those crews back myself.', tone: 'warm', cost: 150, back: ['…You’re serious. Okay. I’ll pass it on. Quietly. They won’t know it was you.', 'I’ll know.'], pts: 25 },
+        { r: 'Apex started this. Not me.', tone: 'fun', back: ['True. Doesn’t make the crews any richer.'], pts: -6 }] },
+    { id: 'd-wren', w: 'D', need: 2, when: () => wrenHome(), pre: [], text: 'Unofficial: Wren’s been skipping check-ups and coughing at night. She won’t listen to me. She’ll listen to you.',
+      ch: [{ r: 'I’ll talk to her tomorrow.', tone: 'warm', back: ['Thank you. Gently. She bites.'], pts: 12, later: [2, 'W', 'Marisol set you on me, didn’t she. Fine. I went. She says I’m “structurally fine”. Like a bridge. I’ll take it.'] },
+        { r: 'Want me to make it an order?', tone: 'fun', back: ['You can’t order Wren. Nobody can order Wren. But… try.'], pts: 8, later: [2, 'W', 'You ORDERED me to the medbay. You cheeky thing. I went. Don’t get used to it.'] }] },
+    { id: 'h-food', w: 'H', need: 2, pre: [], text: 'Galley budget got cut to oatmeal. I’ve been buying the real food myself for three weeks.',
+      ch: [{ r: 'Let me chip in. (100 cr)', tone: 'warm', cost: 100, back: ['…Fine. Thank you. Proper dumplings tomorrow. Tell no one.'], pts: 20 },
+        { r: 'Tell Dottie. She’d want to know.', tone: 'warm', back: ['She knows. She pretends not to. If I tell her, she has to stop pretending, and then she cries in the walk-in fridge. I’ve seen it.'], pts: 8 }] }
+  ];
+
+  // 3) the ship after midnight: one quiet scene a night, in the room where someone couldn't sleep
+  const NIGHT = {
+    galley: { who: 'W', ok: () => wrenHome(), place: 'Galley · 01:40',
+      lines: [['W', 'Phobos whiskey. Terrible stuff. They used to give it to us after a bad landing. Then after a good one. Then after Tuesday.'], ['W', 'It was twenty years ago today. Ellis. You don’t know the name. Nobody does. That’s rather the point of tonight.']],
+      ch: [{ r: 'Sit with her. Don’t say anything.', out: [['W', '…'], ['W', 'Thank you. People always want to say something. The quiet is the nice part.']], pts: 22 },
+        { r: '“Tell me about Ellis.”', out: [['W', 'Sang while he flew. One song, every landing. Couldn’t hold a note to save his life.'], ['W', 'Then one day the note was the last thing on the radio. I still hum it on approach. You’ve heard me. You thought it was the engine.']], pts: 20, flag: 'ds-ellis' },
+        { r: 'Pour yourself one.', out: [['W', 'Look at you. Terrible taste in liquor. You’ll make a fine old pilot.'], ['W', 'To Ellis. And to the ones nobody remembers. Bottoms up, dear.']], pts: 15 },
+        { r: 'Take the bottle away.', out: [['W', '…'], ['W', 'Marisol put you up to this. No? Hm. Well. Perhaps you’re right. Goodnight, pilot.']], pts: -5, later: [2, 'W', 'About the bottle. I was cross. I’m not now. Don’t do it again. Thank you for doing it.'] }] },
+    engine: { who: 'G', place: 'Engine room · 02:10',
+      lines: [['G', '—no, Dad, I’m not coming back to Ceres. Because I have a job. Because I— hello? Hello?'], ['G', 'He hung up. He does that. Sorry. You weren’t supposed to see that. The engine’s fine, by the way. In case that’s why you came.']],
+      ch: [{ r: 'I came for you, not the engine.', out: [['G', '…Oh.'], ['G', 'Okay. That’s. Okay. Sit down. There’s a bucket. It’s a good bucket.']], pts: 20 },
+        { r: 'Want to fix something together?', out: [['G', 'YES. Yes. The coffee machine is dying. Hand me the 10mm. No, the other 10mm.'], ['G', 'This is the best I’ve felt all week. Don’t tell Dottie we took her coffee machine apart at 2am.']], pts: 18 },
+        { r: '“Call him back tomorrow. Sober. Both of you.”', out: [['G', 'Ha. Yeah. He’d been at the Ceres gin. You could tell?'], ['G', 'Tomorrow. Maybe. Probably. Thanks for not making it a big deal.']], pts: 14 }] },
+    bridge: { who: 'F', place: 'The Bridge · 00:55',
+      lines: [['F', '…mm. Payroll. Mm.'], ['P', 'Dottie’s asleep at the console, the payroll open, a cold coffee by her hand. The cursor blinks on a red number.']],
+      ch: [{ r: 'Put a blanket over her and turn the screen off.', out: [['P', 'She mumbles “invoice” and sleeps on. In the morning there’s a sticky note on your door: “Thank you. Don’t mention it. I mean that literally.”']], pts: 20 },
+        { r: 'Wake her gently and walk her to her bunk.', out: [['F', 'Wha— I was resting my eyes. On the numbers.'], ['F', '…Fine. Fine. Walk me. Don’t tell Gus I needed walking.']], pts: 16 },
+        { r: 'Look at the numbers yourself.', out: [['P', 'It’s bad. Not over-tomorrow bad. Over-in-six-months bad. You close the screen. You don’t sleep much.']], pts: 0, later: [1, 'F', 'Someone moved my payroll window last night. I’m not asking who. I’m saying: now you know. Help me fix it.'] }] },
+    dome: { who: 'R', place: 'The Dome · 03:05',
+      lines: [['R', '“Valor’s range runs from smug to slightly more smug.” Ha. That one’s good. That one’s actually good.'], ['R', 'Oh. You. I come up here to read my reviews where nobody can see my face. It’s the only dark room on the ship.']],
+      ch: [{ r: 'Read me the worst one.', out: [['R', '“Rex Valor is a handsome man doing an impression of a handsome man.”'], ['R', '…You laughed. Good. When you laugh it stops being true. Stay a bit.']], pts: 18 },
+        { r: 'Close the reviews. Look at the stars instead.', out: [['R', 'The stars don’t review you. That’s the thing I like about them.'], ['R', 'Ten more minutes. Then bed. You can tell people I was stargazing. Very soulful. Very leading man.']], pts: 18 },
+        { r: '“They’re a bit right, you know.”', out: [['R', '…'], ['R', 'They are. I know. Thank you for not lying. Everybody lies to me. It’s exhausting being lied to by people who love you.']], pts: 10, later: [3, 'R', 'I’ve hired an acting coach. Her name is Margaret. She’s terrifying. She says I “hide behind my jaw”. I didn’t know you could.'] }] },
+    garden: { who: 'T', place: 'Garden · 01:20',
+      lines: [['T', 'Blight. The whole tomato bed. Eight weeks.'], ['T', 'I’m not crying. I’m watering. With my face. Don’t look.']],
+      ch: [{ r: 'Help her pull the dead plants.', out: [['T', 'You’ll get blight on your hands. Wash them twice.'], ['T', '…Thank you. It’s easier with two. Everything’s easier with two.']], pts: 18 },
+        { r: 'Eat the one survivor together.', out: [['T', 'It’s the only tomato left on the ship. It’s small. It’s sour. It’s perfect.'], ['T', 'We’ll start again tomorrow. Tomatoes don’t give up. Neither do I. Neither do you, apparently.']], pts: 16 }] }
+  };
+  const nightNow = () => { const h = new Date().getHours(); return eveLevel() >= 1 || h >= 23 || h < 5; };
+  function nightScene(kind) {
+    const s = NIGHT[kind]; if (!s || !nightNow() || deck.scene) return null;
+    bond.nightSeen = bond.nightSeen || [];
+    if (bond.nightSeen.includes(kind) || store.get('ds-nightDay', '') === shipDayKey()) return null;
+    if (s.ok && !s.ok()) return null;
+    if (!(s.who === 'F' || s.who === 'G' || textWho().includes(s.who)) || isLost(s.who) || heartsOf(s.who) < 3) return null;
+    return s;
+  }
+  function nightPlace(kind) {
+    const s = nightScene(kind); if (!s || !deck) return;
+    deck.npcs = deck.npcs.filter(n => n.who !== s.who);
+    const now = performance.now(), x = Math.max(deck.B[0] + 20, Math.min(deck.B[2] - 20, deck.me.x + 60)), y = Math.round((deck.B[1] + deck.B[3]) / 2);
+    deck.npcs.push({ who: s.who, x, y, dir: 1, baseDir: 1, goal: null, pause: 1e9, moving: false, local: true, night: kind, emote: { k: 'dots', t0: now, until: now + 1e9 } });
+    deck.night = kind;
+  }
+  function nightThings(L) {
+    if (!deck || !deck.night) return;
+    const n = deck.npcs.find(x => x.night === deck.night); if (!n) return;
+    L.unshift({ id: 'night', rect: [n.x - 10, n.y - 28, 20, 30], go: () => [n.x + (deck.me.x < n.x ? -16 : 16), n.y + 2], at: () => n, act: () => openNight(deck.night) });
+  }
+  function nightCard() { let el = $('nightCard'); if (!el) { el = document.createElement('div'); el.id = 'nightCard'; el.className = 'qnew'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'After midnight'); document.body.appendChild(el); } return el; }
+  function openNight(kind) {
+    const s = NIGHT[kind]; if (!s) return; sfx.click();
+    const el = nightCard(); let i = 0, lines = s.lines, picked = null;
+    const show = () => {
+      const [w, t] = lines[i], last = i >= lines.length - 1;
+      el.innerHTML = `<div class="qnew-card zstall night">${w === 'P' ? faceTag(w, t) : faceTag(w, t).replace(/data-mood="[^"]*"/, 'data-mood="worried"')}<span class="eyebrow">${esc(s.place)}</span><b style="color:${SPEAKERS[w].color}">${esc(w === 'P' ? 'You' : SIGN[w])}</b>
+        <p class="zsay" aria-live="polite">${esc(t)}</p>
+        ${!last ? '<div class="btns"><button class="btn ghost" id="ngNext">…</button></div>' : picked == null ? `<div class="ztrades">${s.ch.map((c, k) => `<button class="ztrade" data-ng="${k}">${esc(c.r)}</button>`).join('')}</div>` : '<div class="btns"><button class="btn ghost" id="ngDone">Goodnight</button></div>'}</div>`;
+      paintFaces(el); el.hidden = false;
+      const nx = $('ngNext'); if (nx) nx.addEventListener('click', () => { i++; sfx.click(); show(); });
+      el.querySelectorAll('[data-ng]').forEach(b => b.addEventListener('click', () => {
+        const c = s.ch[+b.dataset.ng]; picked = c; lines = c.out; i = 0; sfx.click();
+        bond.nightSeen = bond.nightSeen || []; bond.nightSeen.push(kind); store.set('ds-nightDay', shipDayKey());
+        if (c.pts > 0) addHearts(s.who, c.pts); else if (c.pts < 0) hearts[s.who] = Math.max(0, (hearts[s.who] || 0) + c.pts);
+        if (c.flag) store.set(c.flag, '1');
+        if (c.later) laterText(c.later);
+        saveBond(); show();
+      }));
+      const dn = $('ngDone'); if (dn) dn.addEventListener('click', () => { sfx.click(); el.hidden = true; const n = deck && deck.npcs.find(x => x.night === kind); if (n) { n.emote = null; n.night = null; } if (deck) deck.night = null; });
+    };
+    show();
+  }
+
+  // the deep texts: sent overnight now and then, with callbacks a few days later
+  function laterText([days, w, text]) { bond.later = bond.later || []; bond.later.push({ day: shipDay + days, w, text }); }
+  function deepOvernight() {
+    bond.later = bond.later || []; bond.deepDone = bond.deepDone || [];
+    const due = bond.later.filter(x => x.day <= shipDay); bond.later = bond.later.filter(x => x.day > shipDay);
+    due.forEach(x => { if (SPEAKERS[x.w] && !isLost(x.w)) sendText(x.w, x.text, null, true); });
+    if (Math.random() > 0.45) return false;
+    const who = textWho();
+    const open = DEEP.filter(d => !bond.deepDone.includes(d.id) && (d.w === 'F' || d.w === 'G' || who.includes(d.w)) && !isLost(d.w) && !isEx(d.w) && !pendingText(d.w) && heartsOf(d.w) >= d.need && (!d.when || d.when()));
+    if (!open.length) return false;
+    const d = open[Math.floor(Math.random() * open.length)];
+    bond.deepDone.push(d.id);
+    d.pre.forEach(t => thread(d.w).push({ from: d.w, text: t, day: shipDay }));
+    sendText(d.w, d.text, d.ch.map(c => [c.r, c.tone, c.back[0]]));
+    const m = thread(d.w)[thread(d.w).length - 1]; m.deep = d.id; m.late = true; saveBond();
+    return true;
+  }
+  function deepReply(w, m, i) {
+    const d = DEEP.find(x => x.id === m.deep), c = d && d.ch[i]; if (!c) return;
+    if (c.cost && credits < c.cost) { showToast(`You need ${c.cost} cr for that`); return; }
+    m.picked = i; thread(w).push({ from: 'P', text: c.r, day: shipDay });
+    if (c.cost) { credits -= c.cost; saveCosmetics(); }
+    if (c.pts > 0) addHearts(w, c.pts); else if (c.pts < 0) hearts[w] = Math.max(0, (hearts[w] || 0) + c.pts);
+    if (c.others) crewReact(c.others);
+    if (c.flag) store.set(c.flag, '1');
+    if (c.later) laterText(c.later);
+    saveBond();
+    c.back.forEach((t, k) => { typing[w] = true; setTimeout(() => { typing[w] = k < c.back.length - 1; thread(w).push({ from: w, text: t, day: shipDay }); saveBond(); sfx.radio(); if (phoneOpen) renderPhone(); }, 1400 * (k + 1)); });
+    if (phoneOpen) renderPhone();
+  }
+
+  // a few of the sugariest replies, grown up a bit
+  Object.assign(HI, { G: 'Hey. You caught me elbow-deep in the coolant pump. Good timing, honestly. How are you?', W: 'Well, hello, dear. I was just pretending to read. How are you holding up?', R: 'Rex here. I was about to do something regrettable. You’ve saved me. What’s up?', J: 'Juno. On shift. Talk fast, I’ve got a freighter backing into the wrong bay.' });
+  Object.assign(GOODNIGHT, { G: 'Night. If the engine makes the noise, it’s fine. I’ll be there anyway. Sleep.', W: 'Goodnight, dear. Don’t stay up counting things. That’s my job.', R: 'Goodnight. You’re the second most gorgeous person on this ship. Don’t let it go to your head. Let it go a little.' });
+
+  // 4) crew opinions: what you do lands well with some people and badly with others
+  const OPINIONS = {
+    smuggle: { R: 12, X: 10, J: -14, F: -8, E: -6 },
+    wanted: { R: 15, G: 6, F: -10, J: -6, D: -6 },
+    vault: { R: 10, Q: 8, F: -12, W: -6 },
+    bighat: { R: 12, G: 10, F: -4, W: 6 },
+    whitesuit: { J: -10, E: -8, R: 8, Q: -6 },
+    marta: { J: 10, G: 12, W: 6 },
+    gpwin: { R: 15, J: 12, X: 14, Q: 10, F: 8 }
+  };
+  const OP_LIKE = ['liked that', 'approves', 'loved that', 'is grinning'], OP_HATE = ['didn’t like that', 'is unimpressed', 'went quiet', 'is worried'];
+  function crewReact(map, why) {
+    const who = textWho(), parts = [];
+    for (const [w, pts] of Object.entries(map)) {
+      if (!(w === 'F' || w === 'G' || who.includes(w)) || isLost(w) || !SIGN[w]) continue;
+      if (pts > 0) addHearts(w, pts); else hearts[w] = Math.max(0, (hearts[w] || 0) + pts);
+      parts.push(`${SIGN[w]} ${(pts > 0 ? OP_LIKE : OP_HATE)[Math.floor(Math.random() * 4)]}`);
+    }
+    if (!parts.length) return;
+    saveBond();
+    setTimeout(() => showToast((why ? why + ' · ' : '') + parts.slice(0, 3).join(' · '), 3200), 900);
+  }
+  function crewOpinion(key) {
+    const done = (() => { try { return JSON.parse(store.get('ds-opinions', '[]')); } catch (e) { return []; } })();
+    if (done.includes(key)) return; done.push(key); store.set('ds-opinions', JSON.stringify(done));
+    if (OPINIONS[key]) crewReact(OPINIONS[key]);
+  }
+
+  // the group chat reacts to what you get up to, not just the story
+  const GROUP_EV = {
+    'ev-smuggle': () => (missionStars['smuggle-crate'] || 0) > 0,
+    'ev-wanted': () => store.get('ds-wantedSeen', '') === '1',
+    'ev-bighat': () => wardOwned.has('bighat'),
+    'ev-marta': () => owned.has('hull:marta'),
+    'ev-crashes': () => crashCount >= 5,
+    'ev-gp': () => (missionStars['race-gp'] || 0) > 0,
+    'ev-payroll': () => (bond.deepDone || []).includes('f-payroll')
+  };
+  GROUP_CHATS.push(
+    ['ev-smuggle', [['R', 'Our pilot ran a smuggling job for Sprocket. On MARS. I have never been prouder of anyone, including myself.'], ['J', 'The drones that chased them scanned my whole dock afterwards. Six crews lost a day’s pay. So, best week of theirs too.'], ['R', 'Juno, darling, you can’t be angry at Sprocket AND at Apex.'], ['J', 'You took Apex money for nine years. I can be angry at whatever I want.'], ['F', 'Both of you. Bridge. Now. Pilot, you too.']],
+      [['It won’t happen again.', [['J', 'Good.'], ['R', 'Boo.'], ['F', 'Thank you. Bridge anyway. I’ve made a chart.']]], ['Sprocket pays better than Apex.', [['F', 'Sprocket pays in cash and favours. The favours are the expensive part.'], ['J', 'Ask me how I know.']]]]],
+    ['ev-wanted', [['G', 'there is a WANTED poster of our pilot on main street. the drawing is terrible. i bought three'], ['W', 'In my day you had to rob a bank to get a poster. Now you just need attitude. Standards have slipped, dears.'], ['R', 'Reward: five credits. FIVE. I was worth ninety thousand once. In a much less flattering poster.'], ['F', 'Pilot. My office. Bring the poster. I want one for the wall. Then we talk about it.']],
+      [['Framing it.', [['G', 'i already framed yours'], ['F', 'Of course you did.']]], ['Sorry, Dottie.', [['F', 'Don’t be sorry. Be careful. It’s cheaper.']]]]],
+    ['ev-bighat', [['G', '📷 our pilot in the doorway of the galley, wearing The Very Large Hat, stuck'], ['W', 'Bend at the knees, dear. Like a landing.'], ['R', 'I have never been so jealous and so relieved at the same time.'], ['F', 'That hat cost five thousand credits. I need everyone to sit with that.']],
+      [['It was worth every credit.', [['R', 'It was. God help us. It was.']]], ['Can someone help me out of the doorway', [['G', 'on my way. bringing the grease'], ['F', 'Do NOT bring the grease.']]]]],
+    ['ev-marta', [['G', 'our pilot designed their OWN PAINT JOB at marta’s. i cried. marta said “stop crying on my floor”. i cried harder'], ['J', 'Marta painted the first dome on Main Street. Apex sued her for her own name and won. She reopened the next morning. Spend your money there. Always.'], ['W', 'Good taste. I’m relieved. I was worried you’d get Rex’s.'], ['R', 'Excuse me.']],
+      [['It’s one of a kind.', [['G', 'like you 😭']]], ['Rex can borrow it.', [['R', 'I would rather walk.']]]]],
+    ['ev-crashes', [['F', 'That’s crash number five. I’m not angry. I’m itemising.'], ['G', 'biscuit is fine. biscuit is a little dented. biscuit forgives you. biscuit is a lander and cannot forgive but you get it'], ['W', 'Every pilot crashes. The good ones stop counting. The great ones keep counting and keep flying.'], ['R', 'I crashed eleven times in my first year. Two were on purpose. For a film. The other nine were also for a film, I just didn’t know yet.']],
+      [['I’ll do better.', [['W', 'You will. Slow on the last fifty metres. Always the last fifty.']]], ['At least I’m consistent.', [['F', 'Consistency is a virtue. In other contexts.']]]]],
+    ['ev-gp', [['R', 'Our pilot beat Vanta. Apex’s champion. On their own track. On camera.'], ['J', 'Apex shares dropped two percent this morning. I watched the graph with a coffee. Best coffee of my life.'], ['F', 'I don’t care about their shares. I care that you’re alive. Also, a little, the shares.'], ['G', 'i screamed so loud the cat left the ship. she came back. she’s fine. she’s furious']],
+      [['Couldn’t have done it without Gus.', [['G', 'stop. no. keep going'], ['F', 'He tuned the thrusters at 4am. Don’t tell him I noticed.']]], ['Vanta had it coming.', [['R', 'She did. I’ve met her. She’s horrible. I mean that as a racer. Also as a person.']]]]],
+    ['ev-payroll', [['F', 'Agenda item one: I may have been… optimistic… about the budget. For a few months.'], ['G', 'how optimistic'], ['F', 'Quite.'], ['H', 'I KNEW the oatmeal was a sign.'], ['W', 'Well. We’ve flown on fumes before. Count me in for half pay till spring.'], ['G', 'me too. and i’m keeping my tools. dottie don’t you dare']],
+      [['We’re all in this together.', [['F', '…Thank you. All of you. I’ve put it in the minutes. I’m not crying. It’s the coffee. It’s terrible coffee.']]], ['I’ll fly extra contracts.', [['F', 'Good. Not too many. A tired pilot is an expensive pilot.'], ['W', 'She means she’ll worry. That’s how she says it.']]]]]
+  );
   function shoreHello(kind) {
     if (deck.scene) return;
     if (shopHello(kind)) return;
@@ -21954,7 +22241,7 @@ details.act > .limits { margin: 0 0 8px; }
       store.set('ds-kitMet', String(shipDay));
       setTimeout(() => {
         if (mode !== m || !deck) return;
-        deck.npcs = buildNpcs(m); shipSay('C', KIT_HELLO); sfx.pop();
+        deck.npcs = buildNpcs(m); if (NIGHT[m] && deck.night) try { nightPlace(m); } catch (e) {} shipSay('C', KIT_HELLO); sfx.pop();
         setTimeout(() => { if (!baoMet()) crewToast('C', 'Oh! Also, there’s a new cook in the galley on deck two. Bao. He’s fed me three times already. Go say hi!', 'Tip'); }, 20000);
       }, 700);
       return;
