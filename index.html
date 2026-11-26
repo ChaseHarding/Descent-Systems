@@ -7207,7 +7207,7 @@ details.act > .limits { margin: 0 0 8px; }
     if (restLocked(i)) { showToast(restText(), 4200); if (mode === 'encounter') { encSkip = null; setMode('missions'); } return; }
     const fromEnc = encSkip === i; encSkip = null;
     if (emergActive()) { showToast(emergBlockText(), 4200); if (mode === 'encounter') setMode('missions'); return; }
-    if (!fromEnc && emergBeforeMission()) return;
+    if (!fromEnc && emergBeforeMission(ALL[i])) return;
     if (!fromEnc && encBefore(i)) return;
     store.set('ds-lastWorld', ALL[i].world);
     missionTab = tabOf(i);
@@ -14463,13 +14463,15 @@ details.act > .limits { margin: 0 0 8px; }
   function emergAfterMission(d) {
     store.set('ds-emergCount', String(emergCount() + 1));
     if (emergActive()) return;
+    if (d.race != null || d.smuggle) return;   // race days and Sprocket's runs are never interrupted
     if (d.id === 'dead-air' && !evaDone('eva-hull')) { emergStart('hull', 'eva-hull', 'after'); return; }
     if (d.id === 'the-overdrive' && !evaDone('eva-cargo')) { emergStart('cargo', 'eva-cargo', 'after'); return; }
     if (!emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return;
     if (Math.random() < 0.17) emergStart(emergPickKind(), null, 'after');
   }
   // heading out: a smaller chance it happens right as you try to launch
-  function emergBeforeMission() {
+  function emergBeforeMission(d) {
+    if (d && (d.race != null || d.smuggle)) return false;
     if (emergActive() || !emergEligible() || emergCount() - +store.get('ds-emergLast', '-9') < 3) return false;
     if (Math.random() >= 0.07) return false;
     const kind = emergPickKind();
@@ -18280,7 +18282,7 @@ details.act > .limits { margin: 0 0 8px; }
   const kitMet = () => store.get('ds-kitMet', '') !== '', baoMet = () => store.get('ds-baoMet', '') !== '';
   Object.assign(romMet, { C: kitMet, H: baoMet });
   // ---- Shore leave: Moonbase Pim, a little town under a dome on the Moon ----
-  // You go ashore from the bridge's star map, once a ship day, and take up to two crewmates.
+  // You go ashore from the bridge's star map and take up to two crewmates. Heading back down the same day is free (hearts only count once).
   Object.assign(FACES, {
     // Ines, Pim's mum and the baker: a dark bun, a cream apron over moonbase yellow, flour on one cheek
     I: { bg: '#3a2a20', skin: '#d9a07a', shade: '#b88060', mouth: '#7a3a30', brow: '#3a2418',
@@ -18320,14 +18322,14 @@ details.act > .limits { margin: 0 0 8px; }
     let pick = shoreParty.filter(w => shoreCan().includes(w)).slice(0, 2);
     const draw = () => {
       const can = shoreCan(), done = shoreToday(pl);
-      el.innerHTML = `<div class="qnew-card shore"><span class="eyebrow">Shore leave · one trip a ship day</span><b>${P.name}</b>
+      el.innerHTML = `<div class="qnew-card shore"><span class="eyebrow">Shore leave</span><b>${P.name}</b>
         <canvas class="shorepic" id="shorePic" width="240" height="90" aria-hidden="true"></canvas>
         <p>${P.blurb}</p>
-        ${done ? '<p class="zhave">You’ve already been ashore today. The shuttle goes again tomorrow, after you sleep.</p>' : `
+        ${done ? '<p class="zhave">You were down there earlier today. The shuttle will take you back.</p>' : ''}
         <span class="eyebrow">Who’s coming? Pick up to two</span>
         <div class="shorecrew">${can.map(w => `<button class="shorepick${pick.includes(w) ? ' on' : ''}" data-sp="${w}" aria-pressed="${pick.includes(w)}">${faceTag(w, '')}<span>${SIGN[w]}</span></button>`).join('')}</div>
-        ${pl === 'pim' && crumbHome() ? '<p class="zhave">Crumb is coming too. Nobody could stop him. Pim is his best friend.</p>' : ''}`}
-        <div class="btns">${done ? '' : `<button class="btn" id="shoreGo">Go ashore${pick.length ? ` with ${pick.map(w => SIGN[w]).join(' and ')}` : ' alone'}</button>`}<button class="btn ghost" id="shoreNo">${done ? 'Okay' : 'Not now'}</button></div></div>`;
+        ${pl === 'pim' && crumbHome() ? '<p class="zhave">Crumb is coming too. Nobody could stop him. Pim is his best friend.</p>' : ''}
+        <div class="btns"><button class="btn" id="shoreGo">${done ? 'Head back down' : 'Go ashore'}${pick.length ? ` with ${pick.map(w => SIGN[w]).join(' and ')}` : ' alone'}</button><button class="btn ghost" id="shoreNo">Not now</button></div></div>`;
       paintFaces(el); el.hidden = false;
       { const cv = $('shorePic'); if (cv) P.pic(cv.getContext('2d')); }
       el.querySelectorAll('[data-sp]').forEach(b => b.addEventListener('click', () => {
@@ -18355,14 +18357,14 @@ details.act > .limits { margin: 0 0 8px; }
     px(c, 0, 70, 240, 20, '#565a66');
   }
   function goAshore(pick, pl = 'pim') {
-    const P = SHORE_PLACES[pl];
+    const P = SHORE_PLACES[pl], again = shoreToday(pl);
     shoreParty = pick.slice(); store.set('ds-shoreParty', JSON.stringify(shoreParty)); store.set(pl === 'pim' ? 'ds-shoreDay' : 'ds-shoreDay-' + pl, String(shipDay));
     sfx.click();
     const fade = document.createElement('div');
     fade.className = 'sleepfade' + (reduceMotion ? ' still' : ''); fade.setAttribute('role', 'status');
-    fade.innerHTML = `<div class="zz" aria-hidden="true">${P.icon}</div><b>${P.name}</b><span>${pick.length ? `Shore leave with ${pick.map(w => SIGN[w]).join(' and ')}` : 'Shore leave'}</span>`;
+    fade.innerHTML = `<div class="zz" aria-hidden="true">${P.icon}</div><b>${again ? 'Back to ' : ''}${P.name}</b><span>${pick.length ? `Shore leave with ${pick.map(w => SIGN[w]).join(' and ')}` : 'Shore leave'}</span>`;
     document.body.appendChild(fade);
-    setTimeout(() => { shoreParty.forEach(w => addHearts(w, 15)); walkEnter = 'ship'; setMode(P.start); }, reduceMotion ? 50 : 1200);
+    setTimeout(() => { if (!again) shoreParty.forEach(w => addHearts(w, 15)); walkEnter = 'ship'; setMode(P.start); }, reduceMotion ? 50 : 1200);
     setTimeout(() => fade.remove(), reduceMotion ? 1400 : 2600);
   }
   function shoreLeave() {
